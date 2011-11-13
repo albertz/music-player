@@ -1,0 +1,48 @@
+states :=
+  stopped,
+  playing.
+
+stopped state :=
+  do nothing.
+
+playing state :=
+  play music.
+
+play music :=
+  play current song.
+
+current song finished ->
+  switch to next song.
+
+switching to new song :=
+  set current song to new song.
+
+current, next, previous song without context :=
+  song in DJ playlist.
+
+# N is a constant which can be configured.
+# If a variable is not marked as a free variable (e.g. "for all N"),
+# it is a constant which has to be configured.
+while num songs before current song are more than N ->
+  delete first song.
+
+while num songs after current song are less than N ->
+  intelligently add song.
+
+intelligently add song :=
+  randomly select song from database,
+  take liked songs more likely,
+  take related song more likely.
+
+database :=
+  collection of songs.
+
+song :=
+  filesystem source,
+  artist,
+  name,
+  album,
+  genre,
+  liked-state,
+  last.fm-link.
+
