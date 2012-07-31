@@ -19,7 +19,14 @@ def track(event):
 def tracker():
 	for ev in mainStateChanges():
 		track(ev)
-		
+
+actions = (
+	"play",
+	"pause",
+	"next",
+	"forward-10s",
+)
+
 if __name__ == '__main__':
 	startThread(tracker)
 	main()
