@@ -31,3 +31,48 @@
 
 
 # void avformat_close_input(AVFormatContext **s);
+
+# for cparser demo, see: https://github.com/albertz/PySDL/blob/master/SDL/__init__.py
+
+import better_exchook
+better_exchook.install()
+
+import os
+
+SearchPaths = ["/usr","/usr/local"]
+
+def searchLib(header, dll):
+    for p in SearchPaths:
+        fullHeader = p + "/include/" + header
+        fullDll = p + "/lib/" + dll
+        if os.path.exists(fullHeader) and os.path.exists(fullDll):
+            return fullHeader, fullDll
+    return None,None
+    
+avformatHeader,avformatLib = searchLib("libavformat/avformat.h", "libavformat.dylib")
+assert avformatHeader
+avcodecHeader,avcodecLib = searchLib("libavcodec/avcodec.h", "libavcodec.dylib")
+assert avcodecHeader
+
+import ctypes
+avformatLib = ctypes.cdll.LoadLibrary(avformatLib)
+avcodecLib = ctypes.cdll.LoadLibrary(avcodecLib)
+
+import cparser
+avformatHeader = cparser.parse(avformatHeader)
+avcodecHeader = cparser.parse(avcodecHeader)
+
+
+import cparser.cwrapper
+wrapper = cparser.cwrapper.CWrapper()
+wrapper.register(avformatHeader, avformatLib)
+wrapper.register(avcodecHeader, avcodecLib)
+
+from pprint import pprint
+pprint(dir(avcodecHeader))
+pprint(avcodecHeader.funcs)
+pprint(avcodecHeader.contentlist)
+#pprint(dir(wrapper.wrapped))
+assert "avcodec_decode_audio4" in wrapper.wrapped.__class__.__dict__
+
+#better_exchook.debug_shell(user_ns=locals(), user_global_ns=globals())
