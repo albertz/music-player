@@ -34,6 +34,7 @@
 
 # for cparser demo, see: https://github.com/albertz/PySDL/blob/master/SDL/__init__.py
 
+from pprint import pprint
 import better_exchook
 better_exchook.install()
 
@@ -59,24 +60,31 @@ avformatLib = ctypes.cdll.LoadLibrary(avformatLib)
 avcodecLib = ctypes.cdll.LoadLibrary(avcodecLib)
 
 import cparser
-avformatHeader = cparser.parse(avformatHeader)
-avcodecHeader = cparser.parse(avcodecHeader)
+parserState = cparser.State()
+parserState.autoSetupSystemMacros()
 
+oldFindInclude = parserState.findIncludeFullFilename
+def findInclude(filename, local):
+    fn = oldFindInclude(filename, local)
+    if os.path.exists(fn): return fn
+    for p in SearchPaths:
+        if os.path.exists(p + "/include/" + filename):
+            return p + "/include/" + filename
+    return filename
+parserState.findIncludeFullFilename = findInclude
+
+cparser.parse(avformatHeader, parserState)
+cparser.parse(avcodecHeader, parserState)
+
+pprint(parserState._errors)
 
 import cparser.cwrapper
 wrapper = cparser.cwrapper.CWrapper()
-wrapper.register(avformatHeader, avformatLib)
-wrapper.register(avcodecHeader, avcodecLib)
+wrapper.register(parserState, avformatLib)
+wrapper.register(parserState, avcodecLib)
 
-from pprint import pprint
-#pprint(dir(avcodecHeader))
-#pprint(avcodecHeader.funcs)
-#pprint(avcodecHeader.contentlist)
-#pprint(dir(wrapper.wrapped))
-f = wrapper.get("avcodec_decode_audio4")
-print f
-print f.parent.body.clib
-print f.asCCode()
+print wrapper.get("avcodec_decode_audio4").asCCode()
+print wrapper.get("AVCodecContext").asCCode()
 
 #assert "avcodec_decode_audio4" in wrapper.wrapped.__class__.__dict__
 
