@@ -69,10 +69,15 @@ wrapper.register(avformatHeader, avformatLib)
 wrapper.register(avcodecHeader, avcodecLib)
 
 from pprint import pprint
-pprint(dir(avcodecHeader))
-pprint(avcodecHeader.funcs)
-pprint(avcodecHeader.contentlist)
+#pprint(dir(avcodecHeader))
+#pprint(avcodecHeader.funcs)
+#pprint(avcodecHeader.contentlist)
 #pprint(dir(wrapper.wrapped))
-assert "avcodec_decode_audio4" in wrapper.wrapped.__class__.__dict__
+f = wrapper.get("avcodec_decode_audio4")
+print f
+print f.parent.body.clib
+print f.asCCode()
 
-#better_exchook.debug_shell(user_ns=locals(), user_global_ns=globals())
+#assert "avcodec_decode_audio4" in wrapper.wrapped.__class__.__dict__
+
+print wrapper.wrapped.avcodec_decode_audio4
