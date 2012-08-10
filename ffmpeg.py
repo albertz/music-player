@@ -55,6 +55,7 @@ assert avformatHeader
 avcodecHeader,avcodecLib = searchLib("libavcodec/avcodec.h", "libavcodec.dylib")
 assert avcodecHeader
 
+print "load dlls"
 import ctypes
 avformatLib = ctypes.cdll.LoadLibrary(avformatLib)
 avcodecLib = ctypes.cdll.LoadLibrary(avcodecLib)
@@ -75,9 +76,12 @@ def newState():
     parserState.findIncludeFullFilename = findInclude
 
     return parserState
-    
+
+print "parsing avformat.h"    
 avformatHeader = cparser.parse(avformatHeader, newState())
+print "parsing avcodec.h"    
 avcodecHeader = cparser.parse(avcodecHeader, newState())
+print "done, registering"
 
 #pprint(avformatHeader._errors)
 #pprint(avcodecHeader._errors)
@@ -94,5 +98,6 @@ print wrapper.get("avcodec_register_all").asCCode()
 
 #print wrapper.wrapped.avcodec_decode_audio4
 
+print "call ffmpeg init"
 wrapper.wrapped.av_register_all()
 wrapper.wrapped.avcodec_register_all()
