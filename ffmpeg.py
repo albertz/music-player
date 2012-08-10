@@ -60,32 +60,39 @@ avformatLib = ctypes.cdll.LoadLibrary(avformatLib)
 avcodecLib = ctypes.cdll.LoadLibrary(avcodecLib)
 
 import cparser
-parserState = cparser.State()
-parserState.autoSetupSystemMacros()
+def newState():
+    parserState = cparser.State()
+    parserState.autoSetupSystemMacros()
 
-oldFindInclude = parserState.findIncludeFullFilename
-def findInclude(filename, local):
-    fn = oldFindInclude(filename, local)
-    if os.path.exists(fn): return fn
-    for p in SearchPaths:
-        if os.path.exists(p + "/include/" + filename):
-            return p + "/include/" + filename
-    return filename
-parserState.findIncludeFullFilename = findInclude
+    oldFindInclude = parserState.findIncludeFullFilename
+    def findInclude(filename, local):
+        fn = oldFindInclude(filename, local)
+        if os.path.exists(fn): return fn
+        for p in SearchPaths:
+            if os.path.exists(p + "/include/" + filename):
+                return p + "/include/" + filename
+        return filename
+    parserState.findIncludeFullFilename = findInclude
 
-cparser.parse(avformatHeader, parserState)
-cparser.parse(avcodecHeader, parserState)
+    return parserState
+    
+avformatHeader = cparser.parse(avformatHeader, newState())
+avcodecHeader = cparser.parse(avcodecHeader, newState())
 
-pprint(parserState._errors)
+#pprint(avformatHeader._errors)
+#pprint(avcodecHeader._errors)
 
 import cparser.cwrapper
 wrapper = cparser.cwrapper.CWrapper()
-wrapper.register(parserState, avformatLib)
-wrapper.register(parserState, avcodecLib)
+wrapper.register(avformatHeader, avformatLib)
+wrapper.register(avcodecHeader, avcodecLib)
 
 print wrapper.get("avcodec_decode_audio4").asCCode()
-print wrapper.get("AVCodecContext").asCCode()
+#print wrapper.get("AVCodecContext").asCCode()
+print wrapper.get("av_register_all").asCCode()
+print wrapper.get("avcodec_register_all").asCCode()
 
-#assert "avcodec_decode_audio4" in wrapper.wrapped.__class__.__dict__
+#print wrapper.wrapped.avcodec_decode_audio4
 
-print wrapper.wrapped.avcodec_decode_audio4
+wrapper.wrapped.av_register_all()
+wrapper.wrapped.avcodec_register_all()
