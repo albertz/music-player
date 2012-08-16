@@ -16,11 +16,17 @@ class Song:
 		return self.f.tell()
 		
 def songs():
+	files = [
+		"/Users/az/Music/Classic/Glenn Gould Plays Bach/Two- & Three-Part Inventions - Gould/19 Bach - Invention 13 in a (BWV 784).mp3",
+		"/Users/az/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3",
+		"/Users/az/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3",
+		"/Users/az/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3",
+	]
+	i = 0
 	while True:
-		#fn = "/Users/az/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3"
-		#fn = "/Users/az/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3"
-		fn = "/Users/az/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3"
-		yield Song(fn)
+		yield Song(files[i])
+		i += 1
+		if i >= len(files): i = 0
 
 player = ffmpeg.createPlayer()
 player.queue = songs()

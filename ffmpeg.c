@@ -315,9 +315,13 @@ static int player_getNextSong(PlayerObject* player) {
 	
 	player->curSong = PyIter_Next(player->queue);
 
+	if(player->curSong && player_openInputStream(player) != 0) {
+		printf("cannot open input stream\n");
+	}
+
 final:
 	PyGILState_Release(gstate);
-	if(player->curSong) return 0;
+	if(player->curSong && player->inStream) return 0;
 	return -1;
 }
 
@@ -500,14 +504,8 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 static
 int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
 	if(player->inStream == NULL) {
-		if(player->curSong == NULL) {
-			if(player_getNextSong(player) != 0) {
-				printf("cannot get next song");
-			}
-		}
-		
-		if(player->curSong && player_openInputStream(player) != 0) {
-			printf("cannot open input stream\n");
+		if(player_getNextSong(player) != 0) {
+			printf("cannot get next song");
 		}
 	}
 	
