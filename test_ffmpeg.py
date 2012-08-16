@@ -2,6 +2,7 @@ import ffmpeg
 
 class Song:
 	def __init__(self, fn):
+		self.url = fn
 		self.f = open(fn)
 		
 	def readPacket(self, bufSize):
@@ -17,7 +18,8 @@ class Song:
 def songs():
 	while True:
 		#fn = "/Users/az/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3"
-		fn = "/Users/az/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3"
+		#fn = "/Users/az/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3"
+		fn = "/Users/az/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3"
 		yield Song(fn)
 
 player = ffmpeg.createPlayer()

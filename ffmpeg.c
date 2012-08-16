@@ -19,7 +19,8 @@
 //		playing: True or False, initially False
 //	song object expected interface:
 //		url: some url, can be anything
-
+//		readPacket(bufSize): should return some string
+//		seekRaw(offset, whence): should seek and return the current pos
 
 #define AUDIO_BUFFER_SIZE 2048
 
