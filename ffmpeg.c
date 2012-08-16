@@ -211,9 +211,9 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
 	}
 	
     /* prepare audio output */
-    if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
-        is->audio_tgt = is->audio_src;
-    }
+    //if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+    //    is->audio_tgt = is->audio_src;
+    //}
 	
     ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
     switch (avctx->codec_type) {
@@ -366,7 +366,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
                 pkt_temp->size = 0;
                 break;
             }
-			printf("avcodec_decode_audio4: %i\n", len1);
+			//printf("avcodec_decode_audio4: %i\n", len1);
 			
             pkt_temp->data += len1;
             pkt_temp->size -= len1;
@@ -518,7 +518,7 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
 	
    // audio_callback_time = av_gettime();
 	
-	printf("player_fillOutStream %i %i %i\n", len, is->audio_buf_index, is->audio_buf_size);
+	//printf("player_fillOutStream %i %i %i\n", len, is->audio_buf_index, is->audio_buf_size);
     while (len > 0) {
         if (is->audio_buf_index >= is->audio_buf_size) {
 			audio_size = audio_decode_frame(is, &pts);
