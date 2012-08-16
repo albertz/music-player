@@ -2,13 +2,13 @@
 
 // compile:
 // gcc -c ffmpeg.o -I /System/Library/Frameworks/Python.framework/Headers/
-// libtool -dynamic -o ffmpeg.so ffmpeg.o -framework Python -lavformat -lavutil -lavcodec -lc
+// libtool -dynamic -o ffmpeg.so ffmpeg.o -framework Python -lavformat -lavutil -lavcodec -lswresample -lportaudio -lc
 
 // loosely based on ffplay.c
 // https://github.com/FFmpeg/ffmpeg/blob/master/ffplay.c
 
 #include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 #include <portaudio.h>
 #include <Python.h>
 #include <stdio.h>
@@ -43,7 +43,7 @@ typedef struct {
 	PaStream* outStream;
 
 	// audio_decode
-	//AVPacket flush_pkt;
+    int audio_stream;
     double audio_clock;
     AVStream *audio_st;
     DECLARE_ALIGNED(16,uint8_t,audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
@@ -273,13 +273,28 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
         }
 		
         /* read next packet */
-        if ((new_packet = packet_queue_get(&is->audioq, pkt, 1)) < 0)
+        /*if ((new_packet = packet_queue_get(&is->audioq, pkt, 1)) < 0)
             return -1;
 		
         if (pkt->data == flush_pkt.data) {
             avcodec_flush_buffers(dec);
             flush_complete = 0;
         }
+		*/
+		
+		while(1) {
+			int ret = av_read_frame(is->inStream, pkt);
+			if (ret < 0) {
+				//if (ret == AVERROR_EOF || url_feof(ic->pb))
+				//	eof = 1;
+				//if (ic->pb && ic->pb->error)
+				//	break;
+				return -1;
+			}
+			
+			if(pkt->stream_index == is->audio_stream)
+				break;
+		}
 		
         *pkt_temp = *pkt;
 		
@@ -374,7 +389,7 @@ PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
 static
 int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	PlayerObject* player = (PlayerObject*) self;
-	printf("%p player init\n", player);
+	//printf("%p player init\n", player);
 
 	PaError ret;
 	ret = Pa_OpenDefaultStream(
