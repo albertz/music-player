@@ -22,10 +22,22 @@ typedef struct {
     int playing;
 } PlayerObject;
 
+static int player_setqueue(PlayerObject* player, PyObject* queue) {
+	Py_XDECREF(player->queue);
+	player->queue = queue;
+	Py_XINCREF(queue);
+	return 0;
+}
+
+static int player_setplaying(PlayerObject* player, int playing) {
+	player->playing = playing;
+	return 0;
+}
+
 static
 PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
 	PlayerObject* player = (PlayerObject*) subtype->tp_alloc(subtype, 0);
-	printf("%p new\n", player);
+	//printf("%p new\n", player);
 	player->queue = NULL;
 	player->playing = 0;
 	return (PyObject*)player;
@@ -34,8 +46,7 @@ PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
 static
 void player_dealloc(PyObject* obj) {
 	PlayerObject* player = (PlayerObject*)obj;
-	printf("%p dealloc\n", player);
-	printf("%p player queue: %p\n", player, player->queue);
+	//printf("%p dealloc\n", player);
 	Py_XDECREF(player->queue);
 	Py_TYPE(obj)->tp_free(obj);
 }
@@ -43,8 +54,7 @@ void player_dealloc(PyObject* obj) {
 static
 PyObject* player_getattr(PyObject* obj, char* key) {
 	PlayerObject* player = (PlayerObject*)obj;
-	printf("%p getattr %s\n", player, key);
-	printf("%p player queue: %p\n", player, player->queue);
+	//printf("%p getattr %s\n", player, key);
 	
 	if(strcmp(key, "__members__") == 0) {
 		PyObject* mlist = PyList_New(0);
@@ -66,14 +76,23 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		return PyBool_FromLong(player->playing);
 	}
 	
-	return NULL;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static
 int player_setattr(PyObject* obj, char* key, PyObject* value) {
 	PlayerObject* player = (PlayerObject*)obj;
-	printf("%p setattr %s %p\n", player, key, value);
+	//printf("%p setattr %s %p\n", player, key, value);
 	
+	if(strcmp(key, "queue") == 0) {
+		return player_setqueue(player, value);
+	}
+
+	if(strcmp(key, "playing") == 0) {
+		return player_setplaying(player, PyObject_IsTrue(value));
+	}
+
 	return 0;
 }
 
