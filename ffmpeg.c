@@ -21,7 +21,7 @@
 //		url: some url, can be anything
 
 
-#define AUDIO_BUFFER_SIZE 512
+#define AUDIO_BUFFER_SIZE 2048
 
 typedef struct AudioParams {
     int freq;
@@ -119,11 +119,17 @@ AVFormatContext* initFormatCtx(PlayerObject* player) {
 
 static
 int player_openInputStream(PlayerObject* player) {
+	PyGILState_STATE gstate;
+	gstate = PyGILState_Ensure();
+
 	assert(player->curSong != NULL);
 	PyObject* curSong = player->curSong;
 	
 	AVFormatContext* formatCtx = initFormatCtx(player);
-	if(!formatCtx) return -1;
+	if(!formatCtx) {
+		printf("initFormatCtx failed\n");
+		goto final;
+	}
 	
 	PyObject* urlObj = PyObject_GetAttrString(curSong, "url");
 	PyObject* urlStrObj = urlObj ? PyObject_Str(urlObj) : NULL;
@@ -133,7 +139,31 @@ int player_openInputStream(PlayerObject* player) {
 	Py_XDECREF(urlObj);
 		
 	player->inStream = formatCtx;
-	return 0;
+	
+final:
+	PyGILState_Release(gstate);
+	if(player->inStream) return 0;
+	return -1;
+}
+
+static int player_getNextSong(PlayerObject* player) {
+	PyGILState_STATE gstate;
+	gstate = PyGILState_Ensure();
+		
+	Py_XDECREF(player->curSong);
+	player->curSong = NULL;
+	
+	if(player->queue == NULL) {
+		printf("player queue is not set");
+		goto final;
+	}
+	
+	player->curSong = PyIter_Next(player->queue);
+
+final:
+	PyGILState_Release(gstate);
+	if(player->curSong) return 0;
+	return -1;
 }
 
 /* return the wanted number of samples to get better sync if sync_type is video
@@ -147,6 +177,9 @@ static int synchronize_audio(PlayerObject *is, int nb_samples)
 /* decode one audio frame and returns its uncompressed size */
 static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 {
+	if(is->inStream == NULL) return -1;
+	if(is->audio_st == NULL) return -1;
+	
     AVPacket *pkt_temp = &is->audio_pkt_temp;
     AVPacket *pkt = &is->audio_pkt;
     AVCodecContext *dec = is->audio_st->codec;
@@ -289,6 +322,8 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 				//	eof = 1;
 				//if (ic->pb && ic->pb->error)
 				//	break;
+				// skip to next song
+				player_getNextSong(is);
 				return -1;
 			}
 			
@@ -308,9 +343,14 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 static
 int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
 	if(player->inStream == NULL) {
-		if(player_openInputStream(player) != 0) {
+		if(player->curSong == NULL) {
+			if(player_getNextSong(player) != 0) {
+				printf("cannot get next song");
+			}
+		}
+		
+		if(player->curSong && player_openInputStream(player) != 0) {
 			printf("cannot open input stream\n");
-			return 0;
 		}
 	}
 	
@@ -404,7 +444,12 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 		);
 	if(ret != paNoError)
 		Py_FatalError("PortAudio open default stream failed");
-		
+	
+	player->audio_tgt.freq = 44100;
+	player->audio_tgt.fmt = AV_SAMPLE_FMT_S16;
+	player->audio_tgt.channels = 2;
+	player->audio_tgt.channel_layout = av_get_default_channel_layout(2);
+	
 	return 0;
 }
 
@@ -541,7 +586,8 @@ final:
 static void init() {
 	PaError ret = Pa_Initialize();
 	if(ret != paNoError)
-		Py_FatalError("PortAudio init failed");	
+		Py_FatalError("PortAudio init failed");
+	PyEval_InitThreads();
 }
 
 
