@@ -18,27 +18,70 @@
 
 typedef struct {
     PyObject_HEAD
-    int x;
+	PyObject* queue;
+    int playing;
 } PlayerObject;
 
-void player_dealloc(PyObject* obj) {
-	PlayerObject* player = (PlayerObject*)obj;
-	printf("%p dealloc\n", player);	
+static
+PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
+	PlayerObject* player = (PlayerObject*) subtype->tp_alloc(subtype, 0);
+	printf("%p new\n", player);
+	player->queue = NULL;
+	player->playing = 0;
+	return (PyObject*)player;
 }
 
+static
+void player_dealloc(PyObject* obj) {
+	PlayerObject* player = (PlayerObject*)obj;
+	printf("%p dealloc\n", player);
+	printf("%p player queue: %p\n", player, player->queue);
+	Py_XDECREF(player->queue);
+	Py_TYPE(obj)->tp_free(obj);
+}
+
+static
 PyObject* player_getattr(PyObject* obj, char* key) {
 	PlayerObject* player = (PlayerObject*)obj;
 	printf("%p getattr %s\n", player, key);
+	printf("%p player queue: %p\n", player, player->queue);
+	
+	if(strcmp(key, "__members__") == 0) {
+		PyObject* mlist = PyList_New(0);
+		PyList_Append(mlist, PyString_FromString("queue"));
+		PyList_Append(mlist, PyString_FromString("playing"));
+		return mlist;
+	}
+	
+	if(strcmp(key, "queue") == 0) {
+		if(player->queue) {
+			Py_INCREF(player->queue);
+			return player->queue;
+		}
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	if(strcmp(key, "playing") == 0) {
+		return PyBool_FromLong(player->playing);
+	}
 	
 	return NULL;
 }
 
+static
 int player_setattr(PyObject* obj, char* key, PyObject* value) {
 	PlayerObject* player = (PlayerObject*)obj;
 	printf("%p setattr %s %p\n", player, key, value);
 	
 	return 0;
 }
+
+/*
+static PyMemberDef PlayerMembers[] = {
+	{"queue", },
+};
+*/
 
 static PyTypeObject Player_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -55,12 +98,38 @@ static PyTypeObject Player_Type = {
 	0,                  /*tp_as_sequence*/
 	0,                  /*tp_as_mapping*/
 	0,					/*tp_hash */
+	0, // tp_call
+	0, // tp_str
+	0, // tp_getattro
+	0, // tp_setattro
+	0, // tp_as_buffer
+	Py_TPFLAGS_HAVE_CLASS, // flags
+	"Player type", // doc
+	0, // tp_traverse
+	0, // tp_clear
+	0, // tp_richcompare
+	0, // weaklistoffset
+	0, // iter
+	0, // iternext
+	0, // methods
+	0, //PlayerMembers, // members
+	0, // getset
+	0, // base
+	0, // dict
+	0, // descr_get
+	0, // descr_set
+	0, // dictoffset
+	0, // tp_init
+	0, // alloc
+	player_new, // new
 };
 
+static
 int read_packet(void *opaque, uint8_t *buf, int buf_size) {
 	
 }
 
+static
 int64_t seek(void *opaque, int64_t offset, int whence) {
 	
 }
@@ -109,8 +178,21 @@ AVFormatContext* openStream() {
 
 static PyObject *
 pyCreatePlayer(PyObject* self, PyObject* arg) {
-    PyObject* obj = _PyObject_New(&Player_Type);
-	PyObject_Init(obj, &Player_Type);
+	PyTypeObject* type = &Player_Type;
+	PyObject *obj = NULL, *args = NULL, *kwds = NULL;
+	args = PyTuple_Pack(0);
+
+	obj = type->tp_new(type, args, kwds);
+	if(obj == NULL) goto final;
+	
+	if(type->tp_init && type->tp_init(obj, args, kwds) < 0) {
+		Py_DECREF(obj);
+		obj = NULL;
+	}
+	
+final:
+	Py_XDECREF(args);
+	Py_XDECREF(kwds);
 	return obj;
 }
 
