@@ -147,10 +147,76 @@ AVFormatContext* initFormatCtx(PlayerObject* player) {
 	return fmt;
 }
 
+/* open a given stream. Return 0 if OK */
+static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stream_index)
+{
+    AVCodecContext *avctx;
+    AVCodec *codec;
+    AVDictionaryEntry *t = NULL;
+	
+    if (stream_index < 0 || stream_index >= ic->nb_streams)
+        return -1;
+    avctx = ic->streams[stream_index]->codec;
+	
+    codec = avcodec_find_decoder(avctx->codec_id);
+    if (!codec)
+        return -1;
+	
+    //avctx->workaround_bugs   = workaround_bugs;
+    //avctx->lowres            = lowres;
+    if(avctx->lowres > codec->max_lowres){
+        av_log(avctx, AV_LOG_WARNING, "The maximum value for lowres supported by the decoder is %d\n",
+			   codec->max_lowres);
+        avctx->lowres= codec->max_lowres;
+    }
+    //avctx->idct_algo         = idct;
+    //avctx->skip_frame        = skip_frame;
+    //avctx->skip_idct         = skip_idct;
+    //avctx->skip_loop_filter  = skip_loop_filter;
+    //avctx->error_concealment = error_concealment;
+	
+    if(avctx->lowres) avctx->flags |= CODEC_FLAG_EMU_EDGE;
+    //if (fast)   avctx->flags2 |= CODEC_FLAG2_FAST;
+    if(codec->capabilities & CODEC_CAP_DR1)
+        avctx->flags |= CODEC_FLAG_EMU_EDGE;
+	
+    if (avcodec_open2(avctx, codec, NULL /*opts*/) < 0)
+        return -1;
+	
+    /* prepare audio output */
+    if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+        is->audio_tgt = is->audio_src;
+    }
+	
+    ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+    switch (avctx->codec_type) {
+		case AVMEDIA_TYPE_AUDIO:
+			is->audio_stream = stream_index;
+			is->audio_st = ic->streams[stream_index];
+			is->audio_buf_size  = 0;
+			is->audio_buf_index = 0;
+			
+			/* init averaging filter */
+			//is->audio_diff_avg_coef  = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
+			//is->audio_diff_avg_count = 0;
+			/* since we do not have a precise anough audio fifo fullness,
+			 we correct audio sync only if larger than this threshold */
+			//is->audio_diff_threshold = 2.0 * is->audio_hw_buf_size / av_samples_get_buffer_size(NULL, is->audio_tgt.channels, is->audio_tgt.freq, is->audio_tgt.fmt, 1);
+			
+			memset(&is->audio_pkt, 0, sizeof(is->audio_pkt));
+			memset(&is->audio_pkt_temp, 0, sizeof(is->audio_pkt_temp));
+			//packet_queue_start(&is->audioq);
+			//SDL_PauseAudio(0);
+			break;
+		default:
+			break;
+    }
+    return 0;
+}
+
 static
 int player_openInputStream(PlayerObject* player) {
 	PyGILState_STATE gstate;
-	gstate = PyGILState_Ensure();
 
 	assert(player->curSong != NULL);
 	PyObject* curSong = player->curSong;
@@ -161,18 +227,48 @@ int player_openInputStream(PlayerObject* player) {
 		goto final;
 	}
 	
+	gstate = PyGILState_Ensure();
 	PyObject* urlObj = PyObject_GetAttrString(curSong, "url");
 	PyObject* urlStrObj = urlObj ? PyObject_Str(urlObj) : NULL;
 	const char* urlStr = urlStrObj ? PyString_AsString(urlStrObj) : "<None>";
+	PyGILState_Release(gstate);
+	
 //	urlStr = NULL;
 	int ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
+	gstate = PyGILState_Ensure();
 	Py_XDECREF(urlStrObj);
 	Py_XDECREF(urlObj);
+	PyGILState_Release(gstate);
+
+	if(ret != 0) {
+		printf("avformat_open_input failed\n");
+		goto final;
+	}
+	
+	ret = avformat_find_stream_info(formatCtx, NULL);
+	if(ret < 0) {
+		printf("avformat_find_stream_info failed\n");
+		goto final;
+	}
+	
+	ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
+	if(ret < 0) {
+		printf("no audio stream found in song\n");
+		goto final;
+	}
+	player->audio_stream = ret;
+	
+	ret = stream_component_open(player, formatCtx, player->audio_stream);
+	if(ret < 0) {
+		printf("no audio stream found in song\n");
+		goto final;
+	}
 	
 	player->inStream = formatCtx;
+	formatCtx = NULL;
 	
 final:
-	PyGILState_Release(gstate);
+	//if(formatCtx)
 	if(player->inStream) return 0;
 	return -1;
 }
