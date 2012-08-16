@@ -102,8 +102,31 @@ final:
 }
 
 static int player_seek(PlayerObject* player, int64_t offset, int whence) {
-	printf("player_seek %lli %i\n", offset, whence);
-	return 0;
+	//printf("player_seek %lli %i\n", offset, whence);
+	int ret = -1;
+	PyGILState_STATE gstate;
+	gstate = PyGILState_Ensure();
+	PyObject *seekRawFunc = NULL, *args = NULL, *retObj = NULL;
+	if(player->curSong == NULL) goto final;
+	if(whence < 0 || whence > 2) goto final; // AVSEEK_SIZE and others not supported atm
+	
+	seekRawFunc = PyObject_GetAttrString(player->curSong, "seekRaw");
+	if(seekRawFunc == NULL) goto final;
+
+	args = PyTuple_Pack(2, PyLong_FromLongLong(offset), PyInt_FromLong(whence));
+	if(args == NULL) goto final;
+	retObj = PyObject_CallObject(seekRawFunc, args);
+	if(retObj == NULL) goto final;
+	
+	if(!PyInt_Check(retObj)) goto final;
+	ret = PyInt_AsLong(retObj);
+
+final:
+	Py_XDECREF(retObj);
+	Py_XDECREF(args);
+	Py_XDECREF(seekRawFunc);
+	PyGILState_Release(gstate);
+	return ret;
 }
 
 static int _player_av_read_packet(void *opaque, uint8_t *buf, int buf_size) {
@@ -111,7 +134,7 @@ static int _player_av_read_packet(void *opaque, uint8_t *buf, int buf_size) {
 }
 
 static int64_t _player_av_seek(void *opaque, int64_t offset, int whence) {
-	return player_seek(opaque, offset, whence);
+	return player_seek((PlayerObject*)opaque, offset, whence);
 }
 
 static
@@ -159,8 +182,10 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
     avctx = ic->streams[stream_index]->codec;
 	
     codec = avcodec_find_decoder(avctx->codec_id);
-    if (!codec)
+    if (!codec) {
+		printf("avcodec_find_decoder failed\n");
         return -1;
+	}
 	
     //avctx->workaround_bugs   = workaround_bugs;
     //avctx->lowres            = lowres;
@@ -180,8 +205,10 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
     if(codec->capabilities & CODEC_CAP_DR1)
         avctx->flags |= CODEC_FLAG_EMU_EDGE;
 	
-    if (avcodec_open2(avctx, codec, NULL /*opts*/) < 0)
+    if (avcodec_open2(avctx, codec, NULL /*opts*/) < 0) {
+		printf("avcodec_open2 failed\n");
         return -1;
+	}
 	
     /* prepare audio output */
     if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -339,6 +366,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
                 pkt_temp->size = 0;
                 break;
             }
+			printf("avcodec_decode_audio4: %i\n", len1);
 			
             pkt_temp->data += len1;
             pkt_temp->size -= len1;
@@ -445,6 +473,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 		while(1) {
 			int ret = av_read_frame(is->inStream, pkt);
 			if (ret < 0) {
+				printf("av_read_frame failed\n");
 				//if (ret == AVERROR_EOF || url_feof(ic->pb))
 				//	eof = 1;
 				//if (ic->pb && ic->pb->error)
@@ -489,6 +518,7 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
 	
    // audio_callback_time = av_gettime();
 	
+	printf("player_fillOutStream %i %i %i\n", len, is->audio_buf_index, is->audio_buf_size);
     while (len > 0) {
         if (is->audio_buf_index >= is->audio_buf_size) {
 			audio_size = audio_decode_frame(is, &pts);
