@@ -1,10 +1,15 @@
 // Python module for playing audio
 
+// compile:
+// gcc -c ffmpeg.o -I /System/Library/Frameworks/Python.framework/Headers/
+// libtool -dynamic -o ffmpeg.so ffmpeg.o -framework Python -lavformat -lavutil -lavcodec -lc
+
 // loosely based on ffplay.c
 // https://github.com/FFmpeg/ffmpeg/blob/master/ffplay.c
 
 #include <libavformat/avformat.h>
 #include <Python.h>
+#include <stdio.h>
 
 // Pyton interface:
 //	createPlayer() -> player object with:
@@ -13,20 +18,23 @@
 
 typedef struct {
     PyObject_HEAD
-    double ob_fval;
+    int x;
 } PlayerObject;
 
-PyAPI_DATA(PlayerObject) Player_Type;
+void player_dealloc(PyObject* obj) {
+	PlayerObject* player = (PlayerObject*)obj;
+	printf("%p dealloc\n", player);	
+}
 
 PyObject* player_getattr(PyObject* obj, char* key) {
-    assert(PyType_IsSubtype(type, &Player_Type));
-	PlayerObject* player = obj;
+	PlayerObject* player = (PlayerObject*)obj;
 	printf("%p getattr %s\n", player, key);
+	
+	return NULL;
 }
 
 int player_setattr(PyObject* obj, char* key, PyObject* value) {
-    assert(PyType_IsSubtype(type, &Player_Type));
-	PlayerObject* player = obj;
+	PlayerObject* player = (PlayerObject*)obj;
 	printf("%p setattr %s %p\n", player, key, value);
 	
 	return 0;
@@ -37,7 +45,7 @@ static PyTypeObject Player_Type = {
 	"PlayerType",
 	sizeof(PlayerObject),	// basicsize
 	0,	// itemsize
-	0,					/*tp_dealloc*/
+	player_dealloc,		/*tp_dealloc*/
 	0,                  /*tp_print*/
 	player_getattr,		/*tp_getattr*/
 	player_setattr,		/*tp_setattr*/
@@ -89,23 +97,25 @@ AVFormatContext* initFormatCtx() {
 }
 
 
-void openStream() {
+AVFormatContext* openStream() {
 	AVFormatContext* formatCtx = initFormatCtx();
 	if(!formatCtx) return NULL;
 	
-	int ret = avformat_open_input(&formatCtx, url, NULL, NULL);
-	
+//	int ret = avformat_open_input(&formatCtx, url, NULL, NULL);
+	return NULL;
 }
 
 
 
 static PyObject *
-pyCreatePlayer(PyObject *self, PyObject *arg)
-{
+pyCreatePlayer(PyObject* self, PyObject* arg) {
+    PyObject* obj = _PyObject_New(&Player_Type);
+	PyObject_Init(obj, &Player_Type);
+	return obj;
 }
 
 static PyMethodDef module_methods[] = {
-	{"createPlayer",    pyCreatePlayer,      METH_O,         NULL},
+	{"createPlayer",    pyCreatePlayer,      METH_NOARGS,         "creates new player"},
 	{NULL,              NULL}           /* sentinel */
 };
 
@@ -115,5 +125,8 @@ PyDoc_STRVAR(module_doc,
 PyMODINIT_FUNC
 initffmpeg(void)
 {
+	printf("initffmpeg\n");
+    if (PyType_Ready(&Player_Type) < 0)
+        Py_FatalError("Can't initialize player type");
 	Py_InitModule3("ffmpeg", module_methods, module_doc);
 }
