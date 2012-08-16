@@ -66,12 +66,43 @@ typedef struct {
 
 
 static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) {
+	//printf("player_read_packet %i\n", buf_size);
+	int ret = -1;
+	PyObject *readPacketFunc = NULL, *args = NULL, *retObj = NULL;
 	
-	return 0;
+	PyGILState_STATE gstate;
+	gstate = PyGILState_Ensure();
+	if(player->curSong == NULL) goto final;
+	
+	readPacketFunc = PyObject_GetAttrString(player->curSong, "readPacket");
+	if(readPacketFunc == NULL) goto final;
+	
+	args = PyTuple_Pack(1, PyInt_FromLong(buf_size));
+	retObj = PyObject_CallObject(readPacketFunc, args);
+	
+	if(!PyString_Check(retObj)) {
+		printf("song.readPacket didn't returned a string\n");
+		goto final;
+	}
+	
+	ret = PyString_Size(retObj);
+	if(ret > buf_size) {
+		printf("song.readPacket returned more than buf_size\n");
+		ret = buf_size;
+	}
+	
+	memcpy(buf, PyString_AsString(retObj), ret);
+	
+final:
+	Py_XDECREF(retObj);
+	Py_XDECREF(args);
+	Py_XDECREF(readPacketFunc);
+	PyGILState_Release(gstate);
+	return ret;
 }
 
 static int player_seek(PlayerObject* player, int64_t offset, int whence) {
-	
+	printf("player_seek %lli %i\n", offset, whence);
 	return 0;
 }
 
@@ -108,8 +139,7 @@ AVFormatContext* initFormatCtx(PlayerObject* player) {
 	
 	fmt->pb = initIoCtx(player);
 	if(!fmt->pb) {
-		//...
-		
+		printf("initIoCtx failed\n");		
 	}
 	
 	fmt->flags |= AVFMT_FLAG_CUSTOM_IO;
@@ -134,10 +164,11 @@ int player_openInputStream(PlayerObject* player) {
 	PyObject* urlObj = PyObject_GetAttrString(curSong, "url");
 	PyObject* urlStrObj = urlObj ? PyObject_Str(urlObj) : NULL;
 	const char* urlStr = urlStrObj ? PyString_AsString(urlStrObj) : "<None>";
+//	urlStr = NULL;
 	int ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
 	Py_XDECREF(urlStrObj);
 	Py_XDECREF(urlObj);
-		
+	
 	player->inStream = formatCtx;
 	
 final:
@@ -587,6 +618,10 @@ static void init() {
 	PaError ret = Pa_Initialize();
 	if(ret != paNoError)
 		Py_FatalError("PortAudio init failed");
+	
+	avcodec_register_all();
+	av_register_all();
+	
 	PyEval_InitThreads();
 }
 
