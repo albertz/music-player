@@ -41,12 +41,12 @@ def formatTime(t):
 	t -= mins * 60
 	hours = mins // 60
 	mins -= hours * 60
-	if hours: return "%02i:%02i:%05.2f" % (hours,mins,t)
-	return "%02i:%05.2f" % (mins,t)
+	if hours: return "%02i:%02i:%02.0f" % (hours,mins,t)
+	return "%02i:%02.0f" % (mins,t)
 
 import os,sys,termios
 
-def getchar(timeout = 0):
+def prepareStdin():
 	fd = sys.stdin.fileno()
 	
 	if os.isatty(fd):		
@@ -57,21 +57,20 @@ def getchar(timeout = 0):
 		#new[6] [termios.VMIN] = 1
 		#new[6] [termios.VTIME] = 0
 		new[6] [termios.VMIN] = 0
-		timeout *= 10 # 10ths of second
-		if timeout > 0 and timeout < 1: timeout = 1
+		#timeout *= 10 # 10ths of second
+		#if timeout > 0 and timeout < 1: timeout = 1
+		timeout = 1
 		new[6] [termios.VTIME] = timeout
 		
-		try:
-			termios.tcsetattr(fd, termios.TCSANOW, new)
-			termios.tcsendbreak(fd,0)
-			ch = os.read(fd,7)
-
-		finally:
-			termios.tcsetattr(fd, termios.TCSAFLUSH, old)
-	else:
-		ch = os.read(fd,7)
+		termios.tcsetattr(fd, termios.TCSANOW, new)
+		termios.tcsendbreak(fd,0)
 	
+def getchar(timeout = 0):
+	fd = sys.stdin.fileno()
+	ch = os.read(fd,7)
 	return(ch)
+
+prepareStdin()
 
 import time
 sys.stdout.write("\n")
@@ -90,6 +89,13 @@ while True:
 	
 	# time.sleep(0.05)
 	ch = getchar(0.1)
-	sys.stdout.write(" " + repr(ch))
-
+	#sys.stdout.write(" " + repr(ch))
+	if ch == "\x1b[D": # left
+		pass
+	elif ch == "\x1b[C": #right
+		pass
+	elif ch == "\x1b[A": #up
+		pass
+	elif ch == "\x1b[B": #down
+		pass
 	sys.stdout.flush()
