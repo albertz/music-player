@@ -16,8 +16,10 @@
 // Pyton interface:
 //	createPlayer() -> player object with:
 //		queue: song generator
-//		curSong: current song (read only)
 //		playing: True or False, initially False
+//		curSong: current song (read only)
+//		curSongPos: current song pos (read only)
+//		curSongLen: current song len (read only)
 //	song object expected interface:
 //		url: some url, can be anything
 //		readPacket(bufSize): should return some string
@@ -39,6 +41,7 @@ typedef struct {
 	PyObject* queue;
     int playing;
 	PyObject* curSong;
+	double curSongLen;
 	
 	// private
 	AVFormatContext* inStream;
@@ -238,8 +241,15 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
 			//SDL_PauseAudio(0);
 			break;
 		default:
-			break;
+			printf("stream_component_open: not an audio stream\n");
+			return -1;
     }
+	
+	// Get the song len: There is formatCtx.duration in AV_TIME_BASE
+	// and there is stream.duration in stream time base.
+	assert(is->audio_st);
+	is->curSongLen = av_q2d(is->audio_st->time_base) * is->audio_st->duration;
+	
     return 0;
 }
 
@@ -262,13 +272,18 @@ int player_openInputStream(PlayerObject* player) {
 	assert(player->curSong != NULL);
 	PyObject* curSong = player->curSong;
 	
+	if(player->inStream) {
+		avformat_close_input(&player->inStream);
+		player->inStream = NULL;
+	}
+	
 	AVFormatContext* formatCtx = initFormatCtx(player);
 	if(!formatCtx) {
 		printf("initFormatCtx failed\n");
 		goto final;
 	}
 	
-	urlStr = objAttrStrDup(curSong, "url");
+	urlStr = objAttrStrDup(curSong, "url"); // the url is just for debugging, the song object provides its own IO
 	int ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
 
 	if(ret != 0) {
@@ -281,14 +296,14 @@ int player_openInputStream(PlayerObject* player) {
 		printf("avformat_find_stream_info failed\n");
 		goto final;
 	}
-	
+		
 	ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
 	if(ret < 0) {
 		printf("no audio stream found in song\n");
 		goto final;
 	}
 	player->audio_stream = ret;
-	
+		
 	ret = stream_component_open(player, formatCtx, player->audio_stream);
 	if(ret < 0) {
 		printf("no audio stream found in song\n");
@@ -644,6 +659,8 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_Append(mlist, PyString_FromString("queue"));
 		PyList_Append(mlist, PyString_FromString("playing"));
 		PyList_Append(mlist, PyString_FromString("curSong"));
+		PyList_Append(mlist, PyString_FromString("curSongPos"));
+		PyList_Append(mlist, PyString_FromString("curSongLen"));
 		return mlist;
 	}
 	
@@ -664,6 +681,18 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 			Py_INCREF(player->curSong);
 			return player->curSong;
 		}
+		goto returnNone;
+	}
+	
+	if(strcmp(key, "curSongPos") == 0) {
+		if(player->playing)
+			return PyFloat_FromDouble(player->audio_clock);
+		goto returnNone;
+	}
+
+	if(strcmp(key, "curSongLen") == 0) {
+		if(player->playing)
+			return PyFloat_FromDouble(player->curSongLen);
 		goto returnNone;
 	}
 
