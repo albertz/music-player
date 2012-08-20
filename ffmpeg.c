@@ -124,7 +124,7 @@ static int player_seek(PlayerObject* player, int64_t offset, int whence) {
 	if(retObj == NULL) goto final;
 	
 	if(!PyInt_Check(retObj)) goto final;
-	ret = PyInt_AsLong(retObj);
+	ret = PyInt_AsLong(retObj); // NOTE: I don't really know what would be the best strategy in case of overflow...
 
 final:
 	Py_XDECREF(retObj);
@@ -244,12 +244,7 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
 			printf("stream_component_open: not an audio stream\n");
 			return -1;
     }
-	
-	// Get the song len: There is formatCtx.duration in AV_TIME_BASE
-	// and there is stream.duration in stream time base.
-	assert(is->audio_st);
-	is->curSongLen = av_q2d(is->audio_st->time_base) * is->audio_st->duration;
-	
+		
     return 0;
 }
 
@@ -309,6 +304,16 @@ int player_openInputStream(PlayerObject* player) {
 		printf("no audio stream found in song\n");
 		goto final;
 	}
+	
+	// Get the song len: There is formatCtx.duration in AV_TIME_BASE
+	// and there is stream.duration in stream time base.
+	assert(player->audio_st);
+	player->curSongLen = av_q2d(player->audio_st->time_base) * player->audio_st->duration;
+	//if(player->curSongLen < 0) { // happens in some cases, e.g. some flac files
+	//	player->curSongLen = av_q2d(AV_TIME_BASE_Q) * formatCtx->duration; // doesnt make it better though...
+	//}
+	if(player->curSongLen < 0)
+		player->curSongLen = -1;
 	
 	player->inStream = formatCtx;
 	formatCtx = NULL;
@@ -691,7 +696,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 
 	if(strcmp(key, "curSongLen") == 0) {
-		if(player->playing)
+		if(player->playing && player->curSongLen > 0)
 			return PyFloat_FromDouble(player->curSongLen);
 		goto returnNone;
 	}

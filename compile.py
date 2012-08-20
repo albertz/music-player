@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os
+import os, sys
 
 def sysExec(cmd):
     print " ".join(cmd)
