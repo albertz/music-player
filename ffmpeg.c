@@ -16,6 +16,7 @@
 // Pyton interface:
 //	createPlayer() -> player object with:
 //		queue: song generator
+//		curSong: current song (read only)
 //		playing: True or False, initially False
 //	song object expected interface:
 //		url: some url, can be anything
@@ -37,9 +38,9 @@ typedef struct {
 	// public
 	PyObject* queue;
     int playing;
+	PyObject* curSong;
 	
 	// private
-	PyObject* curSong;
 	AVFormatContext* inStream;
 	PaStream* outStream;
 
@@ -261,7 +262,6 @@ int player_openInputStream(PlayerObject* player) {
 	const char* urlStr = urlStrObj ? PyString_AsString(urlStrObj) : "<None>";
 	PyGILState_Release(gstate);
 	
-//	urlStr = NULL;
 	int ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
 	gstate = PyGILState_Ensure();
 	Py_XDECREF(urlStrObj);
@@ -634,6 +634,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyObject* mlist = PyList_New(0);
 		PyList_Append(mlist, PyString_FromString("queue"));
 		PyList_Append(mlist, PyString_FromString("playing"));
+		PyList_Append(mlist, PyString_FromString("curSong"));
 		return mlist;
 	}
 	
@@ -642,14 +643,22 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 			Py_INCREF(player->queue);
 			return player->queue;
 		}
-		Py_INCREF(Py_None);
-		return Py_None;
+		goto returnNone;
 	}
 	
 	if(strcmp(key, "playing") == 0) {
 		return PyBool_FromLong(player->playing);
 	}
 	
+	if(strcmp(key, "curSong") == 0) {
+		if(player->curSong) {
+			Py_INCREF(player->curSong);
+			return player->curSong;
+		}
+		goto returnNone;
+	}
+
+returnNone:
 	Py_INCREF(Py_None);
 	return Py_None;
 }
