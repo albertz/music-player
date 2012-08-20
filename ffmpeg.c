@@ -243,9 +243,21 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
     return 0;
 }
 
+static char* objAttrStrDup(PyObject* obj, const char* attrStr) {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	PyObject* attrObj = PyObject_GetAttrString(obj, attrStr);
+	PyObject* attrStrObj = attrObj ? PyObject_Str(attrObj) : NULL;
+	char* str = attrStrObj ? PyString_AsString(attrStrObj) : "<None>";
+	str = strdup(str);
+	Py_XDECREF(attrStrObj);
+	Py_XDECREF(attrObj);
+	PyGILState_Release(gstate);
+	return str;
+}
+
 static
 int player_openInputStream(PlayerObject* player) {
-	PyGILState_STATE gstate;
+	char* urlStr = NULL;
 
 	assert(player->curSong != NULL);
 	PyObject* curSong = player->curSong;
@@ -256,17 +268,8 @@ int player_openInputStream(PlayerObject* player) {
 		goto final;
 	}
 	
-	gstate = PyGILState_Ensure();
-	PyObject* urlObj = PyObject_GetAttrString(curSong, "url");
-	PyObject* urlStrObj = urlObj ? PyObject_Str(urlObj) : NULL;
-	const char* urlStr = urlStrObj ? PyString_AsString(urlStrObj) : "<None>";
-	PyGILState_Release(gstate);
-	
+	urlStr = objAttrStrDup(curSong, "url");
 	int ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
-	gstate = PyGILState_Ensure();
-	Py_XDECREF(urlStrObj);
-	Py_XDECREF(urlObj);
-	PyGILState_Release(gstate);
 
 	if(ret != 0) {
 		printf("avformat_open_input failed\n");
@@ -296,7 +299,8 @@ int player_openInputStream(PlayerObject* player) {
 	formatCtx = NULL;
 	
 final:
-	//if(formatCtx)
+	if(urlStr) free(urlStr);
+	if(formatCtx) avformat_close_input(&formatCtx);
 	if(player->inStream) return 0;
 	return -1;
 }
@@ -613,6 +617,11 @@ static
 void player_dealloc(PyObject* obj) {
 	PlayerObject* player = (PlayerObject*)obj;
 	//printf("%p dealloc\n", player);
+	
+	if(player->inStream) {
+		avformat_close_input(&player->inStream);
+		player->inStream = NULL;
+	}
 	
 	if(player->outStream) {
 		Pa_CloseStream(player->outStream);
