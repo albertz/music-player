@@ -43,8 +43,37 @@ def formatTime(t):
 	mins -= hours * 60
 	if hours: return "%02i:%02i:%05.2f" % (hours,mins,t)
 	return "%02i:%05.2f" % (mins,t)
+
+import os,sys,termios
+
+def getchar(timeout = 0):
+	fd = sys.stdin.fileno()
 	
-import time, os, sys
+	if os.isatty(fd):		
+		old = termios.tcgetattr(fd)
+		new = termios.tcgetattr(fd)
+		new[3] = new[3] & ~termios.ICANON & ~termios.ECHO
+		# http://www.unixguide.net/unix/programming/3.6.2.shtml
+		#new[6] [termios.VMIN] = 1
+		#new[6] [termios.VTIME] = 0
+		new[6] [termios.VMIN] = 0
+		timeout *= 10 # 10ths of second
+		if timeout > 0 and timeout < 1: timeout = 1
+		new[6] [termios.VTIME] = timeout
+		
+		try:
+			termios.tcsetattr(fd, termios.TCSANOW, new)
+			termios.tcsendbreak(fd,0)
+			ch = os.read(fd,7)
+
+		finally:
+			termios.tcsetattr(fd, termios.TCSAFLUSH, old)
+	else:
+		ch = os.read(fd,7)
+	
+	return(ch)
+
+import time
 sys.stdout.write("\n")
 while True:
 	sys.stdout.write("\r\033[K") # clear line
@@ -58,5 +87,9 @@ while True:
 			formatTime(player.curSongLen))
 	else:
 		sys.stdout.write("no song")
+	
+	# time.sleep(0.05)
+	ch = getchar(0.1)
+	sys.stdout.write(" " + repr(ch))
+
 	sys.stdout.flush()
-	time.sleep(0.05)
