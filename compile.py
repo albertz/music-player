@@ -4,7 +4,8 @@ import os
 
 def sysExec(cmd):
     print " ".join(cmd)
-    os.system(" ".join(cmd))
+    r = os.system(" ".join(cmd))
+    if r != 0: sys.exit(r)
     
 sysExec(["gcc", "-c", "ffmpeg.c", "-I", "/System/Library/Frameworks/Python.framework/Headers/", "-g"])
 sysExec(["libtool", "-dynamic", "-o", "ffmpeg.so", "ffmpeg.o",
