@@ -36,7 +36,7 @@
 typedef struct AudioParams {
     int freq;
     int channels;
-    int channel_layout;
+    int64_t channel_layout;
     enum AVSampleFormat fmt;
 } AudioParams;
 
@@ -80,7 +80,7 @@ typedef struct {
 
 static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) {
 	//printf("player_read_packet %i\n", buf_size);
-	int ret = -1;
+	Py_ssize_t ret = -1;
 	PyObject *readPacketFunc = NULL, *args = NULL, *retObj = NULL;
 	
 	PyGILState_STATE gstate;
@@ -103,6 +103,10 @@ static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) 
 		printf("song.readPacket returned more than buf_size\n");
 		ret = buf_size;
 	}
+	if(ret < 0) {
+		ret = -1;
+		goto final;
+	}
 	
 	memcpy(buf, PyString_AsString(retObj), ret);
 	
@@ -111,7 +115,7 @@ final:
 	Py_XDECREF(args);
 	Py_XDECREF(readPacketFunc);
 	PyGILState_Release(gstate);
-	return ret;
+	return (int) ret;
 }
 
 static int player_seek(PlayerObject* player, int64_t offset, int whence) {
@@ -132,7 +136,7 @@ static int player_seek(PlayerObject* player, int64_t offset, int whence) {
 	if(retObj == NULL) goto final;
 	
 	if(!PyInt_Check(retObj)) goto final;
-	ret = PyInt_AsLong(retObj); // NOTE: I don't really know what would be the best strategy in case of overflow...
+	ret = (int) PyInt_AsLong(retObj); // NOTE: I don't really know what would be the best strategy in case of overflow...
 
 final:
 	Py_XDECREF(retObj);
@@ -152,7 +156,7 @@ static int64_t _player_av_seek(void *opaque, int64_t offset, int whence) {
 
 static
 AVIOContext* initIoCtx(PlayerObject* player) {
-	size_t buffer_size = 1024 * 4;
+	int buffer_size = 1024 * 4;
 	unsigned char* buffer = av_malloc(buffer_size);
 	
 	AVIOContext* io = avio_alloc_context(
@@ -259,7 +263,7 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
 {
     AVCodecContext *avctx;
     AVCodec *codec;
-    AVDictionaryEntry *t = NULL;
+ //   AVDictionaryEntry *t = NULL;
 	
     if (stream_index < 0 || stream_index >= ic->nb_streams)
         return -1;
@@ -614,7 +618,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 
 // called from paStreamCallback
 static
-int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
+int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long len) {
 	// TODO: maybe it is better with NOWAIT to avoid any deadlocks ?
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 
@@ -625,7 +629,8 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
 	}
 	
 	PlayerObject* is = player;
-    int audio_size, len1;
+	int audio_size;
+    unsigned long len1;
     int bytes_per_sec;
     int frame_size = av_samples_get_buffer_size(NULL, is->audio_tgt.channels, 1, is->audio_tgt.fmt, 1);
     double pts;
