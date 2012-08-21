@@ -62,6 +62,7 @@ typedef struct {
     int audio_write_buf_size;
     AVPacket audio_pkt_temp;
     AVPacket audio_pkt;
+	int do_flush;
     struct AudioParams audio_src;
     struct AudioParams audio_tgt;
     struct SwrContext *swr_ctx;
@@ -206,6 +207,8 @@ static int stream_seekRel(PlayerObject* player, double incr) {
 	int seek_flags = 0;
 	if(seek_by_bytes) seek_flags |= AVSEEK_FLAG_BYTE;
 	
+	player->do_flush = 1;
+	
 	return
 	avformat_seek_file(
 		player->inStream, /*player->audio_stream*/ -1,
@@ -234,6 +237,8 @@ static int stream_seekAbs(PlayerObject* player, double pos) {
 		pos *= AV_TIME_BASE;
 	}
 	
+	player->do_flush = 1;
+
 	return
 	avformat_seek_file(
 		player->inStream, /*player->audio_stream*/ -1,
@@ -567,6 +572,12 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
             flush_complete = 0;
         }
 		*/
+		
+		if(is->do_flush) {
+			avcodec_flush_buffers(dec);
+			flush_complete = 0;
+			is->do_flush = 0;
+		}
 		
 		while(1) {
 			int ret = av_read_frame(is->inStream, pkt);
