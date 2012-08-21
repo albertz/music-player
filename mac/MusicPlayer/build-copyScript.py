@@ -62,6 +62,7 @@ def fixBin(binPath, targetDylibDir, badPaths = ["/usr/local/"], stripVersion = T
 		Popen(["install_name_tool", "-change", f, targetDylibDir + "/" + fbase, binPath])
 
 		if not os.path.exists(targetDylibDirFull + "/" + fbase):
+			# Note: If there are errors here (file-not-found), it means that the binary links to a non-existing lib. Probably the lib has been updated. The fix usually is to update also the binary (which is probably also a lib).
 			cp(f, targetDylibDirFull + "/" + fbase)		
 			fixBin(targetDylibDirFull + "/" + fbase, targetDylibDir, badPaths, stripVersion)
 		
