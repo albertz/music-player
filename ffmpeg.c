@@ -7,12 +7,8 @@
 // loosely based on ffplay.c
 // https://github.com/FFmpeg/ffmpeg/blob/master/ffplay.c
 
-#include <libavformat/avformat.h>
-#include <libswresample/swresample.h>
-#include <portaudio.h>
-#include <Python.h>
-#include <pythread.h>
-#include <stdio.h>
+// Similar to PyFFmpeg. http://code.google.com/p/pyffmpeg/
+// This module is intended to be much simpler/high-level, though.
 
 // Pyton interface:
 //	createPlayer() -> player object with:
@@ -27,6 +23,13 @@
 //		url: some url, can be anything
 //		readPacket(bufSize): should return some string
 //		seekRaw(offset, whence): should seek and return the current pos
+
+#include <libavformat/avformat.h>
+#include <libswresample/swresample.h>
+#include <portaudio.h>
+#include <Python.h>
+#include <pythread.h>
+#include <stdio.h>
 
 #define AUDIO_BUFFER_SIZE 2048
 
