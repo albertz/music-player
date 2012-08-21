@@ -77,7 +77,7 @@ sys.stdout.write("\n")
 while True:
 	sys.stdout.write("\r\033[K") # clear line
 	if player.playing: sys.stdout.write("playing, ")
-	else: sys.stdout.write("not playing, ")
+	else: sys.stdout.write("paused, ")
 	curSong = player.curSong
 	if curSong:
 		sys.stdout.write(
@@ -102,4 +102,7 @@ while True:
 		player.nextSong()
 	elif ch == " ":
 		player.playing = not player.playing
+	elif ch == "q":
+		print
+		sys.exit(0)
 	sys.stdout.flush()

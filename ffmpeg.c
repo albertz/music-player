@@ -806,13 +806,13 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "curSongPos") == 0) {
-		if(player->playing)
+		if(player->curSong)
 			return PyFloat_FromDouble(player->audio_clock);
 		goto returnNone;
 	}
 
 	if(strcmp(key, "curSongLen") == 0) {
-		if(player->playing && player->curSongLen > 0)
+		if(player->curSong && player->curSongLen > 0)
 			return PyFloat_FromDouble(player->curSongLen);
 		goto returnNone;
 	}
