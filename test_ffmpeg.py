@@ -73,7 +73,7 @@ def getchar(timeout = 0):
 prepareStdin()
 
 import time
-sys.stdout.write("\n")
+#sys.stdout.write("\n")
 while True:
 	sys.stdout.write("\r\033[K") # clear line
 	if player.playing: sys.stdout.write("playing, ")
