@@ -98,4 +98,8 @@ while True:
 		pass
 	elif ch == "\x1b[B": #down
 		pass
+	elif ch == "\n": # return
+		player.nextSong()
+	elif ch == " ":
+		player.playing = not player.playing
 	sys.stdout.flush()

@@ -20,6 +20,8 @@
 //		curSong: current song (read only)
 //		curSongPos: current song pos (read only)
 //		curSongLen: current song len (read only)
+//		seekAbs(t) / seekRel(t): seeking functions (t in seconds, accepts float)
+//		nextSong(): skip to next song function
 //	song object expected interface:
 //		url: some url, can be anything
 //		readPacket(bufSize): should return some string
@@ -569,13 +571,14 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 		while(1) {
 			int ret = av_read_frame(is->inStream, pkt);
 			if (ret < 0) {
-				printf("av_read_frame failed\n");
-				//if (ret == AVERROR_EOF || url_feof(ic->pb))
-				//	eof = 1;
 				//if (ic->pb && ic->pb->error)
-				//	break;
-				// skip to next song
-				player_getNextSong(is);
+				//	printf("av_read_frame error\n");
+				int eof = 0;
+				if (ret == AVERROR_EOF || url_feof(is->inStream->pb))
+					eof = 1;
+				if(eof)
+					// skip to next song
+					player_getNextSong(is);
 				return -1;
 			}
 			
@@ -752,6 +755,20 @@ static PyMethodDef md_seekRel = {
 };
 
 static
+PyObject* player_method_nextSong(PyObject* self, PyObject* _unused_arg) {
+	PlayerObject* player = (PlayerObject*) self;
+	int ret = player_getNextSong(player);
+	return PyBool_FromLong(ret == 0);
+}
+
+static PyMethodDef md_nextSong = {
+	"nextSong",
+	player_method_nextSong,
+	METH_NOARGS,
+	NULL
+};
+
+static
 PyObject* player_getattr(PyObject* obj, char* key) {
 	PlayerObject* player = (PlayerObject*)obj;
 	//printf("%p getattr %s\n", player, key);
@@ -806,6 +823,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 
 	if(strcmp(key, "seekRel") == 0) {
 		return PyCFunction_New(&md_seekRel, (PyObject*) player);
+	}
+
+	if(strcmp(key, "nextSong") == 0) {
+		return PyCFunction_New(&md_nextSong, (PyObject*) player);
 	}
 
 returnNone:
