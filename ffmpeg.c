@@ -11,6 +11,7 @@
 #include <libswresample/swresample.h>
 #include <portaudio.h>
 #include <Python.h>
+#include <pythread.h>
 #include <stdio.h>
 
 // Pyton interface:
@@ -48,7 +49,8 @@ typedef struct {
 	// private
 	AVFormatContext* inStream;
 	PaStream* outStream;
-
+	PyThread_type_lock lock;
+	
 	// audio_decode
     int audio_stream;
     double audio_clock;
@@ -431,6 +433,7 @@ static int synchronize_audio(PlayerObject *is, int nb_samples)
 	return wanted_nb_samples;	
 }
 
+// called from player_fillOutStream
 /* decode one audio frame and returns its uncompressed size */
 static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 {
@@ -606,8 +609,12 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
     }
 }
 
+// called from paStreamCallback
 static
 int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
+	// TODO: maybe it is better with NOWAIT to avoid any deadlocks ?
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
+
 	if(player->inStream == NULL) {
 		if(player_getNextSong(player) != 0) {
 			printf("cannot get next song");
@@ -648,7 +655,8 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, int len) {
     /* Let's assume the audio driver that is used by SDL has two periods. */
   //  is->audio_current_pts = is->audio_clock - (double)(2 * is->audio_hw_buf_size + is->audio_write_buf_size) / bytes_per_sec;
 //    is->audio_current_pts_drift = is->audio_current_pts - audio_callback_time / 1000000.0;
-	
+
+	PyThread_release_lock(player->lock);	
 	return 0;
 }
 
@@ -665,18 +673,24 @@ int paStreamCallback(
 }
 
 static int player_setqueue(PlayerObject* player, PyObject* queue) {
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	Py_XDECREF(player->queue);
 	player->queue = queue;
 	Py_XINCREF(queue);
+	PyThread_release_lock(player->lock);
 	return 0;
 }
 
 static int player_setplaying(PlayerObject* player, int playing) {
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	player->playing = playing;
+	Py_BEGIN_ALLOW_THREADS
 	if(playing)
 		Pa_StartStream(player->outStream);
 	else
 		Pa_StopStream(player->outStream);
+	Py_END_ALLOW_THREADS
+	PyThread_release_lock(player->lock);
 	return 0;
 }
 
@@ -691,6 +705,8 @@ static
 int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	PlayerObject* player = (PlayerObject*) self;
 	//printf("%p player init\n", player);
+
+	player->lock = PyThread_allocate_lock();
 
 	PaError ret;
 	ret = Pa_OpenDefaultStream(
@@ -719,18 +735,23 @@ void player_dealloc(PyObject* obj) {
 	PlayerObject* player = (PlayerObject*)obj;
 	//printf("%p dealloc\n", player);
 	
-	if(player->inStream) {
-		avformat_close_input(&player->inStream);
-		player->inStream = NULL;
-	}
+	// TODO: use Py_BEGIN_ALLOW_THREADS etc? what about deadlocks?
 	
 	if(player->outStream) {
 		Pa_CloseStream(player->outStream);
 		player->outStream = NULL;
 	}
-	
+
+	if(player->inStream) {
+		avformat_close_input(&player->inStream);
+		player->inStream = NULL;
+	}
+		
 	Py_XDECREF(player->queue);
 	player->queue = NULL;
+	
+	PyThread_free_lock(player->lock);
+	player->lock = NULL;
 	
 	Py_TYPE(obj)->tp_free(obj);
 }
@@ -740,7 +761,10 @@ PyObject* player_method_seekAbs(PyObject* self, PyObject* arg) {
 	PlayerObject* player = (PlayerObject*) self;
 	double argDouble = PyFloat_AsDouble(arg);
 	if(PyErr_Occurred()) return NULL;
-	return PyInt_FromLong(stream_seekAbs(player, argDouble));
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
+	int ret = stream_seekAbs(player, argDouble);
+	PyThread_release_lock(player->lock);
+	return PyBool_FromLong(ret == 0);
 }
 
 static PyMethodDef md_seekAbs = {
@@ -755,7 +779,10 @@ PyObject* player_method_seekRel(PyObject* self, PyObject* arg) {
 	PlayerObject* player = (PlayerObject*) self;
 	double argDouble = PyFloat_AsDouble(arg);
 	if(PyErr_Occurred()) return NULL;
-	return PyInt_FromLong(stream_seekRel(player, argDouble));
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
+	int ret = stream_seekRel(player, argDouble);
+	PyThread_release_lock(player->lock);
+	return PyInt_FromLong(ret == 0);
 }
 
 static PyMethodDef md_seekRel = {
@@ -768,7 +795,9 @@ static PyMethodDef md_seekRel = {
 static
 PyObject* player_method_nextSong(PyObject* self, PyObject* _unused_arg) {
 	PlayerObject* player = (PlayerObject*) self;
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	int ret = player_getNextSong(player);
+	PyThread_release_lock(player->lock);
 	return PyBool_FromLong(ret == 0);
 }
 
@@ -793,6 +822,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_Append(mlist, PyString_FromString("curSongLen"));
 		PyList_Append(mlist, PyString_FromString("seekAbs"));
 		PyList_Append(mlist, PyString_FromString("seekRel"));
+		PyList_Append(mlist, PyString_FromString("nextSong"));
 		return mlist;
 	}
 	
