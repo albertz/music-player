@@ -984,7 +984,7 @@ PyDoc_STRVAR(module_doc,
 PyMODINIT_FUNC
 initffmpeg(void)
 {
-	printf("initffmpeg\n");
+	//printf("initffmpeg\n");
 	init();
     if (PyType_Ready(&Player_Type) < 0)
         Py_FatalError("Can't initialize player type");
