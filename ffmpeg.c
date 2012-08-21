@@ -416,11 +416,18 @@ static int player_getNextSong(PlayerObject* player) {
 	player->curSong = NULL;
 	
 	if(player->queue == NULL) {
-		printf("player queue is not set");
+		printf("player queue is not set\n");
+		goto final;
+	}
+	
+	if(!PyIter_Check(player->queue)) {
+		printf("player queue is not an iterator\n");
 		goto final;
 	}
 	
 	player->curSong = PyIter_Next(player->queue);
+	
+	// TODO: exception handling
 
 	if(player->curSong && player_openInputStream(player) != 0) {
 		printf("cannot open input stream\n");
@@ -624,7 +631,7 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long le
 
 	if(player->inStream == NULL) {
 		if(player_getNextSong(player) != 0) {
-			printf("cannot get next song");
+			printf("cannot get next song\n");
 		}
 	}
 	
