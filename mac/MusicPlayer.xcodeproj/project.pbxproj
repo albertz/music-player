@@ -1,0 +1,411 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
+		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
+		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
+		23A14A4A15E3B2CC00376BF6 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4815E3B2CC00376BF6 /* Credits.rtf */; };
+		23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */; };
+		23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */; };
+		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
+		23A14A6715E3B85C00376BF6 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		23A14A3915E3B2CC00376BF6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		23A14A3C15E3B2CC00376BF6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		23A14A3D15E3B2CC00376BF6 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		23A14A3E15E3B2CC00376BF6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		23A14A4115E3B2CC00376BF6 /* MusicPlayer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MusicPlayer-Info.plist"; sourceTree = "<group>"; };
+		23A14A4315E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		23A14A4515E3B2CC00376BF6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		23A14A4715E3B2CC00376BF6 /* MusicPlayer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MusicPlayer-Prefix.pch"; sourceTree = "<group>"; };
+		23A14A4915E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		23A14A4B15E3B2CC00376BF6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		23A14A4F15E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
+		23A14A6615E3B85C00376BF6 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		23A14A3215E3B2CC00376BF6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23A14A5B15E3B63C00376BF6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23A14A6715E3B85C00376BF6 /* Python.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		23A14A2A15E3B2CB00376BF6 = {
+			isa = PBXGroup;
+			children = (
+				23A14A6615E3B85C00376BF6 /* Python.framework */,
+				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
+				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
+				23A14A3815E3B2CC00376BF6 /* Frameworks */,
+				23A14A3615E3B2CC00376BF6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		23A14A3615E3B2CC00376BF6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */,
+				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
+				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		23A14A3B15E3B2CC00376BF6 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				23A14A3C15E3B2CC00376BF6 /* AppKit.framework */,
+				23A14A3D15E3B2CC00376BF6 /* CoreData.framework */,
+				23A14A3E15E3B2CC00376BF6 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		23A14A3F15E3B2CC00376BF6 /* MusicPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				23A14A4B15E3B2CC00376BF6 /* AppDelegate.h */,
+				23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */,
+				23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */,
+				23A14A4015E3B2CC00376BF6 /* Supporting Files */,
+			);
+			path = MusicPlayer;
+			sourceTree = "<group>";
+		};
+		23A14A4015E3B2CC00376BF6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				23A14A4115E3B2CC00376BF6 /* MusicPlayer-Info.plist */,
+				23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */,
+				23A14A4515E3B2CC00376BF6 /* main.m */,
+				23A14A4715E3B2CC00376BF6 /* MusicPlayer-Prefix.pch */,
+				23A14A4815E3B2CC00376BF6 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		23A14A6315E3B6A200376BF6 /* ffmpeg.so */ = {
+			isa = PBXGroup;
+			children = (
+				23A14A6415E3B6B600376BF6 /* ffmpeg.c */,
+			);
+			name = ffmpeg.so;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		23A14A5C15E3B63C00376BF6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		23A14A3415E3B2CC00376BF6 /* MusicPlayer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23A14A5315E3B2CC00376BF6 /* Build configuration list for PBXNativeTarget "MusicPlayer" */;
+			buildPhases = (
+				23A14A3115E3B2CC00376BF6 /* Sources */,
+				23A14A3215E3B2CC00376BF6 /* Frameworks */,
+				23A14A3315E3B2CC00376BF6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MusicPlayer;
+			productName = MusicPlayer;
+			productReference = 23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		23A14A5D15E3B63C00376BF6 /* ffmpeg.so */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23A14A6115E3B63C00376BF6 /* Build configuration list for PBXNativeTarget "ffmpeg.so" */;
+			buildPhases = (
+				23A14A5A15E3B63C00376BF6 /* Sources */,
+				23A14A5B15E3B63C00376BF6 /* Frameworks */,
+				23A14A5C15E3B63C00376BF6 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ffmpeg.so;
+			productName = ffmpeg.so;
+			productReference = 23A14A5E15E3B63C00376BF6 /* ffmpeg.so */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		23A14A2C15E3B2CB00376BF6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0440;
+				ORGANIZATIONNAME = "Albert Zeyer";
+			};
+			buildConfigurationList = 23A14A2F15E3B2CB00376BF6 /* Build configuration list for PBXProject "MusicPlayer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 23A14A2A15E3B2CB00376BF6;
+			productRefGroup = 23A14A3615E3B2CC00376BF6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				23A14A3415E3B2CC00376BF6 /* MusicPlayer */,
+				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		23A14A3315E3B2CC00376BF6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */,
+				23A14A4A15E3B2CC00376BF6 /* Credits.rtf in Resources */,
+				23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		23A14A3115E3B2CC00376BF6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23A14A4615E3B2CC00376BF6 /* main.m in Sources */,
+				23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23A14A5A15E3B63C00376BF6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				23A14A4315E3B2CC00376BF6 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		23A14A4815E3B2CC00376BF6 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				23A14A4915E3B2CC00376BF6 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				23A14A4F15E3B2CC00376BF6 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		23A14A5115E3B2CC00376BF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Headers;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		23A14A5215E3B2CC00376BF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Headers;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		23A14A5415E3B2CC00376BF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
+				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		23A14A5515E3B2CC00376BF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
+				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		23A14A5F15E3B63C00376BF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				HEADER_SEARCH_PATHS = (
+					/System/Library/Frameworks/Python.framework/Headers,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-lavformat",
+					"-lavutil",
+					"-lavcodec",
+					"-lswresample",
+					"-lportaudio",
+				);
+				PRODUCT_NAME = ffmpeg;
+			};
+			name = Debug;
+		};
+		23A14A6015E3B63C00376BF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				HEADER_SEARCH_PATHS = (
+					/System/Library/Frameworks/Python.framework/Headers,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_LDFLAGS = (
+					"-lavformat",
+					"-lavutil",
+					"-lavcodec",
+					"-lswresample",
+					"-lportaudio",
+				);
+				PRODUCT_NAME = ffmpeg;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		23A14A2F15E3B2CB00376BF6 /* Build configuration list for PBXProject "MusicPlayer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23A14A5115E3B2CC00376BF6 /* Debug */,
+				23A14A5215E3B2CC00376BF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		23A14A5315E3B2CC00376BF6 /* Build configuration list for PBXNativeTarget "MusicPlayer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23A14A5415E3B2CC00376BF6 /* Debug */,
+				23A14A5515E3B2CC00376BF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		23A14A6115E3B63C00376BF6 /* Build configuration list for PBXNativeTarget "ffmpeg.so" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23A14A5F15E3B63C00376BF6 /* Debug */,
+				23A14A6015E3B63C00376BF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+}
