@@ -15,6 +15,7 @@
 		23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */; };
 		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
 		23BEFDDB15E3E09C0003A05B /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
+		23BEFDDE15E3EC6B0003A05B /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +45,7 @@
 		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
 		23A14A6615E3B85C00376BF6 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
-		23BEFDDD15E3E24A0003A05B /* build-copyScript.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-copyScript.sh"; sourceTree = "<group>"; };
+		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23BEFDDE15E3EC6B0003A05B /* Python.framework in Frameworks */,
 				23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -70,7 +72,6 @@
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
-				23A14A6815E3DED100376BF6 /* libs */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A3815E3B2CC00376BF6 /* Frameworks */,
@@ -90,6 +91,7 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				23A14A6615E3B85C00376BF6 /* Python.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
 				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
 			);
@@ -120,7 +122,7 @@
 		23A14A4015E3B2CC00376BF6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				23BEFDDD15E3E24A0003A05B /* build-copyScript.sh */,
+				23BEFDDD15E3E24A0003A05B /* build-copyScript.py */,
 				23A14A4115E3B2CC00376BF6 /* MusicPlayer-Info.plist */,
 				23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */,
 				23A14A4515E3B2CC00376BF6 /* main.m */,
@@ -136,14 +138,6 @@
 				23A14A6415E3B6B600376BF6 /* ffmpeg.c */,
 			);
 			name = ffmpeg.so;
-			sourceTree = "<group>";
-		};
-		23A14A6815E3DED100376BF6 /* libs */ = {
-			isa = PBXGroup;
-			children = (
-				23A14A6615E3B85C00376BF6 /* Python.framework */,
-			);
-			name = libs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -247,7 +241,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "$PROJECT_DIR/MusicPlayer/build-copyScript.sh\n";
+			shellScript = "$PROJECT_DIR/MusicPlayer/build-copyScript.py\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
