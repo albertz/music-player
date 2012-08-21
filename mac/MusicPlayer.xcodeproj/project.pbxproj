@@ -14,8 +14,18 @@
 		23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */; };
 		23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */; };
 		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
-		23A14A6715E3B85C00376BF6 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
+		23BEFDDB15E3E09C0003A05B /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		23A14A7115E3DFDD00376BF6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 23A14A5D15E3B63C00376BF6;
+			remoteInfo = ffmpeg.so;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -34,6 +44,7 @@
 		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
 		23A14A6615E3B85C00376BF6 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
+		23BEFDDD15E3E24A0003A05B /* build-copyScript.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-copyScript.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,7 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23A14A6715E3B85C00376BF6 /* Python.framework in Frameworks */,
+				23BEFDDB15E3E09C0003A05B /* Python.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,7 +70,7 @@
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
-				23A14A6615E3B85C00376BF6 /* Python.framework */,
+				23A14A6815E3DED100376BF6 /* libs */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A3815E3B2CC00376BF6 /* Frameworks */,
@@ -109,6 +120,7 @@
 		23A14A4015E3B2CC00376BF6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				23BEFDDD15E3E24A0003A05B /* build-copyScript.sh */,
 				23A14A4115E3B2CC00376BF6 /* MusicPlayer-Info.plist */,
 				23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */,
 				23A14A4515E3B2CC00376BF6 /* main.m */,
@@ -124,6 +136,14 @@
 				23A14A6415E3B6B600376BF6 /* ffmpeg.c */,
 			);
 			name = ffmpeg.so;
+			sourceTree = "<group>";
+		};
+		23A14A6815E3DED100376BF6 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				23A14A6615E3B85C00376BF6 /* Python.framework */,
+			);
+			name = libs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -146,10 +166,12 @@
 				23A14A3115E3B2CC00376BF6 /* Sources */,
 				23A14A3215E3B2CC00376BF6 /* Frameworks */,
 				23A14A3315E3B2CC00376BF6 /* Resources */,
+				23BEFDDC15E3E0C40003A05B /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
 			);
 			name = MusicPlayer;
 			productName = MusicPlayer;
@@ -213,6 +235,22 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		23BEFDDC15E3E0C40003A05B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "$PROJECT_DIR/MusicPlayer/build-copyScript.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		23A14A3115E3B2CC00376BF6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -232,6 +270,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 23A14A5D15E3B63C00376BF6 /* ffmpeg.so */;
+			targetProxy = 23A14A7115E3DFDD00376BF6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */ = {
@@ -317,6 +363,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
 				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/ffmpeg/0.10.2/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -329,6 +379,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
 				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/ffmpeg/0.10.2/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -404,6 +458,7 @@
 				23A14A6015E3B63C00376BF6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
