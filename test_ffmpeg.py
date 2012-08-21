@@ -17,8 +17,8 @@ class Song:
 		
 def songs():
 	files = [
-		"/Users/az/Music/Rock/Tool/Lateralus/09 Lateralus.flac",
 		"/Users/az/Music/Classic/Glenn Gould Plays Bach/Two- & Three-Part Inventions - Gould/19 Bach - Invention 13 in a (BWV 784).mp3",
+		"/Users/az/Music/Rock/Tool/Lateralus/09 Lateralus.flac",
 		"/Users/az/Music/Cults - Cults 7/Cults - Cults 7- - 03 The Curse.flac",
 		"/Users/az/Music/Special/zorba/(01) - Theme From Zorba The Greek.ogg",
 		"/Users/az/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3",
@@ -91,9 +91,9 @@ while True:
 	ch = getchar(0.1)
 	#sys.stdout.write(" " + repr(ch))
 	if ch == "\x1b[D": # left
-		pass
+		player.seekRel(-10)
 	elif ch == "\x1b[C": #right
-		pass
+		player.seekRel(10)
 	elif ch == "\x1b[A": #up
 		pass
 	elif ch == "\x1b[B": #down

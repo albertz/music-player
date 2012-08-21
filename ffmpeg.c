@@ -175,6 +175,73 @@ AVFormatContext* initFormatCtx(PlayerObject* player) {
 	return fmt;
 }
 
+static int stream_seekRel(PlayerObject* player, double incr) {
+	int seek_by_bytes = 0;
+	
+	double pos = 0;
+	if(seek_by_bytes) {
+		if (player->audio_stream >= 0 && player->audio_pkt.pos >= 0) {
+			pos = player->audio_pkt.pos;
+		} else
+			pos = avio_tell(player->inStream->pb);
+		if (player->inStream->bit_rate)
+			incr *= player->inStream->bit_rate / 8.0;
+		else
+			incr *= 180000.0;
+		pos += incr;
+	}
+	else {
+		pos = player->audio_clock;
+		pos += incr;
+		
+		pos *= AV_TIME_BASE;
+		incr *= AV_TIME_BASE;
+	}
+	
+	int64_t seek_target = pos;
+	int64_t seek_min    = incr > 0 ? seek_target - incr + 2: INT64_MIN;
+	int64_t seek_max    = incr < 0 ? seek_target - incr - 2: INT64_MAX;
+	int seek_flags = 0;
+	if(seek_by_bytes) seek_flags |= AVSEEK_FLAG_BYTE;
+	
+	return
+	avformat_seek_file(
+		player->inStream, /*player->audio_stream*/ -1,
+		seek_min,
+		seek_target,
+		seek_max,
+		seek_flags
+		);
+}
+
+static int stream_seekAbs(PlayerObject* player, double pos) {
+	int seek_by_bytes = 0;
+	if(player->curSongLen <= 0)
+		seek_by_bytes = 1;
+		
+	int seek_flags = 0;
+	if(seek_by_bytes) seek_flags |= AVSEEK_FLAG_BYTE;
+
+	if(seek_by_bytes) {
+		if (player->inStream->bit_rate)
+			pos *= player->inStream->bit_rate / 8.0;
+		else
+			pos *= 180000.0;
+	}
+	else {
+		pos *= AV_TIME_BASE;
+	}
+	
+	return
+	avformat_seek_file(
+		player->inStream, /*player->audio_stream*/ -1,
+		INT64_MIN,
+		(int64_t) pos,
+		INT64_MAX,
+		seek_flags
+		);
+}
+
 /* open a given stream. Return 0 if OK */
 static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stream_index)
 {
@@ -655,6 +722,36 @@ void player_dealloc(PyObject* obj) {
 }
 
 static
+PyObject* player_method_seekAbs(PyObject* self, PyObject* arg) {
+	PlayerObject* player = (PlayerObject*) self;
+	double argDouble = PyFloat_AsDouble(arg);
+	if(PyErr_Occurred()) return NULL;
+	return PyInt_FromLong(stream_seekAbs(player, argDouble));
+}
+
+static PyMethodDef md_seekAbs = {
+	"seekAbs",
+	player_method_seekAbs,
+	METH_O,
+	NULL
+};
+
+static
+PyObject* player_method_seekRel(PyObject* self, PyObject* arg) {
+	PlayerObject* player = (PlayerObject*) self;
+	double argDouble = PyFloat_AsDouble(arg);
+	if(PyErr_Occurred()) return NULL;
+	return PyInt_FromLong(stream_seekRel(player, argDouble));
+}
+
+static PyMethodDef md_seekRel = {
+	"seekRel",
+	player_method_seekRel,
+	METH_O,
+	NULL
+};
+
+static
 PyObject* player_getattr(PyObject* obj, char* key) {
 	PlayerObject* player = (PlayerObject*)obj;
 	//printf("%p getattr %s\n", player, key);
@@ -666,6 +763,8 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_Append(mlist, PyString_FromString("curSong"));
 		PyList_Append(mlist, PyString_FromString("curSongPos"));
 		PyList_Append(mlist, PyString_FromString("curSongLen"));
+		PyList_Append(mlist, PyString_FromString("seekAbs"));
+		PyList_Append(mlist, PyString_FromString("seekRel"));
 		return mlist;
 	}
 	
@@ -699,6 +798,14 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		if(player->playing && player->curSongLen > 0)
 			return PyFloat_FromDouble(player->curSongLen);
 		goto returnNone;
+	}
+
+	if(strcmp(key, "seekAbs") == 0) {
+		return PyCFunction_New(&md_seekAbs, (PyObject*) player);
+	}
+
+	if(strcmp(key, "seekRel") == 0) {
+		return PyCFunction_New(&md_seekRel, (PyObject*) player);
 	}
 
 returnNone:
