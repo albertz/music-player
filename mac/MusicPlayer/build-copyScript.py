@@ -66,14 +66,3 @@ def fixBin(binPath, targetDylibDir, badPaths = ["/usr/local/"], stripVersion = T
 			fixBin(targetDylibDirFull + "/" + fbase, targetDylibDir, badPaths, stripVersion)
 		
 fixBin(PYDIR + "/ffmpeg.so", ".")
-
-
-#for fullfn in $(otool -L "$PYDIR/ffmpeg.so" | cut -f 1 -d " " | grep "/usr/local/lib/lib"); do
-	# f is libavformat, libportaudio, ...
-#	f="$(echo "$fullfn" | sed -E "s/^.+\/(lib[a-z]+)\..*$/\1/g")"
-#	echo $f
-	
-#	cp /usr/local/lib/$f.dylib "$DYLIBDIR/"
-#	chmod +w "$DYLIBDIR/$f.dylib" # for future builds
-#	install_name_tool -change $fullfn $f.dylib "$PYDIR/ffmpeg.so"
-#done
