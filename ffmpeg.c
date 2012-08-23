@@ -441,9 +441,9 @@ static int player_getNextSong(PlayerObject* player) {
 	if(player->curSong) {
 		if(player->dict) {
 			Py_INCREF(player->dict);
-			PyObject* onNextSong = PyDict_GetItemString(player->dict, "onNextSong");
-			if(onNextSong && onNextSong != Py_None) {
-				PyObject* retObj = PyObject_CallFunctionObjArgs(onNextSong);
+			PyObject* onSongChange = PyDict_GetItemString(player->dict, "onSongChange");
+			if(onSongChange && onSongChange != Py_None) {
+				PyObject* retObj = PyObject_CallFunctionObjArgs(onSongChange);
 				Py_XDECREF(retObj);
 
 				// errors are not fatal from the callback, so handle it now and go on
@@ -911,7 +911,7 @@ PyObject* player_getdict(PlayerObject* player) {
 		// i.e. we requested for it.
 		// This is most likely from IPython or so, thus give the developer
 		// a list of possible entries.
-		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onNextSong", Py_None);
+		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onSongChange", Py_None);
 		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onFinishedSong", Py_None);
 		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onPlayingStateChange", Py_None);
 	}
