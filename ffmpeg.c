@@ -115,6 +115,10 @@ final:
 	Py_XDECREF(retObj);
 	Py_XDECREF(args);
 	Py_XDECREF(readPacketFunc);
+	
+	if(PyErr_Occurred())
+		PyErr_Print();
+	
 	PyGILState_Release(gstate);
 	return (int) ret;
 }
@@ -134,7 +138,7 @@ static int player_seek(PlayerObject* player, int64_t offset, int whence) {
 	args = PyTuple_Pack(2, PyLong_FromLongLong(offset), PyInt_FromLong(whence));
 	if(args == NULL) goto final;
 	retObj = PyObject_CallObject(seekRawFunc, args);
-	if(retObj == NULL) goto final;
+	if(retObj == NULL) goto final; // pass through any Python exception
 	
 	if(!PyInt_Check(retObj)) goto final;
 	ret = (int) PyInt_AsLong(retObj); // NOTE: I don't really know what would be the best strategy in case of overflow...
@@ -143,6 +147,10 @@ final:
 	Py_XDECREF(retObj);
 	Py_XDECREF(args);
 	Py_XDECREF(seekRawFunc);
+	
+	if(PyErr_Occurred())
+		PyErr_Print();
+	
 	PyGILState_Release(gstate);
 	return ret;
 }
@@ -410,6 +418,7 @@ final:
 }
 
 static int player_getNextSong(PlayerObject* player) {
+	int ret = -1;
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
 		
@@ -417,27 +426,48 @@ static int player_getNextSong(PlayerObject* player) {
 	player->curSong = NULL;
 	
 	if(player->queue == NULL) {
-		printf("player queue is not set\n");
+		PyErr_SetString(PyExc_RuntimeError, "player queue is not set");
 		goto final;
 	}
 	
 	if(!PyIter_Check(player->queue)) {
-		printf("player queue is not an iterator\n");
+		PyErr_SetString(PyExc_RuntimeError, "player queue is not an iterator");
 		goto final;
 	}
 	
 	player->curSong = PyIter_Next(player->queue);
+	// pass through any Python errors
 	
-	// TODO: exception handling
+	if(player->curSong) {
+		if(player->dict) {
+			Py_INCREF(player->dict);
+			PyObject* onNextSong = PyDict_GetItemString(player->dict, "onNextSong");
+			if(onNextSong && onNextSong != Py_None) {
+				PyObject* retObj = PyObject_CallFunctionObjArgs(onNextSong);
+				Py_XDECREF(retObj);
 
-	if(player->curSong && player_openInputStream(player) != 0) {
-		printf("cannot open input stream\n");
+				// errors are not fatal from the callback, so handle it now and go on
+				if(PyErr_Occurred()) {
+					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
+				}
+			}
+			Py_DECREF(player->dict);
+		}
 	}
 
+	if(player->curSong && player_openInputStream(player) != 0) {
+		// This is not fatal, so don't make a Python exception.
+		// When we are in playing state, we will just skip to the next song.
+		// This can happen if we don't support the format or whatever.
+		printf("cannot open input stream\n");
+	}
+	
+	if(player->curSong && player->inStream)
+		ret = 0;
+	
 final:
 	PyGILState_Release(gstate);
-	if(player->curSong && player->inStream) return 0;
-	return -1;
+	return ret;
 }
 
 /* return the wanted number of samples to get better sync if sync_type is video
@@ -605,9 +635,32 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 				int eof = 0;
 				if (ret == AVERROR_EOF || url_feof(is->inStream->pb))
 					eof = 1;
-				if(eof)
+				if(eof) {
+					PyGILState_STATE gstate;
+					gstate = PyGILState_Ensure();
+
+					PlayerObject* player = is;
+					if(player->dict) {
+						Py_INCREF(player->dict);
+						PyObject* onFinishedSong = PyDict_GetItemString(player->dict, "onFinishedSong");
+						if(onFinishedSong && onFinishedSong != Py_None) {
+							PyObject* retObj = PyObject_CallFunctionObjArgs(onFinishedSong);
+							Py_XDECREF(retObj);
+							
+							// errors are not fatal from the callback, so handle it now and go on
+							if(PyErr_Occurred())
+								PyErr_Print();
+						}
+						Py_DECREF(player->dict);
+					}
+								
 					// skip to next song
 					player_getNextSong(is);
+					if(PyErr_Occurred())
+						PyErr_Print();
+						
+					PyGILState_Release(gstate);
+				}
 				return -1;
 			}
 			
@@ -631,9 +684,16 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long le
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 
 	if(player->inStream == NULL) {
+		PyGILState_STATE gstate;
+		gstate = PyGILState_Ensure();
+
 		if(player_getNextSong(player) != 0) {
-			printf("cannot get next song\n");
+			fprintf(stderr, "cannot get next song\n");
+			if(PyErr_Occurred())
+				PyErr_Print();
 		}
+		
+		PyGILState_Release(gstate);
 	}
 	
 	PlayerObject* is = player;
@@ -707,6 +767,21 @@ static int player_setplaying(PlayerObject* player, int playing) {
 		Pa_StopStream(player->outStream);
 	Py_END_ALLOW_THREADS
 	PyThread_release_lock(player->lock);
+
+	if(player->dict) {
+		Py_INCREF(player->dict);
+		PyObject* onPlayingStateChange = PyDict_GetItemString(player->dict, "onPlayingStateChange");
+		if(onPlayingStateChange && onPlayingStateChange != Py_None) {
+			PyObject* retObj = PyObject_CallFunctionObjArgs(onPlayingStateChange);
+			Py_XDECREF(retObj);
+			
+			// errors are not fatal from the callback, so handle it now and go on
+			if(PyErr_Occurred())
+				PyErr_Print();
+		}
+		Py_DECREF(player->dict);
+	}
+
 	return 0;
 }
 
@@ -829,8 +904,17 @@ static PyMethodDef md_nextSong = {
 
 static
 PyObject* player_getdict(PlayerObject* player) {
-	if(!player->dict)
+	if(!player->dict) {
 		player->dict = PyDict_New();
+		if(!player->dict) return NULL;
+		// This function is called when we want to ensure that we have a dict,
+		// i.e. we requested for it.
+		// This is most likely from IPython or so, thus give the developer
+		// a list of possible entries.
+		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onNextSong", Py_None);
+		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onFinishedSong", Py_None);
+		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onPlayingStateChange", Py_None);
+	}
 	return player->dict;
 }
 
