@@ -443,6 +443,7 @@ static int player_getNextSong(PlayerObject* player) {
 			Py_INCREF(player->dict);
 			PyObject* onSongChange = PyDict_GetItemString(player->dict, "onSongChange");
 			if(onSongChange && onSongChange != Py_None) {
+				Py_INCREF(onSongChange);
 				PyObject* retObj = PyObject_CallFunctionObjArgs(onSongChange);
 				Py_XDECREF(retObj);
 
@@ -450,6 +451,8 @@ static int player_getNextSong(PlayerObject* player) {
 				if(PyErr_Occurred()) {
 					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
 				}
+				
+				Py_DECREF(onSongChange);
 			}
 			Py_DECREF(player->dict);
 		}
@@ -644,12 +647,15 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 						Py_INCREF(player->dict);
 						PyObject* onSongFinished = PyDict_GetItemString(player->dict, "onSongFinished");
 						if(onSongFinished && onSongFinished != Py_None) {
+							Py_INCREF(onSongFinished);
 							PyObject* retObj = PyObject_CallFunctionObjArgs(onSongFinished);
 							Py_XDECREF(retObj);
 							
 							// errors are not fatal from the callback, so handle it now and go on
 							if(PyErr_Occurred())
 								PyErr_Print();
+								
+							Py_DECREF(onSongFinished);
 						}
 						Py_DECREF(player->dict);
 					}
@@ -772,12 +778,15 @@ static int player_setplaying(PlayerObject* player, int playing) {
 		Py_INCREF(player->dict);
 		PyObject* onPlayingStateChange = PyDict_GetItemString(player->dict, "onPlayingStateChange");
 		if(onPlayingStateChange && onPlayingStateChange != Py_None) {
+			Py_INCREF(onPlayingStateChange);
 			PyObject* retObj = PyObject_CallFunctionObjArgs(onPlayingStateChange);
 			Py_XDECREF(retObj);
 			
 			// errors are not fatal from the callback, so handle it now and go on
 			if(PyErr_Occurred())
 				PyErr_Print();
+
+			Py_DECREF(onPlayingStateChange);
 		}
 		Py_DECREF(player->dict);
 	}
