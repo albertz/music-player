@@ -7,6 +7,8 @@ mainStateChanges = OnRequestQueue()
 def main():
 	import ffmpeg
 	player = ffmpeg.createPlayer()
+	for e in ("onSongChange", "onSongFinished", "onPlayingStateChange"):
+		setattr(player, e, EventCallback(targetQueue=mainStateChanges, name=e))
 	player.queue = state.queue
 	player.playing = True
 	# install some callbacks in player, like song changed, etc

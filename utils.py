@@ -33,6 +33,15 @@ class OnRequestQueue:
 				yield item
 			if cancel: break
 
+class EventCallback:
+	def __init__(self, targetQueue, name=None):
+		self.targetQueue = targetQueue
+		self.name = name
+	def __call__(self, *args, **kwargs):
+		self.targetQueue.put((self, args, kwargs))
+	def __repr__(self):
+		return "<EventCallback %s>" % self.name
+
 class initBy(property):
 	def __init__(self, initFunc):
 		property.__init__(self, fget = self.fget)
