@@ -53,6 +53,7 @@ typedef struct {
 	AVFormatContext* inStream;
 	PaStream* outStream;
 	PyThread_type_lock lock;
+	PyObject* dict;
 	
 	// audio_decode
     int audio_stream;
@@ -751,6 +752,9 @@ void player_dealloc(PyObject* obj) {
 	//printf("%p dealloc\n", player);
 	
 	// TODO: use Py_BEGIN_ALLOW_THREADS etc? what about deadlocks?
+
+	Py_XDECREF(player->dict);
+	player->dict = NULL;
 	
 	if(player->outStream) {
 		Pa_CloseStream(player->outStream);
@@ -764,7 +768,7 @@ void player_dealloc(PyObject* obj) {
 		
 	Py_XDECREF(player->queue);
 	player->queue = NULL;
-	
+		
 	PyThread_free_lock(player->lock);
 	player->lock = NULL;
 	
@@ -824,9 +828,22 @@ static PyMethodDef md_nextSong = {
 };
 
 static
+PyObject* player_getdict(PlayerObject* player) {
+	if(!player->dict)
+		player->dict = PyDict_New();
+	return player->dict;
+}
+
+static
 PyObject* player_getattr(PyObject* obj, char* key) {
 	PlayerObject* player = (PlayerObject*)obj;
 	//printf("%p getattr %s\n", player, key);
+	
+	if(strcmp(key, "__dict__") == 0) {
+		PyObject* dict = player_getdict(player);
+		Py_XINCREF(dict);
+		return dict;
+	}
 	
 	if(strcmp(key, "__members__") == 0) {
 		PyObject* mlist = PyList_New(0);
@@ -885,6 +902,21 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		return PyCFunction_New(&md_nextSong, (PyObject*) player);
 	}
 
+	PyObject* dict = player_getdict(player);
+	if(dict) { // should always be true...
+        Py_INCREF(dict);
+        PyObject* res = PyDict_GetItemString(dict, key);
+        if (res != NULL) {
+            Py_INCREF(res);
+            Py_DECREF(dict);
+            return res;
+        }
+        Py_DECREF(dict);		
+	}
+
+	PyErr_Format(PyExc_AttributeError, "PlayerObject has no attribute '%.400s'", key);
+	return NULL;
+
 returnNone:
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -903,7 +935,11 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 		return player_setplaying(player, PyObject_IsTrue(value));
 	}
 
-	return 0;
+	PyObject* s = PyString_FromString(key);
+	if(!s) return -1;
+	int ret = PyObject_GenericSetAttr(obj, s, value);
+	Py_XDECREF(s);
+	return ret;
 }
 
 /*
@@ -947,7 +983,7 @@ static PyTypeObject Player_Type = {
 	0, // dict
 	0, // descr_get
 	0, // descr_set
-	0, // dictoffset
+	offsetof(PlayerObject, dict), // dictoffset
 	player_init, // tp_init
 	0, // alloc
 	player_new, // new
@@ -996,6 +1032,8 @@ static PyMethodDef module_methods[] = {
 PyDoc_STRVAR(module_doc,
 "FFmpeg player.");
 
+static PyObject* EventClass = NULL;
+
 PyMODINIT_FUNC
 initffmpeg(void)
 {
@@ -1003,5 +1041,27 @@ initffmpeg(void)
 	init();
     if (PyType_Ready(&Player_Type) < 0)
         Py_FatalError("Can't initialize player type");
-	Py_InitModule3("ffmpeg", module_methods, module_doc);
+	PyObject* m = Py_InitModule3("ffmpeg", module_methods, module_doc);
+	if(!m) {
+        Py_FatalError("Can't initialize ffmpeg module");
+		return;
+	}
+	
+	if(EventClass == NULL) {
+		PyObject* classDict = PyDict_New();
+		assert(classDict);
+		PyObject* className = PyString_FromString("Event");
+		assert(className);
+		EventClass = PyClass_New(NULL, classDict, className);
+		assert(EventClass);
+		Py_XDECREF(classDict); classDict = NULL;
+		Py_XDECREF(className); className = NULL;
+	}
+	
+	if(EventClass) {
+		Py_INCREF(EventClass);
+		PyModule_AddObject(m, "Event", EventClass); // takes the ref
+	}
+	
+	
 }
