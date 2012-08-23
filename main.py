@@ -1,31 +1,39 @@
 #!/usr/bin/python
 
-#from Queue import Queue
 from collections import deque
-from threading import Event, Lock
+from threading import Condition
 class OnRequestQueue:
 	class QueueEnd:
 		def __init__(self):
 			self.q = deque()
-			self.putEv = Event()
-			self.lock = Lock()
+			self.cond = Condition()
+			self.cancel = False
 	def __init__(self):
 		self.queues = set()
 	def put(self, item):
 		for q in self.queues:
-			with q.lock:
+			with q.cond:
+				if q.cancel: continue
 				q.q.append(item)
-				q.putEv.set()
+				q.cond.notify()
+	def cancelAll(self):
+		for q in self.queues:
+			with q.cond:
+				q.cancel = True
+				q.cond.notify()
+		self.queues.clear()
 	def read(self):
 		q = self.QueueEnd()
 		self.queues.add(q)
-		while q.putEv.wait():
-			with q.lock:
+		while True:
+			with q.cond:
+				q.cond.wait()
 				l = list(q.q)
 				q.q.clear()
-				q.putEv.clear()
+				cancel = q.cancel
 			for item in l:
 				yield item
+			if cancel: break
 
 mainStateChanges = OnRequestQueue()
 
@@ -36,10 +44,11 @@ def main():
 	player.playing = True
 	# install some callbacks in player, like song changed, etc
 	for ev in mainStateChanges.read():
-		print ev
+		pass
 	
 def track(event):
 	# Last.fm or so
+	print "track:", repr(event)
 	pass
 	
 def tracker():
@@ -125,7 +134,18 @@ class State:
 state = State()
 
 if __name__ == '__main__':
-	import thread
-	thread.start_new_thread(tracker, ())
-	main()
+	from threading import Thread
+	threads = []
+	threads += [Thread(target=main, name="Main")]
+	threads += [Thread(target=tracker, name="Tracker")]
+	for t in threads: t.start()
+	import time
+	while True:
+		try: time.sleep(10) # wait for KeyboardInterrupt
+		except BaseException, e:
+			mainStateChanges.put(e)
+			mainStateChanges.cancelAll()
+			break
+	for t in threads: t.join()
+	
 	
