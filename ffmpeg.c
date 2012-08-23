@@ -642,9 +642,9 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 					PlayerObject* player = is;
 					if(player->dict) {
 						Py_INCREF(player->dict);
-						PyObject* onFinishedSong = PyDict_GetItemString(player->dict, "onFinishedSong");
-						if(onFinishedSong && onFinishedSong != Py_None) {
-							PyObject* retObj = PyObject_CallFunctionObjArgs(onFinishedSong);
+						PyObject* onSongFinished = PyDict_GetItemString(player->dict, "onSongFinished");
+						if(onSongFinished && onSongFinished != Py_None) {
+							PyObject* retObj = PyObject_CallFunctionObjArgs(onSongFinished);
 							Py_XDECREF(retObj);
 							
 							// errors are not fatal from the callback, so handle it now and go on
@@ -912,7 +912,7 @@ PyObject* player_getdict(PlayerObject* player) {
 		// This is most likely from IPython or so, thus give the developer
 		// a list of possible entries.
 		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onSongChange", Py_None);
-		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onFinishedSong", Py_None);
+		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onSongFinished", Py_None);
 		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onPlayingStateChange", Py_None);
 	}
 	return player->dict;
