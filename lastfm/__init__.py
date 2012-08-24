@@ -1,10 +1,10 @@
 import appinfo
-from dropbox import client, rest, session
+from lastfm import client, rest, session
 
 # i don't really know how to make these secure...
 APP_KEY = 'xxx'
 APP_SECRET = 'xxx'
-ACCESS_TYPE = 'dropbox'
+ACCESS_TYPE = 'lastfm'
 
 
 class OAuthReturnHandler:
@@ -58,7 +58,7 @@ class OAuthReturnHandler:
 
 class StoredSession(session.LastfmSession):
 	"""a wrapper around LastfmSession that stores a token to a file on disk"""
-	TOKEN_FILE = appinfo.userdir + "/dropbox_session_token_store.txt"
+	TOKEN_FILE = appinfo.userdir + "/lastfm_session_token_store.txt"
 	
 	def load_creds(self):
 		try:

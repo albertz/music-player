@@ -1,6 +1,6 @@
 """
 The main client API you'll be working with most often.  You'll need to
-configure a dropbox.session.LastfmSession for this to work, but otherwise
+configure a lastfm.session.LastfmSession for this to work, but otherwise
 it's fairly self-explanatory.
 """
 from __future__ import absolute_import
@@ -34,7 +34,7 @@ def format_path(path):
 class LastfmClient(object):
     """
     The main access point of doing REST calls on Lastfm. You should
-    first create and configure a dropbox.session.LastfmSession object,
+    first create and configure a lastfm.session.LastfmSession object,
     and then pass it into LastfmClient's constructor. LastfmClient
     then does all the work of properly calling each API method
     with the correct OAuth authentication.
@@ -49,8 +49,8 @@ class LastfmClient(object):
         """Initialize the LastfmClient object.
 
         Args:
-            session: A dropbox.session.LastfmSession object to use for making requests.
-            rest_client: A dropbox.rest.RESTClient-like object to use for making requests. [optional]
+            session: A lastfm.session.LastfmSession object to use for making requests.
+            rest_client: A lastfm.rest.RESTClient-like object to use for making requests. [optional]
         """
         self.session = session
         self.rest_client = rest_client
@@ -97,7 +97,7 @@ class LastfmClient(object):
             A dictionary containing account information.
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#account-info
+            https://www.lastfm.com/developers/reference/api#account-info
         """
         url, params, headers = self.request("/account/info", method='GET')
 
@@ -131,10 +131,10 @@ class LastfmClient(object):
             A dictionary containing the metadata of the newly uploaded file.
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#files-put
+            https://www.lastfm.com/developers/reference/api#files-put
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
                400: Bad request (may be due to many things; check e.error for details)
                503: User over quota
 
@@ -168,7 +168,7 @@ class LastfmClient(object):
             An httplib.HTTPResponse that is the result of the request.
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
                400: Bad request (may be due to many things; check e.error for details)
                404: No file was found at the given path, or the file that was there was deleted.
                200: Request was okay but response was malformed in some way.
@@ -195,10 +195,10 @@ class LastfmClient(object):
         Returns:
             - An httplib.HTTPResponse that is the result of the request.
             - A dictionary containing the metadata of the file (see
-              https://www.dropbox.com/developers/reference/api#metadata for details).
+              https://www.lastfm.com/developers/reference/api#metadata for details).
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
                400: Bad request (may be due to many things; check e.error for details)
                404: No file was found at the given path, or the file that was there was deleted.
                200: Request was okay but response was malformed in some way.
@@ -209,18 +209,18 @@ class LastfmClient(object):
         return file_res, metadata
 
     @staticmethod
-    def __parse_metadata_as_dict(dropbox_raw_response):
-        """Parses file metadata from a raw dropbox HTTP response, raising a
-        dropbox.rest.ErrorResponse if parsing fails.
+    def __parse_metadata_as_dict(lastfm_raw_response):
+        """Parses file metadata from a raw lastfm HTTP response, raising a
+        lastfm.rest.ErrorResponse if parsing fails.
         """
         metadata = None
-        for header, header_val in dropbox_raw_response.getheaders():
-            if header.lower() == 'x-dropbox-metadata':
+        for header, header_val in lastfm_raw_response.getheaders():
+            if header.lower() == 'x-lastfm-metadata':
                 try:
                     metadata = json.loads(header_val)
                 except ValueError:
-                    raise ErrorResponse(dropbox_raw_response)
-        if not metadata: raise ErrorResponse(dropbox_raw_response)
+                    raise ErrorResponse(lastfm_raw_response)
+        if not metadata: raise ErrorResponse(lastfm_raw_response)
         return metadata
 
     def delta(self, cursor=None):
@@ -336,10 +336,10 @@ class LastfmClient(object):
             A dictionary containing the metadata of the new copy of the file or folder.
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#fileops-copy
+            https://www.lastfm.com/developers/reference/api#fileops-copy
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of:
+            A lastfm.rest.ErrorResponse with an HTTP status of:
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: No file was found at given from_path.
@@ -365,10 +365,10 @@ class LastfmClient(object):
             A dictionary containing the metadata of the newly created folder.
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#fileops-create-folder
+            https://www.lastfm.com/developers/reference/api#fileops-create-folder
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
                400: Bad request (may be due to many things; check e.error for details)
                403: A folder at that path already exists.
         """
@@ -389,10 +389,10 @@ class LastfmClient(object):
             A dictionary containing the metadata of the just deleted file.
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#fileops-delete
+            https://www.lastfm.com/developers/reference/api#fileops-delete
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: No file was found at the given path.
@@ -419,10 +419,10 @@ class LastfmClient(object):
             A dictionary containing the metadata of the new copy of the file or folder.
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#fileops-move
+            https://www.lastfm.com/developers/reference/api#fileops-move
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: No file was found at given from_path.
@@ -460,10 +460,10 @@ class LastfmClient(object):
             (and contained files if appropriate).
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#metadata
+            https://www.lastfm.com/developers/reference/api#metadata
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 304: Current directory hash matches hash parameters, so contents are unchanged.
             - 400: Bad request (may be due to many things; check e.error for details)
@@ -500,14 +500,14 @@ class LastfmClient(object):
                At this time, 'small', 'medium', and 'large' are
                officially supported sizes (32x32, 64x64, and 128x128
                respectively), though others may be available. Check
-               https://www.dropbox.com/developers/reference/api#thumbnails for
+               https://www.lastfm.com/developers/reference/api#thumbnails for
                more details.
 
         Returns:
             An httplib.HTTPResponse that is the result of the request.
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: No file was found at the given from_path, or files of that type cannot be thumbnailed.
@@ -534,11 +534,11 @@ class LastfmClient(object):
         Returns:
             - An httplib.HTTPResponse that is the result of the request.
             - A dictionary containing the metadata of the file whose thumbnail
-              was downloaded (see https://www.dropbox.com/developers/reference/api#metadata
+              was downloaded (see https://www.lastfm.com/developers/reference/api#metadata
               for details).
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: No file was found at the given from_path, or files of that type cannot be thumbnailed.
@@ -567,10 +567,10 @@ class LastfmClient(object):
             A list of the metadata of all matching files (up to
             file_limit entries).  For a detailed description of what
             this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#search
+            https://www.lastfm.com/developers/reference/api#search
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
             400: Bad request (may be due to many things; check e.error
             for details)
         """
@@ -599,10 +599,10 @@ class LastfmClient(object):
             A list of the metadata of all matching files (up to rev_limit entries).
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#revisions
+            https://www.lastfm.com/developers/reference/api#revisions
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: No revisions were found at the given path.
@@ -628,10 +628,10 @@ class LastfmClient(object):
             A dictionary containing the metadata of the newly restored file.
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#restore
+            https://www.lastfm.com/developers/reference/api#restore
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: Unable to find the file at the given revision.
@@ -661,13 +661,13 @@ class LastfmClient(object):
         Returns:
             A dictionary that looks like the following example:
 
-            ``{'url': 'https://dl.dropbox.com/0/view/wvxv1fw6on24qw7/file.mov', 'expires': 'Thu, 16 Sep 2011 01:01:25 +0000'}``
+            ``{'url': 'https://dl.lastfm.com/0/view/wvxv1fw6on24qw7/file.mov', 'expires': 'Thu, 16 Sep 2011 01:01:25 +0000'}``
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#media
+            https://www.lastfm.com/developers/reference/api#media
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: Unable to find the file at the given path.
@@ -692,13 +692,13 @@ class LastfmClient(object):
         Returns:
             A dictionary that looks like the following example:
 
-            ``{'url': 'http://www.dropbox.com/s/m/a2mbDa2', 'expires': 'Thu, 16 Sep 2011 01:01:25 +0000'}``
+            ``{'url': 'http://www.lastfm.com/s/m/a2mbDa2', 'expires': 'Thu, 16 Sep 2011 01:01:25 +0000'}``
 
             For a detailed description of what this call returns, visit:
-            https://www.dropbox.com/developers/reference/api#shares
+            https://www.lastfm.com/developers/reference/api#shares
 
         Raises:
-            A dropbox.rest.ErrorResponse with an HTTP status of
+            A lastfm.rest.ErrorResponse with an HTTP status of
 
             - 400: Bad request (may be due to many things; check e.error for details)
             - 404: Unable to find the file at the given path.

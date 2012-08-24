@@ -1,6 +1,6 @@
 """
 A simple JSON REST request abstraction layer that is used by the
-dropbox.client and dropbox.session modules. You shouldn't need to use this.
+lastfm.client and lastfm.session modules. You shouldn't need to use this.
 """
 
 import httplib
@@ -255,9 +255,9 @@ class RESTClient(object):
             specified, in which case an httplib.HTTPReponse object is returned instead.
 
         Raises:
-            dropbox.rest.ErrorResponse: The returned HTTP status is not 200, or the body was
+            lastfm.rest.ErrorResponse: The returned HTTP status is not 200, or the body was
                 not parsed from JSON successfully.
-            dropbox.rest.RESTSocketError: A socket.error was raised while contacting Lastfm.
+            lastfm.rest.RESTSocketError: A socket.error was raised while contacting Lastfm.
         """
         return cls.IMPL.request(*n, **kw)
 
@@ -278,7 +278,7 @@ class RESTClient(object):
 
 class RESTSocketError(socket.error):
     """
-    A light wrapper for socket.errors raised by dropbox.rest.RESTClient.request
+    A light wrapper for socket.errors raised by lastfm.rest.RESTClient.request
     that adds more information to the socket.error.
     """
 
@@ -288,7 +288,7 @@ class RESTSocketError(socket.error):
 
 class ErrorResponse(Exception):
     """
-    Raised by dropbox.rest.RESTClient.request for requests that:
+    Raised by lastfm.rest.RESTClient.request for requests that:
     - Return a non-200 HTTP response, or
     - Have a non-JSON response body, or
     - Have a malformed/missing header in the response.

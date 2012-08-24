@@ -1,10 +1,10 @@
 """
-dropbox.session.LastfmSession is responsible for holding OAuth authentication info
+lastfm.session.LastfmSession is responsible for holding OAuth authentication info
 (app key/secret, request key/secret,  access key/secret) as well as configuration information for your app
-('app_folder' or 'dropbox' access type, optional locale preference). It knows how to
+('app_folder' or 'lastfm' access type, optional locale preference). It knows how to
 use all of this information to craft properly constructed requests to Lastfm.
 
-A LastfmSession object must be passed to a dropbox.client.LastfmClient object upon
+A LastfmSession object must be passed to a lastfm.client.LastfmClient object upon
 initialization.
 """
 from __future__ import absolute_import
@@ -31,18 +31,18 @@ class OAuthToken(object):
 class LastfmSession(object):
     API_VERSION = 1
 
-    API_HOST = "api.dropbox.com"
-    WEB_HOST = "www.dropbox.com"
-    API_CONTENT_HOST = "api-content.dropbox.com"
+    API_HOST = "api.lastfm.com"
+    WEB_HOST = "www.lastfm.com"
+    API_CONTENT_HOST = "api-content.lastfm.com"
 
     def __init__(self, consumer_key, consumer_secret, access_type, locale=None, rest_client=rest.RESTClient):
         """Initialize a LastfmSession object.
 
         Your consumer key and secret are available
-        at https://www.dropbox.com/developers/apps
+        at https://www.lastfm.com/developers/apps
 
         Args:
-            access_type: Either 'dropbox' or 'app_folder'. All path-based operations
+            access_type: Either 'lastfm' or 'app_folder'. All path-based operations
                 will occur relative to either the user's Lastfm root directory
                 or your application's app folder.
             locale: A locale string ('en', 'pt_PT', etc.) [optional]
@@ -53,11 +53,11 @@ class LastfmSession(object):
                 support, messages will remain in English. Look for these translated
                 messages in rest.ErrorResponse exceptions as e.user_error_msg.
         """
-        assert access_type in ['dropbox', 'app_folder'], "expected access_type of 'dropbox' or 'app_folder'"
+        assert access_type in ['lastfm', 'app_folder'], "expected access_type of 'lastfm' or 'app_folder'"
         self.consumer_creds = OAuthToken(consumer_key, consumer_secret)
         self.token = None
         self.request_token = None
-        self.root = 'sandbox' if access_type == 'app_folder' else 'dropbox'
+        self.root = 'sandbox' if access_type == 'app_folder' else 'lastfm'
         self.locale = locale
         self.rest_client = rest_client
 
@@ -166,7 +166,7 @@ class LastfmSession(object):
         can store the access token for that user for later operations.
 
         Returns:
-            An dropbox.session.OAuthToken representing the request token Lastfm assigned
+            An lastfm.session.OAuthToken representing the request token Lastfm assigned
             to this app. Also attaches the request token as self.request_token.
         """
         self.token = None # clear any token currently on the request
@@ -217,7 +217,7 @@ class LastfmSession(object):
 
         Returns:
             A tuple of (header_dict, params) where header_dict is a dictionary
-            of header names and values appropriate for passing into dropbox.rest.RESTClient
+            of header names and values appropriate for passing into lastfm.rest.RESTClient
             and params is a dictionary like the one that was passed in, but augmented with
             oauth-related parameters as appropriate.
         """
