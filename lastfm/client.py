@@ -92,12 +92,14 @@ class LastfmClient(object):
 		return url, params, headers
 
 	# http://www.last.fm/api/show/track.updateNowPlaying
-	def updateNowPlaying(self, artist, track):
+	def updateNowPlaying(self, artist, track, duration=None):
 		params = {
 			"method": "track.updateNowPlaying",
 			"artist": artist,
 			"track": track,
 		}
+		if duration and duration > 0:
+			params["duration"] = str(int(duration))
 		url, params, headers = self.request("/", method='POST', params=params)
 
 		ret = self.rest_client.POST(url, headers=headers, params=params)
