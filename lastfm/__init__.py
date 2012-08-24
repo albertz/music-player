@@ -1,3 +1,12 @@
+# This is a simple interface to Last.fm, based on the web API: http://www.last.fm/api/
+# Some other implementations of a Last.fm scrobbler can be seen here:
+# Amarok:
+#  * source: https://github.com/orangejulius/amarok/blob/master/src/services/lastfm/LastFmService.cpp
+#  * uses liblastfm
+# Songbird:
+#  * source: https://github.com/ianloic/songbird-lastfm/blob/master/components/sbLastFm.js
+#  * JS source, uses the web API
+
 import appinfo
 from . import client, rest, session
 
@@ -14,8 +23,9 @@ class OAuthReturnHandler:
 		class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 			def log_message(self, format, *args): pass
 			def do_GET(webself):
-				if webself.path.startswith("/get_access_token?"):
-					oself.httpd_access_token_callback = webself.path
+				pathStart = "/get_access_token?"
+				if webself.path.startswith(pathStart):
+					oself.httpd_access_token_callback = webself.path[len(pathStart):]
 
 					webself.send_response(200)
 					webself.send_header("Content-type", "text/html")
@@ -88,8 +98,11 @@ class StoredSession(session.LastfmSession):
 		print "* waiting for redirect callback ...",
 		httpd_access_token_callback = oauthreturnhandler.wait_callback_response()
 		print "done"
+		from urlparse import parse_qs
+		token = parse_qs(httpd_access_token_callback)
+		token = token["token"][0]
 	
-		self.obtain_access_token(request_token)
+		self.obtain_access_token(token)		
 		self.write_creds(self.token)
 	
 	def unlink(self):
@@ -98,16 +111,27 @@ class StoredSession(session.LastfmSession):
 
 class Client:
 	def __init__(self):
-		self.sess = StoredSession(APP_KEY, APP_SECRET, access_type=ACCESS_TYPE)
-		self.api_client = client.DropboxClient(self.sess)
+		self.sess = StoredSession(APP_KEY, APP_SECRET)
+		self.api_client = client.LastfmClient(self.sess)
 		self.sess.load_creds()
 		if not self.sess.is_linked():
 			try:			
 				self.sess.link()
 			except rest.ErrorResponse, e:
-				self.stdout.write('Error: %s\n' % str(e))
+				import sys
+				sys.stdout.write('Error: %s\n' % str(e))
 				raise
 
+def login():
+	global _client
+	try:
+		_client = Client()
+		return True
+	except:
+		import sys
+		sys.excepthook(*sys.exc_info())
+		return False
+		
 def onSongChange(newSong):
 	pass
 

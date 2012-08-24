@@ -30,32 +30,31 @@ class OAuthToken(object):
 
 # see http://www.last.fm/api/authentication
 # see http://www.last.fm/api/desktopauth
+# see http://www.last.fm/api/webauth
 # see http://www.last.fm/api/scrobbling
+
+def build_api_sig(kwargs, api_secret):
+	# kwargs e.g. contains api_key, method, token
+	s = "".join([key + kwargs[key] for key in sorted(kwargs.keys())])
+	s += api_secret
+	from hashlib import md5
+	return md5(s).hexdigest()
+
 class LastfmSession(object):
 	API_VERSION = "2.0"
 
 	API_HOST = "ws.audioscrobbler.com"
 	WEB_HOST = "www.last.fm"
 
-	def __init__(self, consumer_key, consumer_secret, locale=None, rest_client=rest.RESTClient):
+	def __init__(self, consumer_key, consumer_secret, rest_client=rest.RESTClient):
 		"""Initialize a LastfmSession object.
 
 		Your consumer key and secret are available
 		at http://www.last.fm/api/
-
-		Args:
-			locale: A locale string ('en', 'pt_PT', etc.) [optional]
-				The locale setting will be used to translate any user-facing error
-				messages that the server generates. At this time Lastfm supports
-				'en', 'es', 'fr', 'de', and 'ja', though we will be supporting more
-				languages in the future. If you send a language the server doesn't
-				support, messages will remain in English. Look for these translated
-				messages in rest.ErrorResponse exceptions as e.user_error_msg.
 		"""
 		self.consumer_creds = OAuthToken(consumer_key, consumer_secret)
 		self.token = None
 		self.request_token = None
-		self.locale = locale
 		self.rest_client = rest_client
 
 	def is_linked(self):
@@ -103,9 +102,8 @@ class LastfmSession(object):
 
 		params = params or {}
 		params = params.copy()
-
-		if self.locale:
-			params['locale'] = self.locale
+		
+		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
 		
 		prefix = "/"
 		if withVersion: prefix += self.API_VERSION		
@@ -144,15 +142,17 @@ class LastfmSession(object):
 		Returns:
 			An authorization for the given request token.
 		"""
-		params = {'oauth_token': request_token.key,
-				  }
+		params = {
+			"api_key": self.consumer_creds.key,
+			#'token': request_token, # if we don't provide this, Last.fm takes it as a webapp and uses the callback, otherwise it don't. our current way to return to our app is via the callback, so just leave this away
+		}
 
 		if oauth_callback:
-			params['oauth_callback'] = oauth_callback
+			params['cb'] = oauth_callback
 
-		return "https://%s%s" % (self.WEB_HOST, self.build_path(target, params))
-		#return self.build_url(self.WEB_HOST, '/oauth/authorize', params)
+		return "https://%s%s" % (self.WEB_HOST, self.build_path("/api/auth/", params, withVersion=False))
 
+	# http://www.last.fm/api/show/auth.getToken
 	def obtain_request_token(self):
 		"""Obtain a request token from the Lastfm API.
 
@@ -170,13 +170,18 @@ class LastfmSession(object):
 			to this app. Also attaches the request token as self.request_token.
 		"""
 		self.token = None # clear any token currently on the request
-		url = self.build_url(self.API_HOST, '/oauth/request_token')
+		url = self.build_url(self.API_HOST, '/', {
+			"method":"auth.getToken",
+			"api_key":self.consumer_creds.key,
+			"format":"json",
+			})
 		headers, params = self.build_access_headers('POST', url)
 
-		response = self.rest_client.POST(url, headers=headers, params=params, raw_response=True)
-		self.request_token = self._parse_token(response.read())
+		response = self.rest_client.POST(url, headers=headers, params=params)
+		self.request_token = response["token"]
 		return self.request_token
 
+	# http://www.last.fm/api/show/auth.getSession
 	def obtain_access_token(self, request_token=None):
 		"""Obtain an access token for a user.
 
@@ -199,11 +204,16 @@ class LastfmSession(object):
 		"""
 		request_token = request_token or self.request_token
 		assert request_token, "No request_token available on the session. Please pass one."
-		url = self.build_url(self.API_HOST, '/oauth/access_token')
+		url = self.build_url(self.API_HOST, '/', {
+			"method":"auth.getSession",
+			"api_key":self.consumer_creds.key,
+			"token":request_token,
+			"format":"json",
+			})
 		headers, params = self.build_access_headers('POST', url, request_token=request_token)
 
-		response = self.rest_client.POST(url, headers=headers, params=params, raw_response=True)
-		self.token = self._parse_token(response.read())
+		response = self.rest_client.POST(url, headers=headers)
+		self.token = response["key"]
 		return self.token
 
 	def build_access_headers(self, method, resource_url, params=None, request_token=None):
@@ -236,7 +246,7 @@ class LastfmSession(object):
 		token = request_token if request_token is not None else self.token
 
 		if token:
-			oauth_params['oauth_token'] = token.key
+			oauth_params['oauth_token'] = token
 
 		self._oauth_sign_request(oauth_params, self.consumer_creds, token)
 
