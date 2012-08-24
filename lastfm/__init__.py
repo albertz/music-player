@@ -86,11 +86,14 @@ class StoredSession(session.LastfmSession):
 		os.unlink(self.TOKEN_FILE)
 
 	def link(self):
-		request_token = self.obtain_request_token()
+		#request_token = self.obtain_request_token()
 		oauthreturnhandler = OAuthReturnHandler()
 
+		#url = self.build_authorize_url(
+		#	request_token, oauth_callback = oauthreturnhandler.oauth_callback_url)
+		
 		url = self.build_authorize_url(
-			request_token, oauth_callback = oauthreturnhandler.oauth_callback_url)
+			None, oauth_callback = oauthreturnhandler.oauth_callback_url)
 		
 		print "* open oauth login page"
 		import webbrowser; webbrowser.open(url)

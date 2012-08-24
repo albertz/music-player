@@ -102,9 +102,7 @@ class LastfmSession(object):
 
 		params = params or {}
 		params = params.copy()
-		
-		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
-		
+				
 		prefix = "/"
 		if withVersion: prefix += self.API_VERSION		
 		if params:
@@ -146,9 +144,9 @@ class LastfmSession(object):
 			"api_key": self.consumer_creds.key,
 			#'token': request_token, # if we don't provide this, Last.fm takes it as a webapp and uses the callback, otherwise it don't. our current way to return to our app is via the callback, so just leave this away
 		}
-
 		if oauth_callback:
 			params['cb'] = oauth_callback
+		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
 
 		return "https://%s%s" % (self.WEB_HOST, self.build_path("/api/auth/", params, withVersion=False))
 
@@ -170,13 +168,15 @@ class LastfmSession(object):
 			to this app. Also attaches the request token as self.request_token.
 		"""
 		self.token = None # clear any token currently on the request
-		url = self.build_url(self.API_HOST, '/', {
+		url = self.build_url(self.API_HOST, '/')
+		headers = {}
+		params = {
 			"method":"auth.getToken",
 			"api_key":self.consumer_creds.key,
-			"format":"json",
-			})
-		headers, params = self.build_access_headers('POST', url)
-
+			}
+		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
+		params["format"] = "json"
+		
 		response = self.rest_client.POST(url, headers=headers, params=params)
 		self.request_token = response["token"]
 		return self.request_token
@@ -204,93 +204,19 @@ class LastfmSession(object):
 		"""
 		request_token = request_token or self.request_token
 		assert request_token, "No request_token available on the session. Please pass one."
-		url = self.build_url(self.API_HOST, '/', {
+		url = self.build_url(self.API_HOST, '/')
+		headers = {}
+		params = {
 			"method":"auth.getSession",
 			"api_key":self.consumer_creds.key,
 			"token":request_token,
-			"format":"json",
-			})
-		headers, params = self.build_access_headers('POST', url, request_token=request_token)
-
-		response = self.rest_client.POST(url, headers=headers)
-		self.token = response["key"]
+			}
+		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
+		params["format"] = "json"
+		print params
+		
+		response = self.rest_client.POST(url, headers=headers, params=params)
+		self.token = response["session"]["key"]
+		self.user_name = response["session"]["name"]
 		return self.token
 
-	def build_access_headers(self, method, resource_url, params=None, request_token=None):
-		"""Build OAuth access headers for a future request.
-
-		Args:
-			method: The HTTP method being used (e.g. 'GET' or 'POST').
-			resource_url: The full url the request will be made to.
-			params: A dictionary of parameters to add to what's already on the url.
-				Typically, this would consist of POST parameters.
-
-		Returns:
-			A tuple of (header_dict, params) where header_dict is a dictionary
-			of header names and values appropriate for passing into lastfm.rest.RESTClient
-			and params is a dictionary like the one that was passed in, but augmented with
-			oauth-related parameters as appropriate.
-		"""
-		if params is None:
-			params = {}
-		else:
-			params = params.copy()
-
-		oauth_params = {
-			'oauth_consumer_key' : self.consumer_creds.key,
-			'oauth_timestamp' : self._generate_oauth_timestamp(),
-			'oauth_nonce' : self._generate_oauth_nonce(),
-			'oauth_version' : self._oauth_version(),
-		}
-
-		token = request_token if request_token is not None else self.token
-
-		if token:
-			oauth_params['oauth_token'] = token
-
-		self._oauth_sign_request(oauth_params, self.consumer_creds, token)
-
-		params.update(oauth_params)
-
-		return {}, params
-
-	@classmethod
-	def _oauth_sign_request(cls, params, consumer_pair, token_pair):
-		params.update({'oauth_signature_method' : 'PLAINTEXT',
-					   'oauth_signature' : ('%s&%s' % (consumer_pair.secret, token_pair.secret)
-											if token_pair is not None else
-											'%s&' % (consumer_pair.secret,))})
-
-	@classmethod
-	def _generate_oauth_timestamp(cls):
-		return int(time.time())
-
-	@classmethod
-	def _generate_oauth_nonce(cls, length=8):
-		return ''.join([str(random.randint(0, 9)) for i in range(length)])
-
-	@classmethod
-	def _oauth_version(cls):
-		return '1.0'
-
-	@classmethod
-	def _parse_token(cls, s):
-		if not s:
-			raise ValueError("Invalid parameter string.")
-
-		params = parse_qs(s, keep_blank_values=False)
-		if not params:
-			raise ValueError("Invalid parameter string: %r" % s)
-
-		try:
-			key = params['oauth_token'][0]
-		except Exception:
-			raise ValueError("'oauth_token' not found in OAuth request.")
-
-		try:
-			secret = params['oauth_token_secret'][0]
-		except Exception:
-			raise ValueError("'oauth_token_secret' not found in "
-							 "OAuth request.")
-
-		return OAuthToken(key, secret)
