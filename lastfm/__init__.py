@@ -56,8 +56,8 @@ class OAuthReturnHandler:
 			self.httpd.handle_request()
 		return self.httpd_access_token_callback
 
-class StoredSession(session.DropboxSession):
-	"""a wrapper around DropboxSession that stores a token to a file on disk"""
+class StoredSession(session.LastfmSession):
+	"""a wrapper around LastfmSession that stores a token to a file on disk"""
 	TOKEN_FILE = appinfo.userdir + "/dropbox_session_token_store.txt"
 	
 	def load_creds(self):
@@ -95,5 +95,5 @@ class StoredSession(session.DropboxSession):
 	
 	def unlink(self):
 		self.delete_creds()
-		session.DropboxSession.unlink(self)
+		session.LastfmSession.unlink(self)
 

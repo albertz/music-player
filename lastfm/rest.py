@@ -129,7 +129,7 @@ class RESTClientObject(object):
     def request(self, method, url, post_params=None, body=None, headers=None, raw_response=False):
         post_params = post_params or {}
         headers = headers or {}
-        headers['User-Agent'] = 'OfficialDropboxPythonSDK/' + SDK_VERSION
+        headers['User-Agent'] = 'OfficialLastfmPythonSDK/' + SDK_VERSION
 
         if post_params:
             if body:
@@ -227,7 +227,7 @@ class RESTClient(object):
 
     """
     An class with all static methods to perform JSON REST requests that is used internally
-    by the Dropbox Client API. It provides just enough gear to make requests
+    by the Lastfm Client API. It provides just enough gear to make requests
     and get responses as JSON data (when applicable). All requests happen over SSL.
     """
 
@@ -257,7 +257,7 @@ class RESTClient(object):
         Raises:
             dropbox.rest.ErrorResponse: The returned HTTP status is not 200, or the body was
                 not parsed from JSON successfully.
-            dropbox.rest.RESTSocketError: A socket.error was raised while contacting Dropbox.
+            dropbox.rest.RESTSocketError: A socket.error was raised while contacting Lastfm.
         """
         return cls.IMPL.request(*n, **kw)
 
@@ -293,7 +293,7 @@ class ErrorResponse(Exception):
     - Have a non-JSON response body, or
     - Have a malformed/missing header in the response.
 
-    Most errors that Dropbox returns will have a error field that is unpacked and
+    Most errors that Lastfm returns will have a error field that is unpacked and
     placed on the ErrorResponse exception. In some situations, a user_error field
     will also come back. Messages under user_error are worth showing to an end-user
     of your app, while other errors are likely only useful for you as the developer.

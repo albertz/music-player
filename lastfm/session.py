@@ -1,10 +1,10 @@
 """
-dropbox.session.DropboxSession is responsible for holding OAuth authentication info
+dropbox.session.LastfmSession is responsible for holding OAuth authentication info
 (app key/secret, request key/secret,  access key/secret) as well as configuration information for your app
 ('app_folder' or 'dropbox' access type, optional locale preference). It knows how to
-use all of this information to craft properly constructed requests to Dropbox.
+use all of this information to craft properly constructed requests to Lastfm.
 
-A DropboxSession object must be passed to a dropbox.client.DropboxClient object upon
+A LastfmSession object must be passed to a dropbox.client.LastfmClient object upon
 initialization.
 """
 from __future__ import absolute_import
@@ -28,7 +28,7 @@ class OAuthToken(object):
         self.key = key
         self.secret = secret
 
-class DropboxSession(object):
+class LastfmSession(object):
     API_VERSION = 1
 
     API_HOST = "api.dropbox.com"
@@ -36,18 +36,18 @@ class DropboxSession(object):
     API_CONTENT_HOST = "api-content.dropbox.com"
 
     def __init__(self, consumer_key, consumer_secret, access_type, locale=None, rest_client=rest.RESTClient):
-        """Initialize a DropboxSession object.
+        """Initialize a LastfmSession object.
 
         Your consumer key and secret are available
         at https://www.dropbox.com/developers/apps
 
         Args:
             access_type: Either 'dropbox' or 'app_folder'. All path-based operations
-                will occur relative to either the user's Dropbox root directory
+                will occur relative to either the user's Lastfm root directory
                 or your application's app folder.
             locale: A locale string ('en', 'pt_PT', etc.) [optional]
                 The locale setting will be used to translate any user-facing error
-                messages that the server generates. At this time Dropbox supports
+                messages that the server generates. At this time Lastfm supports
                 'en', 'es', 'fr', 'de', and 'ja', though we will be supporting more
                 languages in the future. If you send a language the server doesn't
                 support, messages will remain in English. Look for these translated
@@ -62,15 +62,15 @@ class DropboxSession(object):
         self.rest_client = rest_client
 
     def is_linked(self):
-        """Return whether the DropboxSession has an access token attached."""
+        """Return whether the LastfmSession has an access token attached."""
         return bool(self.token)
 
     def unlink(self):
-        """Remove any attached access token from the DropboxSession."""
+        """Remove any attached access token from the LastfmSession."""
         self.token = None
 
     def set_token(self, access_token, access_token_secret):
-        """Attach an access token to the DropboxSession.
+        """Attach an access token to the LastfmSession.
 
         Note that the access 'token' is made up of both a token string
         and a secret string.
@@ -78,7 +78,7 @@ class DropboxSession(object):
         self.token = OAuthToken(access_token, access_token_secret)
 
     def set_request_token(self, request_token, request_token_secret):
-        """Attach an request token to the DropboxSession.
+        """Attach an request token to the LastfmSession.
 
         Note that the reuest 'token' is made up of both a token string
         and a secret string.
@@ -154,19 +154,19 @@ class DropboxSession(object):
         return self.build_url(self.WEB_HOST, '/oauth/authorize', params)
 
     def obtain_request_token(self):
-        """Obtain a request token from the Dropbox API.
+        """Obtain a request token from the Lastfm API.
 
         This is your first step in the OAuth process.  You call this to get a
-        request_token from the Dropbox server that you can then use with
-        DropboxSession.build_authorize_url() to get the user to authorize it.
+        request_token from the Lastfm server that you can then use with
+        LastfmSession.build_authorize_url() to get the user to authorize it.
         After it's authorized you use this token with
-        DropboxSession.obtain_access_token() to get an access token.
+        LastfmSession.obtain_access_token() to get an access token.
 
         NOTE:  You should only need to do this once for each user, and then you
         can store the access token for that user for later operations.
 
         Returns:
-            An dropbox.session.OAuthToken representing the request token Dropbox assigned
+            An dropbox.session.OAuthToken representing the request token Lastfm assigned
             to this app. Also attaches the request token as self.request_token.
         """
         self.token = None # clear any token currently on the request
@@ -191,10 +191,10 @@ class DropboxSession(object):
                 authorization url from build_authorize_url. If you don't pass
                 a request_token, the fallback is self.request_token, which
                 will exist if you previously called obtain_request_token on this
-                DropboxSession instance.
+                LastfmSession instance.
 
         Returns:
-            An tuple of (key, secret) representing the access token Dropbox assigned
+            An tuple of (key, secret) representing the access token Lastfm assigned
             to this app and user. Also attaches the access token as self.token.
         """
         request_token = request_token or self.request_token

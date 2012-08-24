@@ -1,6 +1,6 @@
 """
 The main client API you'll be working with most often.  You'll need to
-configure a dropbox.session.DropboxSession for this to work, but otherwise
+configure a dropbox.session.LastfmSession for this to work, but otherwise
 it's fairly self-explanatory.
 """
 from __future__ import absolute_import
@@ -15,7 +15,7 @@ except ImportError:
 from .rest import ErrorResponse, RESTClient
 
 def format_path(path):
-    """Normalize path for use with the Dropbox API.
+    """Normalize path for use with the Lastfm API.
 
     This function turns multiple adjacent slashes into single
     slashes, then ensures that there's a leading slash but
@@ -31,11 +31,11 @@ def format_path(path):
     else:
         return '/' + path.strip('/')
 
-class DropboxClient(object):
+class LastfmClient(object):
     """
-    The main access point of doing REST calls on Dropbox. You should
-    first create and configure a dropbox.session.DropboxSession object,
-    and then pass it into DropboxClient's constructor. DropboxClient
+    The main access point of doing REST calls on Lastfm. You should
+    first create and configure a dropbox.session.LastfmSession object,
+    and then pass it into LastfmClient's constructor. LastfmClient
     then does all the work of properly calling each API method
     with the correct OAuth authentication.
 
@@ -46,10 +46,10 @@ class DropboxClient(object):
     """
 
     def __init__(self, session, rest_client=RESTClient):
-        """Initialize the DropboxClient object.
+        """Initialize the LastfmClient object.
 
         Args:
-            session: A dropbox.session.DropboxSession object to use for making requests.
+            session: A dropbox.session.LastfmSession object to use for making requests.
             rest_client: A dropbox.rest.RESTClient-like object to use for making requests. [optional]
         """
         self.session = session
@@ -59,7 +59,7 @@ class DropboxClient(object):
         """Make an HTTP request to a target API method.
 
         This is an internal method used to properly craft the url, headers, and
-        params for a Dropbox API request.  It is exposed for you in case you
+        params for a Lastfm API request.  It is exposed for you in case you
         need craft other API calls not in this library or if you want to debug it.
 
         Args:
@@ -112,7 +112,7 @@ class DropboxClient(object):
                 If the destination directory does not yet exist, it will be created.
             file_obj: A file-like object to upload. If you would like, you can pass a string as file_obj.
             overwrite: Whether to overwrite an existing file at the given path. [default False]
-                If overwrite is False and a file already exists there, Dropbox
+                If overwrite is False and a file already exists there, Lastfm
                 will rename the upload to make sure it doesn't overwrite anything.
                 You need to check the metadata returned for the new name.
                 This field should only be True if your intent is to potentially
@@ -204,7 +204,7 @@ class DropboxClient(object):
                200: Request was okay but response was malformed in some way.
         """
         file_res = self.get_file(from_path, rev)
-        metadata = DropboxClient.__parse_metadata_as_dict(file_res)
+        metadata = LastfmClient.__parse_metadata_as_dict(file_res)
 
         return file_res, metadata
 
@@ -225,7 +225,7 @@ class DropboxClient(object):
 
     def delta(self, cursor=None):
         """A way of letting you keep up with changes to files and folders in a
-        user's Dropbox.  You can periodically call delta() to get a list of "delta
+        user's Lastfm.  You can periodically call delta() to get a list of "delta
         entries", which are instructions on how to update your local state to
         match the server's state.
 
@@ -260,12 +260,12 @@ class DropboxClient(object):
                 folder, apply the new *metadata* to the folder, but do not modify
                 the folder's children.
           - [*path*, ``nil``]: Indicates that there is no file/folder at the *path* on
-            Dropbox.  To update your local state to match, delete whatever is at *path*,
+            Lastfm.  To update your local state to match, delete whatever is at *path*,
             including any children (you will sometimes also get "delete" delta entries
             for the children, but this is not guaranteed).  If your local state doesn't
             have anything at *path*, ignore this entry.
 
-        Remember: Dropbox treats file names in a case-insensitive but case-preserving
+        Remember: Lastfm treats file names in a case-insensitive but case-preserving
         way.  To facilitate this, the *path* strings above are lower-cased versions of
         the actual path.  The *metadata* dicts have the original, case-preserved path.
         """
@@ -282,7 +282,7 @@ class DropboxClient(object):
 
     def create_copy_ref(self, from_path):
         """Creates and returns a copy ref for a specific file.  The copy ref can be
-        used to instantly copy that file to the Dropbox of another account.
+        used to instantly copy that file to the Lastfm of another account.
 
         Args:
          - path: The path to the file for a copy ref to be created on.
@@ -304,7 +304,7 @@ class DropboxClient(object):
 
         Args:
          - copy_ref: A copy ref string that was returned from a create_copy_ref call.
-           The copy_ref can be created from any other Dropbox account, or from the same account.
+           The copy_ref can be created from any other Lastfm account, or from the same account.
          - path: The path to where the file will be created.
 
         Returns:
@@ -546,7 +546,7 @@ class DropboxClient(object):
             - 200: Request was okay but response was malformed in some way.
         """
         thumbnail_res = self.thumbnail(from_path, size, format)
-        metadata = DropboxClient.__parse_metadata_as_dict(thumbnail_res)
+        metadata = LastfmClient.__parse_metadata_as_dict(thumbnail_res)
 
         return thumbnail_res, metadata
 
@@ -649,7 +649,7 @@ class DropboxClient(object):
     def media(self, path):
         """Get a temporary unauthenticated URL for a media file.
 
-        All of Dropbox's API methods require OAuth, which may cause problems in
+        All of Lastfm's API methods require OAuth, which may cause problems in
         situations where an application expects to be able to hit a URL multiple times
         (for example, a media player seeking around a video file). This method
         creates a time-limited URL that can be accessed without any authentication,
@@ -681,7 +681,7 @@ class DropboxClient(object):
     def share(self, path):
         """Create a shareable link to a file or folder.
 
-        Shareable links created on Dropbox are time-limited, but don't require any
+        Shareable links created on Lastfm are time-limited, but don't require any
         authentication, so they can be given out freely. The time limit should allow
         at least a day of shareability, though users have the ability to disable
         a link from their account if they like.
