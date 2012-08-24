@@ -64,13 +64,8 @@ class LastfmSession(object):
 		"""Remove any attached access token from the LastfmSession."""
 		self.token = None
 
-	def set_token(self, access_token, access_token_secret):
-		"""Attach an access token to the LastfmSession.
-
-		Note that the access 'token' is made up of both a token string
-		and a secret string.
-		"""
-		self.token = OAuthToken(access_token, access_token_secret)
+	def set_token(self, token):
+		self.token = token
 
 	def set_request_token(self, request_token, request_token_secret):
 		"""Attach an request token to the LastfmSession.

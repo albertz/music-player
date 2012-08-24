@@ -82,7 +82,7 @@ class LastfmClient(object):
 
 		host = self.session.API_HOST
 		base = self.session.build_url(host, target)
-		headers, params = self.session.build_access_headers(method, base, params)
+		headers, params = self.session.build_access_headers(params=params)
 
 		if method in ('GET', 'PUT'):
 			url = self.session.build_url(host, target, params)
@@ -98,7 +98,7 @@ class LastfmClient(object):
 			"artist": artist,
 			"track": track,
 		}
-		url, params, headers = self.request("/", method='POST')
+		url, params, headers = self.request("/", method='POST', params=params)
 
 		return self.rest_client.POST(url, headers=headers, params=params)
 
@@ -118,7 +118,7 @@ class LastfmClient(object):
 		}
 		if duration:
 			params["duration"] = str(int(duration))
-		url, params, headers = self.request("/", method='POST')
+		url, params, headers = self.request("/", method='POST', params=params)
 
 		return self.rest_client.POST(url, headers=headers, params=params)
 

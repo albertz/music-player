@@ -139,9 +139,11 @@ def login():
 		
 def onSongChange(newSong):
 	if not _client: return	
-	_client.updateNowPlaying(artist=newSong.artist, track=newSong.track)
-
+	ret = _client.api_client.updateNowPlaying(artist=newSong.artist, track=newSong.track)
+	#print ret
+	
 def onSongFinished(song):
 	if not _client: return	
-	_client.scrobble(artist=song.artist, track=song.track, duration=song.duration)
-	
+	ret = _client.api_client.scrobble(artist=song.artist, track=song.track, duration=song.duration)
+	#print ret
+
