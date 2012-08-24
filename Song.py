@@ -8,3 +8,5 @@ class Song:
 	def seekRaw(self, offset, whence):
 		r = self.f.seek(offset, whence)
 		return self.f.tell()
+	def __repr__(self):
+		return "<Song %r>" % self.url
