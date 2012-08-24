@@ -33,9 +33,6 @@ import lastfm
 def track(event, args, kwargs):
 	print "track:", repr(event), repr(args), repr(kwargs)
 	if event is PlayerEventCallbacks.onSongChange:
-		#from pprint import pprint
-		#pprint(player.curSongMetadata)
-		#pprint(player.curSongLen)
 		lastfm.onSongChange(kwargs["newSong"])
 	if event is PlayerEventCallbacks.onSongFinished:
 		lastfm.onSongFinished(kwargs["song"])

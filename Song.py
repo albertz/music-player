@@ -25,11 +25,11 @@ class Song:
 		
 	@property
 	def artist(self):
-		return self.metadata.get("artist", "")
+		return self.metadata.get("artist", "Unknown artist")
 
 	@property
 	def track(self):
-		return self.metadata.get("title", "")
+		return self.metadata.get("title", "Unknown title")
 
 	@property
 	def duration(self):
