@@ -6,32 +6,39 @@ mainStateChanges = OnRequestQueue()
 
 player = None
 
+class PlayerEventCallbacks:
+	onSongChange = None
+	onSongFinished = None
+	onPlayingStateChange = None
+
 def playerMain():
 	global player
 	import ffmpeg
 	player = ffmpeg.createPlayer()
-	for e in ("onSongChange", "onSongFinished", "onPlayingStateChange"):
-		setattr(player, e, EventCallback(targetQueue=mainStateChanges, name=e))
+	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
+		cb = EventCallback(targetQueue=mainStateChanges, name=e)
+		setattr(PlayerEventCallbacks, e, cb)
+		setattr(player, e, cb)
 	player.queue = state.queue
 	player.playing = True
 	# install some callbacks in player, like song changed, etc
 	for ev in mainStateChanges.read():
 		pass
 	
-def track(event):
-	# Last.fm or so
-	print "track:", repr(event)
-	pass
+def track(event, args, kwargs):
+	print "track:", repr(event), repr(args), repr(kwargs)
+	if event is PlayerEventCallbacks.onSongFinished:
+		# Last.fm or so
+		print "song finished!", kwargs["song"]
 	
 def trackerMain():
-	for ev in mainStateChanges.read():
-		track(ev)
-
+	for ev,args,kwargs in mainStateChanges.read():
+		track(ev, args, kwargs)
+		
 class Actions:
 	def play(self, song):
 		# via ffmpeg or so. load dynamically (ctypes)
 		pass
-		
 		
 	def pause(self): pass
 	def next(self): pass
@@ -73,7 +80,7 @@ if __name__ == '__main__':
 	while True:
 		try: loopFunc() # wait for KeyboardInterrupt
 		except BaseException, e:
-			mainStateChanges.put(e)
+			mainStateChanges.put((e, (), {}))
 			mainStateChanges.cancelAll()
 			break
 	for t in threads: t.join()
