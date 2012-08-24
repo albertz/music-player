@@ -31,6 +31,8 @@
 #include <pythread.h>
 #include <stdio.h>
 
+//#define DEBUG 1
+
 #define AUDIO_BUFFER_SIZE 2048
 
 typedef struct AudioParams {
@@ -48,6 +50,7 @@ typedef struct {
     int playing;
 	PyObject* curSong;
 	double curSongLen;
+	PyObject* curSongMetadata;
 	
 	// private
 	AVFormatContext* inStream;
@@ -352,6 +355,26 @@ static char* objAttrStrDup(PyObject* obj, const char* attrStr) {
 	return str;
 }
 
+static void player_setSongMetadata(PlayerObject* player) {
+	Py_XDECREF(player->curSongMetadata);
+	player->curSongMetadata = NULL;
+	
+	if(!player->inStream) return;
+	if(!player->inStream->metadata) return;
+	AVDictionary* m = player->inStream->metadata;
+	
+	player->curSongMetadata = PyDict_New();
+	assert(player->curSongMetadata);
+	
+	AVDictionaryEntry *tag=NULL;
+	while((tag=av_dict_get(m, "", tag, AV_DICT_IGNORE_SUFFIX))) {
+		if(strcmp("language", tag->key) == 0)
+			continue;
+		
+		PyDict_SetItemString(player->curSongMetadata, tag->key, PyString_FromString(tag->value));
+	}
+}
+
 static
 int player_openInputStream(PlayerObject* player) {
 	char* urlStr = NULL;
@@ -383,6 +406,10 @@ int player_openInputStream(PlayerObject* player) {
 		printf("avformat_find_stream_info failed\n");
 		goto final;
 	}
+
+#ifdef DEBUG
+	av_dump_format(formatCtx, 0, urlStr, 0);
+#endif
 		
 	ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
 	if(ret < 0) {
@@ -396,6 +423,9 @@ int player_openInputStream(PlayerObject* player) {
 		printf("no audio stream found in song\n");
 		goto final;
 	}
+		
+	player->inStream = formatCtx;
+	formatCtx = NULL;
 	
 	// Get the song len: There is formatCtx.duration in AV_TIME_BASE
 	// and there is stream.duration in stream time base.
@@ -407,9 +437,8 @@ int player_openInputStream(PlayerObject* player) {
 	if(player->curSongLen < 0)
 		player->curSongLen = -1;
 	
-	player->inStream = formatCtx;
-	formatCtx = NULL;
-	
+	player_setSongMetadata(player);
+
 final:
 	if(urlStr) free(urlStr);
 	if(formatCtx) avformat_close_input(&formatCtx);
@@ -438,13 +467,20 @@ static int player_getNextSong(PlayerObject* player) {
 	player->curSong = PyIter_Next(player->queue);
 	// pass through any Python errors
 	
+	if(player->curSong && player_openInputStream(player) != 0) {
+		// This is not fatal, so don't make a Python exception.
+		// When we are in playing state, we will just skip to the next song.
+		// This can happen if we don't support the format or whatever.
+		printf("cannot open input stream\n");
+	}
+		
 	if(player->curSong) {
 		if(player->dict) {
 			Py_INCREF(player->dict);
 			PyObject* onSongChange = PyDict_GetItemString(player->dict, "onSongChange");
 			if(onSongChange && onSongChange != Py_None) {
 				Py_INCREF(onSongChange);
-
+				
 				PyObject* kwargs = PyDict_New();
 				assert(kwargs);
 				if(oldSong) {
@@ -457,10 +493,10 @@ static int player_getNextSong(PlayerObject* player) {
 				}
 				Py_INCREF(player->curSong);
 				PyDict_SetItemString(kwargs, "newSong", player->curSong);
-
+				
 				PyObject* retObj = PyEval_CallObjectWithKeywords(onSongChange, NULL, kwargs);
 				Py_XDECREF(retObj);
-
+				
 				// errors are not fatal from the callback, so handle it now and go on
 				if(PyErr_Occurred()) {
 					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
@@ -473,13 +509,6 @@ static int player_getNextSong(PlayerObject* player) {
 		}
 	}
 
-	if(player->curSong && player_openInputStream(player) != 0) {
-		// This is not fatal, so don't make a Python exception.
-		// When we are in playing state, we will just skip to the next song.
-		// This can happen if we don't support the format or whatever.
-		printf("cannot open input stream\n");
-	}
-	
 	if(player->curSong && player->inStream)
 		ret = 0;
 	
@@ -609,15 +638,13 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
             *pts_ptr = pts;
             is->audio_clock += (double)data_size /
 			(dec->channels * dec->sample_rate * av_get_bytes_per_sample(dec->sample_fmt));
-#ifdef DEBUG
-            {
+            /*{
                 static double last_clock;
                 printf("audio: delay=%0.3f clock=%0.3f pts=%0.3f\n",
                        is->audio_clock - last_clock,
                        is->audio_clock, pts);
                 last_clock = is->audio_clock;
-            }
-#endif
+            }*/
             return resampled_data_size;
         }
 		
@@ -978,6 +1005,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_Append(mlist, PyString_FromString("curSong"));
 		PyList_Append(mlist, PyString_FromString("curSongPos"));
 		PyList_Append(mlist, PyString_FromString("curSongLen"));
+		PyList_Append(mlist, PyString_FromString("curSongMetadata"));		
 		PyList_Append(mlist, PyString_FromString("seekAbs"));
 		PyList_Append(mlist, PyString_FromString("seekRel"));
 		PyList_Append(mlist, PyString_FromString("nextSong"));
@@ -997,7 +1025,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "curSong") == 0) {
-		if(player->curSong) {
+		if(player->curSong && player->inStream) { // Note: if we simply check for curSong, we need an additional curSongOpened or so because from the outside, we often want to know if we correctly loaded the current song
 			Py_INCREF(player->curSong);
 			return player->curSong;
 		}
@@ -1013,6 +1041,14 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	if(strcmp(key, "curSongLen") == 0) {
 		if(player->curSong && player->curSongLen > 0)
 			return PyFloat_FromDouble(player->curSongLen);
+		goto returnNone;
+	}
+	
+	if(strcmp(key, "curSongMetadata") == 0) {
+		if(player->curSongMetadata) {
+			Py_INCREF(player->curSongMetadata);
+			return player->curSongMetadata;
+		}
 		goto returnNone;
 	}
 
@@ -1141,8 +1177,10 @@ static void init() {
 	PaError ret = Pa_Initialize();
 	if(ret != paNoError)
 		Py_FatalError("PortAudio init failed");
-	
+
+#ifndef DEBUG
 	av_log_set_level(0);
+#endif
 	avcodec_register_all();
 	av_register_all();
 	
