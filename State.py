@@ -11,7 +11,7 @@ def loadQueue(state):
 		from RandomFileQueue import RandomFileQueue
 		fileQueue = RandomFileQueue(
 			rootdir = os.path.expanduser("~/Music"),
-			fileexts = ["mp3", "ogg", "flac"])
+			fileexts = ["mp3", "ogg", "flac", "wma"])
 		while True:
 			f = fileQueue.getNextFile()
 			yield Song(f, state._main["player"])

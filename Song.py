@@ -19,19 +19,24 @@ class Song:
 		if not self.player: return {}
 		if self.player.curSong is not self: return {}
 		m = self.player.curSongMetadata or {}
+		m = dict([(key.lower(),value) for (key,value) in m.items()])
 		m["duration"] = self.player.curSongLen
 		self._metadata = m
 		return m
 		
 	@property
 	def artist(self):
-		return self.metadata.get("artist", "Unknown artist")
-
+		return self.metadata.get("artist", "Unknown artist").strip()
+		
 	@property
 	def track(self):
-		return self.metadata.get("title", "Unknown title")
-
+		return self.metadata.get("title", "Unknown title").strip()
+		
 	@property
 	def duration(self):
 		return self.metadata.get("duration", -1)
 	
+	@property
+	def fileext(self):
+		import os
+		return os.path.splitext(self.url)[1][1:]

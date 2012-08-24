@@ -80,3 +80,12 @@ def setTtyNoncanonical(fd, timeout=0):
 		
 	termios.tcsetattr(fd, termios.TCSANOW, new)
 	termios.tcsendbreak(fd,0)
+
+def formatTime(t):
+	if t is None: return "?"
+	mins = long(t // 60)
+	t -= mins * 60
+	hours = mins // 60
+	mins -= hours * 60
+	if hours: return "%02i:%02i:%02.0f" % (hours,mins,t)
+	return "%02i:%02.0f" % (mins,t)

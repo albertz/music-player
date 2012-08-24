@@ -33,7 +33,12 @@ import lastfm
 def track(event, args, kwargs):
 	print "track:", repr(event), repr(args), repr(kwargs)
 	if event is PlayerEventCallbacks.onSongChange:
-		lastfm.onSongChange(kwargs["newSong"])
+		newSong = kwargs["newSong"]
+		if "artist" not in newSong.metadata:
+			print "new song metadata is incomplete:", newSong.metadata
+		else:
+			print "new song:", newSong.fileext, ",", newSong.artist, "-", newSong.track, ",", formatTime(newSong.duration)
+		lastfm.onSongChange(newSong)
 	if event is PlayerEventCallbacks.onSongFinished:
 		lastfm.onSongFinished(kwargs["song"])
 	
