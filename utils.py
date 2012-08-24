@@ -25,10 +25,11 @@ class OnRequestQueue:
 		self.queues.add(q)
 		while True:
 			with q.cond:
-				q.cond.wait()
 				l = list(q.q)
 				q.q.clear()
 				cancel = q.cancel
+				if not l and not cancel:
+					q.cond.wait()
 			for item in l:
 				yield item
 			if cancel: break
