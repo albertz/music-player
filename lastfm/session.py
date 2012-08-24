@@ -28,23 +28,22 @@ class OAuthToken(object):
         self.key = key
         self.secret = secret
 
+# see http://www.last.fm/api/authentication
+# see http://www.last.fm/api/desktopauth
+# see http://www.last.fm/api/scrobbling
 class LastfmSession(object):
-    API_VERSION = 1
+    API_VERSION = "2.0"
 
-    API_HOST = "api.lastfm.com"
-    WEB_HOST = "www.lastfm.com"
-    API_CONTENT_HOST = "api-content.lastfm.com"
+    API_HOST = "ws.audioscrobbler.com"
+    WEB_HOST = "www.last.fm"
 
-    def __init__(self, consumer_key, consumer_secret, access_type, locale=None, rest_client=rest.RESTClient):
+    def __init__(self, consumer_key, consumer_secret, locale=None, rest_client=rest.RESTClient):
         """Initialize a LastfmSession object.
 
         Your consumer key and secret are available
-        at https://www.lastfm.com/developers/apps
+        at http://www.last.fm/api/
 
         Args:
-            access_type: Either 'lastfm' or 'app_folder'. All path-based operations
-                will occur relative to either the user's Lastfm root directory
-                or your application's app folder.
             locale: A locale string ('en', 'pt_PT', etc.) [optional]
                 The locale setting will be used to translate any user-facing error
                 messages that the server generates. At this time Lastfm supports
@@ -53,11 +52,9 @@ class LastfmSession(object):
                 support, messages will remain in English. Look for these translated
                 messages in rest.ErrorResponse exceptions as e.user_error_msg.
         """
-        assert access_type in ['lastfm', 'app_folder'], "expected access_type of 'lastfm' or 'app_folder'"
         self.consumer_creds = OAuthToken(consumer_key, consumer_secret)
         self.token = None
         self.request_token = None
-        self.root = 'sandbox' if access_type == 'app_folder' else 'lastfm'
         self.locale = locale
         self.rest_client = rest_client
 
@@ -85,7 +82,7 @@ class LastfmSession(object):
         """
         self.request_token = OAuthToken(request_token, request_token_secret)
 
-    def build_path(self, target, params=None):
+    def build_path(self, target, params=None, withVersion=True):
         """Build the path component for an API URL.
 
         This method urlencodes the parameters, adds them
@@ -109,11 +106,13 @@ class LastfmSession(object):
 
         if self.locale:
             params['locale'] = self.locale
-
+		
+		prefix = "/"
+		if withVersion: prefix += self.API_VERSION		
         if params:
-            return "/%d%s?%s" % (self.API_VERSION, target_path, urllib.urlencode(params))
+            return prefix + target_path + "?" + urllib.urlencode(params)
         else:
-            return "/%d%s" % (self.API_VERSION, target_path)
+            return prefix + target_path
 
     def build_url(self, host, target, params=None):
         """Build an API URL.
@@ -151,7 +150,8 @@ class LastfmSession(object):
         if oauth_callback:
             params['oauth_callback'] = oauth_callback
 
-        return self.build_url(self.WEB_HOST, '/oauth/authorize', params)
+		return "https://%s%s" % (self.WEB_HOST, self.build_path(target, params))
+        #return self.build_url(self.WEB_HOST, '/oauth/authorize', params)
 
     def obtain_request_token(self):
         """Obtain a request token from the Lastfm API.
