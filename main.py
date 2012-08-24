@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+import better_exchook
+better_exchook.install()
+
 from utils import *
 
 mainStateChanges = OnRequestQueue()
@@ -24,10 +27,11 @@ def playerMain():
 	# install some callbacks in player, like song changed, etc
 	for ev in mainStateChanges.read():
 		pass
+
+import lastfm
 	
 def track(event, args, kwargs):
 	print "track:", repr(event), repr(args), repr(kwargs)
-	import lastfm
 	if event is PlayerEventCallbacks.onSongChange:
 		lastfm.onSongChange(kwargs["newSong"])
 	if event is PlayerEventCallbacks.onSongFinished:
@@ -52,6 +56,8 @@ from State import State
 state = State()
 
 if __name__ == '__main__':
+	lastfm.login()
+	
 	import time, os, sys
 	loopFunc = lambda: time.sleep(10)
 	if os.isatty(sys.stdin.fileno()):
