@@ -72,14 +72,14 @@ class StoredSession(session.LastfmSession):
 	def load_creds(self):
 		try:
 			stored_creds = open(self.TOKEN_FILE).read()
-			self.set_token(*stored_creds.split('|'))
+			self.set_token(stored_creds)
 			print "* loaded access token"
 		except IOError:
 			pass # don't worry if it's not there
 	
 	def write_creds(self, token):
 		f = open(self.TOKEN_FILE, 'w')
-		f.write("|".join([token.key, token.secret]))
+		f.write(token)
 		f.close()
 
 	def delete_creds(self):
@@ -125,6 +125,8 @@ class Client:
 				sys.stdout.write('Error: %s\n' % str(e))
 				raise
 
+_client = None
+
 def login():
 	global _client
 	try:
@@ -136,7 +138,10 @@ def login():
 		return False
 		
 def onSongChange(newSong):
-	pass
+	if not _client: return	
+	_client.updateNowPlaying(artist=newSong.artist, track=newSong.track)
 
 def onSongFinished(song):
-	pass
+	if not _client: return	
+	_client.scrobble(artist=song.artist, track=song.track, duration=song.duration)
+	

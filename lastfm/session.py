@@ -31,7 +31,6 @@ class OAuthToken(object):
 # see http://www.last.fm/api/authentication
 # see http://www.last.fm/api/desktopauth
 # see http://www.last.fm/api/webauth
-# see http://www.last.fm/api/scrobbling
 
 def build_api_sig(kwargs, api_secret):
 	# kwargs e.g. contains api_key, method, token
@@ -169,13 +168,10 @@ class LastfmSession(object):
 		"""
 		self.token = None # clear any token currently on the request
 		url = self.build_url(self.API_HOST, '/')
-		headers = {}
 		params = {
 			"method":"auth.getToken",
-			"api_key":self.consumer_creds.key,
 			}
-		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
-		params["format"] = "json"
+		headers, params = self.build_access_headers(params, withSessionKey=False)
 		
 		response = self.rest_client.POST(url, headers=headers, params=params)
 		self.request_token = response["token"]
@@ -205,18 +201,26 @@ class LastfmSession(object):
 		request_token = request_token or self.request_token
 		assert request_token, "No request_token available on the session. Please pass one."
 		url = self.build_url(self.API_HOST, '/')
-		headers = {}
 		params = {
 			"method":"auth.getSession",
-			"api_key":self.consumer_creds.key,
 			"token":request_token,
 			}
-		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
-		params["format"] = "json"
-		print params
+		headers, params = self.build_access_headers(params, withSessionKey=False)
 		
 		response = self.rest_client.POST(url, headers=headers, params=params)
 		self.token = response["session"]["key"]
 		self.user_name = response["session"]["name"]
 		return self.token
 
+	def build_access_headers(self, params=None, withSessionKey=True):
+		params = params or {}
+		params = params.copy()
+		params["api_key"] = self.consumer_creds.key
+		if withSessionKey:
+			assert self.token
+			params["sk"] = self.token
+		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
+		params["format"] = "json"
+		headers = {}
+		return headers, params
+		
