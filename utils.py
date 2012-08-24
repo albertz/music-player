@@ -63,3 +63,20 @@ class oneOf(property):
 	def fset(self, inst, value):
 		assert value in self.consts
 		self.value = value
+
+
+def setTtyNoncanonical(fd, timeout=0):
+	import termios
+	old = termios.tcgetattr(fd)
+	new = termios.tcgetattr(fd)
+	new[3] = new[3] & ~termios.ICANON & ~termios.ECHO
+	# http://www.unixguide.net/unix/programming/3.6.2.shtml
+	#new[6] [termios.VMIN] = 1
+	#new[6] [termios.VTIME] = 0
+	new[6] [termios.VMIN] = 0
+	timeout *= 10 # 10ths of second
+	if timeout > 0 and timeout < 1: timeout = 1
+	new[6] [termios.VTIME] = timeout
+		
+	termios.tcsetattr(fd, termios.TCSANOW, new)
+	termios.tcsendbreak(fd,0)

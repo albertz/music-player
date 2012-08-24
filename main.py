@@ -4,7 +4,10 @@ from utils import *
 
 mainStateChanges = OnRequestQueue()
 
-def main():
+player = None
+
+def playerMain():
+	global player
 	import ffmpeg
 	player = ffmpeg.createPlayer()
 	for e in ("onSongChange", "onSongFinished", "onPlayingStateChange"):
@@ -20,7 +23,7 @@ def track(event):
 	print "track:", repr(event)
 	pass
 	
-def tracker():
+def trackerMain():
 	for ev in mainStateChanges.read():
 		track(ev)
 
@@ -40,14 +43,35 @@ from State import State
 state = State()
 
 if __name__ == '__main__':
+	import time, os, sys
+	loopFunc = lambda: time.sleep(10)
+	if os.isatty(sys.stdin.fileno()):
+		# If we are a TTY, do some very simple input handling.
+		setTtyNoncanonical(sys.stdin.fileno())
+		def handleInput():
+			global player
+			ch = os.read(sys.stdin.fileno(),7)
+			if ch == "q": sys.exit(0)
+			try:
+				if ch == "\x1b[D": # left
+					player.seekRel(-10)
+				elif ch == "\x1b[C": #right
+					player.seekRel(10)
+				elif ch == "\n": # return
+					player.nextSong()
+				elif ch == " ":
+					player.playing = not player.playing
+			except:
+				sys.excepthook(*sys.exc_info())
+		loopFunc = handleInput
+		
 	from threading import Thread
 	threads = []
-	threads += [Thread(target=main, name="Main")]
-	threads += [Thread(target=tracker, name="Tracker")]
+	threads += [Thread(target=playerMain, name="Player")]
+	threads += [Thread(target=trackerMain, name="Tracker")]
 	for t in threads: t.start()
-	import time
 	while True:
-		try: time.sleep(10) # wait for KeyboardInterrupt
+		try: loopFunc() # wait for KeyboardInterrupt
 		except BaseException, e:
 			mainStateChanges.put(e)
 			mainStateChanges.cancelAll()
