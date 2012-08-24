@@ -1,10 +1,9 @@
 import appinfo
-from lastfm import client, rest, session
+from . import client, rest, session
 
 # i don't really know how to make these secure...
-APP_KEY = 'xxx'
-APP_SECRET = 'xxx'
-ACCESS_TYPE = 'lastfm'
+APP_KEY = '29d301e504af323d6246d9c652c227fa'
+APP_SECRET = '781bca4d222866e27ac314c2e35565a0'
 
 
 class OAuthReturnHandler:
