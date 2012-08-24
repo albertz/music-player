@@ -73,7 +73,7 @@ def setTtyNoncanonical(fd, timeout=0):
 	# http://www.unixguide.net/unix/programming/3.6.2.shtml
 	#new[6] [termios.VMIN] = 1
 	#new[6] [termios.VTIME] = 0
-	new[6] [termios.VMIN] = 0
+	new[6] [termios.VMIN] = 0 if timeout > 0 else 1
 	timeout *= 10 # 10ths of second
 	if timeout > 0 and timeout < 1: timeout = 1
 	new[6] [termios.VTIME] = timeout
