@@ -96,3 +96,20 @@ class StoredSession(session.LastfmSession):
 		self.delete_creds()
 		session.LastfmSession.unlink(self)
 
+class Client:
+	def __init__(self):
+		self.sess = StoredSession(APP_KEY, APP_SECRET, access_type=ACCESS_TYPE)
+		self.api_client = client.DropboxClient(self.sess)
+		self.sess.load_creds()
+		if not self.sess.is_linked():
+			try:			
+				self.sess.link()
+			except rest.ErrorResponse, e:
+				self.stdout.write('Error: %s\n' % str(e))
+				raise
+
+def onSongChange(newSong):
+	pass
+
+def onSongFinished(song):
+	pass

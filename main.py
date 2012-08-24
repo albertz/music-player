@@ -27,9 +27,11 @@ def playerMain():
 	
 def track(event, args, kwargs):
 	print "track:", repr(event), repr(args), repr(kwargs)
+	import lastfm
+	if event is PlayerEventCallbacks.onSongChange:
+		lastfm.onSongChange(kwargs["newSong"])
 	if event is PlayerEventCallbacks.onSongFinished:
-		# Last.fm or so
-		print "song finished!", kwargs["song"]
+		lastfm.onSongFinished(kwargs["song"])
 	
 def trackerMain():
 	for ev,args,kwargs in mainStateChanges.read():
