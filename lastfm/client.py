@@ -100,8 +100,10 @@ class LastfmClient(object):
 		}
 		url, params, headers = self.request("/", method='POST', params=params)
 
-		return self.rest_client.POST(url, headers=headers, params=params)
-
+		ret = self.rest_client.POST(url, headers=headers, params=params)
+		assert "error" not in ret
+		return ret
+        
 	# http://www.last.fm/api/show/track.scrobble
 	def scrobble(self, artist, track, duration=None, timestamp=None):
 		if not timestamp:
@@ -120,6 +122,6 @@ class LastfmClient(object):
 			params["duration"] = str(int(duration))
 		url, params, headers = self.request("/", method='POST', params=params)
 
-		return self.rest_client.POST(url, headers=headers, params=params)
-
-
+		ret = self.rest_client.POST(url, headers=headers, params=params)
+		assert "error" not in ret
+		return ret
