@@ -421,8 +421,8 @@ static int player_getNextSong(PlayerObject* player) {
 	int ret = -1;
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
-		
-	Py_XDECREF(player->curSong);
+	
+	PyObject* oldSong = player->curSong;
 	player->curSong = NULL;
 	
 	if(player->queue == NULL) {
@@ -444,7 +444,21 @@ static int player_getNextSong(PlayerObject* player) {
 			PyObject* onSongChange = PyDict_GetItemString(player->dict, "onSongChange");
 			if(onSongChange && onSongChange != Py_None) {
 				Py_INCREF(onSongChange);
-				PyObject* retObj = PyObject_CallObject(onSongChange, NULL);
+
+				PyObject* kwargs = PyDict_New();
+				assert(kwargs);
+				if(oldSong) {
+					Py_INCREF(oldSong);
+					PyDict_SetItemString(kwargs, "oldSong", oldSong);
+				}
+				else {
+					Py_INCREF(Py_None);
+					PyDict_SetItemString(kwargs, "oldSong", Py_None);
+				}
+				Py_INCREF(player->curSong);
+				PyDict_SetItemString(kwargs, "newSong", player->curSong);
+
+				PyObject* retObj = PyEval_CallObjectWithKeywords(onSongChange, NULL, kwargs);
 				Py_XDECREF(retObj);
 
 				// errors are not fatal from the callback, so handle it now and go on
@@ -452,6 +466,7 @@ static int player_getNextSong(PlayerObject* player) {
 					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
 				}
 				
+				Py_DECREF(kwargs);
 				Py_DECREF(onSongChange);
 			}
 			Py_DECREF(player->dict);
@@ -469,6 +484,7 @@ static int player_getNextSong(PlayerObject* player) {
 		ret = 0;
 	
 final:
+	Py_XDECREF(oldSong);
 	PyGILState_Release(gstate);
 	return ret;
 }
@@ -648,13 +664,22 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 						PyObject* onSongFinished = PyDict_GetItemString(player->dict, "onSongFinished");
 						if(onSongFinished && onSongFinished != Py_None) {
 							Py_INCREF(onSongFinished);
-							PyObject* retObj = PyObject_CallObject(onSongFinished, NULL);
+							
+							PyObject* kwargs = PyDict_New();
+							assert(kwargs);
+							if(player->curSong) {
+								Py_INCREF(player->curSong);
+								PyDict_SetItemString(kwargs, "song", player->curSong);
+							}
+							
+							PyObject* retObj = PyEval_CallObjectWithKeywords(onSongFinished, NULL, kwargs);
 							Py_XDECREF(retObj);
 							
 							// errors are not fatal from the callback, so handle it now and go on
 							if(PyErr_Occurred())
 								PyErr_Print();
-								
+							
+							Py_DECREF(kwargs);
 							Py_DECREF(onSongFinished);
 						}
 						Py_DECREF(player->dict);
@@ -765,6 +790,7 @@ static int player_setqueue(PlayerObject* player, PyObject* queue) {
 
 static int player_setplaying(PlayerObject* player, int playing) {
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
+	int oldplayingstate = player->playing;
 	player->playing = playing;
 	Py_BEGIN_ALLOW_THREADS
 	if(playing)
@@ -779,13 +805,20 @@ static int player_setplaying(PlayerObject* player, int playing) {
 		PyObject* onPlayingStateChange = PyDict_GetItemString(player->dict, "onPlayingStateChange");
 		if(onPlayingStateChange && onPlayingStateChange != Py_None) {
 			Py_INCREF(onPlayingStateChange);
-			PyObject* retObj = PyObject_CallObject(onPlayingStateChange, NULL);
+			
+			PyObject* kwargs = PyDict_New();
+			assert(kwargs);
+			PyDict_SetItemString(kwargs, "oldState", PyBool_FromLong(oldplayingstate));
+			PyDict_SetItemString(kwargs, "newState", PyBool_FromLong(playing));
+			
+			PyObject* retObj = PyEval_CallObjectWithKeywords(onPlayingStateChange, NULL, kwargs);
 			Py_XDECREF(retObj);
 			
 			// errors are not fatal from the callback, so handle it now and go on
 			if(PyErr_Occurred())
 				PyErr_Print();
-
+				
+			Py_DECREF(kwargs);
 			Py_DECREF(onPlayingStateChange);
 		}
 		Py_DECREF(player->dict);
