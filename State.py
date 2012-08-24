@@ -1,7 +1,9 @@
 from utils import *
 from Song import Song
-		
-def loadQueue():
+
+player = None
+
+def loadQueue(state):
 	print "load queue"
 
 	# dummy example from test_ffmpeg
@@ -17,12 +19,12 @@ def loadQueue():
 		]
 		i = 0
 		while True:
-			yield Song(files[i])
+			yield Song(files[i], state._main["player"])
 			i += 1
 			if i >= len(files): i = 0
 	return songs()
 	
-def loadRecentlyplayedList():
+def loadRecentlyplayedList(state):
 	pass
 
 class State:
@@ -33,3 +35,7 @@ class State:
 		"playing",
 		"paused"
 	)
+
+	def __init__(self, main):
+		self._main = main
+		

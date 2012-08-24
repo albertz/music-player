@@ -49,7 +49,7 @@ class initBy(property):
 		self.initFunc = initFunc
 	def fget(self, inst):
 		if hasattr(self, "value"): return self.value
-		self.value = self.initFunc()
+		self.value = self.initFunc(inst)
 		return self.value
 
 class oneOf(property):

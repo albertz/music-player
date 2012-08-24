@@ -33,13 +33,20 @@ import lastfm
 def track(event, args, kwargs):
 	print "track:", repr(event), repr(args), repr(kwargs)
 	if event is PlayerEventCallbacks.onSongChange:
+		#from pprint import pprint
+		#pprint(player.curSongMetadata)
+		#pprint(player.curSongLen)
 		lastfm.onSongChange(kwargs["newSong"])
 	if event is PlayerEventCallbacks.onSongFinished:
 		lastfm.onSongFinished(kwargs["song"])
 	
 def trackerMain():
 	for ev,args,kwargs in mainStateChanges.read():
-		track(ev, args, kwargs)
+		try:
+			track(ev, args, kwargs)
+		except:
+			sys.excepthook(*sys.exc_info())
+
 		
 class Actions:
 	def play(self, song):
@@ -53,7 +60,7 @@ class Actions:
 actions = Actions()
 
 from State import State
-state = State()
+state = State(globals())
 
 if __name__ == '__main__':
 	lastfm.login()
