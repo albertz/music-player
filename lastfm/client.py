@@ -103,7 +103,7 @@ class LastfmClient(object):
 		url, params, headers = self.request("/", method='POST', params=params)
 
 		ret = self.rest_client.POST(url, headers=headers, params=params)
-		assert "error" not in ret
+		#assert "error" not in ret
 		return ret
         
 	# http://www.last.fm/api/show/track.scrobble
@@ -125,5 +125,5 @@ class LastfmClient(object):
 		url, params, headers = self.request("/", method='POST', params=params)
 
 		ret = self.rest_client.POST(url, headers=headers, params=params)
-		assert "error" not in ret
+		#assert "error" not in ret
 		return ret

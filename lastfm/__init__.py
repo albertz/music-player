@@ -112,11 +112,43 @@ class StoredSession(session.LastfmSession):
 		self.delete_creds()
 		session.LastfmSession.unlink(self)
 
+import threading
+
 class Client:
 	def __init__(self):
+		from threading import Thread
+		from Queue import Queue
+		self.execQueue = Queue()
+		self.execThread = Thread(target = self._threadMain, name = "Lastfm client")
+		self.execThread.start()
+		
 		self.sess = StoredSession(APP_KEY, APP_SECRET)
 		self.api_client = client.LastfmClient(self.sess)
 		self.sess.load_creds()
+
+	def _threadMain(self):
+		while True:
+			item = self.execQueue.get()
+			if item is SystemExit: return
+			try:
+				item()
+			except:
+				import sys
+				sys.excepthook(*sys.exc_info())
+	
+	def quit(self): self.execQueue.put(SystemExit)
+	def __del__(self): self.quit()
+	
+	def threadedmethod(f):
+		def newFunc(self, *args, **kwargs):
+			if threading.currentThread() != self.execThread:
+				self.execQueue.put(lambda: f(self, *args, **kwargs))
+			else:
+				f(self, *args, **kwargs)
+		return newFunc
+
+	@threadedmethod
+	def login(self):
 		if not self.sess.is_linked():
 			try:			
 				self.sess.link()
@@ -124,26 +156,47 @@ class Client:
 				import sys
 				sys.stdout.write('Error: %s\n' % str(e))
 				raise
-
+	
+	@threadedmethod
+	def apiCall(self, apiFuncName, **kwargs):
+		if not self.sess.is_linked(): return # silently ignore
+		print "lastfm", apiFuncName, kwargs
+		
+		f = getattr(_client.api_client, apiFuncName)
+		while True:
+			try:
+				ret = f(**kwargs)
+				assert ret is not None # either we get sth or we raise some exception
+				if "error" in ret:
+					print "Last.fm API", apiFuncName, kwargs, "returned error", ret
+					# This is an API error, we would very likely get the same error again, so just stop
+					return
+				return ret
+			except: # RESTSocketError or so
+				import sys
+				sys.excepthook(*sys.exc_info())
+				import time
+				time.sleep(1) # wait a bit and retry
+		
+		
 _client = None
 
 def login():
 	global _client
-	try:
-		_client = Client()
-		return True
-	except:
-		import sys
-		sys.excepthook(*sys.exc_info())
-		return False
-		
+	_client = Client()
+	_client.login()
+
+def quit():
+	global _client
+	if not _client: return
+	_client.quit()
+	_client = None
+	
 def onSongChange(newSong):
-	if not _client: return	
-	ret = _client.api_client.updateNowPlaying(artist=newSong.artist, track=newSong.track, duration=newSong.duration)
-	#print ret
+	if not _client: return
+	_client.apiCall("updateNowPlaying", artist=newSong.artist, track=newSong.track, duration=newSong.duration)
 	
 def onSongFinished(song):
-	if not _client: return	
-	ret = _client.api_client.scrobble(artist=song.artist, track=song.track, duration=song.duration)
-	#print ret
+	if not _client: return
+	_client.apiCall("scrobble", artist=song.artist, track=song.track, duration=song.duration)
 

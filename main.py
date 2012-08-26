@@ -25,34 +25,34 @@ def playerMain():
 		setattr(player, e, cb)
 	player.queue = state.queue
 	player.playing = True
-	# install some callbacks in player, like song changed, etc
-	for ev in mainStateChanges.read():
-		pass
-
-import lastfm
+	for ev in mainStateChanges.read(): pass # wait for exit
 	
+import lastfm
+
 def track(event, args, kwargs):
 	print "track:", repr(event), repr(args), repr(kwargs)
 	if event is PlayerEventCallbacks.onSongChange:
 		oldSong = kwargs["oldSong"]
-		oldSong.close() # in case anyone is holding any ref to it, close at least the file
+		if oldSong: oldSong.close() # in case anyone is holding any ref to it, close at least the file
 		newSong = kwargs["newSong"]
 		if "artist" not in newSong.metadata:
 			print "new song metadata is incomplete:", newSong.metadata
 		else:
 			print "new song:", newSong.fileext, ",", newSong.artist, "-", newSong.track, ",", formatTime(newSong.duration)
 			pprint(newSong.metadata)
-		doAsync(lambda: lastfm.onSongChange(newSong))
+		lastfm.onSongChange(newSong)
 	if event is PlayerEventCallbacks.onSongFinished:
 		song = kwargs["song"]
-		doAsync(lambda: lastfm.onSongFinished(song))
+		lastfm.onSongFinished(song)
 	
 def trackerMain():
+	lastfm.login()	
 	for ev,args,kwargs in mainStateChanges.read():
 		try:
 			track(ev, args, kwargs)
 		except:
 			sys.excepthook(*sys.exc_info())
+	lastfm.quit()
 
 def onMediaKeyUp(control):
 	try:
@@ -68,7 +68,7 @@ def mediakeysMain():
 	eventTap = mediakeys.EventListener()
 	eventTap.onMediaKeyUp = onMediaKeyUp
 	eventTap.start()
-	for ev in mainStateChanges.read(): pass
+	for ev in mainStateChanges.read(): pass # wait for exit
 	eventTap.stop()
 	
 class Actions:
@@ -82,9 +82,7 @@ actions = Actions()
 from State import State
 state = State(globals())
 
-if __name__ == '__main__':
-	lastfm.login()
-	
+if __name__ == '__main__':	
 	import time, os, sys
 	loopFunc = lambda: time.sleep(10)
 	if os.isatty(sys.stdin.fileno()):
