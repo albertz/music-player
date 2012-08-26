@@ -3,13 +3,19 @@ class Song:
 		self.url = fn
 		self.f = open(fn)
 		self.player = player
-		
+	
+	# { ffmpeg player interface
 	def readPacket(self, bufSize):
 		s = self.f.read(bufSize)
 		return s
 	def seekRaw(self, offset, whence):
 		r = self.f.seek(offset, whence)
 		return self.f.tell()
+	# ffmpeg player interface end }
+	
+	def close(self):
+		self.f = None
+	
 	def __repr__(self):
 		return "<Song %r>" % self.url
 
