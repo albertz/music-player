@@ -38,9 +38,10 @@ def track(event, args, kwargs):
 			print "new song metadata is incomplete:", newSong.metadata
 		else:
 			print "new song:", newSong.fileext, ",", newSong.artist, "-", newSong.track, ",", formatTime(newSong.duration)
-		lastfm.onSongChange(newSong)
+		doAsync(lambda: lastfm.onSongChange(newSong))
 	if event is PlayerEventCallbacks.onSongFinished:
-		lastfm.onSongFinished(kwargs["song"])
+		song = kwargs["song"]
+		doAsync(lambda: lastfm.onSongFinished(song))
 	
 def trackerMain():
 	for ev,args,kwargs in mainStateChanges.read():
@@ -49,7 +50,21 @@ def trackerMain():
 		except:
 			sys.excepthook(*sys.exc_info())
 
-		
+def onMediaKeyUp(control):
+	if control == "play-pause":
+		player.playing = not player.playing
+	elif control == "next":
+		player.nextSong()
+
+def mediakeysMain():
+	import mediakeys
+	eventTap = mediakeys.EventListener()
+	eventTap.onMediaKeyUp = onMediaKeyUp
+	eventTap.start()
+	for ev in mainStateChanges.read(): pass
+	eventTap.stop()
+	del mediakeys # remove it here so that the autorelease pool from it is released in this thread, not in the main thread!
+	
 class Actions:
 	def play(self, song):
 		# via ffmpeg or so. load dynamically (ctypes)
@@ -93,6 +108,7 @@ if __name__ == '__main__':
 	threads = []
 	threads += [Thread(target=playerMain, name="Player")]
 	threads += [Thread(target=trackerMain, name="Tracker")]
+	threads += [Thread(target=mediakeysMain, name="Mediakeys")]
 	for t in threads: t.start()
 	while True:
 		try: loopFunc() # wait for KeyboardInterrupt

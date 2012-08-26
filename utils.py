@@ -1,3 +1,10 @@
+# Import PyObjC here. This is because the first import of PyObjC *must* be
+# in the main thread. Otherwise, the NSAutoreleasePool created automatically
+# by PyObjC on the first import would be released at exit by the main thread
+# which would crash (because it was created in a different thread).
+# http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
+import objc
+
 from collections import deque
 from threading import Condition
 class OnRequestQueue:
@@ -89,3 +96,10 @@ def formatTime(t):
 	mins -= hours * 60
 	if hours: return "%02i:%02i:%02.0f" % (hours,mins,t)
 	return "%02i:%02.0f" % (mins,t)
+
+def doAsync(f, name=None):
+	from threading import Thread
+	if name is None: name = repr(f)
+	t = Thread(target = f, name = name)
+	t.start()
+
