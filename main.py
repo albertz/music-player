@@ -4,6 +4,7 @@ import better_exchook
 better_exchook.install()
 
 from utils import *
+from pprint import pprint
 
 mainStateChanges = OnRequestQueue()
 
@@ -38,6 +39,7 @@ def track(event, args, kwargs):
 			print "new song metadata is incomplete:", newSong.metadata
 		else:
 			print "new song:", newSong.fileext, ",", newSong.artist, "-", newSong.track, ",", formatTime(newSong.duration)
+			pprint(newSong.metadata)
 		doAsync(lambda: lastfm.onSongChange(newSong))
 	if event is PlayerEventCallbacks.onSongFinished:
 		song = kwargs["song"]
