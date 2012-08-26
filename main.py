@@ -51,10 +51,13 @@ def trackerMain():
 			sys.excepthook(*sys.exc_info())
 
 def onMediaKeyUp(control):
-	if control == "play-pause":
-		player.playing = not player.playing
-	elif control == "next":
-		player.nextSong()
+	try:
+		if control == "play-pause":
+			player.playing = not player.playing
+		elif control == "next":
+			player.nextSong()
+	except:
+		sys.excepthook(*sys.exc_info())
 
 def mediakeysMain():
 	import mediakeys
@@ -63,7 +66,6 @@ def mediakeysMain():
 	eventTap.start()
 	for ev in mainStateChanges.read(): pass
 	eventTap.stop()
-	del mediakeys # remove it here so that the autorelease pool from it is released in this thread, not in the main thread!
 	
 class Actions:
 	def play(self, song):
