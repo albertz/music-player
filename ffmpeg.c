@@ -97,7 +97,7 @@ static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) 
 	args = PyTuple_Pack(1, PyInt_FromLong(buf_size));
 	retObj = PyObject_CallObject(readPacketFunc, args);
 	
-	if(!PyString_Check(retObj)) {
+	if(!retObj || !PyString_Check(retObj)) {
 		printf("song.readPacket didn't returned a string\n");
 		goto final;
 	}
