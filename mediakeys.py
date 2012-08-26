@@ -7,7 +7,7 @@ import AppKit
 from AppKit import NSKeyUp, NSSystemDefined, NSEvent
 import Quartz
 
-class MacKeyEventsTap:
+class MacMediaKeyEventsTap:
 	def __init__(self):
 		# IOKit/hidsystem/ev_keymap.h
 		self._keyControls = {
@@ -25,11 +25,11 @@ class MacKeyEventsTap:
 			keyState = (data & 0xFF00) >> 8
 			if keyCode in self._keyControls:
 				if keyState == NSKeyUp:
-					self.handleKeyUp(self._keyControls[keyCode])
+					self.onMediaKeyUp(self._keyControls[keyCode])
 				return None # consume event
 		return event # pass through
 		
-	def handleKeyUp(self, control):
+	def onMediaKeyUp(self, control):
 		print "handleKeyUp:", control
 
 	def runEventsCapture(self):
@@ -60,14 +60,17 @@ class MacKeyEventsTap:
 		from threading import Thread
 		Quartz.CFRunLoopRun()
 
+	def start(self):
+		from threading import Thread
+		self.thread = Thread(target = self.runEventsCapture)
+		self.thread.start()
+
 	def stop(self):
 		Quartz.CFRunLoopStop(self.runLoopRef)
 		
 if __name__ == '__main__':
-	tap = MacKeyEventsTap()
-	from threading import Thread
-	t = Thread(target=tap.runEventsCapture)
-	t.start()
+	tap = MacMediaKeyEventsTap()
+	tap.start()
 	import time, sys
 	try:
 		while True: time.sleep(10)
