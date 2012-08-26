@@ -1,8 +1,6 @@
 
 # http://weblog.rogueamoeba.com/2007/09/29/apple-keyboard-media-key-event-handling/
 
-import os
-import signal
 import AppKit
 from AppKit import NSKeyUp, NSSystemDefined, NSEvent
 import Quartz
@@ -30,8 +28,9 @@ class MacMediaKeyEventsTap:
 		return event # pass through
 		
 	def onMediaKeyUp(self, control):
-		print "handleKeyUp:", control
-
+		#print "handleKeyUp:", control
+		pass
+		
 	def runEventsCapture(self):
 		pool = AppKit.NSAutoreleasePool.alloc().init()
 		
@@ -57,9 +56,10 @@ class MacMediaKeyEventsTap:
 		# Enable the tap
 		Quartz.CGEventTapEnable(tap, True)
 		# and run! This won't return until we exit or are terminated.
-		from threading import Thread
 		Quartz.CFRunLoopRun()
 
+		del pool
+        
 	def start(self):
 		from threading import Thread
 		self.thread = Thread(target = self.runEventsCapture)
@@ -67,10 +67,17 @@ class MacMediaKeyEventsTap:
 
 	def stop(self):
 		Quartz.CFRunLoopStop(self.runLoopRef)
-		
+
+
+EventListener = MacMediaKeyEventsTap
+	
 if __name__ == '__main__':
-	tap = MacMediaKeyEventsTap()
+	tap = EventListener()
+	def onMediaKeyUp(control):
+		print "onMediaKeyUp:", control
+	tap.onMediaKeyUp = onMediaKeyUp
 	tap.start()
+
 	import time, sys
 	try:
 		while True: time.sleep(10)
