@@ -70,13 +70,10 @@ def mediakeysMain():
 	eventTap.stop()
 	
 class Actions:
-	def play(self, song):
-		# via ffmpeg or so. load dynamically (ctypes)
-		pass
-		
-	def pause(self): pass
-	def next(self): pass
-	def forward10s(self): pass
+	def play(self): player.playing = True
+	def pause(self): player.playing = False
+	def next(self): player.nextSong()
+	def forward10s(self): player.seekRel(10)
 
 actions = Actions()
 
