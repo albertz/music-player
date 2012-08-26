@@ -34,6 +34,8 @@ import lastfm
 def track(event, args, kwargs):
 	print "track:", repr(event), repr(args), repr(kwargs)
 	if event is PlayerEventCallbacks.onSongChange:
+		oldSong = kwargs["oldSong"]
+		oldSong.close() # in case anyone is holding any ref to it, close at least the file
 		newSong = kwargs["newSong"]
 		if "artist" not in newSong.metadata:
 			print "new song metadata is incomplete:", newSong.metadata
