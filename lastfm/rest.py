@@ -19,8 +19,6 @@ try:
 except ImportError:
     import simplejson as json
 
-SDK_VERSION = "1.4.1"
-
 TRUSTED_CERT_FILE = mydir + '/trusted-certs.crt'
 
 class ProperHTTPSConnection(httplib.HTTPConnection):
@@ -34,7 +32,7 @@ class ProperHTTPSConnection(httplib.HTTPConnection):
     """
 
     def __init__(self, host, port, trusted_cert_file=TRUSTED_CERT_FILE):
-        httplib.HTTPConnection.__init__(self, host, port)
+        httplib.HTTPConnection.__init__(self, host, port, timeout=10)
         self.ca_certs = trusted_cert_file
         self.cert_reqs = ssl.CERT_REQUIRED
 
@@ -129,7 +127,7 @@ class RESTClientObject(object):
     def request(self, method, url, post_params=None, body=None, headers=None, raw_response=False):
         post_params = post_params or {}
         headers = headers or {}
-        headers['User-Agent'] = 'OfficialLastfmPythonSDK/' + SDK_VERSION
+        #headers['User-Agent'] = 'OfficialLastfmPythonSDK/' + SDK_VERSION
 
         if post_params:
             if body:
