@@ -1,5 +1,6 @@
 from utils import *
 from Song import Song
+import appinfo
 
 player = None
 
@@ -19,7 +20,9 @@ def loadQueue(state):
 	return songs()
 	
 def loadRecentlyplayedList(state):
-	pass
+	#class RecentlyplayedList:
+	#	def __i
+	return None
 
 class State:
 	queue = initBy(loadQueue)
