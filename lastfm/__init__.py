@@ -179,7 +179,7 @@ class Client:
 				time.sleep(1) # wait a bit and retry
 		
 		
-_client = None
+globals().setdefault("_client", None)
 
 def login():
 	global _client

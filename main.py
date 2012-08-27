@@ -6,9 +6,9 @@ better_exchook.install()
 from utils import *
 from pprint import pprint
 
-mainStateChanges = OnRequestQueue()
+globals().setdefault("mainStateChanges", OnRequestQueue())
 
-player = None
+globals().setdefault("player", None)
 
 class PlayerEventCallbacks:
 	onSongChange = None
@@ -77,10 +77,10 @@ class Actions:
 	def next(self): player.nextSong()
 	def forward10s(self): player.seekRel(10)
 
-actions = Actions()
+globals().setdefault("actions", Actions())
 
 from State import State
-state = State(globals())
+globals().setdefault("state", State(globals()))
 
 if __name__ == '__main__':	
 	import time, os, sys
