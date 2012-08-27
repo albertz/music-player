@@ -22,6 +22,8 @@ class Song:
 	@property
 	def metadata(self):
 		if hasattr(self, "_metadata"): return self._metadata
+		import main
+		print main, main.player
 		if not self.player: return {}
 		if self.player.curSong is not self: return {}
 		m = self.player.curSongMetadata or {}
