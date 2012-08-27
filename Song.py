@@ -1,8 +1,7 @@
 class Song:
-	def __init__(self, fn, player):
+	def __init__(self, fn):
 		self.url = fn
 		self.f = open(fn)
-		self.player = player
 	
 	# { ffmpeg player interface
 	def readPacket(self, bufSize):
@@ -22,13 +21,13 @@ class Song:
 	@property
 	def metadata(self):
 		if hasattr(self, "_metadata"): return self._metadata
-		import main
-		print main, main.player
-		if not self.player: return {}
-		if self.player.curSong is not self: return {}
-		m = self.player.curSongMetadata or {}
+		import State
+		player = State.state.player
+		if not player: return {}
+		if player.curSong is not self: return {}
+		m = player.curSongMetadata or {}
 		m = dict([(key.lower(),value) for (key,value) in m.items()])
-		m["duration"] = self.player.curSongLen
+		m["duration"] = player.curSongLen
 		self._metadata = m
 		return m
 		

@@ -6,9 +6,7 @@ better_exchook.install()
 from utils import *
 from pprint import pprint
 
-mainStateChanges = OnRequestQueue()
-
-player = None
+from State import state
 
 class PlayerEventCallbacks:
 	onSongChange = None
@@ -16,16 +14,15 @@ class PlayerEventCallbacks:
 	onPlayingStateChange = None
 
 def playerMain():
-	global player
 	import ffmpeg
-	player = ffmpeg.createPlayer()
+	state.player = ffmpeg.createPlayer()
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
-		cb = EventCallback(targetQueue=mainStateChanges, name=e)
+		cb = EventCallback(targetQueue=state.updates, name=e)
 		setattr(PlayerEventCallbacks, e, cb)
-		setattr(player, e, cb)
-	player.queue = state.queue
-	player.playing = True
-	for ev in mainStateChanges.read(): pass # wait for exit
+		setattr(state.player, e, cb)
+	state.player.queue = state.queue
+	state.player.playing = True
+	for ev in state.updates.read(): pass # wait for exit
 	
 import lastfm
 
@@ -47,7 +44,7 @@ def track(event, args, kwargs):
 	
 def trackerMain():
 	lastfm.login()	
-	for ev,args,kwargs in mainStateChanges.read():
+	for ev,args,kwargs in state.updates.read():
 		try:
 			track(ev, args, kwargs)
 		except:
@@ -57,9 +54,9 @@ def trackerMain():
 def onMediaKeyUp(control):
 	try:
 		if control == "play-pause":
-			player.playing = not player.playing
+			state.player.playing = not state.player.playing
 		elif control == "next":
-			player.nextSong()
+			state.player.nextSong()
 	except:
 		sys.excepthook(*sys.exc_info())
 
@@ -68,19 +65,17 @@ def mediakeysMain():
 	eventTap = mediakeys.EventListener()
 	eventTap.onMediaKeyUp = onMediaKeyUp
 	eventTap.start()
-	for ev in mainStateChanges.read(): pass # wait for exit
+	for ev in state.updates.read(): pass # wait for exit
 	eventTap.stop()
 	
 class Actions:
-	def play(self): player.playing = True
-	def pause(self): player.playing = False
-	def next(self): player.nextSong()
-	def forward10s(self): player.seekRel(10)
+	def play(self): state.player.playing = True
+	def pause(self): state.player.playing = False
+	def next(self): state.player.nextSong()
+	def forward10s(self): state.player.seekRel(10)
 
 actions = Actions()
 
-from State import State
-state = State(globals())
 
 if __name__ == '__main__':	
 	import time, os, sys
@@ -94,13 +89,13 @@ if __name__ == '__main__':
 			if ch == "q": sys.exit(0)
 			try:
 				if ch == "\x1b[D": # left
-					player.seekRel(-10)
+					state.player.seekRel(-10)
 				elif ch == "\x1b[C": #right
-					player.seekRel(10)
+					state.player.seekRel(10)
 				elif ch == "\n": # return
-					player.nextSong()
+					state.player.nextSong()
 				elif ch == " ":
-					player.playing = not player.playing
+					state.player.playing = not state.player.playing
 			except:
 				sys.excepthook(*sys.exc_info())
 		loopFunc = handleInput
@@ -114,8 +109,8 @@ if __name__ == '__main__':
 	while True:
 		try: loopFunc() # wait for KeyboardInterrupt
 		except BaseException, e:
-			mainStateChanges.put((e, (), {}))
-			mainStateChanges.cancelAll()
+			state.updates.put((e, (), {}))
+			state.updates.cancelAll()
 			break
 	for t in threads: t.join()
 	

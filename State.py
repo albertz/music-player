@@ -2,8 +2,6 @@ from utils import *
 from Song import Song
 import appinfo
 
-player = None
-
 def loadQueue(state):
 	print "load queue"
 	
@@ -15,7 +13,7 @@ def loadQueue(state):
 			fileexts = ["mp3", "ogg", "flac", "wma"])
 		while True:
 			f = fileQueue.getNextFile()
-			yield Song(f, state._main["player"])
+			yield Song(f)
 			
 	return songs()
 	
@@ -32,7 +30,9 @@ class State:
 		"playing",
 		"paused"
 	)
+	
+	updates = initBy(lambda self: OnRequestQueue())
+	player = None
 
-	def __init__(self, main):
-		self._main = main
-		
+state = State()
+	
