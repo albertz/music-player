@@ -103,3 +103,25 @@ def doAsync(f, name=None):
 	t = Thread(target = f, name = name)
 	t.start()
 
+
+def betterRepr(o):
+	# the main difference: this one is deterministic
+	# the orig dict.__repr__ has the order undefined.
+	if isinstance(o, list):
+		return "[" + ", ".join(map(betterRepr, o)) + "]"
+	if isinstance(o, tuple):
+		return "(" + ", ".join(map(betterRepr, o)) + ")"
+	if isinstance(o, dict):
+		return "{\n" + "".join(map(lambda (k,v): betterRepr(k) + ": " + betterRepr(v) + ",\n", sorted(o.iteritems()))) + "}"
+	# fallback
+	return repr(o)
+
+#class PersistentObject:
+#	def __init__(self, )
+		
+#def saveLog():
+#	global log, LogFile
+#	f = open(LogFile, "w")
+#	f.write(betterRepr(log))
+#	f.write("\n")
+
