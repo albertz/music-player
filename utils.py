@@ -116,12 +116,46 @@ def betterRepr(o):
 	# fallback
 	return repr(o)
 
-#class PersistentObject:
-#	def __init__(self, )
-		
-#def saveLog():
-#	global log, LogFile
-#	f = open(LogFile, "w")
-#	f.write(betterRepr(log))
-#	f.write("\n")
+def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object, delHook=None, getattrHook=getattr, setattrHook=setattr):
+	class Value: pass
+	obj = Value()
+	def load():
+		if not hasattr(obj, "value"):
+			obj.value = lazyLoader()
+	def obj_getattr(self, key):
+		load()
+		if key in custom_attribs:
+			value = custom_attribs[key]
+			if hasattr(value, "__get__"):
+				value = value.__get__(self, type(self))
+			return value
+		return getattr(obj.value, key)
+	def obj_setattr(self, key, value):
+		load()
+		return setattr(obj.value, key, value)
+	def obj_del(self):
+		if delHook: delHook(self)
+	attribs = {"__getattr__": obj_getattr, "__setattr__": obj_setattr, "__del__": obj_del}
+	LazyObject = type("LazyObject", (baseType,), attribs)
+	return LazyObject()
 
+def PersistentObject(baseType, filename):
+	def load():
+		import appinfo
+		try:
+			f = open(appinfo.userdir + "/" + filename)
+		except IOError: # e.g. file-not-found. that's ok
+			return baseType()
+
+		obj = eval(f.read())
+		assert isinstance(obj, baseType)
+		return obj
+	def save(obj):
+		import appinfo
+		f = open(appinfo.userdir + "/" + filename)
+		f.write(betterRepr(obj))
+		f.write("\n")
+	def obj_repr(obj):
+		return "PersistentObject(%r, %r)" % (baseType, filename)
+	return ObjectProxy(load, delHook=save, baseType=baseType,
+		custom_attribs={"save": save, "__repr__": obj_repr})

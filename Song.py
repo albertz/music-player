@@ -16,7 +16,7 @@ class Song:
 		self.f = None
 	
 	def __repr__(self):
-		return "<Song %r>" % self.url
+		return "Song(%r)" % self.url
 
 	@property
 	def metadata(self):

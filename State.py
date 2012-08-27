@@ -17,14 +17,31 @@ def loadQueue(state):
 			
 	return songs()
 	
+from collections import deque
+
+class RecentlyplayedList:
+	Limit = 10
+	def __init__(self, list=[], previous=None):
+		self.list = deque(list)
+		self.previous = None
+	def append(self, song):
+		self.list.append(song)
+		if len(self.list) >= self.Limit:
+			newList = RecentlyplayedList(list=self.list, previous=self.previous)
+			self.previous = newList
+			self.list = deque()
+	def __repr__(self):
+		return "RecentlyplayedList(list=%s, previous=%s)" % (
+			betterRepr(self.list),
+			betterRepr(self.previous))
+
 def loadRecentlyplayedList(state):
-	#class RecentlyplayedList:
-	#	def __i
-	return None
+	return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
 class State:
 	queue = initBy(loadQueue)
 	recentlyPlayedList = initBy(loadRecentlyplayedList)
+	curSong = None
 	
 	playState = oneOf(
 		"playing",
