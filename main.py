@@ -6,23 +6,7 @@ better_exchook.install()
 from utils import *
 from pprint import pprint
 
-from State import state
-
-class PlayerEventCallbacks:
-	onSongChange = None
-	onSongFinished = None
-	onPlayingStateChange = None
-
-def playerMain():
-	import ffmpeg
-	state.player = ffmpeg.createPlayer()
-	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
-		cb = EventCallback(targetQueue=state.updates, name=e)
-		setattr(PlayerEventCallbacks, e, cb)
-		setattr(state.player, e, cb)
-	state.player.queue = state.queue
-	state.player.playing = True
-	for ev in state.updates.read(): pass # wait for exit
+from State import state, playerMain, PlayerEventCallbacks
 	
 import lastfm
 
