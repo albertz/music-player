@@ -36,5 +36,15 @@ About the database:
 * should automatically be filled by a filesystem directory
 * import like-state from local players like iTunes and also online services like Last.fm
 
+TODO / possible additional missing features:
+
+* volume normalization
+* beat frequence determination and clever DJ-like fading
+* echoprint.me or similiar song determination (mostly for metadata, esp. if missing)
+* use tags given by Last.fm (mostly more tags)
+* integrate iTunes database (rating, volume normalization, metatags)
+* Last.fm streaming support
+* watch msic directory for changes (e.g. new files added)
+
 -- Albert Zeyer, <http://www.az2000.de>
 
