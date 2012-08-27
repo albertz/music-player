@@ -143,7 +143,10 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 			return obj.value
 		return self
 	def obj_desc_set(self, inst, value):
-		obj.value = value
+		if hasattr(value, "__get__"):
+			obj.value = value.__get__(None)
+		else:
+			obj.value = value
 	attribs = custom_attribs.copy()
 	attribs.update({
 		"__getattr__": obj_getattr,
@@ -174,14 +177,15 @@ def PersistentObject(baseType, filename, persistentRepr = False):
 		assert isinstance(obj, baseType)
 		return obj
 	def save(obj):
-		s = betterRepr(obj)
+		s = betterRepr(obj.__get__(None))
 		import appinfo
 		f = open(appinfo.userdir + "/" + filename, "w")
 		f.write(s)
 		f.write("\n")
+		f.close()
 	def obj_repr(obj):
 		if persistentRepr:
-			return "PersistentObject(%r, %r)" % (baseType, filename)
+			return "PersistentObject(%s, %r)" % (baseType.__name__, filename)
 		return betterRepr(obj.__get__(None))
 	def obj_del(obj):
 		save(obj)

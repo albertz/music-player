@@ -6,6 +6,10 @@ def loadQueue(state):
 	print "load queue"
 	
 	def songs():
+		if state.curSong:
+			# We just started the player and we have a current song from persistant storage.
+			# Yield it now so that we begin playing with this song.
+			yield state.curSong
 		import os
 		from RandomFileQueue import RandomFileQueue
 		fileQueue = RandomFileQueue(
@@ -38,9 +42,10 @@ class RecentlyplayedList:
 			self.previous = newList
 			self.list = deque()
 	def __repr__(self):
-		return "RecentlyplayedList(list=%s, previous=%s)" % (
+		return "RecentlyplayedList(list=%s, previous=%s, index=%i)" % (
 			betterRepr(self.list),
-			betterRepr(self.previous))
+			betterRepr(self.previous),
+			self.index)
 
 def loadRecentlyplayedList(state):
 	return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
