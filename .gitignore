@@ -5,3 +5,5 @@
 *.o
 xcuserdata
 build
+
+.idea/workspace.xml
