@@ -5,14 +5,21 @@
 # http://code.enthought.com/projects/traits/examples.php
 
 
-from traits.api import Delegate, HasTraits, Instance, Int, Str
+from traits.api import Delegate, HasTraits, TraitType
+
+def delegateTrait(delegateObjName, baseType=None):
+	class Trait(TraitType):
+		def get(self, object, name):
+			delegateObj = getattr(object, delegateObjName)
+			return getattr(delegateObj, name)
+	return Trait()
 
 class State(HasTraits):
 	mainState = None
 	
-	recentlyPlayedList = Delegate("mainState")
-	curSong = Delegate("mainState")
-	queue = Delegate("mainState")
+	recentlyPlayedList = delegateTrait("mainState")
+	curSong = delegateTrait("mainState")
+	queue = delegateTrait("mainState")
 	
 	#traits_view = View()
 
