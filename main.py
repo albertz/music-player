@@ -7,7 +7,7 @@ from utils import *
 from pprint import pprint
 
 from State import state, playerMain, PlayerEventCallbacks
-	
+
 import lastfm
 
 def track(event, args, kwargs):
@@ -83,12 +83,15 @@ if __name__ == '__main__':
 			except:
 				sys.excepthook(*sys.exc_info())
 		loopFunc = handleInput
+
+	from gui import guiMain
 		
 	from threading import Thread
 	threads = []
 	threads += [Thread(target=playerMain, name="Player")]
 	threads += [Thread(target=trackerMain, name="Tracker")]
 	threads += [Thread(target=mediakeysMain, name="Mediakeys")]
+	threads += [Thread(target=guiMain, name="GUI")]
 	for t in threads: t.start()
 	while True:
 		try: loopFunc() # wait for KeyboardInterrupt
