@@ -24,7 +24,7 @@ def loadQueue(state):
 from collections import deque
 
 class RecentlyplayedList:
-	Limit = 10
+	Limit = 500
 	def __init__(self, list=[], previous=None, index=0):
 		self.index = index
 		self.list = deque(list)
