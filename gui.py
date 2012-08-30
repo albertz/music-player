@@ -27,5 +27,23 @@ from State import state as mainState
 state = State()
 state.mainState = mainState
 
-def guiMain():	
+import sys
+try:
+	# From TraitsUI. This prepares PyQt/PySide.
+	import pyface.qt
+
+	from PyQt4.QtCore import *
+	from PyQt4.QtGui import *
+	from PyQt4.QtWebKit import *
+except:
+	print "failed to import PyQt4"
+	sys.excepthook(*sys.exc_info())
+	print "This is mandatory. Install it with Homebrew by:"
+	print "  brew install pyqt"
+	print
+	sys.exit(-1)
+
+app = QApplication(sys.argv)
+
+def guiMain():
 	state.configure_traits()
