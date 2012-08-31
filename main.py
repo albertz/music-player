@@ -5,61 +5,39 @@ better_exchook.install()
 
 from utils import *
 from pprint import pprint
+from threading import Thread
 
-from State import state, playerMain, PlayerEventCallbacks
+from State import state, playerMain
 
-import lastfm
-
-def track(event, args, kwargs):
-	print "track:", repr(event), repr(args), repr(kwargs)
-	if event is PlayerEventCallbacks.onSongChange:
-		oldSong = kwargs["oldSong"]
-		if oldSong: oldSong.close() # in case anyone is holding any ref to it, close at least the file
-		newSong = kwargs["newSong"]
-		if "artist" not in newSong.metadata:
-			print "new song metadata is incomplete:", newSong.metadata
+class Module:
+	def __init__(self, name):
+		self.name = name
+		self.thread = Thread(target = self.threadMain, name = name + " main")
+		self.module = None
+	@property
+	def mainFuncName(self): return self.name + "Main"
+	@property
+	def moduleName(self): return self.name
+	def start(self): self.thread.start()
+	def threadMain(self):
+		better_exchook.install()
+		if self.mainFuncName in globals():
+			mainFunc = globals()[self.mainFuncName]
 		else:
-			print "new song:", newSong.fileext, ",", newSong.artist, "-", newSong.track, ",", formatTime(newSong.duration)
-			pprint(newSong.metadata)
-		lastfm.onSongChange(newSong)
-	if event is PlayerEventCallbacks.onSongFinished:
-		song = kwargs["song"]
-		lastfm.onSongFinished(song)
-	
-def trackerMain():
-	lastfm.login()	
-	for ev,args,kwargs in state.updates.read():
-		try:
-			track(ev, args, kwargs)
-		except:
-			sys.excepthook(*sys.exc_info())
-	lastfm.quit()
+			if self.module:
+				reload(self.module)
+			else:
+				self.module = __import__(self.moduleName)
+			mainFunc = getattr(self.module, self.mainFuncName)
+		mainFunc()
+	def stop(self): self.thread.join()
 
-def onMediaKeyUp(control):
-	try:
-		if control == "play-pause":
-			state.player.playing = not state.player.playing
-		elif control == "next":
-			state.player.nextSong()
-	except:
-		sys.excepthook(*sys.exc_info())
-
-def mediakeysMain():
-	import mediakeys
-	eventTap = mediakeys.EventListener()
-	eventTap.onMediaKeyUp = onMediaKeyUp
-	eventTap.start()
-	for ev in state.updates.read(): pass # wait for exit
-	eventTap.stop()
-	
-class Actions:
-	def play(self): state.player.playing = True
-	def pause(self): state.player.playing = False
-	def next(self): state.player.nextSong()
-	def forward10s(self): state.player.seekRel(10)
-
-actions = Actions()
-
+modules = map(Module, [
+	"player",
+	"tracker",
+	"mediakeys",
+	"gui",
+])
 
 if __name__ == '__main__':	
 	import time, os, sys
@@ -84,21 +62,13 @@ if __name__ == '__main__':
 				sys.excepthook(*sys.exc_info())
 		loopFunc = handleInput
 
-	from gui import guiMain
-		
-	from threading import Thread
-	threads = []
-	threads += [Thread(target=playerMain, name="Player")]
-	threads += [Thread(target=trackerMain, name="Tracker")]
-	threads += [Thread(target=mediakeysMain, name="Mediakeys")]
-	threads += [Thread(target=guiMain, name="GUI")]
-	for t in threads: t.start()
+	for m in modules: m.start()
 	while True:
 		try: loopFunc() # wait for KeyboardInterrupt
 		except BaseException, e:
 			state.updates.put((e, (), {}))
 			state.updates.cancelAll()
 			break
-	for t in threads: t.join()
+	for m in modules: m.stop()
 	
 	
