@@ -37,30 +37,12 @@ modules = map(Module, [
 	"tracker",
 	"mediakeys",
 	"gui",
+	"stdinconsole",
 ])
 
 if __name__ == '__main__':	
 	import time, os, sys
 	loopFunc = lambda: time.sleep(10)
-	if os.isatty(sys.stdin.fileno()):
-		# If we are a TTY, do some very simple input handling.
-		setTtyNoncanonical(sys.stdin.fileno())
-		def handleInput():
-			global player
-			ch = os.read(sys.stdin.fileno(),7)
-			if ch == "q": sys.exit(0)
-			try:
-				if ch == "\x1b[D": # left
-					state.player.seekRel(-10)
-				elif ch == "\x1b[C": #right
-					state.player.seekRel(10)
-				elif ch == "\n": # return
-					state.player.nextSong()
-				elif ch == " ":
-					state.player.playing = not state.player.playing
-			except:
-				sys.excepthook(*sys.exc_info())
-		loopFunc = handleInput
 
 	for m in modules: m.start()
 	while True:
