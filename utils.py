@@ -195,3 +195,8 @@ def PersistentObject(baseType, filename, persistentRepr = False):
 			"__repr__": obj_repr,
 			"__del__": obj_del,
 			})
+
+
+class DictObj(dict):
+	def __getattr__(self, item): return self[item]
+	def __setattr__(self, key, value): self[key] = value
