@@ -474,7 +474,10 @@ static int player_getNextSong(PlayerObject* player) {
 	}
 	
 	player->curSong = PyIter_Next(player->queue);
+	
 	// pass through any Python errors
+	if(!player->curSong || PyErr_Occurred())
+		goto final;
 	
 	if(player->curSong && player_openInputStream(player) != 0) {
 		// This is not fatal, so don't make a Python exception.
