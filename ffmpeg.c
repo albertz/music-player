@@ -511,7 +511,7 @@ static int player_getNextSong(PlayerObject* player) {
 					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
 				}
 				
-				//Py_DECREF(kwargs); // Seems that PyEval_CallObjectWithKeywords is already eating this ref!
+				Py_DECREF(kwargs);
 				Py_DECREF(onSongChange);
 			}
 			Py_DECREF(player->dict);
@@ -717,7 +717,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 							if(PyErr_Occurred())
 								PyErr_Print();
 							
-							//Py_DECREF(kwargs); // PyEval_CallObjectWithKeywords eats this ref!
+							Py_DECREF(kwargs);
 							Py_DECREF(onSongFinished);
 						}
 						Py_DECREF(player->dict);
@@ -856,7 +856,7 @@ static int player_setplaying(PlayerObject* player, int playing) {
 			if(PyErr_Occurred())
 				PyErr_Print();
 				
-			// Py_DECREF(kwargs); // PyEval_CallObjectWithKeywords eats this ref!
+			Py_DECREF(kwargs);
 			Py_DECREF(onPlayingStateChange);
 		}
 		Py_DECREF(player->dict);
