@@ -27,7 +27,7 @@ class OnRequestQueue:
 				q.q.append(item)
 				q.cond.notify()
 	def cancelAll(self):
-		for q in self.queues:
+		for q in list(self.queues):
 			q.setCancel()
 	def read(self):
 		q = self.QueueEnd()
