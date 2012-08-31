@@ -18,6 +18,10 @@ class Song:
 	def __repr__(self):
 		return "Song(%r)" % self.url
 
+	def __str__(self):
+		import os
+		return "Song(%s)" % os.path.basename(self.url)
+
 	@property
 	def metadata(self):
 		if hasattr(self, "_metadata"): return self._metadata
