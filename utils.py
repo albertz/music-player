@@ -31,8 +31,15 @@ class OnRequestQueue:
 			q.setCancel()
 	def read(self):
 		q = self.QueueEnd()
+		thread = currentThread()
+		thread.waitQueue = q
+		if thread.cancel:
+			# This is to avoid a small race condition for the case
+			# that the thread which wants to join+cancel us was faster
+			# and didn't got the waitQueue. In that case, it would
+			# have set the cancel already to True.
+			return
 		self.queues.add(q)
-		currentThread().waitQueue = q
 		while True:
 			with q.cond:
 				l = list(q.q)
@@ -198,6 +205,7 @@ class Module:
 		self.name = name
 		self.thread = Thread(target = self.threadMain, name = name + " main")
 		self.thread.waitQueue = None
+		self.thread.cancel = False
 		self.module = None
 	@property
 	def mainFuncName(self): return self.name + "Main"
@@ -216,6 +224,7 @@ class Module:
 			mainFunc = getattr(self.module, self.mainFuncName)
 		mainFunc()
 	def stop(self):
+		self.thread.cancel = True
 		if self.thread.waitQueue:
 			self.thread.waitQueue.setCancel()
 		self.thread.join()
