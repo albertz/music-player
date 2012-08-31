@@ -482,16 +482,7 @@ static int player_getNextSong(PlayerObject* player) {
 		// This can happen if we don't support the format or whatever.
 		printf("cannot open input stream\n");
 	}
-	
-	printf("getNextSong: oldSong %p, newSong %p\n", oldSong, player->curSong);
-	if(!PyErr_Occurred()) {
-		char* oldSongStr = objStrDup(oldSong);
-		char* newSongStr = objStrDup(player->curSong);
-		printf("getNextSong objs: oldSong %s, newSong %s\n", oldSongStr, newSongStr);
-		free(oldSongStr);
-		free(newSongStr);
-	}
-	
+		
 	if(player->curSong) {
 		if(player->dict) {
 			Py_INCREF(player->dict);
@@ -520,7 +511,7 @@ static int player_getNextSong(PlayerObject* player) {
 					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
 				}
 				
-				//Py_DECREF(kwargs);
+				//Py_DECREF(kwargs); // Seems that PyEval_CallObjectWithKeywords is already eating this ref!
 				Py_DECREF(onSongChange);
 			}
 			Py_DECREF(player->dict);
@@ -726,7 +717,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 							if(PyErr_Occurred())
 								PyErr_Print();
 							
-							Py_DECREF(kwargs);
+							//Py_DECREF(kwargs); // PyEval_CallObjectWithKeywords eats this ref!
 							Py_DECREF(onSongFinished);
 						}
 						Py_DECREF(player->dict);
@@ -865,7 +856,7 @@ static int player_setplaying(PlayerObject* player, int playing) {
 			if(PyErr_Occurred())
 				PyErr_Print();
 				
-			Py_DECREF(kwargs);
+			// Py_DECREF(kwargs); // PyEval_CallObjectWithKeywords eats this ref!
 			Py_DECREF(onPlayingStateChange);
 		}
 		Py_DECREF(player->dict);
