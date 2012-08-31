@@ -2,11 +2,11 @@
 from utils import *
 import sys, os
 
-noncanonicalStdinQueue = OnRequestQueue()
+stdinQueue = OnRequestQueue()
 
 def readNextInput():
 	ch = os.read(sys.stdin.fileno(),7)
-	noncanonicalStdinQueue.put(ch)
+	stdinQueue.put(ch)
 
 def setTtyNoncanonical(fd, timeout=0):
 	import termios
@@ -29,7 +29,7 @@ from State import state
 
 
 def handleInput(ch):
-	if ch == "q" or ch == "\0":
+	if ch == "q" or ch == "\0" or ch == "":
 		print "stdin: quit"
 		state.quit()
 	try:
@@ -52,7 +52,5 @@ def stdinconsoleMain():
 		# don't do anything
 		return
 
-	#for ch in noncanonicalStdinQueue.read():
-	while True:
-		ch = os.read(sys.stdin.fileno(),7)
+	for ch in stdinQueue.read():
 		handleInput(ch)

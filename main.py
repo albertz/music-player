@@ -14,6 +14,8 @@ modules = map(Module, [
 	"stdinconsole",
 ])
 
+import stdinconsole
+
 if __name__ == '__main__':	
 	import time, os, sys
 
@@ -24,6 +26,9 @@ if __name__ == '__main__':
 	# It is also not possible (in general) to catch
 	# signals from other threads, thus we have to do it here.
 	# time.sleep() is a good way to wait for signals.
+	# However, we use stdinconsole.readNextInput() because
+	# there is simply no way to have os.read() in another thread
+	# and to be able to interrupt that from here (the main thread).
 	# In other threads: thread.interrupt_main() does not work
 	# for time.sleep() (or at least it will not interrupt the sleep).
 	# os.kill(0, signal.SIGINT) works, though.
@@ -36,12 +41,11 @@ if __name__ == '__main__':
 	# (state.updates) and in Module.stop(), we also cancel any custom
 	# queue.
 	while True:
-		try: time.sleep(10) # wait for KeyboardInterrupt
+		try: stdinconsole.readNextInput() # wait for KeyboardInterrupt
 		except BaseException, e:
 			state.updates.put((e, (), {}))
 			state.updates.cancelAll()
 			break
-	os.close(sys.stdin.fileno())
 	for m in modules: m.stop()
 	
 	

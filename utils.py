@@ -6,7 +6,7 @@
 import objc
 
 from collections import deque
-from threading import Condition, Thread
+from threading import Condition, Thread, currentThread
 
 class OnRequestQueue:
 	class QueueEnd:
@@ -14,6 +14,10 @@ class OnRequestQueue:
 			self.q = deque()
 			self.cond = Condition()
 			self.cancel = False
+		def setCancel(self):
+			with self.cond:
+				self.cancel = True
+				self.cond.notify()
 	def __init__(self):
 		self.queues = set()
 	def put(self, item):
@@ -24,13 +28,11 @@ class OnRequestQueue:
 				q.cond.notify()
 	def cancelAll(self):
 		for q in self.queues:
-			with q.cond:
-				q.cancel = True
-				q.cond.notify()
-		self.queues.clear()
+			q.setCancel()
 	def read(self):
 		q = self.QueueEnd()
 		self.queues.add(q)
+		currentThread().waitQueue = q
 		while True:
 			with q.cond:
 				l = list(q.q)
@@ -41,6 +43,7 @@ class OnRequestQueue:
 			for item in l:
 				yield item
 			if cancel: break
+		self.queues.remove(q)
 
 class EventCallback:
 	def __init__(self, targetQueue, name=None):
@@ -214,6 +217,6 @@ class Module:
 		mainFunc()
 	def stop(self):
 		if self.thread.waitQueue:
-			self.thread.waitQueue.cancel()
+			self.thread.waitQueue.setCancel()
 		self.thread.join()
 
