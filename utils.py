@@ -6,7 +6,8 @@
 import objc
 
 from collections import deque
-from threading import Condition
+from threading import Condition, Thread
+
 class OnRequestQueue:
 	class QueueEnd:
 		def __init__(self):
@@ -185,3 +186,34 @@ def PersistentObject(baseType, filename, persistentRepr = False):
 class DictObj(dict):
 	def __getattr__(self, item): return self[item]
 	def __setattr__(self, key, value): self[key] = value
+
+
+import better_exchook
+
+class Module:
+	def __init__(self, name):
+		self.name = name
+		self.thread = Thread(target = self.threadMain, name = name + " main")
+		self.thread.waitQueue = None
+		self.module = None
+	@property
+	def mainFuncName(self): return self.name + "Main"
+	@property
+	def moduleName(self): return self.name
+	def start(self): self.thread.start()
+	def threadMain(self):
+		better_exchook.install()
+		if self.mainFuncName in globals():
+			mainFunc = globals()[self.mainFuncName]
+		else:
+			if self.module:
+				reload(self.module)
+			else:
+				self.module = __import__(self.moduleName)
+			mainFunc = getattr(self.module, self.mainFuncName)
+		mainFunc()
+	def stop(self):
+		if self.thread.waitQueue:
+			self.thread.waitQueue.cancel()
+		self.thread.join()
+

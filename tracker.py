@@ -3,7 +3,8 @@ from utils import *
 from pprint import pprint
 import sys
 
-from State import state, PlayerEventCallbacks
+from State import state
+from player import PlayerEventCallbacks
 
 import lastfm
 

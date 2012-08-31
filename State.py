@@ -1,6 +1,5 @@
 from utils import *
 from Song import Song
-import appinfo
 
 def loadQueue(state):
 	print "load queue"
@@ -50,30 +49,6 @@ class RecentlyplayedList:
 def loadRecentlyplayedList(state):
 	return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-class PlayerEventCallbacks:
-	onSongChange = None
-	onSongFinished = None
-	onPlayingStateChange = None
-
-def loadPlayer(state):
-	import ffmpeg
-	player = ffmpeg.createPlayer()
-	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
-		cb = EventCallback(targetQueue=state.updates, name=e)
-		setattr(PlayerEventCallbacks, e, cb)
-		setattr(player, e, cb)
-	player.queue = state.queue
-	return player
-
-def playerMain():
-	state.player.playing = True
-	for ev,args,kwargs in state.updates.read():
-		if ev is PlayerEventCallbacks.onSongChange:
-			state.curSong = kwargs["newSong"]
-			state.curSong.save()
-			state.recentlyPlayedList.append(kwargs["oldSong"])
-			state.recentlyPlayedList.save()
-		pass # onPlayingStateChange
 
 class Actions:
 	def play(self): state.player.playing = True
@@ -83,6 +58,7 @@ class Actions:
 
 actions = Actions()
 
+from player import loadPlayer
 
 class State(object):
 	queue = initBy(loadQueue)
@@ -96,5 +72,13 @@ class State(object):
 	
 	updates = initBy(lambda self: OnRequestQueue())
 	player = initBy(loadPlayer)
+
+	def quit(self):
+		""" This works in all threads except the main thread. It will quit the whole app.
+		For more information about why we do it this way, read the comment in main.py.
+		"""
+		import sys, os, signal
+		os.kill(0, signal.SIGINT)
+		sys.exit()
 
 state = State()

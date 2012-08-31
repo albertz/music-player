@@ -2,11 +2,11 @@
 from utils import *
 import sys, os
 
-#noncanonicalStdinQueue = OnRequestQueue()
+noncanonicalStdinQueue = OnRequestQueue()
 
-#def readNextInput():
-#	ch = os.read(sys.stdin.fileno(),7)
-#	noncanonicalStdinQueue.put(ch)
+def readNextInput():
+	ch = os.read(sys.stdin.fileno(),7)
+	noncanonicalStdinQueue.put(ch)
 
 def setTtyNoncanonical(fd, timeout=0):
 	import termios
@@ -29,7 +29,9 @@ from State import state
 
 
 def handleInput(ch):
-	if ch == "q": sys.exit(0)
+	if ch == "q" or ch == "\0":
+		print "stdin: quit"
+		state.quit()
 	try:
 		if ch == "\x1b[D": # left
 			state.player.seekRel(-10)
