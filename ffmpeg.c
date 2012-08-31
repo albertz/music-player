@@ -961,6 +961,7 @@ PyObject* player_method_nextSong(PyObject* self, PyObject* _unused_arg) {
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	int ret = player_getNextSong(player);
 	PyThread_release_lock(player->lock);
+	if(PyErr_Occurred()) return NULL;
 	return PyBool_FromLong(ret == 0);
 }
 
