@@ -83,6 +83,7 @@ typedef struct {
 
 
 static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) {
+	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
 	//printf("player_read_packet %i\n", buf_size);
 	Py_ssize_t ret = -1;
 	PyObject *readPacketFunc = NULL, *args = NULL, *retObj = NULL;
@@ -127,6 +128,7 @@ final:
 }
 
 static int player_seek(PlayerObject* player, int64_t offset, int whence) {
+	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
 	//printf("player_seek %lli %i\n", offset, whence);
 	int ret = -1;
 	PyGILState_STATE gstate;
@@ -343,13 +345,20 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
     return 0;
 }
 
+static char* objStrDup(PyObject* obj) {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	PyObject* strObj = obj ? PyObject_Str(obj) : NULL;
+	char* str = strObj ? PyString_AsString(strObj) : "<None>";
+	str = strdup(str);
+	Py_XDECREF(strObj);
+	PyGILState_Release(gstate);
+	return str;
+}
+
 static char* objAttrStrDup(PyObject* obj, const char* attrStr) {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	PyObject* attrObj = PyObject_GetAttrString(obj, attrStr);
-	PyObject* attrStrObj = attrObj ? PyObject_Str(attrObj) : NULL;
-	char* str = attrStrObj ? PyString_AsString(attrStrObj) : "<None>";
-	str = strdup(str);
-	Py_XDECREF(attrStrObj);
+	char* str = objStrDup(attrObj);
 	Py_XDECREF(attrObj);
 	PyGILState_Release(gstate);
 	return str;
@@ -473,7 +482,16 @@ static int player_getNextSong(PlayerObject* player) {
 		// This can happen if we don't support the format or whatever.
 		printf("cannot open input stream\n");
 	}
-		
+	
+	printf("getNextSong: oldSong %p, newSong %p\n", oldSong, player->curSong);
+	if(!PyErr_Occurred()) {
+		char* oldSongStr = objStrDup(oldSong);
+		char* newSongStr = objStrDup(player->curSong);
+		printf("getNextSong objs: oldSong %s, newSong %s\n", oldSongStr, newSongStr);
+		free(oldSongStr);
+		free(newSongStr);
+	}
+	
 	if(player->curSong) {
 		if(player->dict) {
 			Py_INCREF(player->dict);
@@ -502,7 +520,7 @@ static int player_getNextSong(PlayerObject* player) {
 					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
 				}
 				
-				Py_DECREF(kwargs);
+				//Py_DECREF(kwargs);
 				Py_DECREF(onSongChange);
 			}
 			Py_DECREF(player->dict);
@@ -530,6 +548,8 @@ static int synchronize_audio(PlayerObject *is, int nb_samples)
 /* decode one audio frame and returns its uncompressed size */
 static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 {
+	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
+
 	if(is->inStream == NULL) return -1;
 	if(is->audio_st == NULL) return -1;
 	
