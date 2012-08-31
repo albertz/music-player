@@ -43,7 +43,9 @@ except:
 	print
 	sys.exit(-1)
 
-app = QApplication(sys.argv)
+raise NotImplementedError
 
-def guiMain():
-	state.configure_traits()
+#app = QApplication(sys.argv)
+
+#def guiMain():
+#	state.configure_traits()
