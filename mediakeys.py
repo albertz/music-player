@@ -70,7 +70,26 @@ class MacMediaKeyEventsTap:
 
 
 EventListener = MacMediaKeyEventsTap
-	
+
+from State import state
+
+def onMediaKeyUp(control):
+	try:
+		if control == "play-pause":
+			state.player.playing = not state.player.playing
+		elif control == "next":
+			state.player.nextSong()
+	except:
+		sys.excepthook(*sys.exc_info())
+
+def mediakeysMain():
+	eventTap = EventListener()
+	eventTap.onMediaKeyUp = onMediaKeyUp
+	eventTap.start()
+	for ev in state.updates.read(): pass # wait for exit
+	eventTap.stop()
+
+
 if __name__ == '__main__':
 	tap = EventListener()
 	def onMediaKeyUp(control):
@@ -84,4 +103,3 @@ if __name__ == '__main__':
 	except: pass
 	tap.stop()
 	print
-	
