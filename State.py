@@ -7,7 +7,7 @@ def loadQueue(state):
 	
 	def songs():
 		if state.curSong:
-			# We just started the player and we have a current song from persistant storage.
+			# We just started the player and we have a current song from persistent storage.
 			# Yield it now so that we begin playing with this song.
 			yield state.curSong
 		import os
@@ -74,7 +74,16 @@ def playerMain():
 			state.recentlyPlayedList.append(kwargs["oldSong"])
 			state.recentlyPlayedList.save()
 		pass # onPlayingStateChange
-		
+
+class Actions:
+	def play(self): state.player.playing = True
+	def pause(self): state.player.playing = False
+	def next(self): state.player.nextSong()
+	def forward10s(self): state.player.seekRel(10)
+
+actions = Actions()
+
+
 class State(object):
 	queue = initBy(loadQueue)
 	recentlyPlayedList = initBy(loadRecentlyplayedList)
