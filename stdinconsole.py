@@ -27,6 +27,16 @@ def setTtyNoncanonical(fd, timeout=0):
 
 from State import state
 
+def printState():
+	if state.curSong:
+		try:
+			print os.path.basename(state.curSong.url) + " : " + \
+				formatTime(state.player.curSongPos) + " / " + \
+				formatTime(state.player.curSongLen)
+		except:
+			print "song ???"
+	else:
+		print "no song"
 
 def handleInput(ch):
 	if ch == "q" or ch == "\0" or ch == "":
@@ -35,8 +45,10 @@ def handleInput(ch):
 	try:
 		if ch == "\x1b[D": # left
 			state.player.seekRel(-10)
+			printState()
 		elif ch == "\x1b[C": #right
 			state.player.seekRel(10)
+			printState()
 		elif ch == "\n": # return
 			state.player.nextSong()
 		elif ch == " ":
