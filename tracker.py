@@ -13,8 +13,7 @@ def track(event, args, kwargs):
 	if event is PlayerEventCallbacks.onSongChange:
 		oldSong = kwargs["oldSong"]
 		newSong = kwargs["newSong"]
-		if oldSong is newSong: print "** something strange. oldSong is newSong" # TODO: fix
-		elif oldSong: oldSong.close() # in case anyone is holding any ref to it, close at least the file
+		if oldSong: oldSong.close() # in case anyone is holding any ref to it, close at least the file
 		if "artist" not in newSong.metadata:
 			print "new song metadata is incomplete:", newSong.metadata
 		else:
