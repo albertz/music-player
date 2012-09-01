@@ -8,7 +8,9 @@ def loadQueue(state):
 		if state.curSong:
 			# We just started the player and we have a current song from persistent storage.
 			# Yield it now so that we begin playing with this song.
-			yield state.curSong
+			# Yield the Song object itself, though, not the ObjectProxy. The ObjectProxy
+			# would result in very strange behavior later for onSongChange events.
+			yield state.curSong.__get__(None)
 		import os
 		from RandomFileQueue import RandomFileQueue
 		fileQueue = RandomFileQueue(
