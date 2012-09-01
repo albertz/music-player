@@ -140,6 +140,8 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 		return self
 	def obj_desc_set(self, inst, value):
 		if hasattr(value, "__get__"):
+			# In case the value is itself some sort of ObjectProxy, try to get its
+			# underlying object and use our proxy instead.
 			obj.value = value.__get__(None)
 		else:
 			obj.value = value
