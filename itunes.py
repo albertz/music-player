@@ -4,11 +4,8 @@
 # code under GPLv3+
 
 import sys
-from better_exchook import better_exchook
-sys.excepthook = better_exchook
-
 import codecs # utf8
-import os, os.path
+import os
 
 libraryXmlFile = codecs.open(os.path.expanduser("~/Music/iTunes/iTunes Music Library.xml"), "r", "utf-8")
 
@@ -184,17 +181,33 @@ def songsIter(plistIter):
 
 librarySongsIter = songsIter(libraryPlistIter)
 
-if __name__ == "__main__":
-	#for entry in libraryPlistIter:
-	#	print entry
-
+def ratingsIter():
 	import urllib
 	import re
-
 	for song in librarySongsIter:
 		rating = song["Rating"]
 		if rating is None: continue # print only songs with any rating set
+		rating /= 100.0 # the maximum is 100
 		fn = song["Location"]
 		fn = urllib.unquote(fn)
 		fn = re.sub("^file://(localhost)?", "", fn)
+		yield (fn, rating)
+
+
+if __name__ == "__main__":
+	for fn, rating in ratingsIter():
 		print rating, repr(fn)
+	sys.exit()
+
+ratings = {}
+def loadRatings():
+	for fn, rating in ratingsIter():
+		ratings[fn] = rating
+
+# do some extra check in case we are reloading this module. don't reload the ratings. takes too long
+try:
+	loadRatingsThread
+except NameError:
+	from threading import Thread
+	loadRatingsThread = Thread(target = loadRatings, name = "iTunes ratings loader")
+	loadRatingsThread.start()
