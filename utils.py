@@ -7,6 +7,10 @@ import objc
 
 from collections import deque
 from threading import Condition, Thread, currentThread
+import sys
+
+import better_exchook
+
 
 class OnRequestQueue:
 	class QueueEnd:
@@ -21,7 +25,7 @@ class OnRequestQueue:
 	def __init__(self):
 		self.queues = set()
 	def put(self, item):
-		for q in self.queues:
+		for q in list(self.queues):
 			with q.cond:
 				if q.cancel: continue
 				q.q.append(item)
@@ -213,8 +217,6 @@ class DictObj(dict):
 	def __setattr__(self, key, value): self[key] = value
 
 
-import better_exchook
-
 class Module:
 	def __init__(self, name):
 		self.name = name
@@ -241,7 +243,7 @@ class Module:
 			mainFunc = getattr(self.module, self.mainFuncName)
 			mainFunc()
 			if not thread.reload: break
-			print "reloading module " + self.name
+			sys.stdout.write("reloading module %s\n" % self.name)
 			thread.cancel = False
 			thread.reload = False
 			thread.waitQueue = None
