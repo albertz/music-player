@@ -1,9 +1,12 @@
 from utils import *
 
-class PlayerEventCallbacks:
-	onSongChange = None
-	onSongFinished = None
-	onPlayingStateChange = None
+try:
+	PlayerEventCallbacks
+except NameError:
+	class PlayerEventCallbacks:
+		onSongChange = None
+		onSongFinished = None
+		onPlayingStateChange = None
 
 def loadPlayer(state):
 	import ffmpeg
