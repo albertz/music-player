@@ -1,7 +1,8 @@
 class Song:
-	def __init__(self, fn):
+	def __init__(self, fn, openFile=True):
 		self.url = fn
-		self.f = open(fn)
+		if openFile: self.f = open(fn)
+		else: self.f = None
 	
 	# { ffmpeg player interface
 	def readPacket(self, bufSize):
@@ -27,51 +28,52 @@ class Song:
 		if hasattr(self, "_metadata"): return self._metadata
 		import State
 		player = State.state.player
-		if not player: return {}
-		if player.curSong is not self: return {}
-		if player.curSongMetadata:
-			self._fileMetadata = player.curSongMetadata
-			m = dict([(key.lower(),value) for (key,value) in self._fileMetadata.items()])
-		else:
-			m = {}
-		self._metadata = m
+		m = {}
+		if player and player.curSong is self:
+			if player.curSongMetadata:
+				self._fileMetadata = player.curSongMetadata
+				m = dict([(key.lower(),value) for (key,value) in self._fileMetadata.items()])
+			self._metadata = m # only save attrib if this is from player. otherwise we might get later some better results
 		m["duration"] = player.curSongLen
 		if hasattr(self, "rating"): m["rating"] = self.rating
-		self.fixupMetadata()
-		self.guessMetadata()
+		m = self.fixupMetadata(m)
+		m = self.guessMetadata(m)
 		return m
 
-	def fixupMetadata(self):
-		m = self.metadata
+	def fixupMetadata(self, metadata=None):
+		if not metadata: metadata = self.metadata
 		def fixString(key):
-			if key in m:
-				m[key] = m[key].strip()
+			if key in metadata:
+				metadata[key] = metadata[key].strip()
 			else:
 				return
-			if m[key] in ["", "Unknown", "Unknown " + key]:
-				del m[key]
+			if metadata[key] in ["", "Unknown", "Unknown " + key]:
+				del metadata[key]
 		fixString("artist")
 		fixString("title")
+		return metadata
 
 	_guessRegexps = [
-		"^(?P<artist>.+?)\s-\s(?P<title>.+)$",
-		"^(?P<artist>.+?)-(?P<title>.+)$",
+		"^(.*/)*(?P<artist>.+?)\s-\s(?P<title>.+)$",
+		"^(.*/)*(?P<artist>.+?)-(?P<title>.+)$",
+		"^(.*/)*(?P<artist>.+?)/(?P<album>.+?)/((?P<track>\d+)(\s*-)?\s*)?(?P<title>.+)$",
 	]
 
-	def guessMetadata(self):
+	def guessMetadata(self, metadata=None):
 		""" guesses metadata from filename. the current metadata is expected to be fixed (fixupMetadata). """
-		metadata = self.metadata
+		if not metadata: metadata = self.metadata
 		if "artist" in metadata and "title" in metadata: return # that's enough for most usage, no need to guess
 		import re, os
-		basename = os.path.basename(self.url)
-		basename = os.path.splitext(basename)[0]
+		fn = os.path.splitext(self.url)[0]
 		for r in self._guessRegexps:
-			match = re.match(r, basename)
+			match = re.match(r, fn)
 			if not match: continue
 			match = match.groupdict()
-			metadata["artist"] = match["artist"]
-			metadata["title"] = match["title"]
-			return
+			for key in match:
+				if match[key] is not None:
+					metadata[key] = match[key]
+			print "guessed metadata:", metadata
+			return metadata
 
 	@property
 	def artist(self):
@@ -97,3 +99,22 @@ class Song:
 		if artist and title: return artist + " - " + title
 		import os
 		return os.path.basename(self.url)
+
+def test():
+	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac", openFile=False)
+	assert s.metadata["artist"] == "Tool"
+	assert s.metadata["album"] == "Lateralus"
+	assert s.metadata["title"] == "Triad"
+	assert s.metadata["track"] == "12"
+	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac", openFile=False)
+	assert s.metadata["artist"] == "Tool"
+	assert s.metadata["album"] == "Lateralus"
+	assert s.metadata["title"] == "Triad"
+	assert s.metadata["track"] == "12"
+	s = Song("/yyy/xxx/abc - foo - bar", openFile=False)
+	assert s.metadata["artist"] == "abc"
+	assert s.metadata["title"] == "foo - bar"
+
+if __name__ == "__main__":
+	print "*** testing"
+	test()
