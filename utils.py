@@ -121,6 +121,19 @@ def betterRepr(o):
 	# fallback
 	return repr(o)
 
+def takeN(iterator, n):
+	i = 0
+	l = [None] * n
+	while i < n:
+		try:
+			l[i] = next(iterator)
+		except StopIteration:
+			l = l[0:i]
+			break
+		i += 1
+	return l
+
+
 def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	class Value: pass
 	obj = Value()
