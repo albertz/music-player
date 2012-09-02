@@ -241,6 +241,7 @@ class Module:
 			mainFunc = getattr(self.module, self.mainFuncName)
 			mainFunc()
 			if not thread.reload: break
+			print "reloading module", self.name
 			thread.cancel = False
 			thread.reload = False
 			thread.waitQueue = None
@@ -256,3 +257,5 @@ class Module:
 			self.stop(join=False)
 		else:
 			self.start()
+	def __str__(self):
+		return "Module %s" % self.name
