@@ -12,6 +12,5 @@ def notificationsMain():
 			notif.setTitle_("MusicPlayer")
 			notif.setInformativeText_(kwargs["newSong"].userString)
 			notifCenter.deliverNotification_(notif)
-			#print "notif:", notif
 
 	del pool
