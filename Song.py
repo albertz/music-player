@@ -64,6 +64,10 @@ class Song:
 		if "artist" in metadata and "title" in metadata: return # that's enough for most usage, no need to guess
 		import re, os
 		fn = os.path.splitext(self.url)[0]
+		# For now, just take the first matching.
+		# Later improvement might be:
+		#  - Collect all matching.
+		#  - Calculate some likelihood for each (e.g. guess that number-only strings are probably not artist names, etc.)
 		for r in self._guessRegexps:
 			match = re.match(r, fn)
 			if not match: continue
