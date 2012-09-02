@@ -32,6 +32,7 @@ class Song:
 		m = player.curSongMetadata or {}
 		m = dict([(key.lower(),value) for (key,value) in m.items()])
 		m["duration"] = player.curSongLen
+		if hasattr(self, "rating"): m["rating"] = self.rating
 		self._metadata = m
 		return m
 		

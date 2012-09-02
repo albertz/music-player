@@ -78,17 +78,38 @@ class State(object):
 		os.kill(0, signal.SIGINT)
 		sys.exit()
 
-state = State()
+# Only init new state if it is new, not at module reload.
+try:
+	state
+except NameError:
+	state = State()
 
-modules = map(Module, [
+try:
+	modules
+except NameError:
+	modules = []
+
+def getModule(modname):
+	for m in modules:
+		if m.name == modname: return m
+	return None
+
+for modname in [
 	"player",
 	"queue",
 	"tracker",
 	"mediakeys",
 	"gui",
 	"stdinconsole",
-])
+]:
+	if not getModule(modname):
+		modules += [Module(modname)]
 
 def reloadModules():
+	# reload some custom random Python modules
+	import Song, State
+	reload(Song)
+	reload(State)
+	# reload all our modules
 	for m in modules:
 		m.reload()
