@@ -101,9 +101,13 @@ for modname in [
 	"mediakeys",
 	"gui",
 	"stdinconsole",
+	"notifications",
 ]:
 	if not getModule(modname):
-		modules += [Module(modname)]
+		modules.append(Module(modname))
+
+for m in modules:
+	print m
 
 def reloadModules():
 	# reload some custom random Python modules
