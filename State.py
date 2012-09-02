@@ -11,15 +11,10 @@ def loadQueue(state):
 			# Yield the Song object itself, though, not the ObjectProxy. The ObjectProxy
 			# would result in very strange behavior later for onSongChange events.
 			yield state.curSong.__get__(None)
-		import os
-		from RandomFileQueue import RandomFileQueue
-		fileQueue = RandomFileQueue(
-			rootdir = os.path.expanduser("~/Music"),
-			fileexts = ["mp3", "ogg", "flac", "wma"])
+		import queue
 		while True:
-			f = fileQueue.getNextFile()
-			yield Song(f)
-			
+			yield queue.getNextSong()
+
 	return songs()
 	
 from collections import deque
@@ -87,6 +82,7 @@ state = State()
 
 modules = map(Module, [
 	"player",
+	"queue",
 	"tracker",
 	"mediakeys",
 	"gui",
