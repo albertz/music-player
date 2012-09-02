@@ -32,6 +32,7 @@ class AppDelegate(NSObject):
 		print "AppDelegate quit"
 
 		for m in modules: m.stop()
+		return NSTerminateNow
 
 def setup():
 	icon = NSImage.alloc()
@@ -72,8 +73,6 @@ def main():
 	setup()
 
 	print "entering GUI main loop"
-	#app.run()
-	#app.performSelectorOnMainThread_withObject_waitUntilDone_(app.run, None, False)
 	app.run()
 
 	sys.exit()
