@@ -1,51 +1,82 @@
-# experiment a bit with Traits
-
-# http://docs.enthought.com/traits/traits_user_manual/index.html
-# http://docs.enthought.com/traitsui/traitsui_user_manual/index.html
-# http://code.enthought.com/projects/traits/examples.php
-
-
-from traits.api import Delegate, HasTraits, TraitType
-
-def delegateTrait(delegateObjName, baseType=None):
-	class Trait(TraitType):
-		def get(self, object, name):
-			delegateObj = getattr(object, delegateObjName)
-			return getattr(delegateObj, name)
-	return Trait()
-
-class State(HasTraits):
-	mainState = None
-	
-	recentlyPlayedList = delegateTrait("mainState")
-	curSong = delegateTrait("mainState")
-	queue = delegateTrait("mainState")
-	
-	#traits_view = View()
-
-from State import state as mainState
-state = State()
-state.mainState = mainState
 
 import sys
-try:
-	# From TraitsUI. This prepares PyQt/PySide.
-	import pyface.qt
+if sys.platform != "darwin":
+	print "GUI: your platform is probably not supported yet"
+	def guiMain(): pass
 
-	from PyQt4.QtCore import *
-	from PyQt4.QtGui import *
-	from PyQt4.QtWebKit import *
-except:
-	print "failed to import PyQt4"
-	sys.excepthook(*sys.exc_info())
-	print "This is mandatory. Install it with Homebrew by:"
-	print "  brew install pyqt"
-	print
-	sys.exit(-1)
+import objc
+from AppKit import *
+import os, sys
+from State import state, modules
 
-raise NotImplementedError
+mydir = os.path.dirname(__file__) or os.getcwd()
+app = None
 
-#app = QApplication(sys.argv)
+class AppDelegate(NSObject):
+	def applicationDidFinishLaunching_(self, notification):
+		print "AppDelegate didFinishLaunching"
+		statusbar = NSStatusBar.systemStatusBar()
+		self.statusitem = statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+		self.statusitem.setHighlightMode_(1)
+		self.statusitem.setToolTip_('Example')
+		self.statusitem.setTitle_('Example')
 
-#def guiMain():
-#	state.configure_traits()
+		self.menu = NSMenu.alloc().init()
+		menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
+		self.menu.addItem_(menuitem)
+		self.statusitem.setMenu_(self.menu)
+
+		for m in modules: m.start()
+
+	def applicationShouldTerminate_(self, app):
+		print "AppDelegate quit"
+
+		for m in modules: m.stop()
+
+def setup():
+	icon = NSImage.alloc()
+	icon.initWithContentsOfFile_(mydir + "/icon.icns")
+	app.setApplicationIconImage_(icon)
+
+	appDelegate = AppDelegate.alloc().init()
+	app.setDelegate_(appDelegate)
+	appDelegate.retain()
+
+	app.finishLaunching()
+	app.updateWindows()
+	app.activateIgnoringOtherApps_(True)
+
+def guiMain():
+	# This is run from the module system in another thread.
+	# We handle some background tasks here.
+	# For now, this is a simple stdin handler because the standard stdin handler will not run if we have a GUI.
+	import stdinconsole
+	fd = sys.stdin.fileno()
+	if os.isatty(fd):
+		stdinconsole.setTtyNoncanonical(fd, timeout=1)
+	else:
+		return # stdin handler probably not needed, so just exit this thread
+
+	from threading import currentThread
+	thread = currentThread()
+	while not thread.cancel:
+		ch = os.read(fd,7)
+		if ch:
+			stdinconsole.handleInput(ch)
+
+def main():
+	assert NSThread.isMainThread()
+	global app
+
+	app = NSApplication.sharedApplication()
+	setup()
+
+	print "entering GUI main loop"
+	#app.run()
+	#app.performSelectorOnMainThread_withObject_waitUntilDone_(app.run, None, False)
+	app.run()
+
+	sys.exit()
+
+if __name__ == "__main__":
+	main()

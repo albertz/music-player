@@ -59,6 +59,9 @@ def handleInput(ch):
 		sys.excepthook(*sys.exc_info())
 
 def stdinconsoleMain():
+	import gui
+	if hasattr(gui, "main"): return # the GUI is handling everything
+
 	# If we are a TTY, do some very simple input handling.
 	if os.isatty(sys.stdin.fileno()):
 		setTtyNoncanonical(sys.stdin.fileno())

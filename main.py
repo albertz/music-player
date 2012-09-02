@@ -5,11 +5,16 @@ better_exchook.install()
 
 from State import state, modules
 
-import stdinconsole
-
 if __name__ == '__main__':	
 
+	import stdinconsole
+	import gui
+
+	if hasattr(gui, "main"):
+		gui.main()
+
 	for m in modules: m.start()
+
 	# Note on quit behavior: Simply iterating state.updates
 	# and waiting for its end does not work because we would
 	# not interrupt on signals, e.g. KeyboardInterrupt.
@@ -30,6 +35,7 @@ if __name__ == '__main__':
 	# itself in its thread. We cancelAll() here already the main queue
 	# (state.updates) and in Module.stop(), we also cancel any custom
 	# queue.
+
 	while True:
 		try: stdinconsole.readNextInput() # wait for KeyboardInterrupt
 		except BaseException, e:
