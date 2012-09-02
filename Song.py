@@ -36,8 +36,8 @@ class Song:
 			self._metadata = m # only save attrib if this is from player. otherwise we might get later some better results
 		m["duration"] = player.curSongLen
 		if hasattr(self, "rating"): m["rating"] = self.rating
-		m = self.fixupMetadata(m)
-		m = self.guessMetadata(m)
+		self.fixupMetadata(m)
+		self.guessMetadata(m)
 		return m
 
 	def fixupMetadata(self, metadata=None):
@@ -51,7 +51,6 @@ class Song:
 				del metadata[key]
 		fixString("artist")
 		fixString("title")
-		return metadata
 
 	_guessRegexps = [
 		"^(.*/)*(?P<artist>.+?)\s-\s(?P<title>.+)$",
@@ -72,8 +71,8 @@ class Song:
 			for key in match:
 				if match[key] is not None:
 					metadata[key] = match[key]
-			print "guessed metadata:", metadata
-			return metadata
+			print "guessed metadata:", metadata, "from", fn
+			return
 
 	@property
 	def artist(self):
