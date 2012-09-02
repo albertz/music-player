@@ -17,7 +17,7 @@ def loadPlayer(state):
 
 def playerMain():
 	from State import state
-	state.player.playing = True
+	#state.player.playing = True
 	for ev,args,kwargs in state.updates.read():
 		if ev is PlayerEventCallbacks.onSongChange:
 			state.curSong = kwargs["newSong"]

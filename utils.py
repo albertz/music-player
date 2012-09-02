@@ -205,29 +205,44 @@ import better_exchook
 class Module:
 	def __init__(self, name):
 		self.name = name
-		self.thread = Thread(target = self.threadMain, name = name + " main")
-		self.thread.waitQueue = None
-		self.thread.cancel = False
+		self.thread = None
 		self.module = None
 	@property
 	def mainFuncName(self): return self.name + "Main"
 	@property
 	def moduleName(self): return self.name
-	def start(self): self.thread.start()
+	def start(self):
+		self.thread = Thread(target = self.threadMain, name = self.name + " main")
+		self.thread.waitQueue = None
+		self.thread.cancel = False
+		self.thread.reload = False
+		self.thread.start()
 	def threadMain(self):
 		better_exchook.install()
-		if self.mainFuncName in globals():
-			mainFunc = globals()[self.mainFuncName]
-		else:
-			if self.module:
-				reload(self.module)
+		thread = currentThread()
+		while True:
+			if self.mainFuncName in globals():
+				mainFunc = globals()[self.mainFuncName]
 			else:
-				self.module = __import__(self.moduleName)
-			mainFunc = getattr(self.module, self.mainFuncName)
-		mainFunc()
-	def stop(self):
+				if self.module:
+					reload(self.module)
+				else:
+					self.module = __import__(self.moduleName)
+				mainFunc = getattr(self.module, self.mainFuncName)
+			mainFunc()
+			if not thread.reload: break
+			thread.cancel = False
+			thread.reload = False
+			thread.waitQueue = None
+	def stop(self, join=True):
 		self.thread.cancel = True
 		if self.thread.waitQueue:
 			self.thread.waitQueue.setCancel()
-		self.thread.join()
-
+		if join:
+			self.thread.join()
+	def reload(self):
+		if self.thread and self.thread.isAlive():
+			self.thread.reload = True
+			self.stop(join=False)
+		else:
+			self.start()

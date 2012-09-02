@@ -3,21 +3,11 @@
 import better_exchook
 better_exchook.install()
 
-from utils import *
-from State import state
-
-modules = map(Module, [
-	"player",
-	"tracker",
-	"mediakeys",
-	"gui",
-	"stdinconsole",
-])
+from State import state, modules
 
 import stdinconsole
 
 if __name__ == '__main__':	
-	import time, os, sys
 
 	for m in modules: m.start()
 	# Note on quit behavior: Simply iterating state.updates

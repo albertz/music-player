@@ -84,3 +84,15 @@ class State(object):
 		sys.exit()
 
 state = State()
+
+modules = map(Module, [
+	"player",
+	"tracker",
+	"mediakeys",
+	"gui",
+	"stdinconsole",
+])
+
+def reloadModules():
+	for m in modules:
+		m.reload()

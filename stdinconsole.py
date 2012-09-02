@@ -25,7 +25,7 @@ def setTtyNoncanonical(fd, timeout=0):
 	termios.tcsendbreak(fd,0)
 
 
-from State import state
+from State import state, reloadModules
 
 def printState():
 	if state.curSong:
@@ -53,6 +53,8 @@ def handleInput(ch):
 			state.player.nextSong()
 		elif ch == " ":
 			state.player.playing = not state.player.playing
+		elif ch == "r":
+			reloadModules()
 	except:
 		sys.excepthook(*sys.exc_info())
 
@@ -64,5 +66,6 @@ def stdinconsoleMain():
 		# don't do anything
 		return
 
+	print "stdin input ready"
 	for ch in stdinQueue.read():
 		handleInput(ch)
