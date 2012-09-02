@@ -221,14 +221,11 @@ class Module:
 		better_exchook.install()
 		thread = currentThread()
 		while True:
-			if self.mainFuncName in globals():
-				mainFunc = globals()[self.mainFuncName]
+			if self.module:
+				reload(self.module)
 			else:
-				if self.module:
-					reload(self.module)
-				else:
-					self.module = __import__(self.moduleName)
-				mainFunc = getattr(self.module, self.mainFuncName)
+				self.module = __import__(self.moduleName)
+			mainFunc = getattr(self.module, self.mainFuncName)
 			mainFunc()
 			if not thread.reload: break
 			thread.cancel = False
