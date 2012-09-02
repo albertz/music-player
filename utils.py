@@ -241,14 +241,14 @@ class Module:
 			mainFunc = getattr(self.module, self.mainFuncName)
 			mainFunc()
 			if not thread.reload: break
-			print "reloading module", self.name
+			print "reloading module " + self.name
 			thread.cancel = False
 			thread.reload = False
 			thread.waitQueue = None
 	def stop(self, join=True):
+		waitQueue = self.thread.waitQueue # save a ref in case the other thread already removes it
 		self.thread.cancel = True
-		if self.thread.waitQueue:
-			self.thread.waitQueue.setCancel()
+		if waitQueue: waitQueue.setCancel()
 		if join:
 			self.thread.join()
 	def reload(self):
