@@ -199,7 +199,6 @@ if __name__ == "__main__":
 		print rating, repr(fn)
 	sys.exit()
 
-ratings = {}
 def loadRatings():
 	for fn, rating in ratingsIter():
 		ratings[fn] = rating
@@ -208,6 +207,7 @@ def loadRatings():
 try:
 	loadRatingsThread
 except NameError:
+	ratings = {}
 	from threading import Thread
 	loadRatingsThread = Thread(target = loadRatings, name = "iTunes ratings loader")
 	loadRatingsThread.start()
