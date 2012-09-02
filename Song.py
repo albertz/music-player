@@ -52,3 +52,11 @@ class Song:
 	def fileext(self):
 		import os
 		return os.path.splitext(self.url)[1][1:]
+
+	@property
+	def userString(self):
+		artist = self.metadata.get("artist", "").strip()
+		title = self.metadata.get("title", "").strip()
+		if artist and title: return artist + " - " + title
+		import os
+		return os.path.basename(self.url)
