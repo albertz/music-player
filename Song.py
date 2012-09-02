@@ -29,13 +29,50 @@ class Song:
 		player = State.state.player
 		if not player: return {}
 		if player.curSong is not self: return {}
-		m = player.curSongMetadata or {}
-		m = dict([(key.lower(),value) for (key,value) in m.items()])
+		if player.curSongMetadata:
+			self._fileMetadata = player.curSongMetadata
+			m = dict([(key.lower(),value) for (key,value) in self._fileMetadata.items()])
+		else:
+			m = {}
+		self._metadata = m
 		m["duration"] = player.curSongLen
 		if hasattr(self, "rating"): m["rating"] = self.rating
-		self._metadata = m
+		self.fixupMetadata()
+		self.guessMetadata()
 		return m
-		
+
+	def fixupMetadata(self):
+		m = self.metadata
+		def fixString(key):
+			if key in m:
+				m[key] = m[key].strip()
+			else:
+				return
+			if m[key] in ["", "Unknown", "Unknown " + key]:
+				del m[key]
+		fixString("artist")
+		fixString("title")
+
+	_guessRegexps = [
+		"^(?P<artist>.+?)\s-\s(?P<title>.+)$",
+		"^(?P<artist>.+?)-(?P<title>.+)$",
+	]
+
+	def guessMetadata(self):
+		""" guesses metadata from filename. the current metadata is expected to be fixed (fixupMetadata). """
+		metadata = self.metadata
+		if "artist" in metadata and "title" in metadata: return # that's enough for most usage, no need to guess
+		import re, os
+		basename = os.path.basename(self.url)
+		basename = os.path.splitext(basename)[0]
+		for r in self._guessRegexps:
+			match = re.match(r, basename)
+			if not match: continue
+			match = match.groupdict()
+			metadata["artist"] = match["artist"]
+			metadata["title"] = match["title"]
+			return
+
 	@property
 	def artist(self):
 		return self.metadata.get("artist", "Unknown artist").strip()
