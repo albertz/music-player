@@ -248,6 +248,7 @@ class Module:
 			thread.reload = False
 			thread.waitQueue = None
 	def stop(self, join=True):
+		if not self.thread: return
 		waitQueue = self.thread.waitQueue # save a ref in case the other thread already removes it
 		self.thread.cancel = True
 		if waitQueue: waitQueue.setCancel()
