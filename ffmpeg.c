@@ -1193,9 +1193,9 @@ static void init() {
 	if(ret != paNoError)
 		Py_FatalError("PortAudio init failed");
 
-#ifndef DEBUG
+//#ifndef DEBUG
 	av_log_set_level(0);
-#endif
+//#endif
 	avcodec_register_all();
 	av_register_all();
 	
