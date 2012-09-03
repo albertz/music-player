@@ -353,6 +353,7 @@
 					"$(inherited)",
 					/usr/local/Cellar/ffmpeg/0.10.2/lib,
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -369,6 +370,7 @@
 					"$(inherited)",
 					/usr/local/Cellar/ffmpeg/0.10.2/lib,
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
