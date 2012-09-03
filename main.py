@@ -11,6 +11,7 @@ if __name__ == '__main__':
 	import gui
 
 	if hasattr(gui, "main"):
+		# This will overtake the main loop and raise SystemExit at its end.
 		gui.main()
 
 	for m in modules: m.start()
