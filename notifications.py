@@ -5,12 +5,13 @@ def notificationsMain():
 
 	pool = AppKit.NSAutoreleasePool.alloc().init()
 
-	notifCenter = AppKit.NSUserNotificationCenter.defaultUserNotificationCenter()
 	for ev,args,kwargs in state.updates.read():
 		if ev is PlayerEventCallbacks.onSongChange:
 			notif = AppKit.NSUserNotification.alloc().init()
 			notif.setTitle_("MusicPlayer")
 			notif.setInformativeText_(kwargs["newSong"].userString)
+			notifCenter = AppKit.NSUserNotificationCenter.defaultUserNotificationCenter()
 			notifCenter.deliverNotification_(notif)
+			print "notification:", notif
 
 	del pool
