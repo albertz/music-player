@@ -33,24 +33,17 @@ def setupAppleMenu():
 class PyAppDelegate(NSObject):
 	def applicationDidFinishLaunching_(self, notification):
 		print "AppDelegate didFinishLaunching"
-		#statusbar = NSStatusBar.systemStatusBar()
-		#self.statusitem = statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-		#self.statusitem.setHighlightMode_(1)
-		#self.statusitem.setToolTip_('Example')
-		#self.statusitem.setTitle_('Example')
-
 		setupAppleMenu()
-		#self.statusitem.setMenu_(self.menu)
-
 		state.quit = quit
-
 		for m in modules: m.start()
 
 	def applicationShouldTerminate_(self, app):
 		print "AppDelegate quit"
-
 		for m in modules: m.stop()
 		return NSTerminateNow
+
+	def userNotificationCenter_shouldPresentNotification_(self, notifCenter, notif):
+		return True
 
 def quit():
 	app.terminate_(None)
