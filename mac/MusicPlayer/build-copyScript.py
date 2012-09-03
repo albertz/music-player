@@ -33,7 +33,9 @@ except OSError: pass
 cp(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so", PYDIR + "/ffmpeg.so")
 for f in glob(env["PROJECT_DIR"] + "/../*.py"):
 	cp(f, PYDIR + "/" + os.path.basename(f))
-#cp "$PROJECT_DIR/"*.py "$PYDIR/"
+for d in ["lastfm"]:
+	if not os.path.exists(PYDIR + "/" + d):
+		shutil.copytree(env["PROJECT_DIR"] + "/../" + d, PYDIR + "/" + d, symlinks=False)
 
 
 # copy all dylibs
