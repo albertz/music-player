@@ -12,7 +12,7 @@ from State import state, modules
 mydir = os.path.dirname(__file__) or os.getcwd()
 app = None
 
-class AppDelegate(NSObject):
+class PyAppDelegate(NSObject):
 	def applicationDidFinishLaunching_(self, notification):
 		print "AppDelegate didFinishLaunching"
 		statusbar = NSStatusBar.systemStatusBar()
@@ -26,6 +26,8 @@ class AppDelegate(NSObject):
 		self.menu.addItem_(menuitem)
 		self.statusitem.setMenu_(self.menu)
 
+		state.quit = quit
+
 		for m in modules: m.start()
 
 	def applicationShouldTerminate_(self, app):
@@ -34,12 +36,15 @@ class AppDelegate(NSObject):
 		for m in modules: m.stop()
 		return NSTerminateNow
 
+def quit():
+	app.terminate_(None)
+
 def setup():
 	icon = NSImage.alloc()
 	icon.initWithContentsOfFile_(mydir + "/icon.icns")
 	app.setApplicationIconImage_(icon)
 
-	appDelegate = AppDelegate.alloc().init()
+	appDelegate = PyAppDelegate.alloc().init()
 	app.setDelegate_(appDelegate)
 	appDelegate.retain()
 
