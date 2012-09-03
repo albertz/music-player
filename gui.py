@@ -5,6 +5,7 @@ if sys.platform != "darwin":
 	def guiMain(): pass
 
 import objc
+from Foundation import *
 from AppKit import *
 import os, sys
 from State import state, modules
@@ -12,19 +13,70 @@ from State import state, modules
 mydir = os.path.dirname(__file__) or os.getcwd()
 app = None
 
+def setupAppleMenu():
+
+	# http://www.cocoabuilder.com/archive/cocoa/192181-initializing-the-menubar-without-interface-builder.html
+
+	mainMenu = NSMenu.alloc().initWithTitle_("MainMenu")
+	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Apple", None, "")
+	m = NSMenu.alloc().initWithTitle_("Apple")
+
+	# strange hack
+	app.setAppleMenu_(m)
+	mainMenu.setSubmenu_forItem_(m, mi)
+	mi = m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
+
+	app.setMainMenu_(mainMenu)
+	return
+
+	menu = NSMenu.alloc().init()
+	app.setMainMenu_(menu)
+
+	# Comment from SDLmain.m where this code comes from:
+	# yes, we do need to add it and then remove it --
+	# if you don't add it, it doesn't get displayed
+	# if you don't remove it, you have an extra, titleless item in the menubar
+	# when you remove it, it appears to stick around
+	# very, very odd
+
+	#appleMenuController = NSAppleMenuController.alloc().init()
+	#appleMenuController.retain()
+
+	appleMenu = NSMenu.alloc().initWithTitle_('MainMenu')
+
+	menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
+	appleMenu.addItem_(menuitem)
+
+	appleMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('', None, '')
+	appleMenuItem.setSubmenu_(appleMenu)
+
+	app.mainMenu().addItem_(appleMenuItem)
+
+	#appleMenuController.controlMenu_(appleMenu)
+	#app.mainMenu().removeItem_(appleMenuItem)
+
+	#app.setAppleMenu_(appleMenu)
+	#app.setAppleMenu_(appleMenuItem)
+
+	print appleMenu
+
+
+	#print menu
+	print app.mainMenu()
+
+	return
+
 class PyAppDelegate(NSObject):
 	def applicationDidFinishLaunching_(self, notification):
 		print "AppDelegate didFinishLaunching"
-		statusbar = NSStatusBar.systemStatusBar()
-		self.statusitem = statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-		self.statusitem.setHighlightMode_(1)
-		self.statusitem.setToolTip_('Example')
-		self.statusitem.setTitle_('Example')
+		#statusbar = NSStatusBar.systemStatusBar()
+		#self.statusitem = statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+		#self.statusitem.setHighlightMode_(1)
+		#self.statusitem.setToolTip_('Example')
+		#self.statusitem.setTitle_('Example')
 
-		self.menu = NSMenu.alloc().init()
-		menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
-		self.menu.addItem_(menuitem)
-		self.statusitem.setMenu_(self.menu)
+		setupAppleMenu()
+		#self.statusitem.setMenu_(self.menu)
 
 		state.quit = quit
 
