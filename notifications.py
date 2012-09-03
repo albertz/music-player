@@ -12,6 +12,6 @@ def notificationsMain():
 			notif.setInformativeText_(kwargs["newSong"].userString)
 			notifCenter = AppKit.NSUserNotificationCenter.defaultUserNotificationCenter()
 			notifCenter.deliverNotification_(notif)
-			print "notification:", notif
+			#print "notification:", notif
 
 	del pool
