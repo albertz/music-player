@@ -10,12 +10,12 @@
 		23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
-		23A14A4A15E3B2CC00376BF6 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4815E3B2CC00376BF6 /* Credits.rtf */; };
 		23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */; };
 		23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */; };
 		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
 		23BEFDDB15E3E09C0003A05B /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
 		23BEFDDE15E3EC6B0003A05B /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
+		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,7 +38,6 @@
 		23A14A4315E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		23A14A4515E3B2CC00376BF6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		23A14A4715E3B2CC00376BF6 /* MusicPlayer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MusicPlayer-Prefix.pch"; sourceTree = "<group>"; };
-		23A14A4915E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		23A14A4B15E3B2CC00376BF6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		23A14A4F15E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -46,6 +45,7 @@
 		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
 		23A14A6615E3B85C00376BF6 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
+		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +72,7 @@
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
+				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A3815E3B2CC00376BF6 /* Frameworks */,
@@ -127,7 +128,6 @@
 				23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */,
 				23A14A4515E3B2CC00376BF6 /* main.m */,
 				23A14A4715E3B2CC00376BF6 /* MusicPlayer-Prefix.pch */,
-				23A14A4815E3B2CC00376BF6 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -221,8 +221,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23BEFDE015F42EB20003A05B /* icon.icns in Resources */,
 				23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */,
-				23A14A4A15E3B2CC00376BF6 /* Credits.rtf in Resources */,
 				23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -280,14 +280,6 @@
 				23A14A4315E3B2CC00376BF6 /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		23A14A4815E3B2CC00376BF6 /* Credits.rtf */ = {
-			isa = PBXVariantGroup;
-			children = (
-				23A14A4915E3B2CC00376BF6 /* en */,
-			);
-			name = Credits.rtf;
 			sourceTree = "<group>";
 		};
 		23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */ = {
