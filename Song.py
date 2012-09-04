@@ -1,9 +1,10 @@
 class Song:
-	def __init__(self, fn, openFile=True):
+	def __init__(self, fn):
 		self.url = fn
-		if openFile: self.f = open(fn)
-		else: self.f = None
-	
+		self.f = None
+	def openFile(self):
+		self.f = open(self.url)
+
 	# { ffmpeg player interface
 	def readPacket(self, bufSize):
 		s = self.f.read(bufSize)
@@ -109,17 +110,16 @@ class Song:
 		return os.path.basename(self.url)
 
 def test():
-	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac", openFile=False)
+	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac")
 	assert s.metadata["artist"] == "Tool"
 	assert s.metadata["album"] == "Lateralus"
 	assert s.metadata["title"] == "Triad"
 	assert s.metadata["track"] == "12"
-	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac", openFile=False)
+	s = Song("/yyy/xxx/Tool/Lateralus/Triad.flac")
 	assert s.metadata["artist"] == "Tool"
 	assert s.metadata["album"] == "Lateralus"
 	assert s.metadata["title"] == "Triad"
-	assert s.metadata["track"] == "12"
-	s = Song("/yyy/xxx/abc - foo - bar", openFile=False)
+	s = Song("/zzz/yyy/xxx/abc - foo - bar")
 	assert s.metadata["artist"] == "abc"
 	assert s.metadata["title"] == "foo - bar"
 

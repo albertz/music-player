@@ -10,10 +10,14 @@ def loadQueue(state):
 			# Yield it now so that we begin playing with this song.
 			# Yield the Song object itself, though, not the ObjectProxy. The ObjectProxy
 			# would result in very strange behavior later for onSongChange events.
-			yield state.curSong.__get__(None)
+			song = state.curSong.__get__(None)
+			song.openFile()
+			yield song
 		import queue
 		while True:
-			yield queue.getNextSong()
+			song = queue.getNextSong()
+			song.openFile()
+			yield song
 
 	return songs()
 	
