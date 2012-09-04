@@ -3,7 +3,7 @@ from Song import Song
 from State import state
 from player import PlayerEventCallbacks
 from utils import *
-import math
+import math, random
 
 def randomFileQueueGen(dir="~/Music"):
 	import os
@@ -35,9 +35,9 @@ class InfQueue:
 		return song.rating
 	def calcScore(self, song):
 		scores = []
-		scores += [self.calcRating(song)]
-		scores += [self.calcContextMatchScore(song)]
-		return sum(scores)
+		scores += [self.calcRating(song) * random.gauss(1, 0.5)]
+		scores += [self.calcContextMatchScore(song) * random.gauss(1, 0.5)]
+		return sum(scores) + random.gauss(1, 0.5)
 	def getNextSong(self):
 		filenames = takeN(self.generator, self.checkNextNForBest)
 		songs = map(Song, filenames)
