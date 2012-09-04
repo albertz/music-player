@@ -90,7 +90,11 @@ class Song:
 	@property
 	def duration(self):
 		return self.metadata.get("duration", -1)
-	
+
+	@property
+	def tags(self):
+		return filter(None, map(str.strip, self.metadata.get("genre", "").split(",")))
+
 	@property
 	def fileext(self):
 		import os
