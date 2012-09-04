@@ -11,8 +11,10 @@ class MacMediaKeyEventsTap:
 		# IOKit/hidsystem/ev_keymap.h
 		self._keyControls = {
 			16: 'play-pause',
-			19: 'next',
-			20: 'previous',
+			17: 'next',
+			18: 'previous',
+			19: 'next', # actually 'fast', but we handle it like next
+			20: 'previous', # actually 'rewind', but we handle it like previous
 		}
 
 	def eventTap(self, proxy, type_, event, refcon):
