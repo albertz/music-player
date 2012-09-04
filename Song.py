@@ -2,8 +2,11 @@ class Song:
 	def __init__(self, fn):
 		self.url = fn
 		self.f = None
+		self._fileMetadata = None
+		self._metadata = None
 	def openFile(self):
-		self.f = open(self.url)
+		if not self.f:
+			self.f = open(self.url)
 
 	# { ffmpeg player interface
 	def readPacket(self, bufSize):
@@ -26,15 +29,26 @@ class Song:
 
 	@property
 	def metadata(self):
-		if hasattr(self, "_metadata"): return self._metadata
+		if self._metadata is not None: return self._metadata
 		import State
 		player = State.state.player
-		m = {}
-		if player and player.curSong is self:
-			if player.curSongMetadata:
-				self._fileMetadata = player.curSongMetadata
-				m = dict([(key.lower(),value) for (key,value) in self._fileMetadata.items()])
+		if self._fileMetadata is None:
+			if player and player.curSong is self:
+				self._fileMetadata = player.curSongMetadata or {}
+			else:
+				# try to read the metadata manually
+				try:
+					# make a new songObj. this prevents any multithreading issues
+					songObj = Song(self.url)
+					songObj.openFile()
+					import ffmpeg
+					self._fileMetadata = ffmpeg.getMetadata(songObj) or {}
+				except: pass # couldn't open or so
+		if self._fileMetadata is not None:
+			m = dict([(key.lower(),value) for (key,value) in self._fileMetadata.items()])
 			self._metadata = m # only save attrib if this is from player. otherwise we might get later some better results
+		else:
+			m = {}
 		m["duration"] = player.curSongLen
 		if hasattr(self, "rating"): m["rating"] = self.rating
 		self.fixupMetadata(m)
@@ -77,7 +91,7 @@ class Song:
 			for key in match:
 				if match[key] is not None:
 					metadata[key] = match[key]
-			print "guessed metadata:", metadata, "from", fn
+			#print "guessed metadata:", metadata, "from", fn
 			return
 
 	@property
