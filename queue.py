@@ -3,6 +3,7 @@ from Song import Song
 from State import state
 from player import PlayerEventCallbacks
 from utils import *
+import math
 
 def randomFileQueueGen(dir="~/Music"):
 	import os
@@ -25,8 +26,9 @@ class InfQueue:
 		count = 0
 		for lastSong in state.recentlyPlayedList.getLastN(self.checkLastNForContext):
 			count += 1 if bool(set(song.tags) & set(lastSong.tags)) else 0
-		#print "calcContextMatchScore:", count
-		return float(count) / self.checkLastNForContext
+		s = float(count) / self.checkLastNForContext
+		# We likely get small values here. Boost a bit but keep in [0,1] range. sqrt is a good fit.
+		return math.sqrt(s)
 	def calcRating(self, song):
 		import rating
 		song.rating = rating.getRating(song.url, default=0.0)
