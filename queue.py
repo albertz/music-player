@@ -20,13 +20,29 @@ class InfQueue:
 	def __init__(self):
 		self.generator = randomFileQueueGen()
 		self.checkNextNForBest = 10
-	def getNextSong(self):
+		self.checkLastNForContext = 10
+	def calcContextMatchScore(self, song):
+		count = 0
+		for lastSong in state.recentlyPlayedList.getLastN(self.checkLastNForContext):
+			count += 1 if bool(set(song.tags) & set(lastSong.tags)) else 0
+		print "calcContextMatchScore:", count
+		return float(count) / self.checkLastNForContext
+	def calcRating(self, song):
 		import rating
+		song.rating = rating.getRating(song.url, default=0.0)
+		return song.rating
+	def calcScore(self, song):
+		scores = []
+		scores += [self.calcRating(song)]
+		scores += [self.calcContextMatchScore(song)]
+		return sum(scores)
+	def getNextSong(self):
 		filenames = takeN(self.generator, self.checkNextNForBest)
-		ratings = map(lambda fn: (rating.getRating(fn, default=0.0), fn), filenames)
-		best = max(ratings)
-		song = Song(best[1])
-		song.rating = best[0]
+		songs = map(Song, filenames)
+		for s in songs: s.openFile() # preopen. calcContextMatchScore needs it
+		scores = map(lambda song: (self.calcScore(song), song), songs)
+		best = max(scores)
+		song = best[1]
 		return song
 
 class MainQueue:
