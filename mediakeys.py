@@ -4,6 +4,7 @@
 import AppKit
 from AppKit import NSKeyUp, NSSystemDefined, NSEvent
 import Quartz
+import sys
 
 class MacMediaKeyEventsTap:
 	def __init__(self):
@@ -55,8 +56,17 @@ class MacMediaKeyEventsTap:
 		)
 		# Enable the tap
 		Quartz.CGEventTapEnable(tap, True)
-		# and run! This won't return until we exit or are terminated.
-		Quartz.CFRunLoopRun()
+
+		while True:
+			try:
+				# and run! This won't return until we exit or are terminated.
+				Quartz.CFRunLoopRun()
+			except:
+				# I got this one here once:
+				# error: NSInternalInconsistencyException - Invalid parameter not satisfying: cgsEvent.type > 0 && cgsEvent.type <= kCGSLastEventType
+				sys.excepthook(*sys.exc_info())
+				continue # rerun
+			break
 
 		del pool
         
