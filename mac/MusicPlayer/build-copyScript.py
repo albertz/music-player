@@ -45,10 +45,16 @@ DYLIBDIR=PYDIR # we target ffmpeg.so, just put them into the same dir
 try: os.makedirs(DYLIBDIR)
 except OSError: pass
 
-def fixBin(binPath, targetDylibDir, badPaths = ["/usr/local/"], stripVersion = True):
+def systemRun(cmd):
+	print cmd
+	Popen(cmd).wait()
+
+def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/","/opt/"], stripVersion = True):
 	binDir = os.path.dirname(binPath)
 	targetDylibDirFull = binDir + "/" + targetDylibDir
-	
+
+	systemRun(["install_name_tool", "-id", installNameToolTargetDir + "/" + os.path.basename(binPath), binPath])
+
 	otoolOut = Popen(["otool","-L",binPath],stdout=PIPE).stdout.readlines()
 	otoolOut = otoolOut[2:] # ignore first two lines
 	for l in otoolOut:
@@ -60,12 +66,12 @@ def fixBin(binPath, targetDylibDir, badPaths = ["/usr/local/"], stripVersion = T
 			fbase = fbase.split(".")
 			fbase = fbase[0] + "." + fbase[-1]
 					
-		print f, "->", targetDylibDir + "/" + fbase, "in", binPath
-		Popen(["install_name_tool", "-change", f, targetDylibDir + "/" + fbase, binPath])
+		#print f, "->", targetDylibDir + "/" + fbase, "in", binPath
+		systemRun(["install_name_tool", "-change", f, installNameToolTargetDir + "/" + fbase, binPath])
 
 		if not os.path.exists(targetDylibDirFull + "/" + fbase):
 			# Note: If there are errors here (file-not-found), it means that the binary links to a non-existing lib. Probably the lib has been updated. The fix usually is to update also the binary (which is probably also a lib).
 			cp(f, targetDylibDirFull + "/" + fbase)		
-			fixBin(targetDylibDirFull + "/" + fbase, targetDylibDir, badPaths, stripVersion)
+			fixBin(targetDylibDirFull + "/" + fbase, targetDylibDir, installNameToolTargetDir, badPaths, stripVersion)
 		
-fixBin(PYDIR + "/ffmpeg.so", ".")
+fixBin(PYDIR + "/ffmpeg.so", ".", "@executable_path/../Resources/Python")
