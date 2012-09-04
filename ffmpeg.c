@@ -1168,7 +1168,7 @@ static PyTypeObject Player_Type = {
 
 
 static PyObject *
-pyCreatePlayer(PyObject* self, PyObject* arg) {
+pyCreatePlayer(PyObject* self) {
 	PyTypeObject* type = &Player_Type;
 	PyObject *obj = NULL, *args = NULL, *kwds = NULL;
 	args = PyTuple_Pack(0);
@@ -1188,30 +1188,53 @@ final:
 }
 
 
-static void init() {
-	PaError ret = Pa_Initialize();
-	if(ret != paNoError)
-		Py_FatalError("PortAudio init failed");
-
-//#ifndef DEBUG
-	av_log_set_level(0);
-//#endif
-	avcodec_register_all();
-	av_register_all();
+static PyObject *
+pyGetMetadata(PyObject* self, PyObject* args) {
+	PyObject* songObj = NULL;
+	if(!PyArg_ParseTuple(args, "O:getMetadata", &songObj))
+		return NULL;
 	
-	PyEval_InitThreads();
+	PyObject* returnObj = NULL;
+	PlayerObject* player = (PlayerObject*) pyCreatePlayer(NULL);
+	if(!player) goto final;
+	player->curSong = songObj;
+	player_openInputStream(player);
+	
+	returnObj = player->curSongMetadata;
+	
+final:
+	if(!returnObj) returnObj = Py_None;
+	Py_INCREF(returnObj);
+	Py_XDECREF(player);
+	return returnObj;
 }
 
 
 static PyMethodDef module_methods[] = {
-	{"createPlayer",    pyCreatePlayer,      METH_NOARGS,         "creates new player"},
-	{NULL,              NULL}           /* sentinel */
+	{"createPlayer",	(PyCFunction)pyCreatePlayer,	METH_NOARGS,	"creates new player"},
+    {"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
+	{NULL,				NULL}	/* sentinel */
 };
 
 PyDoc_STRVAR(module_doc,
 "FFmpeg player.");
 
 static PyObject* EventClass = NULL;
+
+static void init() {
+	PaError ret = Pa_Initialize();
+	if(ret != paNoError)
+		Py_FatalError("PortAudio init failed");
+	
+	//#ifndef DEBUG
+	av_log_set_level(0);
+	//#endif
+	avcodec_register_all();
+	av_register_all();
+	
+	PyEval_InitThreads();
+}
+
 
 PyMODINIT_FUNC
 initffmpeg(void)
