@@ -53,9 +53,10 @@ class Song:
 		fixString("title")
 
 	_guessRegexps = [
+		"^(.*/)*(?P<artist>.+?)/(?P<album>.+?)/(?P<track>\d+)(\s*-)?\s*(?P<title>.+)$",
 		"^(.*/)*(?P<artist>.+?)\s-\s(?P<title>.+)$",
 		"^(.*/)*(?P<artist>.+?)-(?P<title>.+)$",
-		"^(.*/)*(?P<artist>.+?)/(?P<album>.+?)/((?P<track>\d+)(\s*-)?\s*)?(?P<title>.+)$",
+		"^(.*/)*(?P<artist>.+?)/(?P<album>.+?)/(?P<title>.+)$",
 	]
 
 	def guessMetadata(self, metadata=None):
