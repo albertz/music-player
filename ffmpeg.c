@@ -55,8 +55,27 @@ typedef struct {
 	// private
 	AVFormatContext* inStream;
 	PaStream* outStream;
-	PyThread_type_lock lock;
 	PyObject* dict;
+
+	/* Important note about the lock:
+	To avoid deadlocks with on thread waiting on the Python GIL and another on this lock,
+	we must ensure a strict order in which we might acquire both locks:
+	When we acquire this/players lock, the PyGIL *must not* be held.
+	When we held this/players lock, the PyGIL can be acquired.
+	In practice, if we want this lock, if we hold already the PyGIL, we usually use this code:
+		Py_INCREF(player); // to assure that we have a real own ref
+		Py_BEGIN_ALLOW_THREADS
+		PyThread_acquire_lock(player->lock, WAIT_LOCK);
+		// do something (note that we dont hold the PyGIL here!)
+		PyThread_release_lock(player->lock);
+		Py_END_ALLOW_THREADS
+		Py_DECREF(player);
+	If we hold this lock and we also want to get the PyGIL, we use
+	PyGILState_Ensure()/PyGILState_Release() as usual.
+	We use this order because in the PaStream handling thread, we might just want to get
+	the players lock but don't always need the PyGIL.
+	*/
+	PyThread_type_lock lock;
 	
 	// audio_decode
     int audio_stream;
@@ -80,7 +99,6 @@ typedef struct {
 	AVFrame *frame;
 
 } PlayerObject;
-
 
 static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) {
 	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
@@ -821,25 +839,32 @@ int paStreamCallback(
 }
 
 static int player_setqueue(PlayerObject* player, PyObject* queue) {
-	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	Py_XDECREF(player->queue);
+	Py_INCREF((PyObject*)player);
+	Py_BEGIN_ALLOW_THREADS
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	player->queue = queue;
-	Py_XINCREF(queue);
 	PyThread_release_lock(player->lock);
+	Py_END_ALLOW_THREADS
+	Py_DECREF((PyObject*)player);
+	Py_XINCREF(queue);
 	return 0;
 }
 
 static int player_setplaying(PlayerObject* player, int playing) {
-	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	int oldplayingstate = player->playing;
-	player->playing = playing;
+	Py_INCREF((PyObject*)player);
+	int oldplayingstate = 0;
 	Py_BEGIN_ALLOW_THREADS
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
+	oldplayingstate = player->playing;
+	player->playing = playing;
 	if(playing)
 		Pa_StartStream(player->outStream);
 	else
 		Pa_StopStream(player->outStream);
-	Py_END_ALLOW_THREADS
 	PyThread_release_lock(player->lock);
+	Py_END_ALLOW_THREADS
+	Py_DECREF((PyObject*)player);
 
 	if(player->dict) {
 		Py_INCREF(player->dict);
@@ -938,9 +963,14 @@ PyObject* player_method_seekAbs(PyObject* self, PyObject* arg) {
 	PlayerObject* player = (PlayerObject*) self;
 	double argDouble = PyFloat_AsDouble(arg);
 	if(PyErr_Occurred()) return NULL;
+	Py_INCREF(self);
+	int ret = 0;
+	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	int ret = stream_seekAbs(player, argDouble);
+	ret = stream_seekAbs(player, argDouble);
 	PyThread_release_lock(player->lock);
+	Py_END_ALLOW_THREADS
+	Py_DECREF(self);
 	return PyBool_FromLong(ret == 0);
 }
 
@@ -956,9 +986,14 @@ PyObject* player_method_seekRel(PyObject* self, PyObject* arg) {
 	PlayerObject* player = (PlayerObject*) self;
 	double argDouble = PyFloat_AsDouble(arg);
 	if(PyErr_Occurred()) return NULL;
+	Py_INCREF(self);
+	int ret = 0;
+	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	int ret = stream_seekRel(player, argDouble);
+	ret = stream_seekRel(player, argDouble);
 	PyThread_release_lock(player->lock);
+	Py_END_ALLOW_THREADS
+	Py_DECREF(self);
 	return PyInt_FromLong(ret == 0);
 }
 
@@ -972,9 +1007,14 @@ static PyMethodDef md_seekRel = {
 static
 PyObject* player_method_nextSong(PyObject* self, PyObject* _unused_arg) {
 	PlayerObject* player = (PlayerObject*) self;
+	Py_INCREF(self);
+	int ret = 0;
+	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	int ret = player_getNextSong(player);
+	ret = player_getNextSong(player);
 	PyThread_release_lock(player->lock);
+	Py_END_ALLOW_THREADS
+	Py_DECREF(self);
 	if(PyErr_Occurred()) return NULL;
 	return PyBool_FromLong(ret == 0);
 }
