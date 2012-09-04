@@ -25,7 +25,7 @@ class InfQueue:
 		count = 0
 		for lastSong in state.recentlyPlayedList.getLastN(self.checkLastNForContext):
 			count += 1 if bool(set(song.tags) & set(lastSong.tags)) else 0
-		print "calcContextMatchScore:", count
+		#print "calcContextMatchScore:", count
 		return float(count) / self.checkLastNForContext
 	def calcRating(self, song):
 		import rating
@@ -39,7 +39,6 @@ class InfQueue:
 	def getNextSong(self):
 		filenames = takeN(self.generator, self.checkNextNForBest)
 		songs = map(Song, filenames)
-		for s in songs: s.openFile() # preopen. calcContextMatchScore needs it
 		scores = map(lambda song: (self.calcScore(song), song), songs)
 		best = max(scores)
 		song = best[1]
