@@ -41,6 +41,10 @@ class RecentlyplayedList:
 			self.index += 1
 			self.previous = newList
 			self.list = deque()
+	def getLastN(self, n):
+		#return list(self.list)[-n:] # not using this for now as a bit too heavy. I timeit'd it. this is 14 times slower for n=10, len(l)=10000
+		l = self.list # better for multithreading to keep the ref
+		return [l[-i] for i in range(1,min(len(l),n)+1)]
 	def __repr__(self):
 		return "RecentlyplayedList(list=%s, previous=%s, index=%i)" % (
 			betterRepr(self.list),
