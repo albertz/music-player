@@ -1,9 +1,11 @@
 class Song:
-	def __init__(self, fn):
+	def __init__(self, fn=None): # we must support an empty init for PersistentObject
 		self.url = fn
 		self.f = None
 		self._fileMetadata = None
 		self._metadata = None
+	def __nonzero__(self): # this is mostly for noninited Song objects
+		return bool(self.url)
 	def openFile(self):
 		if not self.f:
 			self.f = open(self.url)
