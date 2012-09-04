@@ -474,6 +474,7 @@ final:
 }
 
 static int player_getNextSong(PlayerObject* player) {
+	// We must hold the player lock here.
 	int ret = -1;
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
@@ -770,7 +771,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 // called from paStreamCallback
 static
 int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long len) {
-	// TODO: maybe it is better with NOWAIT to avoid any deadlocks ?
+	// We must not hold the PyGIL here!
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 
 	if(player->inStream == NULL) {
@@ -852,21 +853,42 @@ static int player_setqueue(PlayerObject* player, PyObject* queue) {
 }
 
 static int player_setplaying(PlayerObject* player, int playing) {
-	Py_INCREF((PyObject*)player);
 	int oldplayingstate = 0;
+	Py_INCREF((PyObject*)player);
 	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	oldplayingstate = player->playing;
-	player->playing = playing;
+	if(playing && !player->outStream) {
+		PaError ret;
+		ret = Pa_OpenDefaultStream(
+		   &player->outStream,
+		   0,
+		   2, // numOutputChannels
+		   paInt16, // sampleFormat
+		   44100, // sampleRate
+		   AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
+		   &paStreamCallback,
+		   player //void *userData
+		   );
+		if(ret != paNoError) {
+			PyErr_SetString(PyExc_RuntimeError, "Pa_OpenDefaultStream failed");
+			if(player->outStream) {
+				Pa_CloseStream(player->outStream);
+				player->outStream = NULL;
+			}
+			playing = 0;
+		}
+	}
 	if(playing)
 		Pa_StartStream(player->outStream);
 	else
 		Pa_StopStream(player->outStream);
+	oldplayingstate = player->playing;
+	player->playing = playing;
 	PyThread_release_lock(player->lock);
 	Py_END_ALLOW_THREADS
 	Py_DECREF((PyObject*)player);
 
-	if(player->dict) {
+	if(!PyErr_Occurred() && player->dict) {
 		Py_INCREF(player->dict);
 		PyObject* onPlayingStateChange = PyDict_GetItemString(player->dict, "onPlayingStateChange");
 		if(onPlayingStateChange && onPlayingStateChange != Py_None) {
@@ -890,7 +912,7 @@ static int player_setplaying(PlayerObject* player, int playing) {
 		Py_DECREF(player->dict);
 	}
 
-	return 0;
+	return PyErr_Occurred() ? -1 : 0;
 }
 
 static
@@ -907,20 +929,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 
 	player->lock = PyThread_allocate_lock();
 
-	PaError ret;
-	ret = Pa_OpenDefaultStream(
-		&player->outStream,
-		0,
-		2, // numOutputChannels
-		paInt16, // sampleFormat
-		44100, // sampleRate
-		AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
-		&paStreamCallback,
-		player //void *userData
-		);
-	if(ret != paNoError)
-		Py_FatalError("PortAudio open default stream failed");
-	
+	// see also player_setplaying where we init the PaStream (with same params)
 	player->audio_tgt.freq = 44100;
 	player->audio_tgt.fmt = AV_SAMPLE_FMT_S16;
 	player->audio_tgt.channels = 2;
@@ -963,8 +972,8 @@ PyObject* player_method_seekAbs(PyObject* self, PyObject* arg) {
 	PlayerObject* player = (PlayerObject*) self;
 	double argDouble = PyFloat_AsDouble(arg);
 	if(PyErr_Occurred()) return NULL;
-	Py_INCREF(self);
 	int ret = 0;
+	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	ret = stream_seekAbs(player, argDouble);
@@ -986,8 +995,8 @@ PyObject* player_method_seekRel(PyObject* self, PyObject* arg) {
 	PlayerObject* player = (PlayerObject*) self;
 	double argDouble = PyFloat_AsDouble(arg);
 	if(PyErr_Occurred()) return NULL;
-	Py_INCREF(self);
 	int ret = 0;
+	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	ret = stream_seekRel(player, argDouble);
@@ -1007,8 +1016,8 @@ static PyMethodDef md_seekRel = {
 static
 PyObject* player_method_nextSong(PyObject* self, PyObject* _unused_arg) {
 	PlayerObject* player = (PlayerObject*) self;
-	Py_INCREF(self);
 	int ret = 0;
+	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 	ret = player_getNextSong(player);
