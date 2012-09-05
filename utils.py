@@ -262,3 +262,50 @@ class Module:
 			self.start()
 	def __str__(self):
 		return "Module %s" % self.name
+
+
+
+def objc_disposeClassPair(className):
+	# Be careful using this!
+	# Any objects holding refs to the old class will be invalid
+	# and will probably crash!
+	# Creating a new class after it will not make them valid because
+	# the new class will be at a different address.
+
+	# some discussion / example:
+	# http://stackoverflow.com/questions/7361847/pyobjc-how-to-delete-existing-objective-c-class
+	# https://github.com/albertz/chromehacking/blob/master/disposeClass.py
+
+	import ctypes
+
+	ctypes.pythonapi.objc_lookUpClass.restype = ctypes.c_void_p
+	ctypes.pythonapi.objc_lookUpClass.argtypes = (ctypes.c_char_p,)
+
+	addr = ctypes.pythonapi.objc_lookUpClass(className)
+	if not addr: return False
+
+	ctypes.pythonapi.objc_disposeClassPair.restype = None
+	ctypes.pythonapi.objc_disposeClassPair.argtypes = (ctypes.c_void_p,)
+
+	ctypes.pythonapi.objc_disposeClassPair(addr)
+
+
+def objc_setClass(obj, clazz):
+	objAddr = objc.pyobjc_id(obj) # returns the addr and also ensures that it is an objc object
+	assert objAddr != 0
+
+	import ctypes
+
+	ctypes.pythonapi.objc_lookUpClass.restype = ctypes.c_void_p
+	ctypes.pythonapi.objc_lookUpClass.argtypes = (ctypes.c_char_p,)
+
+	className = clazz.__name__ # this should be correct I guess
+	classAddr = ctypes.pythonapi.objc_lookUpClass(className)
+	assert classAddr != 0
+
+	# Class object_setClass(id object, Class cls)
+	ctypes.pythonapi.object_setClass.restype = ctypes.c_void_p
+	ctypes.pythonapi.object_setClass.argtypes = (ctypes.c_void_p,ctypes.c_void_p)
+
+	ctypes.pythonapi.object_setClass(objAddr, classAddr)
+
