@@ -46,11 +46,8 @@ except NameError: pass # normally declare below
 else: # already declared
 	# NOTE: What we do here might be dangerous! :)
 	# The class is already declared and PyObjC class redeclaring is broken.
-	# Thus, remove the earlier object instance:
-	oldDelegate = app.delegate()
-	app.setDelegate_(None)
-	assert oldDelegate.retainCount() == 1 # otherwise the dispose will lead to a crash at some later point!
-	del oldDelegate
+	# We cannot really ensure that the current app delegate has retainCount == 1,
+	# thus keep the obj and reset the class later!
 	# Dispose the class so we can redeclare it below.
 	objc_disposeClassPair("PyAppDelegate")
 	# In reloadModuleHandling(), we will recreate an instance and resetup.
@@ -97,7 +94,7 @@ else:
 
 def reloadModuleHandling():
 	print "GUI module reload handler ..."
-	setup() # resetup. resets the app delegate, etc.
+	objc_setClass(app.delegate(), PyAppDelegate) # set the new class
 	app.delegate().applicationDidFinishLaunching_(None) # recall. might have important additional setup
 
 def guiMain():
