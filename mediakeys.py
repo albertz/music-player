@@ -39,27 +39,29 @@ class MacMediaKeyEventsTap:
 		
 		self.runLoopRef = Quartz.CFRunLoopGetCurrent()
 		
-		# https://developer.apple.com/library/mac/#documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html
-		tap = Quartz.CGEventTapCreate(
-			Quartz.kCGSessionEventTap, # Quartz.kCGSessionEventTap or kCGHIDEventTap
-			Quartz.kCGHeadInsertEventTap, # Insert wherever, we do not filter
-			Quartz.kCGEventTapOptionDefault, #Quartz.kCGEventTapOptionListenOnly,
-			Quartz.CGEventMaskBit(NSSystemDefined), # NSSystemDefined for media keys
-			self.eventTap,
-			None
-		)
-		assert tap
-		# Create a runloop source and add it to the current loop
-		runLoopSource = Quartz.CFMachPortCreateRunLoopSource(None, tap, 0)
-		Quartz.CFRunLoopAddSource(
-			Quartz.CFRunLoopGetCurrent(),
-			runLoopSource,
-			Quartz.kCFRunLoopDefaultMode
-		)
-		# Enable the tap
-		Quartz.CGEventTapEnable(tap, True)
-
 		while True:
+			# https://developer.apple.com/library/mac/#documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html
+			tap = Quartz.CGEventTapCreate(
+				Quartz.kCGSessionEventTap, # Quartz.kCGSessionEventTap or kCGHIDEventTap
+				Quartz.kCGHeadInsertEventTap, # Insert wherever, we do not filter
+				Quartz.kCGEventTapOptionDefault, #Quartz.kCGEventTapOptionListenOnly,
+				Quartz.CGEventMaskBit(NSSystemDefined), # NSSystemDefined for media keys
+				self.eventTap,
+				None
+			)
+			assert tap
+
+			# Create a runloop source and add it to the current loop
+			runLoopSource = Quartz.CFMachPortCreateRunLoopSource(None, tap, 0)
+			Quartz.CFRunLoopAddSource(
+				self.runLoopRef,
+				runLoopSource,
+				Quartz.kCFRunLoopDefaultMode
+			)
+
+			# Enable the tap
+			Quartz.CGEventTapEnable(tap, True)
+
 			try:
 				# and run! This won't return until we exit or are terminated.
 				Quartz.CFRunLoopRun()
@@ -68,6 +70,8 @@ class MacMediaKeyEventsTap:
 				# error: NSInternalInconsistencyException - Invalid parameter not satisfying: cgsEvent.type > 0 && cgsEvent.type <= kCGSLastEventType
 				sys.excepthook(*sys.exc_info())
 				continue # rerun
+
+			# this is a regular quit
 			break
 
 		del pool
