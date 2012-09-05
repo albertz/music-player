@@ -99,10 +99,26 @@ class Song:
 	@property
 	def artist(self):
 		return self.metadata.get("artist", "Unknown artist").strip()
+
+	@property
+	def album(self):
+		return self.metadata.get("album", "Unknown album").strip()
 		
 	@property
-	def track(self):
+	def title(self):
 		return self.metadata.get("title", "Unknown title").strip()
+
+	@property
+	def track(self):
+		return self.metadata.get("track", 0)
+
+	@property
+	def date(self):
+		return self.metadata.get("date", "").strip()
+
+	@property
+	def composer(self):
+		return self.metadata.get("composer", "Unknown composer").strip()
 		
 	@property
 	def duration(self):

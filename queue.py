@@ -63,7 +63,28 @@ class MainQueue:
 			while len(self.manualQueue) < n:
 				self.manualQueue.append(self.infiniteQueue.getNextSong())
 
-queue = MainQueue()
+import os
+from SongDatabase import SongDatabase
+
+class DatabaseQueue:
+	def __init__(self):
+		self.lock = Lock()
+		self.manualQueue = deque()
+		self.database = SongDatabase(os.path.expanduser("~/Music"), ["*.mp3", "*.ogg", "*.flac", "*.wma"], os.path.expanduser("~/Music/songs.db"))
+		self.database.fillDatabase()
+
+	def getNextSong(self):
+		with self.lock:
+			if self.manualQueue:
+				return self.manualQueue.popleft()
+			return self.database.getRandomSong()
+
+	def fillUpTo(self, n=10):
+		with self.lock:
+			while len(self.manualQueue) < n:
+				self.manualQueue.append(self.database.getRandomSong())
+
+queue = DatabaseQueue()
 
 def getNextSong():
 	return queue.getNextSong()
