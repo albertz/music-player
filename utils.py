@@ -237,7 +237,12 @@ class Module:
 		thread = currentThread()
 		while True:
 			if self.module:
-				reload(self.module)
+				try:
+					reload(self.module)
+				except:
+					print "couldn't reload module", self.module
+					sys.excepthook(*sys.exc_info())
+					# continue anyway, maybe it still works and maybe the mainFunc does sth good/important
 			else:
 				self.module = __import__(self.moduleName)
 			mainFunc = getattr(self.module, self.mainFuncName)
