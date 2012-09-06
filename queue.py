@@ -2,16 +2,18 @@
 from Song import Song
 from State import state
 from player import PlayerEventCallbacks
+from SongDatabase import SongDatabase
 from utils import *
 import math, random
 import appinfo
+import threading
 
 def randomFileQueueGen(dir="~/Music"):
 	import os
 	from RandomFileQueue import RandomFileQueue
 	fileQueue = RandomFileQueue(
 		rootdir = os.path.expanduser(dir),
-		fileexts = ["mp3", "ogg", "flac", "wma"])
+		fileexts = appinfo.formats)
 	while True:
 		yield fileQueue.getNextFile()
 
@@ -69,16 +71,33 @@ class InfQueue:
 
 
 
-from SongDatabase import SongDatabase
+class LoadDatabaseThread(threading.Thread):
+	def __init__(self, songDatabase):
+		self.songDatabase = songDatabase
+		threading.Thread.__init__(self)
+
+	def run(self):
+		for dir in appinfo.musicdirs:
+			self.songDatabase.addSongsFromDirectory(dir)
+
+		print "Done loading songs"
 
 class InfDatabaseQueue:
 	def __init__(self):
-		self.database = SongDatabase(appinfo.musicdir, appinfo.formats, appinfo.musicdatabase)
-		self.database.fillDatabase()
+		self.database = SongDatabase(appinfo.musicdatabase)
+		self.database.initDatabase()
 		self.nextSongAlgorithm = NextSongAlgorithm()
 
+		loadDatabaseThread = LoadDatabaseThread(self.database)
+		loadDatabaseThread.start()
+
 	def getNextSong(self):
-		oldSong = state.recentlyPlayedList.getLastN(1)[0]
+
+		try:
+			oldSong = state.recentlyPlayedList.getLastN(1)[0]
+		except:
+			oldSong = self.database.getRandomSongs()[0]
+
 		return self.nextSongAlgorithm.getNextSong(self.database.getRandomSongs(oldSong=oldSong, limit=self.nextSongAlgorithm.checkLastNForContext))
 
 class MainQueue:

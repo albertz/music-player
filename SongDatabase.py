@@ -1,27 +1,66 @@
-import os, sqlite3, fnmatch
+import sqlite3
 from Song import Song
 
 # Class for dealing with songs in the database
 # Fills Database with songs and select next song to play
 class SongDatabase:
-	def __init__(self, rootdir, fileexts, databasepath):
-		self.rootdir = rootdir
-		self.fileexts = fileexts
+	def __init__(self, databasepath):
 		self.databasepath = databasepath
 
-
-	def fillDatabase(self):
-
+	def initDatabase(self):
 		if self.databaseExists() is False:
 			print "database not here"
 			conn = sqlite3.connect(self.databasepath)
 			conn.text_factory = str
 			c = conn.cursor()
+			c.execute('''CREATE TABLE directories(path text)''')
 			c.execute('''CREATE TABLE songs
 				(url text, album text, artist text, composer text, date text, duration text, title text, track int, genre text)''')
 
-			files = self.getFiles()
-			songs = []
+			conn.commit()
+			c.close()
+		else:
+			print "already exist"
+
+
+	def addSong(self, song):
+		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
+		c = conn.cursor()
+
+		c.execute('Select count(url) from songs where url = ?', (song.url,))
+
+		count = c.fetchone()[0]
+
+		if count is 0:
+			songData = (song.url,
+						song.album, song.artist,
+						song.composer, song.date,
+						song.duration, song.title,
+						song.track, song.genre)
+			c.execute('INSERT INTO songs VALUES (?,?,?,?,?,?,?,?,?)', songData)
+			conn.commit()
+
+			c.close()
+		else:
+			print "song already in database"
+
+	def addSongsFromDirectory(self, dir):
+		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
+		c = conn.cursor()
+
+		c.execute('Select count(path) from directories where path = ?', (dir,))
+
+		count = c.fetchone()[0]
+
+		if count is 0:
+			import utils
+
+			files = utils.getMusicFromDirectory(dir)
+
+			c.execute('insert into directories values (?)', (dir,))
+			conn.commit()
 
 			for file in files:
 				song = Song(file)
@@ -30,15 +69,12 @@ class SongDatabase:
 							song.composer, song.date,
 							song.duration, song.title,
 							song.track, song.genre)
+				c.execute('INSERT INTO songs VALUES (?,?,?,?,?,?,?,?,?)', songData)
+				conn.commit()
 
-				songs.append(songData)
-
-
-			c.executemany('INSERT INTO songs VALUES (?,?,?,?,?,?,?,?,?)', songs)
-			conn.commit()
 			c.close()
 		else:
-			print "already exist"
+			print "directory already in database"
 
 
 	def databaseExists(self):
@@ -48,39 +84,31 @@ class SongDatabase:
 		except IOError as e:
 			return False
 
+	def getSongCount(self):
+		conn = sqlite3.connect(self.databasepath)
+		c = conn.cursor()
+		c.execute('Select count(url) from songs')
+		count = c.fetchone()[0]
+		c.close()
 
-	def getFiles(self):
-		matches = []
-		for root, dirnames, filenames in os.walk(self.rootdir):
-			for filename in filenames:
-				if filename.endswith(self.fileexts):
-					matches.append(os.path.join(root, filename))
+		return count
 
-		return matches
+	def getDirectories(self):
+		conn = sqlite3.connect(self.databasepath)
+		c = conn.cursor()
+		c.execute('Select path from directories')
+		results = c.fetchall()
+		c.close()
 
+		directories = []
+
+		for result in results:
+			directories.append(result[0])
+
+		return directories
 
 	# picks a new song to play based on an the song given or
 	# randomly picks a song
-	def getRandomSong(self, oldSong=None):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-		nextSong = ""
-		if oldSong is None:
-			c.execute('SELECT url FROM songs order by RANDOM() LIMIT 1')
-			nextSong = c.fetchone()
-		else:
-			params = (oldSong.album, oldSong.artist, 
-				oldSong.composer, oldSong.genre)
-
-			c.execute('SELECT url FROM songs where album = ? or artist = ? or composer = ? or genre = ? order by RANDOM() LIMIT 1', params)
-			nextSong = c.fetchone()
-
-		c.close()
-
-		return Song(nextSong[0])
-
-
 	def getRandomSongs(self, oldSong=None, limit=1):
 		conn = sqlite3.connect(self.databasepath)
 		conn.text_factory = str
@@ -91,9 +119,9 @@ class SongDatabase:
 			nextSongs = c.fetchall()
 		else:
 			params = (oldSong.album, oldSong.artist,
-					  oldSong.composer, oldSong.genre)
+					  oldSong.composer, '%' + oldSong.genre + '%')
 
-			c.execute('SELECT url FROM songs where album = ? or artist = ? or composer = ? or genre = ? order by RANDOM() LIMIT ' + str(limit), params)
+			c.execute('SELECT url FROM songs where album = ? or artist = ? or composer = ? or genre like ? order by RANDOM() LIMIT ' + str(limit), params)
 			nextSongs = c.fetchall()
 
 		c.close()
@@ -105,13 +133,29 @@ class SongDatabase:
 
 		return songs
 
+	def updateSong(self, song):
+		conn = sqlite3.connect(self.databasepath)
+		c = conn.cursor()
+		c.execute('''Update songs
+		 set album = ?, artist = ?,
+		 composer = ?, date = ?,
+		 duration = ?, title = ?,
+		 track = ?, genre = ?
+		 where url = ?''', (song.album, song.artist,
+							song.composer, song.date,
+							song.duration, song.title,
+							song.track, song.genre,
+							song.url))
+
+		conn.commit()
+		c.close()
+
 	def removeSongs(self, filenames):
 		conn = sqlite3.connect(self.databasepath)
 		c = conn.cursor()
 
 		for file in filenames:
-			params = (file)
-			c.execute('Delete from songs where url = ?', params)
+			c.execute('Delete from songs where url = ?', (file,))
 
 
 		conn.commit()
@@ -126,11 +170,23 @@ class SongDatabase:
 		c.close()
 
 
-	def getSongCount(self):
+	def removeDirectories(self, dirs):
 		conn = sqlite3.connect(self.databasepath)
 		c = conn.cursor()
-		c.execute('Select count(url) from songs')
-		count = c.fetchone()
+
+		for dir in dirs:
+			c.execute('Delete from directories where path = ?', (dir,))
+			c.execute('Delete from songs where url like ?', (dir + '%',))
+
+
+		conn.commit()
 		c.close()
 
-		return count
+
+	def removeAllDirectories(self):
+		conn = sqlite3.connect(self.databasepath)
+		c = conn.cursor()
+		c.execute('Delete from directories')
+		c.execute('Delete from songs')
+		conn.commit()
+		c.close()
