@@ -93,6 +93,12 @@ class oneOf(object):
 		assert value in self.consts
 		self.value = value
 
+def UserAttrib():
+	def wrapper(attrib):
+		print "UserAttrib", attrib
+		return attrib
+	return wrapper
+
 
 
 def formatTime(t):
