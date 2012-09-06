@@ -18,6 +18,7 @@ pools.append(NSAutoreleasePool.alloc().init())
 import os, sys
 from State import state, modules
 from utils import *
+import appinfo
 
 mydir = os.path.dirname(__file__) or os.getcwd()
 try:
@@ -44,28 +45,56 @@ def setupAppleMenu():
 	return m
 
 def setupWindow():
-	w = NSWindow.alloc().init()
-	#w.makeMainWindow()
-	return w
+	# some example code: http://lists.apple.com/archives/cocoa-dev/2004/Jan/msg01389.html
+
+	w = NSWindow.alloc()
+	w.initWithContentRect_styleMask_backing_defer_(
+		((200.0, 200.0), (250.0, 100.0)),
+		NSTitledWindowMask |
+		NSClosableWindowMask |
+		NSResizableWindowMask,
+		NSBackingStoreBuffered, False)
+	w.setTitle_(appinfo.progname)
+
+	#w.setReleasedWhenClosed_(False) # PyObjC will do the releasing when the Python var goes out of scope
+	# or: we just retain() and don't keep a Python ref to it
+
+	w.display()
+	w.orderFrontRegardless()
+	w.makeMainWindow()
+
+	w.retain()
 
 def setupAfterAppFinishedLaunching(delegate):
 	state.quit = quit
 	setupAppleMenu()
-	delegate.mainWindow = setupWindow()
+	setupWindow()
+	app.updateWindows()
+	app.activateIgnoringOtherApps_(True)
 	print "setupAfterAppFinishedLaunching ready"
 
 class PyAppDelegate(NSObject):
 	__metaclass__ = ObjCClassAutorenamer
 
+	# Doc for AppDelegate protocol:
+	# https://developer.apple.com/library/mac/#documentation/Cocoa/Reference/NSApplicationDelegate_Protocol/Reference/Reference.html
+
 	def applicationDidFinishLaunching_(self, notification):
 		print "AppDelegate didFinishLaunching"
 		for m in modules: m.start()
-		setupAfterAppFinishedLaunching(self)
+		try:
+			setupAfterAppFinishedLaunching(self)
+		except:
+			sys.excepthook(*sys.exc_info())
 
 	def applicationShouldTerminate_(self, app):
 		print "AppDelegate quit"
 		for m in modules: m.stop()
 		return NSTerminateNow
+
+	def applicationOpenUntitledFile_(self, app):
+		setupWindow()
+		return True
 
 	def userNotificationCenter_shouldPresentNotification_(self, notifCenter, notif):
 		return True
@@ -83,8 +112,6 @@ def setup():
 	appDelegate.retain()
 
 	app.finishLaunching()
-	app.updateWindows()
-	app.activateIgnoringOtherApps_(True)
 
 try:
 	isReload
@@ -98,7 +125,10 @@ def reloadModuleHandling():
 	appDelegate = PyAppDelegate.alloc().init()
 	app.setDelegate_(appDelegate)
 	appDelegate.retain()
-	setupAfterAppFinishedLaunching(appDelegate)
+	try:
+		setupAfterAppFinishedLaunching(appDelegate)
+	except:
+		sys.excepthook(*sys.exc_info())
 
 def guiMain():
 	# This is run from the module system in another thread.
@@ -130,6 +160,7 @@ def main():
 	app.run()
 
 	sys.exit()
+
 
 if isReload:
 	do_in_mainthread(reloadModuleHandling)
