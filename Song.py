@@ -125,6 +125,10 @@ class Song:
 		return self.metadata.get("duration", -1)
 
 	@property
+	def genre(self):
+		return self.metadata.get("genre", "")
+
+	@property
 	def tags(self):
 		return filter(None, map(str.strip, self.metadata.get("genre", "").split(",")))
 
