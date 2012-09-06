@@ -82,6 +82,10 @@ class LoadDatabaseThread(threading.Thread):
 
 		print "Done loading songs"
 
+		self.songDatabase.update()
+
+		print "Done updating database"
+
 class InfDatabaseQueue:
 	def __init__(self):
 		self.database = SongDatabase(appinfo.musicdatabase)

@@ -22,28 +22,27 @@ class SongDatabase:
 		else:
 			print "already exist"
 
-
-	def addSong(self, song):
+	def addSongs(self, filenames):
 		conn = sqlite3.connect(self.databasepath)
 		conn.text_factory = str
 		c = conn.cursor()
 
-		c.execute('Select count(url) from songs where url = ?', (song.url,))
+		for file in filenames:
+			c.execute('Select count(url) from songs where url = ?', (file,))
 
-		count = c.fetchone()[0]
+			count = c.fetchone()[0]
 
-		if count is 0:
-			songData = (song.url,
-						song.album, song.artist,
-						song.composer, song.date,
-						song.duration, song.title,
-						song.track, song.genre)
-			c.execute('INSERT INTO songs VALUES (?,?,?,?,?,?,?,?,?)', songData)
-			conn.commit()
+			if count is 0:
+				song = Song(file)
+				songData = (song.url,
+							song.album, song.artist,
+							song.composer, song.date,
+							song.duration, song.title,
+							song.track, song.genre)
+				c.execute('INSERT INTO songs VALUES (?,?,?,?,?,?,?,?,?)', songData)
+				conn.commit()
 
-			c.close()
-		else:
-			print "song already in database"
+		c.close()
 
 	def addSongsFromDirectory(self, dir):
 		conn = sqlite3.connect(self.databasepath)
@@ -77,6 +76,29 @@ class SongDatabase:
 			print "directory already in database"
 
 
+	#remove deleted files from database and add new ones
+	def update(self):
+		directories = self.getDirectories()
+		import utils
+		for dir in directories:
+			filesFromDisk = set(utils.getMusicFromDirectory(dir))
+			filesFromDb = set(self.getSongsWithDirectory(dir))
+
+			#all songs that are in the database, but not on disk
+			filesToDelete = list(filesFromDb - filesFromDisk)
+
+			self.removeSongs(filesToDelete)
+
+			#new songs added to disk, but not in db
+			filesToAdd = list(filesFromDisk - filesFromDb)
+
+			self.addSongs(filesToAdd)
+
+
+
+
+
+
 	def databaseExists(self):
 		try:
 			with open(self.databasepath) as f: pass
@@ -106,6 +128,23 @@ class SongDatabase:
 			directories.append(result[0])
 
 		return directories
+
+	def getSongsWithDirectory(self, dir):
+		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
+		c = conn.cursor()
+		c.execute('select url from songs where url like ?', (dir + '%',))
+
+		results = c.fetchall()
+		c.close()
+
+		filenames = []
+
+		for result in results:
+			filenames.append(result[0])
+
+		return filenames
+
 
 	# picks a new song to play based on an the song given or
 	# randomly picks a song
@@ -156,7 +195,6 @@ class SongDatabase:
 
 		for file in filenames:
 			c.execute('Delete from songs where url = ?', (file,))
-
 
 		conn.commit()
 		c.close()
