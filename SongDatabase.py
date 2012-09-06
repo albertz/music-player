@@ -22,6 +22,13 @@ class SongDatabase:
 		else:
 			print "already exist"
 
+	def databaseExists(self):
+		try:
+			with open(self.databasepath) as f: pass
+			return True
+		except IOError as e:
+			return False
+
 	def addSongs(self, filenames):
 		conn = sqlite3.connect(self.databasepath)
 		conn.text_factory = str
@@ -76,13 +83,15 @@ class SongDatabase:
 			print "directory already in database"
 
 
+
+
 	#remove deleted files from database and add new ones
 	def update(self):
 		directories = self.getDirectories()
 		import utils
 		for dir in directories:
 			filesFromDisk = set(utils.getMusicFromDirectory(dir))
-			filesFromDb = set(self.getSongsWithDirectory(dir))
+			filesFromDb = set(self.getSongPathsInDirectory(dir))
 
 			#all songs that are in the database, but not on disk
 			filesToDelete = list(filesFromDb - filesFromDisk)
@@ -93,27 +102,6 @@ class SongDatabase:
 			filesToAdd = list(filesFromDisk - filesFromDb)
 
 			self.addSongs(filesToAdd)
-
-
-
-
-
-
-	def databaseExists(self):
-		try:
-			with open(self.databasepath) as f: pass
-			return True
-		except IOError as e:
-			return False
-
-	def getSongCount(self):
-		conn = sqlite3.connect(self.databasepath)
-		c = conn.cursor()
-		c.execute('Select count(url) from songs')
-		count = c.fetchone()[0]
-		c.close()
-
-		return count
 
 	def getDirectories(self):
 		conn = sqlite3.connect(self.databasepath)
@@ -129,7 +117,7 @@ class SongDatabase:
 
 		return directories
 
-	def getSongsWithDirectory(self, dir):
+	def getSongPathsInDirectory(self, dir):
 		conn = sqlite3.connect(self.databasepath)
 		conn.text_factory = str
 		c = conn.cursor()
@@ -145,6 +133,40 @@ class SongDatabase:
 
 		return filenames
 
+
+	def getSongCount(self):
+		conn = sqlite3.connect(self.databasepath)
+		c = conn.cursor()
+		c.execute('Select count(url) from songs')
+		count = c.fetchone()[0]
+		c.close()
+
+		return count
+
+	def search(self, searchString, limit=0):
+		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
+		c = conn.cursor()
+		param = '%' + searchString + '%'
+		params = (param, param, param, param, param, param)
+		c.execute('''SELECT url FROM songs where
+		artist like ? or
+		 album like ? or
+		 composer like ? or
+		 genre like ? or
+		 date like ? or
+		 title like ?
+		 LIMIT ''' + str(limit), params)
+
+		results = c.fetchall()
+		c.close()
+
+		songs = []
+
+		for result in results:
+			songs.append(Song(file))
+
+		return songs
 
 	# picks a new song to play based on an the song given or
 	# randomly picks a song
