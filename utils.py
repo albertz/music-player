@@ -68,6 +68,7 @@ class EventCallback:
 class initBy(object):
 	def __init__(self, initFunc):
 		self.initFunc = initFunc
+		self.name = initFunc.func_name
 	def load(self, inst):
 		if not hasattr(self, "value"):
 			self.value = self.initFunc(inst)
@@ -93,12 +94,16 @@ class oneOf(object):
 		assert value in self.consts
 		self.value = value
 
-def UserAttrib():
-	def wrapper(attrib):
-		print "UserAttrib", attrib
+class UserAttrib:
+	def __init__(self, name=None, type=None):
+		self.name = name
+		self.type = type
+	def __call__(self, attrib):
+		if not self.name:
+			if hasattr(attrib, "name"): self.name = attrib.name
+			elif hasattr(attrib, "func_name"): self.name = attrib.func_name
+		print "UserAttrib", attrib, self.name
 		return attrib
-	return wrapper
-
 
 
 def formatTime(t):
