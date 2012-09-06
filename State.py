@@ -62,20 +62,21 @@ class Actions:
 actions = Actions()
 
 from player import loadPlayer
+import Traits
 
 class State(object):
-	@UserAttrib()
+	@UserAttrib(type=Traits.List)
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-	@UserAttrib()
+	@UserAttrib(type=Traits.Str)
+	@initBy
+	def curSong(self): return PersistentObject(Song, "cursong.dat")
+
+	@UserAttrib(type=Traits.List)
 	@initBy
 	def queue(self): return loadQueue(self)
 
-	@UserAttrib()
-	@initBy
-	def curSong(self): return PersistentObject(Song, "cursong.dat")
-	
 	playState = oneOf(
 		"playing",
 		"paused"
@@ -100,6 +101,8 @@ try:
 	state
 except NameError:
 	state = State()
+
+print list(iterUserAttribs(state))
 
 try:
 	modules

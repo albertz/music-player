@@ -73,6 +73,8 @@ class initBy(object):
 		if not hasattr(self, "value"):
 			self.value = self.initFunc(inst)
 	def __get__(self, inst, type=None):
+		if inst is None: # access through class
+			return self
 		self.load(inst)
 		if hasattr(self.value, "__get__"):
 			return self.value.__get__(inst, type)
@@ -89,22 +91,51 @@ class oneOf(object):
 		self.consts = consts
 		self.value = consts[0]
 	def __get__(self, inst, type=None):
+		if inst is None: # access through class
+			return self
 		return self
 	def __set__(self, inst, value):
 		assert value in self.consts
 		self.value = value
 
-class UserAttrib:
+class UserAttrib(object):
+	""" The idea/plan for this attrib type is:
+	Use it in the GUI and display it nicely. Store every GUI related info here.
+	I.e. this should say whether it is read-only to the user (if not visible to user at all ->
+	 don't use this class), if it should be represented as a list, string, etc.
+	 (this is the type, right now all Traits.TraitTypes), some other GUI decoration stuff,
+	 etc.
+	"""
 	def __init__(self, name=None, type=None):
 		self.name = name
 		self.type = type
+	def __get__(self, inst, type=None):
+		if inst is None: # access through class
+			return self
+		if hasattr(self.value, "__get__"):
+			return self.value.__get__(inst, type)
+		return self.value
+	def __set__(self, inst, value):
+		if inst is None: # access through class
+			self.value = value
+			return
+		if hasattr(self.value, "__set__"):
+			return self.value.__set__(inst, value)
+		self.value = value
 	def __call__(self, attrib):
 		if not self.name:
 			if hasattr(attrib, "name"): self.name = attrib.name
 			elif hasattr(attrib, "func_name"): self.name = attrib.func_name
-		print "UserAttrib", attrib, self.name
-		return attrib
+		self.value = attrib
+		return self
+	def __repr__(self):
+		return "<UserAttrib %s, %r>" % (self.name, self.type)
 
+def iterUserAttribs(obj):
+	for attrib in dir(obj.__class__):
+		attrib = getattr(obj.__class__, attrib)
+		if attrib.__class__.__name__ == "UserAttrib":
+			yield attrib
 
 def formatTime(t):
 	if t is None: return "?"
