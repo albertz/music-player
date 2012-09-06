@@ -314,3 +314,21 @@ def objc_setClass(obj, clazz):
 
 	ctypes.pythonapi.object_setClass(objAddr, classAddr)
 
+	obj.__class__ = clazz
+
+def do_in_mainthread(f, wait=True):
+	try:
+		NSObject = objc.lookUpClass("NSObject")
+		class PyAsyncCallHelper(NSObject):
+			def initWithArgs_(self, f):
+				self.f = f
+				self.ret = None
+				return self
+			def call_(self, o):
+				self.ret = self.f()
+	except:
+		PyAsyncCallHelper = objc.lookUpClass("PyAsyncCallHelper") # already defined earlier
+
+	helper = PyAsyncCallHelper.alloc().initWithArgs_(f)
+	helper.performSelectorOnMainThread_withObject_waitUntilDone_(helper.call_, None, wait)
+	return helper.ret
