@@ -48,30 +48,6 @@ def setupWindow():
 	#w.makeMainWindow()
 	return w
 
-if "PyAppDelegate" in globals():
-	# already declared, clean up
-	def cleanupOld():
-		# NOTE: What we do here might be dangerous! :)
-		# The class is already declared and PyObjC class redeclaring is broken.
-		# Remove Python refs.
-		global PyAppDelegate
-		del PyAppDelegate
-		appDelegate = app.delegate()
-		app.setDelegate_(None)
-		assert appDelegate.retainCount() == 2 # local var + manual retain() in setup()
-		appDelegate.release()
-		del appDelegate
-		import gc
-		gc.collect() # just to be sure that we deallocate every ref now! important!
-		# We cannot really ensure that the current app delegate has retainCount == 1,
-		# thus keep the obj and reset the class later!
-		# This is dangerous without locking the object. For now, just hope for the best... :P
-		#objc.object_lock(app.delegate()).lock()
-		# Dispose the class so we can redeclare it below.
-		objc_disposeClassPair("PyAppDelegate")
-		# In reloadModuleHandling(), we will recreate an instance and resetup.
-	do_in_mainthread(cleanupOld, wait=True)
-
 def setupAfterAppFinishedLaunching(delegate):
 	state.quit = quit
 	setupAppleMenu()
@@ -79,6 +55,8 @@ def setupAfterAppFinishedLaunching(delegate):
 	print "setupAfterAppFinishedLaunching ready"
 
 class PyAppDelegate(NSObject):
+	__metaclass__ = ObjCClassAutorenamer
+
 	def applicationDidFinishLaunching_(self, notification):
 		print "AppDelegate didFinishLaunching"
 		for m in modules: m.start()
