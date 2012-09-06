@@ -56,8 +56,6 @@ def setupWindow():
 		NSBackingStoreBuffered, False)
 	w.setTitle_(appinfo.progname)
 
-	#w.setReleasedWhenClosed_(False) # PyObjC will do the releasing when the Python var goes out of scope
-	# or: we just retain() and don't keep a Python ref to it
 
 	w.display()
 	w.orderFrontRegardless()
