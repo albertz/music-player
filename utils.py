@@ -106,9 +106,16 @@ class UserAttrib(object):
 	 (this is the type, right now all Traits.TraitTypes), some other GUI decoration stuff,
 	 etc.
 	"""
+	staticCounter = 0
 	def __init__(self, name=None, type=None):
 		self.name = name
 		self.type = type
+		self.__class__.staticCounter += 1
+		# Keep an index. This is so that we know the order of initialization later on.
+		# This is better for the GUI representation so we can order it the same way
+		# as it is defined in the class.
+		# iterUserAttribs() uses this.
+		self.index = self.__class__.staticCounter
 	def __get__(self, inst, type=None):
 		if inst is None: # access through class
 			return self
@@ -132,10 +139,13 @@ class UserAttrib(object):
 		return "<UserAttrib %s, %r>" % (self.name, self.type)
 
 def iterUserAttribs(obj):
+	attribs = []
 	for attrib in dir(obj.__class__):
 		attrib = getattr(obj.__class__, attrib)
 		if attrib.__class__.__name__ == "UserAttrib":
-			yield attrib
+			attribs += [attrib]
+	attribs.sort(key = lambda attr: attr.index)
+	return attribs
 
 def formatTime(t):
 	if t is None: return "?"
