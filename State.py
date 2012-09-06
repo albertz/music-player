@@ -51,8 +51,6 @@ class RecentlyplayedList:
 			betterRepr(self.previous),
 			self.index)
 
-def loadRecentlyplayedList(state):
-	return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
 
 class Actions:
@@ -66,17 +64,28 @@ actions = Actions()
 from player import loadPlayer
 
 class State(object):
-	queue = initBy(loadQueue)
-	recentlyPlayedList = initBy(loadRecentlyplayedList)
-	curSong = initBy(lambda self: PersistentObject(Song, "cursong.dat"))
+	@UserAttrib()
+	@initBy
+	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
+
+	@UserAttrib()
+	@initBy
+	def queue(self): return loadQueue(self)
+
+	@UserAttrib()
+	@initBy
+	def curSong(self): return PersistentObject(Song, "cursong.dat")
 	
 	playState = oneOf(
 		"playing",
 		"paused"
 	)
-	
-	updates = initBy(lambda self: OnRequestQueue())
-	player = initBy(loadPlayer)
+
+	@initBy
+	def updates(self): return OnRequestQueue()
+
+	@initBy
+	def player(self): return loadPlayer(self)
 
 	def quit(self):
 		""" This works in all threads except the main thread. It will quit the whole app.
