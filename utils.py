@@ -237,7 +237,12 @@ class Module:
 		thread = currentThread()
 		while True:
 			if self.module:
-				reload(self.module)
+				try:
+					reload(self.module)
+				except:
+					print "couldn't reload module", self.module
+					sys.excepthook(*sys.exc_info())
+					# continue anyway, maybe it still works and maybe the mainFunc does sth good/important
 			else:
 				self.module = __import__(self.moduleName)
 			mainFunc = getattr(self.module, self.mainFuncName)
@@ -262,3 +267,79 @@ class Module:
 			self.start()
 	def __str__(self):
 		return "Module %s" % self.name
+
+
+
+def objc_disposeClassPair(className):
+	# Be careful using this!
+	# Any objects holding refs to the old class will be invalid
+	# and will probably crash!
+	# Creating a new class after it will not make them valid because
+	# the new class will be at a different address.
+
+	# some discussion / example:
+	# http://stackoverflow.com/questions/7361847/pyobjc-how-to-delete-existing-objective-c-class
+	# https://github.com/albertz/chromehacking/blob/master/disposeClass.py
+
+	import ctypes
+
+	ctypes.pythonapi.objc_lookUpClass.restype = ctypes.c_void_p
+	ctypes.pythonapi.objc_lookUpClass.argtypes = (ctypes.c_char_p,)
+
+	addr = ctypes.pythonapi.objc_lookUpClass(className)
+	if not addr: return False
+
+	ctypes.pythonapi.objc_disposeClassPair.restype = None
+	ctypes.pythonapi.objc_disposeClassPair.argtypes = (ctypes.c_void_p,)
+
+	ctypes.pythonapi.objc_disposeClassPair(addr)
+
+
+def objc_setClass(obj, clazz):
+	objAddr = objc.pyobjc_id(obj) # returns the addr and also ensures that it is an objc object
+	assert objAddr != 0
+
+	import ctypes
+
+	ctypes.pythonapi.objc_lookUpClass.restype = ctypes.c_void_p
+	ctypes.pythonapi.objc_lookUpClass.argtypes = (ctypes.c_char_p,)
+
+	className = clazz.__name__ # this should be correct I guess
+	classAddr = ctypes.pythonapi.objc_lookUpClass(className)
+	assert classAddr != 0
+
+	# Class object_setClass(id object, Class cls)
+	ctypes.pythonapi.object_setClass.restype = ctypes.c_void_p
+	ctypes.pythonapi.object_setClass.argtypes = (ctypes.c_void_p,ctypes.c_void_p)
+
+	ctypes.pythonapi.object_setClass(objAddr, classAddr)
+
+	obj.__class__ = clazz
+
+def do_in_mainthread(f, wait=True):
+	try:
+		NSObject = objc.lookUpClass("NSObject")
+		class PyAsyncCallHelper(NSObject):
+			def initWithArgs_(self, f):
+				self.f = f
+				self.ret = None
+				return self
+			def call_(self, o):
+				self.ret = self.f()
+	except:
+		PyAsyncCallHelper = objc.lookUpClass("PyAsyncCallHelper") # already defined earlier
+
+	helper = PyAsyncCallHelper.alloc().initWithArgs_(f)
+	helper.performSelectorOnMainThread_withObject_waitUntilDone_(helper.call_, None, wait)
+	return helper.ret
+
+def ObjCClassAutorenamer(name, bases, dict):
+	def lookUpClass(name):
+		try: return objc.lookUpClass(name)
+		except objc.nosuchclass_error: return None
+	if lookUpClass(name):
+		numPostfix = 1
+		while lookUpClass("%s_%i" % (name, numPostfix)):
+			numPostfix += 1
+		name = "%s_%i" % (name, numPostfix)
+	return type(name, bases, dict)
