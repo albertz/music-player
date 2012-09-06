@@ -332,3 +332,14 @@ def do_in_mainthread(f, wait=True):
 	helper = PyAsyncCallHelper.alloc().initWithArgs_(f)
 	helper.performSelectorOnMainThread_withObject_waitUntilDone_(helper.call_, None, wait)
 	return helper.ret
+
+def ObjCClassAutorenamer(name, bases, dict):
+	def lookUpClass(name):
+		try: return objc.lookUpClass(name)
+		except objc.nosuchclass_error: return None
+	if lookUpClass(name):
+		numPostfix = 1
+		while lookUpClass("%s_%i" % (name, numPostfix)):
+			numPostfix += 1
+		name = "%s_%i" % (name, numPostfix)
+	return type(name, bases, dict)
