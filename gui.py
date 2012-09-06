@@ -7,6 +7,14 @@ if sys.platform != "darwin":
 
 import objc
 from AppKit import *
+from collections import deque
+
+try: pools
+except NameError: pools = deque()
+
+# just in case that we are not the main thread
+pools.append(NSAutoreleasePool.alloc().init())
+
 import os, sys
 from State import state, modules
 from utils import *
@@ -37,29 +45,44 @@ def setupAppleMenu():
 
 def setupWindow():
 	w = NSWindow.alloc().init()
-	w.makeMainWindow()
+	#w.makeMainWindow()
 	return w
 
-try:
-	PyAppDelegate
-except NameError: pass # normally declare below
-else: # already declared
-	# NOTE: What we do here might be dangerous! :)
-	# The class is already declared and PyObjC class redeclaring is broken.
-	# We cannot really ensure that the current app delegate has retainCount == 1,
-	# thus keep the obj and reset the class later!
-	# Dispose the class so we can redeclare it below.
-	objc_disposeClassPair("PyAppDelegate")
-	# In reloadModuleHandling(), we will recreate an instance and resetup.
+if "PyAppDelegate" in globals():
+	# already declared, clean up
+	def cleanupOld():
+		# NOTE: What we do here might be dangerous! :)
+		# The class is already declared and PyObjC class redeclaring is broken.
+		# Remove Python refs.
+		global PyAppDelegate
+		del PyAppDelegate
+		appDelegate = app.delegate()
+		app.setDelegate_(None)
+		assert appDelegate.retainCount() == 2 # local var + manual retain() in setup()
+		appDelegate.release()
+		del appDelegate
+		import gc
+		gc.collect() # just to be sure that we deallocate every ref now! important!
+		# We cannot really ensure that the current app delegate has retainCount == 1,
+		# thus keep the obj and reset the class later!
+		# This is dangerous without locking the object. For now, just hope for the best... :P
+		#objc.object_lock(app.delegate()).lock()
+		# Dispose the class so we can redeclare it below.
+		objc_disposeClassPair("PyAppDelegate")
+		# In reloadModuleHandling(), we will recreate an instance and resetup.
+	do_in_mainthread(cleanupOld, wait=True)
+
+def setupAfterAppFinishedLaunching(delegate):
+	state.quit = quit
+	setupAppleMenu()
+	delegate.mainWindow = setupWindow()
+	print "setupAfterAppFinishedLaunching ready"
 
 class PyAppDelegate(NSObject):
 	def applicationDidFinishLaunching_(self, notification):
 		print "AppDelegate didFinishLaunching"
-		setupAppleMenu()
-		state.quit = quit
 		for m in modules: m.start()
-
-		self.mainWindow = setupWindow()
+		setupAfterAppFinishedLaunching(self)
 
 	def applicationShouldTerminate_(self, app):
 		print "AppDelegate quit"
@@ -94,8 +117,10 @@ else:
 
 def reloadModuleHandling():
 	print "GUI module reload handler ..."
-	objc_setClass(app.delegate(), PyAppDelegate) # set the new class
-	app.delegate().applicationDidFinishLaunching_(None) # recall. might have important additional setup
+	appDelegate = PyAppDelegate.alloc().init()
+	app.setDelegate_(appDelegate)
+	appDelegate.retain()
+	setupAfterAppFinishedLaunching(appDelegate)
 
 def guiMain():
 	# This is run from the module system in another thread.
@@ -129,7 +154,9 @@ def main():
 	sys.exit()
 
 if isReload:
-	reloadModuleHandling()
+	do_in_mainthread(reloadModuleHandling)
 
 if __name__ == "__main__":
 	main()
+
+# keep old pools. there is no real safe way to know whether we still have some refs to objects
