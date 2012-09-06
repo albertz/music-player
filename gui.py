@@ -62,7 +62,10 @@ def setupWindow():
 	w.display()
 	w.orderFrontRegardless()
 	w.makeMainWindow()
+	w.makeKeyWindow()
 
+	app.activateIgnoringOtherApps_(True)
+	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
 	w.retain()
 
 def setupAfterAppFinishedLaunching(delegate):
@@ -70,7 +73,6 @@ def setupAfterAppFinishedLaunching(delegate):
 	setupAppleMenu()
 	setupWindow()
 	app.updateWindows()
-	app.activateIgnoringOtherApps_(True)
 	print "setupAfterAppFinishedLaunching ready"
 
 class PyAppDelegate(NSObject):
@@ -122,9 +124,14 @@ else:
 
 def reloadModuleHandling():
 	print "GUI module reload handler ..."
+
+	for w in app.windows():
+		w.close()
+
 	appDelegate = PyAppDelegate.alloc().init()
 	app.setDelegate_(appDelegate)
 	appDelegate.retain()
+
 	try:
 		setupAfterAppFinishedLaunching(appDelegate)
 	except:
