@@ -128,6 +128,8 @@ for m in modules:
 
 def reloadModules():
 	# reload some custom random Python modules
+	import utils
+	reload(utils)
 	import Song, State
 	reload(Song)
 	reload(State)
