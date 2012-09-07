@@ -10,7 +10,6 @@ if __name__ == '__main__':
 	import stdinconsole
 	import gui
 
-
 	if hasattr(gui, "main"):
 		# This will overtake the main loop and raise SystemExit at its end.
 		gui.main()
