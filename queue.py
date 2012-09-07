@@ -2,25 +2,104 @@
 from Song import Song
 from State import state
 from player import PlayerEventCallbacks
-from SongDatabase import SongDatabase
 from utils import *
 import math, random
 import appinfo
-import threading
 
-def randomFileQueueGen(dir="~/Music"):
-	import os
-	from RandomFileQueue import RandomFileQueue
-	fileQueue = RandomFileQueue(
-		rootdir = os.path.expanduser(dir),
-		fileexts = appinfo.formats)
-	while True:
-		yield fileQueue.getNextFile()
+class RandomFileQueueGen:
+	randomQuality = 0.5
+
+	def __init__(self, dir):
+		import os
+		from RandomFileQueue import RandomFileQueue
+		self.fileQueue = RandomFileQueue(
+			rootdir = os.path.expanduser(dir),
+			fileexts = appinfo.formats)
+
+	def next(self):
+		return self.fileQueue.getNextFile()
+
+	def __iter__(self):
+		while True:
+			yield self.next()
+
+class RandomFromSongDatabase:
+	randomQuality = 0.0
+
+	def __init__(self):
+		from SongDatabase import SongDatabase
+		self.database = SongDatabase(appinfo.musicdatabase)
+		self.database.initDatabase()
+
+		def loadDatabase():
+			for dir in appinfo.musicdirs:
+				self.database.addSongsFromDirectory(dir)
+
+			self.randomQuality = 0.5
+			print "Done loading songs"
+
+			self.database.update()
+
+			print "Done updating database"
+			self.randomQuality = 1
+
+		from threading import Thread
+		loadDatabaseThread = Thread(target=loadDatabase, name="loadDatabase")
+		loadDatabaseThread.start()
+
+	def next(self):
+		try:
+			oldSong = state.recentlyPlayedList.getLastN(1)[0]
+		except:
+			oldSong = None
+		return next(iter(self.database.getRandomSongs(oldSong=oldSong, limit=1)))
+
+	def __iter__(self):
+		while True:
+			yield self.next()
+
+
+class RandomSongs:
+	randomQuality = 0.5
+	def __init__(self, generators):
+		self.generators = [gen() for gen in generators]
+	def next(self):
+		while True:
+			generators = list(self.generators)
+			if not generators:
+				raise StopIteration
+			qualitySum = sum([gen.randomQuality for gen in generators])
+			self.randomQuality = qualitySum / len(generators)
+			r = random.random() * qualitySum
+			i = 0
+			gen = generators[i]
+			while i < len(generators)-1 and r > gen.randomQuality:
+				r -= gen.randomQuality
+				i += 1
+				gen = generators[i]
+			try:
+				return next(gen)
+			except StopIteration:
+				#print "warning: generator", gen, "raised StopIteration"
+				#sys.excepthook(*sys.exc_info())
+				pass
+			generators.pop(i)
+	def __iter__(self):
+		while True:
+			yield self.next()
 
 from collections import deque
 from threading import Lock
 
-class NextSongAlgorithm:
+class InfQueue:
+	def __init__(self):
+		self.generator = RandomSongs([
+			RandomFromSongDatabase,
+			lambda: RandomSongs([
+				(lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
+		])
+		self.checkNextNForBest = 10
+		self.checkLastNForContext = 10
 
 	def calcContextMatchScore(self, song):
 		count = 0
@@ -41,74 +120,20 @@ class NextSongAlgorithm:
 		scores += [self.calcContextMatchScore(song) * random.gauss(1, 0.5)]
 		return sum(scores) + random.gauss(1, 0.5)
 
-	def getNextSong(self, songs):
+	def getNextSong(self):
+		filenames = takeN(self.generator, self.checkNextNForBest)
+		songs = map(Song, filenames)
 		scores = map(lambda song: (self.calcScore(song), song), songs)
 		best = max(scores)
 		song = best[1]
 		return song
 
-	@property
-	def checkNextNForBest(self):
-		return 10
-
-	@property
-	def checkLastNForContext(self):
-		return 10
-
-
-class InfQueue:
-	def __init__(self):
-		self.generator = randomFileQueueGen()
-		self.nextSongAlgorithm = NextSongAlgorithm()
-
-		self.checkNextNForBest = 10
-		self.checkLastNForContext = 10
-
-	def getNextSong(self):
-		filenames = takeN(self.generator, self.nextSongAlgorithm.checkNextNForBest)
-		songs = map(Song, filenames)
-		return self.nextSongAlgorithm.getNextSong(songs)
-
-
-
-class LoadDatabaseThread(threading.Thread):
-	def __init__(self, songDatabase):
-		self.songDatabase = songDatabase
-		threading.Thread.__init__(self)
-
-	def run(self):
-		for dir in appinfo.musicdirs:
-			self.songDatabase.addSongsFromDirectory(dir)
-
-		print "Done loading songs"
-
-		self.songDatabase.update()
-
-		print "Done updating database"
-
-class InfDatabaseQueue:
-	def __init__(self):
-		self.database = SongDatabase(appinfo.musicdatabase)
-		self.database.initDatabase()
-		self.nextSongAlgorithm = NextSongAlgorithm()
-
-		loadDatabaseThread = LoadDatabaseThread(self.database)
-		loadDatabaseThread.start()
-
-	def getNextSong(self):
-
-		try:
-			oldSong = state.recentlyPlayedList.getLastN(1)[0]
-		except:
-			oldSong = self.database.getRandomSongs()[0]
-
-		return self.nextSongAlgorithm.getNextSong(self.database.getRandomSongs(oldSong=oldSong, limit=self.nextSongAlgorithm.checkLastNForContext))
 
 class MainQueue:
 	def __init__(self):
 		self.lock = Lock()
 		self.manualQueue = deque()
-		self.infiniteQueue = InfDatabaseQueue()
+		self.infiniteQueue = InfQueue()
 
 	def getNextSong(self):
 		with self.lock:
