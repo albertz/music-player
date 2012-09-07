@@ -198,5 +198,5 @@ def onSongChange(newSong):
 	
 def onSongFinished(song):
 	if not _client: return
-	_client.apiCall("scrobble", artist=song.artist, track=song.track, duration=song.duration)
+	_client.apiCall("scrobble", artist=song.artist, track=song.title, duration=song.duration)
 
