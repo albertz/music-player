@@ -190,7 +190,7 @@ class SongDatabase:
 		songs = []
 
 		for song in nextSongs:
-			songs.append(Song(song[0]))
+			songs.append(song[0])
 
 		return songs
 
