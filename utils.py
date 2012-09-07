@@ -298,7 +298,11 @@ class Module:
 			else:
 				self.module = __import__(self.moduleName)
 			mainFunc = getattr(self.module, self.mainFuncName)
-			mainFunc()
+			try:
+				mainFunc()
+			except:
+				print "Exception in thread", thread.name
+				sys.excepthook(*sys.exc_info())
 			if not thread.reload: break
 			sys.stdout.write("reloading module %s\n" % self.name)
 			thread.cancel = False
