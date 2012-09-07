@@ -194,7 +194,7 @@ def quit():
 	
 def onSongChange(newSong):
 	if not _client: return
-	_client.apiCall("updateNowPlaying", artist=newSong.artist, track=newSong.track, duration=newSong.duration)
+	_client.apiCall("updateNowPlaying", artist=newSong.artist, track=newSong.title, duration=newSong.duration)
 	
 def onSongFinished(song):
 	if not _client: return
