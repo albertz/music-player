@@ -8,7 +8,7 @@ class SongDatabase:
 		self.databasepath = databasepath
 
 	def initDatabase(self):
-		if self.databaseExists() is False:
+		if not self.databaseExists():
 			print "database not here"
 			conn = sqlite3.connect(self.databasepath)
 			conn.text_factory = str
