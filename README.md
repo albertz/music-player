@@ -48,3 +48,9 @@ TODO / possible additional missing features:
 
 -- Albert Zeyer, <http://www.az2000.de>
 
+
+Requirements:
+
+* ffmpeg
+* portaudio
+

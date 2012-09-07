@@ -395,3 +395,15 @@ def ObjCClassAutorenamer(name, bases, dict):
 			numPostfix += 1
 		name = "%s_%i" % (name, numPostfix)
 	return type(name, bases, dict)
+
+
+
+def getMusicFromDirectory(dir):
+	import os, appinfo
+	matches = []
+	for root, dirnames, filenames in os.walk(dir):
+		for filename in filenames:
+			if filename.endswith(tuple(appinfo.formats)):
+				matches.append(os.path.join(root, filename))
+
+	return matches

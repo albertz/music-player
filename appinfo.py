@@ -22,5 +22,10 @@ else:
 	print "warning: unknown/untested platform", repr(sys.platform)
 
 userdir = os.path.expanduser(userdir)
+formats = ["mp3", "ogg", "flac", "wma"]
+musicdatabase = userdir + "/songs.sqlite"
+musicdirs = (os.path.expanduser("~/Music"),)
+
+
 try: os.makedirs(userdir)
 except: pass
