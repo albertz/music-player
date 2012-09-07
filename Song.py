@@ -51,7 +51,6 @@ class Song:
 			self._metadata = m # only save attrib if this is from player. otherwise we might get later some better results
 		else:
 			m = {}
-		m["duration"] = player.curSongLen
 		if hasattr(self, "rating"): m["rating"] = self.rating
 		self.fixupMetadata(m)
 		self.guessMetadata(m)

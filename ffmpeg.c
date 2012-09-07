@@ -400,6 +400,9 @@ static void player_setSongMetadata(PlayerObject* player) {
 		
 		PyDict_SetItemString(player->curSongMetadata, tag->key, PyString_FromString(tag->value));
 	}
+	
+	if(!PyDict_GetItemString(player->curSongMetadata, "duration") && player->curSongLen > 0)
+		PyDict_SetItemString(player->curSongMetadata, "duration", PyFloat_FromDouble(player->curSongLen));
 }
 
 static
