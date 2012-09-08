@@ -116,19 +116,35 @@ class UserAttrib(object):
 		# as it is defined in the class.
 		# iterUserAttribs() uses this.
 		self.index = self.__class__.staticCounter
+	@staticmethod
+	def _getUserAttribDict(inst):
+		if not hasattr(inst, "__userAttribs"):
+			setattr(inst, "__userAttribs", {})
+		return inst.__userAttribs
+	@classmethod
+	def _get(cls, name, inst):
+		return cls._getUserAttribDict(inst)[name]
+	def get(self, inst):
+		try: return self._get(self.name, inst)
+		except KeyError: return self.value
 	def __get__(self, inst, type=None):
 		if inst is None: # access through class
 			return self
 		if hasattr(self.value, "__get__"):
 			return self.value.__get__(inst, type)
-		return self.value
+		return self.get(inst)
+	@classmethod
+	def _set(cls, name, inst, value):
+		cls._getUserAttribDict(inst)[name] = value
+	def set(self, inst, value):
+		self._set(self.name, inst, value)
 	def __set__(self, inst, value):
 		if inst is None: # access through class
 			self.value = value
 			return
 		if hasattr(self.value, "__set__"):
 			return self.value.__set__(inst, value)
-		self.value = value
+		self.set(inst, value)
 	def __call__(self, attrib):
 		if not self.name:
 			if hasattr(attrib, "name"): self.name = attrib.name
