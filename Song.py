@@ -127,9 +127,13 @@ class Song:
 	def genre(self):
 		return self.metadata.get("genre", "")
 
+	# dict from tag to value [0,1] (weighted tagmap, tag fuzzy set)
 	@property
 	def tags(self):
-		return filter(None, map(str.strip, self.metadata.get("genre", "").split(",")))
+		taglist = self.metadata.get("genre", "").split(",")
+		taglist = map(str.strip, taglist)
+		taglist = filter(None, taglist)
+		return dict([(tag,1.0) for tag in taglist])
 
 	@property
 	def fileext(self):

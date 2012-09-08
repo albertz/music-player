@@ -411,3 +411,23 @@ def getMusicFromDirectory(dir):
 				matches.append(os.path.join(root, filename))
 
 	return matches
+
+
+# A fuzzy set is a dict of values to [0,1] numbers.
+
+def unionFuzzySets(*fuzzySets):
+	resultSet = {}
+	for key in set.union(*map(set, fuzzySets)):
+		value = max(map(lambda x: x.get(key, 0), fuzzySets))
+		if value > 0:
+			resultSet[key] = value
+	return resultSet
+
+def intersectFuzzySets(*fuzzySets):
+	resultSet = {}
+	for key in set.intersection(*map(set, fuzzySets)):
+		value = min(map(lambda x: x[key], fuzzySets))
+		if value > 0:
+			resultSet[key] = value
+	return resultSet
+

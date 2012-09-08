@@ -104,7 +104,7 @@ class InfQueue:
 	def calcContextMatchScore(self, song):
 		count = 0
 		for lastSong in state.recentlyPlayedList.getLastN(self.checkLastNForContext):
-			count += 1 if bool(set(song.tags) & set(lastSong.tags)) else 0
+			count += max(intersectFuzzySets(song.tags, lastSong.tags).values() + [0])
 		s = float(count) / self.checkLastNForContext
 		# We likely get small values here. Boost a bit but keep in [0,1] range. sqrt is a good fit.
 		return math.sqrt(s)
