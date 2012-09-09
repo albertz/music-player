@@ -90,6 +90,14 @@ class State(object):
 	@initBy
 	def player(self): return loadPlayer(self)
 
+	def playPause(self):
+		state.player.playing = not state.player.playing
+
+	def nextSong(self):
+		if state.curSong:
+			state.curSong.skipped = True
+		state.player.nextSong()
+
 	def quit(self):
 		""" This works in all threads except the main thread. It will quit the whole app.
 		For more information about why we do it this way, read the comment in main.py.

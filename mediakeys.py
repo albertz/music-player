@@ -92,9 +92,9 @@ from State import state
 def onMediaKeyUp(control):
 	try:
 		if control == "play-pause":
-			state.player.playing = not state.player.playing
+			state.playPause()
 		elif control == "next":
-			state.player.nextSong()
+			state.nextSong()
 	except:
 		sys.excepthook(*sys.exc_info())
 
