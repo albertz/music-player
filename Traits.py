@@ -6,3 +6,7 @@ class TraitType: pass
 
 class List(TraitType): pass
 class Str(TraitType): pass
+class Enum(TraitType):
+	def __init__(self, enums):
+		self.enums = enums
+
