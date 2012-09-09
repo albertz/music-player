@@ -65,6 +65,13 @@ from player import loadPlayer
 import Traits
 
 class State(object):
+	@UserAttrib(type=Traits.Enum(["paused","playing"]))
+	@property
+	def playState(self): return self.player.playing
+	@playState.callDeco.setter
+	def playState(self, value):
+		self.player.playing = self.__class__.playState.enumIndex(value) > 0
+
 	@UserAttrib(type=Traits.List)
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
@@ -76,11 +83,6 @@ class State(object):
 	@UserAttrib(type=Traits.List)
 	@initBy
 	def queue(self): return loadQueue(self)
-
-	playState = oneOf(
-		"playing",
-		"paused"
-	)
 
 	@initBy
 	def updates(self): return OnRequestQueue()

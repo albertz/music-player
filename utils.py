@@ -116,23 +116,54 @@ class UserAttrib(object):
 		# as it is defined in the class.
 		# iterUserAttribs() uses this.
 		self.index = self.__class__.staticCounter
+	@staticmethod
+	def _getUserAttribDict(inst):
+		if not hasattr(inst, "__userAttribs"):
+			setattr(inst, "__userAttribs", {})
+		return inst.__userAttribs
+	@classmethod
+	def _get(cls, name, inst):
+		return cls._getUserAttribDict(inst)[name]
+	def get(self, inst):
+		try: return self._get(self.name, inst)
+		except KeyError: return self.value
 	def __get__(self, inst, type=None):
 		if inst is None: # access through class
 			return self
 		if hasattr(self.value, "__get__"):
 			return self.value.__get__(inst, type)
-		return self.value
+		return self.get(inst)
+	@property
+	def callDeco(self):
+		class Wrapper:
+			def __getattr__(_self, item):
+				f = getattr(self.value, item)
+				def wrappedFunc(arg): # a decorator expects a single arg
+					value = f(arg)
+					return self(value)
+				return wrappedFunc
+		return Wrapper()
+	@classmethod
+	def _set(cls, name, inst, value):
+		cls._getUserAttribDict(inst)[name] = value
+	def set(self, inst, value):
+		self._set(self.name, inst, value)
 	def __set__(self, inst, value):
 		if inst is None: # access through class
 			self.value = value
 			return
 		if hasattr(self.value, "__set__"):
 			return self.value.__set__(inst, value)
-		self.value = value
+		self.set(inst, value)
+	@classmethod
+	def _getName(cls, obj):
+		if hasattr(obj, "name"): return obj.name
+		elif hasattr(obj, "func_name"): return obj.func_name
+		elif hasattr(obj, "fget"): return cls._getName(obj.fget)
+		return None
 	def __call__(self, attrib):
 		if not self.name:
-			if hasattr(attrib, "name"): self.name = attrib.name
-			elif hasattr(attrib, "func_name"): self.name = attrib.func_name
+			self.name = self._getName(attrib)
 		self.value = attrib
 		return self
 	def __repr__(self):
@@ -411,3 +442,23 @@ def getMusicFromDirectory(dir):
 				matches.append(os.path.join(root, filename))
 
 	return matches
+
+
+# A fuzzy set is a dict of values to [0,1] numbers.
+
+def unionFuzzySets(*fuzzySets):
+	resultSet = {}
+	for key in set.union(*map(set, fuzzySets)):
+		value = max(map(lambda x: x.get(key, 0), fuzzySets))
+		if value > 0:
+			resultSet[key] = value
+	return resultSet
+
+def intersectFuzzySets(*fuzzySets):
+	resultSet = {}
+	for key in set.intersection(*map(set, fuzzySets)):
+		value = min(map(lambda x: x[key], fuzzySets))
+		if value > 0:
+			resultSet[key] = value
+	return resultSet
+
