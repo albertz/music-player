@@ -3,7 +3,7 @@ from Song import Song
 
 # Class for dealing with songs in the database
 # Fills Database with songs and select next song to play
-class SongDatabase:
+class SongStore:
 	def __init__(self, databasepath):
 		self.databasepath = databasepath
 
@@ -13,9 +13,7 @@ class SongDatabase:
 			conn = sqlite3.connect(self.databasepath)
 			conn.text_factory = str
 			c = conn.cursor()
-			c.execute('''CREATE TABLE directories(path text)''')
-			c.execute('''CREATE TABLE songs
-				(url text, album text, artist text, composer text, date text, duration text, title text, track int, genre text)''')
+			c.execute('''CREATE TABLE songs(key text, value text)''')
 
 			conn.commit()
 			c.close()
@@ -40,54 +38,22 @@ class SongDatabase:
 		c = conn.cursor()
 
 		for file in filenames:
-			c.execute('Select count(url) from songs where url = ?', (file,))
+			c.execute('Select count(key) from songs where key = ?', (file,))
 
 			count = c.fetchone()[0]
 
 			if count is 0:
 				song = Song(file)
-				songData = (song.url,
-							song.album, song.artist,
-							song.composer, song.date,
-							song.duration, song.title,
-							song.track, song.genre)
-				c.execute('INSERT INTO songs VALUES (?,?,?,?,?,?,?,?,?)', songData)
+				songData = (song.url, song.url)
+				c.execute('INSERT INTO songs VALUES (?,?)', songData)
 				conn.commit()
 
 		c.close()
 
 	def addSongsFromDirectory(self, dir):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-
-		c.execute('Select count(path) from directories where path = ?', (dir,))
-
-		count = c.fetchone()[0]
-
-		if count is 0:
-			import utils
-
-			files = utils.getMusicFromDirectory(dir)
-
-			c.execute('insert into directories values (?)', (dir,))
-			conn.commit()
-
-			for file in files:
-				song = Song(file)
-				songData = (song.url,
-							song.album, song.artist,
-							song.composer, song.date,
-							song.duration, song.title,
-							song.track, song.genre)
-				c.execute('INSERT INTO songs VALUES (?,?,?,?,?,?,?,?,?)', songData)
-				conn.commit()
-
-			c.close()
-		else:
-			print "directory already in database"
-
-
+		import utils
+		files = utils.getMusicFromDirectory(dir)
+		self.addSongs(files)
 
 
 	#remove deleted files from database and add new ones
@@ -108,25 +74,11 @@ class SongDatabase:
 
 			self.addSongs(filesToAdd)
 
-	def getDirectories(self):
-		conn = sqlite3.connect(self.databasepath)
-		c = conn.cursor()
-		c.execute('Select path from directories')
-		results = c.fetchall()
-		c.close()
-
-		directories = []
-
-		for result in results:
-			directories.append(result[0])
-
-		return directories
-
 	def getSongPathsInDirectory(self, dir):
 		conn = sqlite3.connect(self.databasepath)
 		conn.text_factory = str
 		c = conn.cursor()
-		c.execute('select url from songs where url like ?', (dir + '%',))
+		c.execute('select key from songs where key like ?', (dir + '%',))
 
 		results = c.fetchall()
 		c.close()
@@ -143,7 +95,7 @@ class SongDatabase:
 		conn = sqlite3.connect(self.databasepath)
 		conn.text_factory = str
 		c = conn.cursor()
-		c.execute('Select count(url) from songs')
+		c.execute('Select count(key) from songs')
 		count = c.fetchone()[0]
 		c.close()
 
@@ -153,16 +105,10 @@ class SongDatabase:
 		conn = sqlite3.connect(self.databasepath)
 		conn.text_factory = str
 		c = conn.cursor()
+
 		param = '%' + searchString + '%'
 		params = (param, param, param, param, param, param)
-		c.execute('''SELECT url FROM songs where
-		artist like ? or
-		 album like ? or
-		 composer like ? or
-		 genre like ? or
-		 date like ? or
-		 title like ?
-		 LIMIT ''' + str(limit), params)
+		c.execute('''SELECT key FROM songs where value like ? LIMIT ''' + str(limit), (params,))
 
 		results = c.fetchall()
 		c.close()
@@ -170,7 +116,7 @@ class SongDatabase:
 		songs = []
 
 		for result in results:
-			songs.append(Song(file))
+			songs.append(Song(result))
 
 		return songs
 
@@ -182,13 +128,13 @@ class SongDatabase:
 		c = conn.cursor()
 		nextSong = ""
 		if oldSong is None:
-			c.execute('SELECT url FROM songs order by RANDOM() LIMIT ' + str(limit))
+			c.execute('SELECT key FROM songs order by RANDOM() LIMIT ' + str(limit))
 			nextSongs = c.fetchall()
 		else:
-			params = (oldSong.album, oldSong.artist,
-					  oldSong.composer, '%' + oldSong.genre + '%')
+			params = ('%' + oldSong.album + '%', '%' + oldSong.artist + '%',
+					  '%' + oldSong.composer + '%', '%' + oldSong.genre + '%')
 
-			c.execute('SELECT url FROM songs where album = ? or artist = ? or composer = ? or genre like ? order by RANDOM() LIMIT ' + str(limit), params)
+			c.execute('SELECT key FROM songs where value like ? or value like = ? or value like = ? or value like ? order by RANDOM() LIMIT ' + str(limit), params)
 			nextSongs = c.fetchall()
 
 		c.close()
@@ -205,14 +151,8 @@ class SongDatabase:
 		conn.text_factory = str
 		c = conn.cursor()
 		c.execute('''Update songs
-		 set album = ?, artist = ?,
-		 composer = ?, date = ?,
-		 duration = ?, title = ?,
-		 track = ?, genre = ?
-		 where url = ?''', (song.album, song.artist,
-							song.composer, song.date,
-							song.duration, song.title,
-							song.track, song.genre,
+		 set key = ?, value = ?
+		 where key = ?''', (song.url, song.url,
 							song.url))
 
 		conn.commit()
@@ -224,7 +164,7 @@ class SongDatabase:
 		c = conn.cursor()
 
 		for file in filenames:
-			c.execute('Delete from songs where url = ?', (file,))
+			c.execute('Delete from songs where key = ?', (file,))
 
 		conn.commit()
 		c.close()
@@ -245,19 +185,8 @@ class SongDatabase:
 		c = conn.cursor()
 
 		for dir in dirs:
-			c.execute('Delete from directories where path = ?', (dir,))
-			c.execute('Delete from songs where url like ?', (dir + '%',))
-
+			c.execute('Delete from songs where key like ?', (dir + '%',))
 
 		conn.commit()
 		c.close()
 
-
-	def removeAllDirectories(self):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-		c.execute('Delete from directories')
-		c.execute('Delete from songs')
-		conn.commit()
-		c.close()
