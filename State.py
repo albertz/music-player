@@ -77,10 +77,12 @@ class State(object):
 	@initBy
 	def queue(self): return loadQueue(self)
 
-	playState = oneOf(
-		"playing",
-		"paused"
-	)
+	@UserAttrib(type=Traits.Enum(["paused","playing"]))
+	@property
+	def playState(self): return self.player.playing
+	@playState.callDeco.setter
+	def playState(self, value):
+		self.player.playing = self.__class__.playState.enumIndex(value) > 0
 
 	@initBy
 	def updates(self): return OnRequestQueue()
