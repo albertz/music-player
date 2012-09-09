@@ -22,6 +22,14 @@ class SongDatabase:
 		else:
 			print "already exist"
 
+
+	def deleteDatabase(self):
+		import os
+		try:
+			os.remove(self.databasepath)
+		except:
+			pass
+
 	def databaseExists(self):
 		try:
 			with open(self.databasepath) as f: pass
@@ -136,6 +144,7 @@ class SongDatabase:
 
 	def getSongCount(self):
 		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
 		c = conn.cursor()
 		c.execute('Select count(url) from songs')
 		count = c.fetchone()[0]
@@ -149,14 +158,25 @@ class SongDatabase:
 		c = conn.cursor()
 		param = '%' + searchString + '%'
 		params = (param, param, param, param, param, param)
-		c.execute('''SELECT url FROM songs where
-		artist like ? or
-		 album like ? or
-		 composer like ? or
-		 genre like ? or
-		 date like ? or
-		 title like ?
-		 LIMIT ''' + str(limit), params)
+
+		if limit > 0:
+			c.execute('''SELECT url FROM songs where
+			artist like ? or
+			 album like ? or
+			 composer like ? or
+			 genre like ? or
+			 date like ? or
+			 title like ?
+			 LIMIT ''' + str(limit), params)
+		else:
+			c.execute('''SELECT url FROM songs where
+			artist like ? or
+			 album like ? or
+			 composer like ? or
+			 genre like ? or
+			 date like ? or
+			 title like ?
+			 ''', params)
 
 		results = c.fetchall()
 		c.close()
@@ -164,7 +184,7 @@ class SongDatabase:
 		songs = []
 
 		for result in results:
-			songs.append(Song(file))
+			songs.append(Song(result[0]))
 
 		return songs
 
@@ -196,6 +216,7 @@ class SongDatabase:
 
 	def updateSong(self, song):
 		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
 		c = conn.cursor()
 		c.execute('''Update songs
 		 set album = ?, artist = ?,
@@ -213,6 +234,7 @@ class SongDatabase:
 
 	def removeSongs(self, filenames):
 		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
 		c = conn.cursor()
 
 		for file in filenames:
@@ -224,6 +246,7 @@ class SongDatabase:
 
 	def removeAllSongs(self):
 		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
 		c = conn.cursor()
 		c.execute('Delete from songs')
 		conn.commit()
@@ -232,6 +255,7 @@ class SongDatabase:
 
 	def removeDirectories(self, dirs):
 		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
 		c = conn.cursor()
 
 		for dir in dirs:
@@ -245,6 +269,7 @@ class SongDatabase:
 
 	def removeAllDirectories(self):
 		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
 		c = conn.cursor()
 		c.execute('Delete from directories')
 		c.execute('Delete from songs')
