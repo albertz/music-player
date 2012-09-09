@@ -108,7 +108,7 @@ class InfQueue:
 		if not lastSongs: return 0.0
 		for lastSong in lastSongs:
 			count += max(intersectFuzzySets(song.tags, lastSong.tags).values() + [0])
-		s = float(count) / len(lastSongs)
+		s = float(count) / self.checkLastNForContext
 		# We likely get small values here. Boost a bit but keep in [0,1] range. sqrt is a good fit.
 		return math.sqrt(s)
 
