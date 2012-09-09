@@ -39,7 +39,7 @@ class SongStore:
 		conn.text_factory = str
 		c = conn.cursor()
 
-		for file in filenames:
+		for i, file in enumerate(filenames):
 			c.execute('Select count(key) from songs where key = ?', (file,))
 
 			count = c.fetchone()[0]
@@ -47,8 +47,10 @@ class SongStore:
 			if count is 0:
 				song = Song(file)
 				c.execute('INSERT INTO songs VALUES (?,?,1)', (song.url, str(song.metadata)))
-				conn.commit()
+				if i % 500 == 0:
+					conn.commit()
 
+		conn.commit()
 		c.close()
 
 	def addSongsFromDirectory(self, dir):
