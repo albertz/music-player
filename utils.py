@@ -133,8 +133,16 @@ class UserAttrib(object):
 		if hasattr(self.value, "__get__"):
 			return self.value.__get__(inst, type)
 		return self.get(inst)
-	def __getattr__(self, item):
-		return getattr(self.value, item)
+	@property
+	def callDeco(self):
+		class Wrapper:
+			def __getattr__(_self, item):
+				f = getattr(self.value, item)
+				def wrappedFunc(arg): # a decorator expects a single arg
+					value = f(arg)
+					return self(value)
+				return wrappedFunc
+		return Wrapper()
 	@classmethod
 	def _set(cls, name, inst, value):
 		cls._getUserAttribDict(inst)[name] = value
@@ -147,10 +155,15 @@ class UserAttrib(object):
 		if hasattr(self.value, "__set__"):
 			return self.value.__set__(inst, value)
 		self.set(inst, value)
+	@classmethod
+	def _getName(cls, obj):
+		if hasattr(obj, "name"): return obj.name
+		elif hasattr(obj, "func_name"): return obj.func_name
+		elif hasattr(obj, "fget"): return cls._getName(obj.fget)
+		return None
 	def __call__(self, attrib):
 		if not self.name:
-			if hasattr(attrib, "name"): self.name = attrib.name
-			elif hasattr(attrib, "func_name"): self.name = attrib.func_name
+			self.name = self._getName(attrib)
 		self.value = attrib
 		return self
 	def __repr__(self):
