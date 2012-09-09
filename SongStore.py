@@ -1,5 +1,6 @@
 import sqlite3
 from Song import Song
+import os
 
 
 # Class for dealing with songs in the database
@@ -10,16 +11,13 @@ class SongStore:
 
 	def initDatabase(self):
 		if not self.databaseExists():
-			print "database not here"
 			conn = sqlite3.connect(self.databasepath)
 			conn.text_factory = str
 			c = conn.cursor()
-			c.execute('''CREATE TABLE songs(key text, value text)''')
+			c.execute('''CREATE TABLE songs(key text PRIMARY KEY, value text, available integer)''')
 
 			conn.commit()
 			c.close()
-		else:
-			print "already exist"
 
 
 	def deleteDatabase(self):
@@ -48,7 +46,7 @@ class SongStore:
 
 			if count is 0:
 				song = Song(file)
-				c.execute('INSERT INTO songs VALUES (?,?)', (song.url, str(song.metadata)))
+				c.execute('INSERT INTO songs VALUES (?,?,1)', (song.url, str(song.metadata)))
 				conn.commit()
 
 		c.close()
@@ -59,22 +57,24 @@ class SongStore:
 		self.addSongs(files)
 
 
-	#remove deleted files from database and add new ones
+	#remove deleted files from database and add new ones. Also mark files not available due to unmounted voule, etc
 	def update(self, directories):
 		import utils
 		for dir in directories:
-			filesFromDisk = set(utils.getMusicFromDirectory(dir))
-			filesFromDb = set(self.getSongPathsInDirectory(dir))
+			self.markDirectoryAvailability(dir)
+			if os.path.exists(dir):
+				filesFromDisk = set(utils.getMusicFromDirectory(dir))
+				filesFromDb = set(self.getSongPathsInDirectory(dir))
 
-			#all songs that are in the database, but not on disk
-			filesToDelete = list(filesFromDb - filesFromDisk)
+				#all songs that are in the database, but not on disk
+				filesToDelete = list(filesFromDb - filesFromDisk)
 
-			self.removeSongs(filesToDelete)
+				self.removeSongs(filesToDelete)
 
-			#new songs added to disk, but not in db
-			filesToAdd = list(filesFromDisk - filesFromDb)
+				#new songs added to disk, but not in db
+				filesToAdd = list(filesFromDisk - filesFromDb)
 
-			self.addSongs(filesToAdd)
+				self.addSongs(filesToAdd)
 
 	def getSongPathsInDirectory(self, dir):
 		conn = sqlite3.connect(self.databasepath)
@@ -132,13 +132,13 @@ class SongStore:
 		c = conn.cursor()
 		nextSong = ""
 		if oldSong is None:
-			c.execute('SELECT key FROM songs order by RANDOM() LIMIT ' + str(limit))
+			c.execute('SELECT key FROM songs where available = 1 order by RANDOM() LIMIT ' + str(limit))
 			nextSongs = c.fetchall()
 		else:
 			params = (oldSong.url, "%'album': '" + oldSong.album + "%", "%'artist': '" + oldSong.artist + "%",
 					  "%'composer': '" + oldSong.composer + "%", "%'genre': '" + oldSong.genre + "%")
 
-			c.execute('SELECT key FROM songs where key <> ? and (value like ? or value like ? or value like ? or value like ?) order by RANDOM() LIMIT ' + str(limit), params)
+			c.execute('SELECT key FROM songs where available = 1 and key <> ? and (value like ? or value like ? or value like ? or value like ?) order by RANDOM() LIMIT ' + str(limit), params)
 			nextSongs = c.fetchall()
 
 		c.close()
@@ -159,6 +159,23 @@ class SongStore:
 		 where key = ?''', (song.url, str(song.metadata), song.url))
 
 		conn.commit()
+		c.close()
+
+	def markDirectoryAvailability(self, dir):
+		conn = sqlite3.connect(self.databasepath)
+		conn.text_factory = str
+		c = conn.cursor()
+
+		if os.path.exists(dir):
+			c.execute('''Update songs
+			 set available = 1
+			 where key like ?''', (dir + '%',))
+			conn.commit()
+		else:
+			c.execute('''Update songs
+					 set available = 0
+					 where key like ?''', (dir + '%',))
+			conn.commit()
 		c.close()
 
 	def removeSongs(self, filenames):
