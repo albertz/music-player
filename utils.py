@@ -133,6 +133,8 @@ class UserAttrib(object):
 		if hasattr(self.value, "__get__"):
 			return self.value.__get__(inst, type)
 		return self.get(inst)
+	def __getattr__(self, item):
+		return getattr(self.value, item)
 	@classmethod
 	def _set(cls, name, inst, value):
 		cls._getUserAttribDict(inst)[name] = value
