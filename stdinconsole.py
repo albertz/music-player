@@ -50,9 +50,9 @@ def handleInput(ch):
 			state.player.seekRel(10)
 			printState()
 		elif ch == "\n": # return
-			state.player.nextSong()
+			state.nextSong()
 		elif ch == " ":
-			state.player.playing = not state.player.playing
+			state.playPause()
 		elif ch == "r":
 			reloadModules()
 	except:

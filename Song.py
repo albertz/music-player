@@ -1,9 +1,16 @@
 class Song:
-	def __init__(self, fn=None): # we must support an empty init for PersistentObject
-		self.url = fn
+	url = None
+	skipped = False
+
+	def __init__(self, *args, **kwargs): # we must support an empty init for PersistentObject
 		self.f = None
 		self._fileMetadata = None
 		self._metadata = None
+		for key,value in kwargs.items():
+			setattr(self, key, value)
+		if len(args) == 1: # guess this is the url
+			assert "url" not in kwargs
+			self.url = args[0]
 	def __nonzero__(self): # this is mostly for noninited Song objects
 		return bool(self.url)
 	def openFile(self):
@@ -21,11 +28,36 @@ class Song:
 	
 	def close(self):
 		self.f = None
-	
+
+	# returns list of all root attrib names
+	@property
+	def rootAttribNames(self):
+		# TODO: maybe cache this?
+		l = []
+		import types
+		for attrName in dir(self.__class__):
+			if attrName.startswith("_"): continue
+			attr = getattr(self.__class__, attrName)
+			if isinstance(attr, types.UnboundMethodType): continue
+			if isinstance(attr, property): continue
+			l += [attrName]
+		return l
+
+	# returns custom/changed root attrib dict
+	@property
+	def rootAttribDict(self):
+		d = {}
+		attribs = self.rootAttribNames
+		for attr in self.__dict__:
+			if attr in attribs:
+				d[attr] = getattr(self, attr)
+		return d
+
 	def __repr__(self):
-		return "Song(%r)" % self.url
+		return "Song(%s)" % ", ".join([key + "=" + repr(value) for (key,value) in self.rootAttribDict.items()])
 
 	def __str__(self):
+		if not self.url: return "Song()"
 		import os
 		return "Song(%s)" % os.path.basename(self.url)
 
