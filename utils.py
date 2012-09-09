@@ -224,12 +224,15 @@ def takeN(iterator, n):
 def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	class Value: pass
 	obj = Value()
+	attribs = custom_attribs.copy()
 	def load():
 		if not hasattr(obj, "value"):
 			obj.value = lazyLoader()
-	def obj_getattr(self, key):
+	def obj_getattribute(self, key):
 		load()
-		return getattr(obj.value, key)
+		try: return getattr(obj.value, key)
+		except AttributeError:
+			return object.__getattribute__(self, key)
 	def obj_setattr(self, key, value):
 		load()
 		return setattr(obj.value, key, value)
@@ -245,9 +248,8 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 			obj.value = value.__get__(None)
 		else:
 			obj.value = value
-	attribs = custom_attribs.copy()
 	attribs.update({
-		"__getattr__": obj_getattr,
+		"__getattribute__": obj_getattribute,
 		"__setattr__": obj_setattr,
 		"__get__": obj_desc_get,
 		"__set__": obj_desc_set,
