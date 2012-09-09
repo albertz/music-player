@@ -23,12 +23,12 @@ class RandomFileQueueGen:
 		while True:
 			yield self.next()
 
-class RandomFromSongDatabase:
+class RandomFromSongDatabaseGen:
 	randomQuality = 0.0
 
 	def __init__(self):
-		from SongDatabase import SongDatabase
-		self.database = SongDatabase(appinfo.musicdatabase)
+		from SongStore import SongStore
+		self.database = SongStore(appinfo.musicdatabase)
 		self.database.initDatabase()
 
 		def loadDatabase():
@@ -38,7 +38,7 @@ class RandomFromSongDatabase:
 			self.randomQuality = 0.5
 			print "Done loading songs"
 
-			self.database.update()
+			self.database.update(appinfo.musicdirs)
 
 			print "Done updating database"
 			self.randomQuality = 1
@@ -94,7 +94,7 @@ from threading import Lock
 class InfQueue:
 	def __init__(self):
 		self.generator = RandomSongs([
-			RandomFromSongDatabase,
+			RandomFromSongDatabaseGen,
 			lambda: RandomSongs([
 				(lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
 		])

@@ -1,6 +1,7 @@
 import sqlite3
 from Song import Song
 
+
 # Class for dealing with songs in the database
 # Fills Database with songs and select next song to play
 class SongStore:
@@ -23,7 +24,10 @@ class SongStore:
 
 	def deleteDatabase(self):
 		import os
-		os.remove(self.databasepath)
+		try:
+			os.remove(self.databasepath)
+		except:
+			pass
 
 	def databaseExists(self):
 		try:
@@ -44,8 +48,7 @@ class SongStore:
 
 			if count is 0:
 				song = Song(file)
-				songData = (song.url, song.url)
-				c.execute('INSERT INTO songs VALUES (?,?)', songData)
+				c.execute('INSERT INTO songs VALUES (?,?)', (song.url, str(song.metadata)))
 				conn.commit()
 
 		c.close()
@@ -57,8 +60,7 @@ class SongStore:
 
 
 	#remove deleted files from database and add new ones
-	def update(self):
-		directories = self.getDirectories()
+	def update(self, directories):
 		import utils
 		for dir in directories:
 			filesFromDisk = set(utils.getMusicFromDirectory(dir))
@@ -107,8 +109,10 @@ class SongStore:
 		c = conn.cursor()
 
 		param = '%' + searchString + '%'
-		params = (param, param, param, param, param, param)
-		c.execute('''SELECT key FROM songs where value like ? LIMIT ''' + str(limit), (params,))
+		if limit > 0:
+			c.execute('''SELECT key FROM songs where value like ? LIMIT ''' + str(limit), (param,))
+		else:
+			c.execute('''SELECT key FROM songs where value like ? ''', (param,))
 
 		results = c.fetchall()
 		c.close()
@@ -116,7 +120,7 @@ class SongStore:
 		songs = []
 
 		for result in results:
-			songs.append(Song(result))
+			songs.append(Song(result[0]))
 
 		return songs
 
@@ -131,10 +135,10 @@ class SongStore:
 			c.execute('SELECT key FROM songs order by RANDOM() LIMIT ' + str(limit))
 			nextSongs = c.fetchall()
 		else:
-			params = ('%' + oldSong.album + '%', '%' + oldSong.artist + '%',
-					  '%' + oldSong.composer + '%', '%' + oldSong.genre + '%')
+			params = (oldSong.url, "%'album': '" + oldSong.album + "%", "%'artist': '" + oldSong.artist + "%",
+					  "%'composer': '" + oldSong.composer + "%", "%'genre': '" + oldSong.genre + "%")
 
-			c.execute('SELECT key FROM songs where value like ? or value like = ? or value like = ? or value like ? order by RANDOM() LIMIT ' + str(limit), params)
+			c.execute('SELECT key FROM songs where key <> ? and (value like ? or value like ? or value like ? or value like ?) order by RANDOM() LIMIT ' + str(limit), params)
 			nextSongs = c.fetchall()
 
 		c.close()
@@ -152,8 +156,7 @@ class SongStore:
 		c = conn.cursor()
 		c.execute('''Update songs
 		 set key = ?, value = ?
-		 where key = ?''', (song.url, song.url,
-							song.url))
+		 where key = ?''', (song.url, str(song.metadata), song.url))
 
 		conn.commit()
 		c.close()
