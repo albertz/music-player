@@ -67,10 +67,11 @@ import Traits
 class State(object):
 	@UserAttrib(type=Traits.Enum(["paused","playing"]))
 	@property
-	def playState(self): return self.player.playing
+	def playState(self):
+		return self.__class__.playState.enums[int(self.player.playing)]
 	@playState.callDeco.setter
 	def playState(self, value):
-		self.player.playing = self.__class__.playState.enumIndex(value) > 0
+		self.player.playing = self.__class__.playState.enums.index(value) > 0
 
 	@UserAttrib(type=Traits.List)
 	@initBy
