@@ -73,6 +73,14 @@ class State(object):
 	def playState(self, value):
 		self.player.playing = self.__class__.playState.enums.index(value) > 0
 
+	@UserAttrib(type=Traits.Action)
+	def playPause(self):
+		self.player.playing = not self.player.playing
+
+	@UserAttrib(type=Traits.Action)
+	def nextSong(self):
+		self.player.nextSong()
+
 	@UserAttrib(type=Traits.List)
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
@@ -90,12 +98,6 @@ class State(object):
 
 	@initBy
 	def player(self): return loadPlayer(self)
-
-	def playPause(self):
-		self.player.playing = not self.player.playing
-
-	def nextSong(self):
-		self.player.nextSong()
 
 	def quit(self):
 		""" This works in all threads except the main thread. It will quit the whole app.

@@ -9,4 +9,4 @@ class Str(TraitType): pass
 class Enum(TraitType):
 	def __init__(self, enums):
 		self.enums = enums
-
+class Action(TraitType): pass
