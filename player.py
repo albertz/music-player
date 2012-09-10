@@ -27,7 +27,7 @@ def playerMain():
 			state.curSong.save()
 			oldSong = kwargs["oldSong"]
 			if oldSong:
-				oldSong.skipped = kwargs["skipped"]
+				if kwargs["skipped"]: oldSong.skipped = True
 				state.recentlyPlayedList.append(oldSong)
 				state.recentlyPlayedList.save()
 		pass # onPlayingStateChange
