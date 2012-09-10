@@ -487,7 +487,7 @@ final:
 	return -1;
 }
 
-static int player_getNextSong(PlayerObject* player) {
+static int player_getNextSong(PlayerObject* player, int skipped) {
 	// We must hold the player lock here.
 	int ret = -1;
 	PyGILState_STATE gstate;
@@ -538,6 +538,7 @@ static int player_getNextSong(PlayerObject* player) {
 				}
 				Py_INCREF(player->curSong);
 				PyDict_SetItemString(kwargs, "newSong", player->curSong);
+				PyDict_SetItemString(kwargs, "skipped", PyBool_FromLong(skipped));
 				
 				PyObject* retObj = PyEval_CallObjectWithKeywords(onSongChange, NULL, kwargs);
 				Py_XDECREF(retObj);
@@ -759,8 +760,8 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 						Py_DECREF(player->dict);
 					}
 								
-					// skip to next song
-					player_getNextSong(is);
+					// switch to next song
+					player_getNextSong(is, 0);
 					if(PyErr_Occurred())
 						PyErr_Print();
 						
@@ -792,7 +793,7 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long le
 		PyGILState_STATE gstate;
 		gstate = PyGILState_Ensure();
 
-		if(player_getNextSong(player) != 0) {
+		if(player_getNextSong(player, 0) != 0) {
 			fprintf(stderr, "cannot get next song\n");
 			if(PyErr_Occurred())
 				PyErr_Print();
@@ -1034,7 +1035,7 @@ PyObject* player_method_nextSong(PyObject* self, PyObject* _unused_arg) {
 	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	ret = player_getNextSong(player);
+	ret = player_getNextSong(player, 1);
 	PyThread_release_lock(player->lock);
 	Py_END_ALLOW_THREADS
 	Py_DECREF(self);
