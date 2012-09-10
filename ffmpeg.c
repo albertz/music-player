@@ -401,8 +401,19 @@ static void player_setSongMetadata(PlayerObject* player) {
 		PyDict_SetItemString(player->curSongMetadata, tag->key, PyString_FromString(tag->value));
 	}
 	
-	if(!PyDict_GetItemString(player->curSongMetadata, "duration") && player->curSongLen > 0)
+	if(player->curSongLen > 0)
 		PyDict_SetItemString(player->curSongMetadata, "duration", PyFloat_FromDouble(player->curSongLen));
+	else if(PyDict_GetItemString(player->curSongMetadata, "duration")) {
+		// we have an earlier duration metadata which is a string now.
+		// convert it to float.
+		PyObject* floatObj = PyFloat_FromString(PyDict_GetItemString(player->curSongMetadata, "duration"), NULL);
+		if(!floatObj) {
+			PyErr_Clear();
+			PyDict_DelItemString(player->curSongMetadata, "duration");
+		}
+		else
+			PyDict_SetItemString(player->curSongMetadata, "duration", floatObj);
+	}
 }
 
 static
