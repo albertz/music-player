@@ -25,6 +25,9 @@ def playerMain():
 		if ev is PlayerEventCallbacks.onSongChange:
 			state.curSong = kwargs["newSong"]
 			state.curSong.save()
-			state.recentlyPlayedList.append(kwargs["oldSong"])
-			state.recentlyPlayedList.save()
+			oldSong = kwargs["oldSong"]
+			if oldSong:
+				oldSong.skipped = kwargs["skipped"]
+				state.recentlyPlayedList.append(oldSong)
+				state.recentlyPlayedList.save()
 		pass # onPlayingStateChange

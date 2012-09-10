@@ -95,8 +95,6 @@ class State(object):
 		self.player.playing = not self.player.playing
 
 	def nextSong(self):
-		if self.curSong:
-			self.curSong.skipped = True
 		self.player.nextSong()
 
 	def quit(self):
