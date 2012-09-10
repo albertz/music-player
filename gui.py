@@ -52,6 +52,7 @@ def setupWindow():
 		((200.0, 200.0), (250.0, 100.0)),
 		NSTitledWindowMask |
 		NSClosableWindowMask |
+		NSMiniaturizableWindowMask |
 		NSResizableWindowMask,
 		NSBackingStoreBuffered, False)
 	w.setTitle_(appinfo.progname)
