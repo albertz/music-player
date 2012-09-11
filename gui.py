@@ -44,8 +44,70 @@ def setupAppleMenu():
 
 	return m
 
+import Traits
+
+def buildControlAction(userAttr, inst):
+	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	button.setTitle_(userAttr.name)
+	button.setBezelStyle_(2)
+	try:
+		class ButtonActionHandler(NSObject):
+			def initWithArgs(self, userAttr, inst):
+				self.init()
+				self.userAttr = userAttr
+				self.inst = inst
+				return self
+			def click(self, sender):
+				print "click!!", sender, self.userAttr
+				attr = self.userAttr.__get__(self.inst)
+				attr()
+	except:
+		ButtonActionHandler = objc.lookUpClass("ButtonActionHandler") # already defined earlier
+	actionTarget = ButtonActionHandler.alloc().initWithArgs(userAttr, inst)
+	actionTarget.retain() # TODO: where would we release this? ...
+	button.setTarget_(actionTarget)
+	button.setAction_("click")
+	return button
+
+def buildControlOneLineTextLabel(userAttr, inst):
+	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	label.setEditable_(False)
+	return label
+
+def buildControlEnum(userAttr, inst):
+	# TODO
+	return buildControlOneLineTextLabel(userAttr, inst)
+
+def buildControlList(userAttr, inst):
+	# TODO
+	return buildControlOneLineTextLabel(userAttr, inst)
+
+def buildControl(userAttr, inst):
+	def isType(T):
+		try: return issubclass(userAttr.type, T)
+		except TypeError: return isinstance(userAttr.type, T)
+	control = None
+	if isType(Traits.Action):
+		control = buildControlAction(userAttr, inst)
+	elif isType(Traits.OneLineText):
+		if userAttr.writeable:
+			raise NotImplementedError
+		else:
+			control = buildControlOneLineTextLabel(userAttr, inst)
+	elif isType(Traits.Enum):
+		control = buildControlEnum(userAttr, inst)
+	elif isType(Traits.List):
+		control = buildControlList(userAttr, inst)
+	else:
+		raise NotImplementedError, "%r not handled yet" % userAttr.type
+	assert control
+	return control
+
 def setupWindow():
 	# some example code: http://lists.apple.com/archives/cocoa-dev/2004/Jan/msg01389.html
+	# also, these might be helpful:
+	# https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ControlCell/ControlCell.html#//apple_ref/doc/uid/10000015i
+	# http://cocoadev.com/wiki/FlowLayoutView
 
 	w = NSWindow.alloc()
 	w.initWithContentRect_styleMask_backing_defer_(
@@ -57,6 +119,14 @@ def setupWindow():
 		NSBackingStoreBuffered, False)
 	w.setTitle_(appinfo.progname)
 
+	x = 0
+	y = 0
+	for attr in iterUserAttribs(state):
+		print attr
+		control = buildControl(attr, state)
+		control.setFrameOrigin_((x,y))
+		y += 100
+		w.contentView().addSubview_(control)
 
 	w.display()
 	w.orderFrontRegardless()

@@ -65,7 +65,7 @@ from player import loadPlayer
 import Traits
 
 class State(object):
-	@UserAttrib(type=Traits.Enum(["paused","playing"]))
+	@UserAttrib(type=Traits.Enum(["paused","playing"]), writeable=True)
 	@property
 	def playState(self):
 		return self.__class__.playState.enums[int(self.player.playing)]
@@ -81,11 +81,11 @@ class State(object):
 	def nextSong(self):
 		self.player.nextSong()
 
-	@UserAttrib(type=Traits.List)
+	@UserAttrib(type=Traits.List, writeable=True)
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-	@UserAttrib(type=Traits.Str)
+	@UserAttrib(type=Traits.OneLineText)
 	@initBy
 	def curSong(self): return PersistentObject(Song, "cursong.dat")
 
@@ -112,8 +112,6 @@ try:
 	state
 except NameError:
 	state = State()
-
-print list(iterUserAttribs(state))
 
 try:
 	modules
