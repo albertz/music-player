@@ -76,10 +76,6 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	label.setEditable_(False)
 	return label, lambda: None
 
-def buildControlEnum(userAttr, inst):
-	# TODO
-	return buildControlOneLineTextLabel(userAttr, inst)
-
 def buildControlList(userAttr, inst):
 	# TODO
 	return buildControlOneLineTextLabel(userAttr, inst)
@@ -96,7 +92,7 @@ def buildControl(userAttr, inst):
 		else:
 			return buildControlOneLineTextLabel(userAttr, inst)
 	elif isType(Traits.Enum):
-		return buildControlEnum(userAttr, inst)
+		raise NotImplementedError
 	elif isType(Traits.List):
 		return buildControlList(userAttr, inst)
 	else:
