@@ -13,7 +13,7 @@ def notificationsMain():
 		if ev is PlayerEventCallbacks.onSongChange:
 			notif = AppKit.NSUserNotification.alloc().init()
 			notif.setTitle_("MusicPlayer")
-			notif.setInformativeText_(kwargs["newSong"].userString)
+			notif.setInformativeText_(kwargs["newSong"].userString.decode("utf-8"))
 			notifCenter.deliverNotification_(notif)
 			#print "notification:", notif
 
