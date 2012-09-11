@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from utils import *
 from Song import Song
 
@@ -73,11 +75,11 @@ class State(object):
 	def playState(self, value):
 		self.player.playing = self.__class__.playState.enums.index(value) > 0
 
-	@UserAttrib(type=Traits.Action)
+	@UserAttrib(type=Traits.Action, name="▶")
 	def playPause(self):
 		self.player.playing = not self.player.playing
 
-	@UserAttrib(type=Traits.Action)
+	@UserAttrib(type=Traits.Action, name="▶▶|")
 	def nextSong(self):
 		self.player.nextSong()
 
