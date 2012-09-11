@@ -68,7 +68,7 @@ def stdinconsoleMain():
 		# it means we dont get stdinQueue updates here.
 		# as we need a way to be able to cancel this,
 		# we only can frequently check with a timeout here.
-		stdinconsole.setTtyNoncanonical(fd, timeout=1)
+		setTtyNoncanonical(fd, timeout=1)
 
 		from threading import currentThread
 		thread = currentThread()
