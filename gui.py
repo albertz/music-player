@@ -74,26 +74,31 @@ def buildControlAction(userAttr, inst):
 def buildControlOneLineTextLabel(userAttr, inst):
 	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	label.setEditable_(False)
-	return label, lambda: None
+	#label.cell().setWraps_(True)
+	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
+	def update():
+		s = userAttr.__get__(inst)
+		s = str(s)
+		label.setStringValue_(s.decode("utf-8")[0:50]) # TODO autosize ...
+	return label, update
 
 def buildControlList(userAttr, inst):
-	# TODO
-	return buildControlOneLineTextLabel(userAttr, inst)
+	subview = NSView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	def update():
+		pass
+	return subview, update
 
 def buildControl(userAttr, inst):
-	def isType(T):
-		try: return issubclass(userAttr.type, T)
-		except TypeError: return isinstance(userAttr.type, T)
-	if isType(Traits.Action):
+	if userAttr.isType(Traits.Action):
 		return buildControlAction(userAttr, inst)
-	elif isType(Traits.OneLineText):
+	elif userAttr.isType(Traits.OneLineText):
 		if userAttr.writeable:
 			raise NotImplementedError
 		else:
 			return buildControlOneLineTextLabel(userAttr, inst)
-	elif isType(Traits.Enum):
+	elif userAttr.isType(Traits.Enum):
 		raise NotImplementedError
-	elif isType(Traits.List):
+	elif userAttr.isType(Traits.List):
 		return buildControlList(userAttr, inst)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
@@ -148,7 +153,10 @@ def setupWindow():
 			{},
 			{"c": control}
 		))
+		#if lastVerticalControl and lastVerticalControl.isType(Traits.List):
+		#
 		lastVerticalControl = control
+
 		update()
 
 		if attr.updateHandler:
@@ -156,6 +164,13 @@ def setupWindow():
 				attr.updateHandler(state, attr, ev, args, kwargs)
 				do_in_mainthread(update)
 			updateHandlers.append(handleFunc)
+
+	w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
+		"V:[c]-|",
+		0,
+		{},
+		{"c": lastVerticalControl}
+	))
 
 	w.display()
 	w.orderFrontRegardless()
