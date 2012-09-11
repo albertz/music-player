@@ -225,23 +225,17 @@ def reloadModuleHandling():
 	except:
 		sys.excepthook(*sys.exc_info())
 
-def guiMain():
-	# This is run from the module system in another thread.
-	# We handle some background tasks here.
-	# For now, this is a simple stdin handler because the standard stdin handler will not run if we have a GUI.
-	import stdinconsole
-	fd = sys.stdin.fileno()
-	if os.isatty(fd):
-		stdinconsole.setTtyNoncanonical(fd, timeout=1)
-	else:
-		return # stdin handler probably not needed, so just exit this thread
+def guiHandleUpdate(ev,args,kwargs):
+	from player import PlayerEventCallbacks
+	if ev is PlayerEventCallbacks.onPlayingStateChange:
+		pass
 
-	from threading import currentThread
-	thread = currentThread()
-	while not thread.cancel:
-		ch = os.read(fd,7)
-		if ch:
-			stdinconsole.handleInput(ch)
+def guiMain():
+	for ev,args,kwargs in state.updates.read():
+		try:
+			guiHandleUpdate(ev, args, kwargs)
+		except:
+			sys.excepthook(*sys.exc_info())
 
 def main():
 	""" This is called from main.py and will enter the NSApp main loop """

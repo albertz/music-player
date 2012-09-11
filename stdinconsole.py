@@ -59,16 +59,29 @@ def handleInput(ch):
 		sys.excepthook(*sys.exc_info())
 
 def stdinconsoleMain():
+	fd = sys.stdin.fileno()
+	if not os.isatty(fd): return # don't do anything
+
 	import gui
-	if hasattr(gui, "main"): return # the GUI is handling everything
+	if hasattr(gui, "main"):
+		# the GUI is handling the main thread.
+		# it means we dont get stdinQueue updates here.
+		# as we need a way to be able to cancel this,
+		# we only can frequently check with a timeout here.
+		stdinconsole.setTtyNoncanonical(fd, timeout=1)
 
-	# If we are a TTY, do some very simple input handling.
-	if os.isatty(sys.stdin.fileno()):
-		setTtyNoncanonical(sys.stdin.fileno())
+		from threading import currentThread
+		thread = currentThread()
+		print "stdin input ready"
+		while not thread.cancel:
+			ch = os.read(fd,7)
+			if ch:
+				handleInput(ch)
+
 	else:
-		# don't do anything
-		return
+		# the main thread is pushing stdin updates to stdinQueue.
+		setTtyNoncanonical(sys.stdin.fileno())
+		print "stdin input ready"
 
-	print "stdin input ready"
-	for ch in stdinQueue.read():
-		handleInput(ch)
+		for ch in stdinQueue.read():
+			handleInput(ch)
