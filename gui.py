@@ -102,6 +102,7 @@ def buildControl(userAttr, inst):
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 
 def setupWindow():
+	assert NSThread.isMainThread()
 	# some example code: http://lists.apple.com/archives/cocoa-dev/2004/Jan/msg01389.html
 	# also, these might be helpful:
 	# https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ControlCell/ControlCell.html#//apple_ref/doc/uid/10000015i
@@ -117,13 +118,12 @@ def setupWindow():
 		NSBackingStoreBuffered, False)
 	w.setTitle_(appinfo.progname)
 
-	updateHandlers = {} # ev -> list of functions (ev,args,kwargs -> ?)
+	updateHandlers = [] # list of functions (ev,args,kwargs -> ?)
 	global guiHandleUpdate
 	def guiHandleUpdate(ev,args,kwargs):
 		if not app.keyWindow(): return
-		if ev not in updateHandlers: return
-		for handler in updateHandlers[ev]:
-			handler(ev,args,kwargs)
+		for handleFunc in updateHandlers:
+			handleFunc(ev,args,kwargs)
 
 	lastVerticalControl = None
 	for attr in iterUserAttribs(state):
@@ -154,11 +154,11 @@ def setupWindow():
 		lastVerticalControl = control
 		update()
 
-		for ev,handler in attr.updateHandlers:
-			def handleFunc(ev,args,kwargs):
-				handler(state, attr, ev, args, kwargs)
-				update()
-			updateHandlers.setdefault(ev,[]).append(handleFunc)
+		if attr.updateHandler:
+			def handleFunc(ev,args,kwargs,attr=attr,update=update):
+				attr.updateHandler(state, attr, ev, args, kwargs)
+				do_in_mainthread(update)
+			updateHandlers.append(handleFunc)
 
 	w.display()
 	w.orderFrontRegardless()
@@ -242,11 +242,13 @@ def reloadModuleHandling():
 def guiHandleUpdate(*args): pass
 
 def guiMain():
+	pool = NSAutoreleasePool.alloc().init()
 	for ev,args,kwargs in state.updates.read():
 		try:
 			guiHandleUpdate(ev, args, kwargs)
 		except:
 			sys.excepthook(*sys.exc_info())
+	del pool
 
 def main():
 	""" This is called from main.py and will enter the NSApp main loop """

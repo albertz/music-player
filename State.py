@@ -73,8 +73,7 @@ class State(object):
 		else:
 			attrib.name = "▶"
 
-	@UserAttrib(type=Traits.Action, name="▶",
-		updateHandlers=[(PlayerEventCallbacks.onPlayingStateChange,playPauseUpdate)])
+	@UserAttrib(type=Traits.Action, name="▶", updateHandler=playPauseUpdate)
 	def playPause(self):
 		self.player.playing = not self.player.playing
 
