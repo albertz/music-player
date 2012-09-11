@@ -59,7 +59,8 @@ def buildControlAction(userAttr, inst):
 			def click(self, sender):
 				print "click!!", sender, self.userAttr
 				attr = self.userAttr.__get__(self.inst)
-				attr()
+				from threading import Thread
+				Thread(target=attr, name="click handler").start()
 	except:
 		ButtonActionHandler = objc.lookUpClass("ButtonActionHandler") # already defined earlier
 	actionTarget = ButtonActionHandler.alloc().initWithArgs(userAttr, inst)
