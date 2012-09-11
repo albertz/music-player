@@ -67,14 +67,6 @@ from player import loadPlayer
 import Traits
 
 class State(object):
-	@UserAttrib(type=Traits.Enum(["paused","playing"]), writeable=True)
-	@property
-	def playState(self):
-		return self.__class__.playState.enums[int(self.player.playing)]
-	@playState.callDeco.setter
-	def playState(self, value):
-		self.player.playing = self.__class__.playState.enums.index(value) > 0
-
 	@UserAttrib(type=Traits.Action, name="▶")
 	def playPause(self):
 		self.player.playing = not self.player.playing
