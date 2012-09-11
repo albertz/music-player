@@ -48,7 +48,7 @@ import Traits
 
 def buildControlAction(userAttr, inst):
 	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	button.setTitle_(userAttr.name)
+	button.setTitle_(userAttr.name.decode("utf-8"))
 	button.setBezelStyle_(2)
 	try:
 		class ButtonActionHandler(NSObject):
