@@ -196,7 +196,7 @@
 			<object class="NSWindowTemplate" id="972006081">
 				<int key="NSWindowStyleMask">15</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{335, 390}, {480, 456}}</string>
+				<string key="NSWindowRect">{{335, 390}, {507, 465}}</string>
 				<int key="NSWTFlags">1954021376</int>
 				<string key="NSWindowTitle">MusicPlayer</string>
 				<string key="NSWindowClass">NSWindow</string>
@@ -206,36 +206,36 @@
 					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
-						<object class="NSTextField" id="105844434">
+						<object class="NSTextField" id="156643557">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{22, 403}, {437, 33}}</string>
+							<string key="NSFrame">{{17, 411}, {473, 34}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
+							<reference key="NSNextKeyView" ref="110995513"/>
 							<string key="NSReuseIdentifierKey">_NS:1535</string>
 							<bool key="NSEnabled">YES</bool>
-							<object class="NSTextFieldCell" key="NSCell" id="303240420">
+							<object class="NSTextFieldCell" key="NSCell" id="177152978">
 								<int key="NSCellFlags">67108864</int>
 								<int key="NSCellFlags2">272629760</int>
 								<string key="NSContents">NOTE: This is just for playing around with controls, this window will never be seen anywhere!</string>
-								<object class="NSFont" key="NSSupport" id="211937532">
+								<object class="NSFont" key="NSSupport" id="294115025">
 									<string key="NSName">LucidaGrande</string>
 									<double key="NSSize">13</double>
 									<int key="NSfFlags">1044</int>
 								</object>
 								<string key="NSCellIdentifier">_NS:1535</string>
-								<reference key="NSControlView" ref="105844434"/>
-								<object class="NSColor" key="NSBackgroundColor" id="872840702">
+								<reference key="NSControlView" ref="156643557"/>
+								<object class="NSColor" key="NSBackgroundColor" id="152512069">
 									<int key="NSColorSpace">6</int>
 									<string key="NSCatalogName">System</string>
 									<string key="NSColorName">controlColor</string>
-									<object class="NSColor" key="NSColor" id="891394724">
+									<object class="NSColor" key="NSColor" id="252982265">
 										<int key="NSColorSpace">3</int>
 										<bytes key="NSWhite">MC42NjY2NjY2NjY3AA</bytes>
 									</object>
 								</object>
-								<object class="NSColor" key="NSTextColor" id="914613396">
+								<object class="NSColor" key="NSTextColor" id="728083955">
 									<int key="NSColorSpace">6</int>
 									<string key="NSCatalogName">System</string>
 									<string key="NSColorName">controlTextColor</string>
@@ -247,36 +247,37 @@
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
-						<object class="NSComboBox" id="863741727">
+						<object class="NSComboBox" id="110995513">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{20, 364}, {177, 26}}</string>
+							<string key="NSFrame">{{20, 373}, {177, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView" ref="835984235"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
-							<object class="NSComboBoxCell" key="NSCell" id="195517686">
+							<object class="NSComboBoxCell" key="NSCell" id="408886027">
 								<int key="NSCellFlags">342884416</int>
 								<int key="NSCellFlags2">272630784</int>
 								<string key="NSContents"/>
-								<reference key="NSSupport" ref="211937532"/>
+								<reference key="NSSupport" ref="294115025"/>
 								<string key="NSCellIdentifier">_NS:9</string>
-								<reference key="NSControlView" ref="863741727"/>
+								<reference key="NSControlView" ref="110995513"/>
 								<bool key="NSDrawsBackground">YES</bool>
-								<object class="NSColor" key="NSBackgroundColor" id="381750504">
+								<object class="NSColor" key="NSBackgroundColor" id="442790807">
 									<int key="NSColorSpace">6</int>
 									<string key="NSCatalogName">System</string>
 									<string key="NSColorName">textBackgroundColor</string>
-									<object class="NSColor" key="NSColor" id="797725996">
+									<object class="NSColor" key="NSColor" id="417305458">
 										<int key="NSColorSpace">3</int>
 										<bytes key="NSWhite">MQA</bytes>
 									</object>
 								</object>
-								<reference key="NSTextColor" ref="914613396"/>
+								<reference key="NSTextColor" ref="728083955"/>
 								<int key="NSVisibleItemCount">5</int>
 								<bool key="NSHasVerticalScroller">YES</bool>
-								<reference key="NSDelegate" ref="863741727"/>
-								<object class="NSComboTableView" key="NSTableView" id="341533277">
+								<reference key="NSDelegate" ref="110995513"/>
+								<object class="NSComboTableView" key="NSTableView" id="86499437">
 									<reference key="NSNextResponder"/>
 									<int key="NSvFlags">274</int>
 									<string key="NSFrameSize">{13, 0}</string>
@@ -304,30 +305,30 @@
 													<int key="NSColorSpace">3</int>
 													<bytes key="NSWhite">MC4zMzMzMzI5ODU2AA</bytes>
 												</object>
-												<reference key="NSTextColor" ref="797725996"/>
+												<reference key="NSTextColor" ref="417305458"/>
 											</object>
 											<object class="NSTextFieldCell" key="NSDataCell">
 												<int key="NSCellFlags">338690112</int>
 												<int key="NSCellFlags2">1024</int>
-												<reference key="NSSupport" ref="211937532"/>
-												<reference key="NSControlView" ref="341533277"/>
+												<reference key="NSSupport" ref="294115025"/>
+												<reference key="NSControlView" ref="86499437"/>
 												<bool key="NSDrawsBackground">YES</bool>
-												<object class="NSColor" key="NSBackgroundColor" id="946558339">
+												<object class="NSColor" key="NSBackgroundColor" id="88635635">
 													<int key="NSColorSpace">6</int>
 													<string key="NSCatalogName">System</string>
 													<string key="NSColorName">controlBackgroundColor</string>
-													<reference key="NSColor" ref="891394724"/>
+													<reference key="NSColor" ref="252982265"/>
 												</object>
-												<reference key="NSTextColor" ref="914613396"/>
+												<reference key="NSTextColor" ref="728083955"/>
 											</object>
 											<int key="NSResizingMask">3</int>
 											<bool key="NSIsResizeable">YES</bool>
-											<reference key="NSTableView" ref="341533277"/>
+											<reference key="NSTableView" ref="86499437"/>
 										</object>
 									</array>
 									<double key="NSIntercellSpacingWidth">3</double>
 									<double key="NSIntercellSpacingHeight">2</double>
-									<reference key="NSBackgroundColor" ref="946558339"/>
+									<reference key="NSBackgroundColor" ref="88635635"/>
 									<object class="NSColor" key="NSGridColor">
 										<int key="NSColorSpace">6</int>
 										<string key="NSCatalogName">System</string>
@@ -340,9 +341,9 @@
 									<double key="NSRowHeight">19</double>
 									<string key="NSAction">tableViewAction:</string>
 									<int key="NSTvFlags">-765427712</int>
-									<reference key="NSDelegate" ref="195517686"/>
-									<reference key="NSDataSource" ref="195517686"/>
-									<reference key="NSTarget" ref="195517686"/>
+									<reference key="NSDelegate" ref="408886027"/>
+									<reference key="NSDataSource" ref="408886027"/>
+									<reference key="NSTarget" ref="408886027"/>
 									<int key="NSColumnAutoresizingStyle">1</int>
 									<int key="NSDraggingSourceMaskForLocal">15</int>
 									<int key="NSDraggingSourceMaskForNonLocal">0</int>
@@ -353,28 +354,29 @@
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
-						<object class="NSPopUpButton" id="140978576">
+						<object class="NSPopUpButton" id="835984235">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{17, 336}, {100, 26}}</string>
+							<string key="NSFrame">{{17, 345}, {100, 26}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView" ref="421448182"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
-							<object class="NSPopUpButtonCell" key="NSCell" id="908042968">
+							<object class="NSPopUpButtonCell" key="NSCell" id="474677197">
 								<int key="NSCellFlags">-2076180416</int>
 								<int key="NSCellFlags2">2048</int>
-								<reference key="NSSupport" ref="211937532"/>
+								<reference key="NSSupport" ref="294115025"/>
 								<string key="NSCellIdentifier">_NS:9</string>
-								<reference key="NSControlView" ref="140978576"/>
+								<reference key="NSControlView" ref="835984235"/>
 								<int key="NSButtonFlags">109199360</int>
 								<int key="NSButtonFlags2">129</int>
 								<string key="NSAlternateContents"/>
 								<string key="NSKeyEquivalent"/>
 								<int key="NSPeriodicDelay">400</int>
 								<int key="NSPeriodicInterval">75</int>
-								<object class="NSMenuItem" key="NSMenuItem" id="202486279">
-									<reference key="NSMenu" ref="98918414"/>
+								<object class="NSMenuItem" key="NSMenuItem" id="440881616">
+									<reference key="NSMenu" ref="353506307"/>
 									<string key="NSTitle">Item 1</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSKeyEquivModMask">1048576</int>
@@ -383,15 +385,15 @@
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 									<string key="NSAction">_popUpItemAction:</string>
-									<reference key="NSTarget" ref="908042968"/>
+									<reference key="NSTarget" ref="474677197"/>
 								</object>
 								<bool key="NSMenuItemRespectAlignment">YES</bool>
-								<object class="NSMenu" key="NSMenu" id="98918414">
+								<object class="NSMenu" key="NSMenu" id="353506307">
 									<string key="NSTitle">OtherViews</string>
 									<array class="NSMutableArray" key="NSMenuItems">
-										<reference ref="202486279"/>
-										<object class="NSMenuItem" id="666358481">
-											<reference key="NSMenu" ref="98918414"/>
+										<reference ref="440881616"/>
+										<object class="NSMenuItem" id="544140574">
+											<reference key="NSMenu" ref="353506307"/>
 											<string key="NSTitle">Item 2</string>
 											<string key="NSKeyEquiv"/>
 											<int key="NSKeyEquivModMask">1048576</int>
@@ -399,10 +401,10 @@
 											<reference key="NSOnImage" ref="35465992"/>
 											<reference key="NSMixedImage" ref="502551668"/>
 											<string key="NSAction">_popUpItemAction:</string>
-											<reference key="NSTarget" ref="908042968"/>
+											<reference key="NSTarget" ref="474677197"/>
 										</object>
-										<object class="NSMenuItem" id="975058774">
-											<reference key="NSMenu" ref="98918414"/>
+										<object class="NSMenuItem" id="370507049">
+											<reference key="NSMenu" ref="353506307"/>
 											<string key="NSTitle">Item 3</string>
 											<string key="NSKeyEquiv"/>
 											<int key="NSKeyEquivModMask">1048576</int>
@@ -410,10 +412,10 @@
 											<reference key="NSOnImage" ref="35465992"/>
 											<reference key="NSMixedImage" ref="502551668"/>
 											<string key="NSAction">_popUpItemAction:</string>
-											<reference key="NSTarget" ref="908042968"/>
+											<reference key="NSTarget" ref="474677197"/>
 										</object>
 									</array>
-									<reference key="NSMenuFont" ref="211937532"/>
+									<reference key="NSMenuFont" ref="294115025"/>
 								</object>
 								<int key="NSPreferredEdge">1</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
@@ -422,28 +424,29 @@
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
-						<object class="NSMatrix" id="319546493">
+						<object class="NSMatrix" id="207213075">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{248, 350}, {58, 38}}</string>
+							<string key="NSFrame">{{275, 359}, {58, 38}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView" ref="220783951"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 							<int key="NSNumRows">2</int>
 							<int key="NSNumCols">1</int>
 							<array class="NSMutableArray" key="NSCells">
-								<object class="NSButtonCell" id="150671897">
+								<object class="NSButtonCell" id="999180993">
 									<int key="NSCellFlags">-2080374784</int>
 									<int key="NSCellFlags2">0</int>
 									<string key="NSContents">Radio</string>
-									<reference key="NSSupport" ref="211937532"/>
-									<reference key="NSControlView" ref="319546493"/>
+									<reference key="NSSupport" ref="294115025"/>
+									<reference key="NSControlView" ref="207213075"/>
 									<int key="NSTag">1</int>
 									<int key="NSButtonFlags">1211912448</int>
 									<int key="NSButtonFlags2">0</int>
-									<object class="NSButtonImageSource" key="NSAlternateImage" id="797282594">
+									<object class="NSButtonImageSource" key="NSAlternateImage" id="555541143">
 										<string key="NSImageName">NSRadioButton</string>
 									</object>
 									<string key="NSAlternateContents"/>
@@ -451,12 +454,12 @@
 									<int key="NSPeriodicDelay">200</int>
 									<int key="NSPeriodicInterval">25</int>
 								</object>
-								<object class="NSButtonCell" id="696174312">
+								<object class="NSButtonCell" id="353960974">
 									<int key="NSCellFlags">67108864</int>
 									<int key="NSCellFlags2">0</int>
 									<string key="NSContents">Radio</string>
-									<reference key="NSSupport" ref="211937532"/>
-									<reference key="NSControlView" ref="319546493"/>
+									<reference key="NSSupport" ref="294115025"/>
+									<reference key="NSControlView" ref="207213075"/>
 									<int key="NSButtonFlags">1211912448</int>
 									<int key="NSButtonFlags2">0</int>
 									<object class="NSImage" key="NSNormalImage">
@@ -496,12 +499,12 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 												</object>
 											</array>
 										</array>
-										<object class="NSColor" key="NSColor" id="142188857">
+										<object class="NSColor" key="NSColor" id="303074448">
 											<int key="NSColorSpace">3</int>
 											<bytes key="NSWhite">MCAwAA</bytes>
 										</object>
 									</object>
-									<reference key="NSAlternateImage" ref="797282594"/>
+									<reference key="NSAlternateImage" ref="555541143"/>
 									<int key="NSPeriodicDelay">400</int>
 									<int key="NSPeriodicInterval">75</int>
 								</object>
@@ -510,11 +513,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string key="NSIntercellSpacing">{4, 2}</string>
 							<int key="NSMatrixFlags">1151868928</int>
 							<string key="NSCellClass">NSActionCell</string>
-							<object class="NSButtonCell" key="NSProtoCell" id="248435379">
+							<object class="NSButtonCell" key="NSProtoCell" id="1036597378">
 								<int key="NSCellFlags">67108864</int>
 								<int key="NSCellFlags2">0</int>
 								<string key="NSContents">Radio</string>
-								<reference key="NSSupport" ref="211937532"/>
+								<reference key="NSSupport" ref="294115025"/>
 								<int key="NSButtonFlags">1211912448</int>
 								<int key="NSButtonFlags2">0</int>
 								<object class="NSImage" key="NSNormalImage">
@@ -554,66 +557,68 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 											</object>
 										</array>
 									</array>
-									<reference key="NSColor" ref="142188857"/>
+									<reference key="NSColor" ref="303074448"/>
 								</object>
-								<reference key="NSAlternateImage" ref="797282594"/>
+								<reference key="NSAlternateImage" ref="555541143"/>
 								<int key="NSPeriodicDelay">400</int>
 								<int key="NSPeriodicInterval">75</int>
 							</object>
-							<reference key="NSSelectedCell" ref="150671897"/>
-							<reference key="NSBackgroundColor" ref="872840702"/>
-							<reference key="NSCellBackgroundColor" ref="797725996"/>
-							<reference key="NSFont" ref="211937532"/>
+							<reference key="NSSelectedCell" ref="999180993"/>
+							<reference key="NSBackgroundColor" ref="152512069"/>
+							<reference key="NSCellBackgroundColor" ref="417305458"/>
+							<reference key="NSFont" ref="294115025"/>
 							<bool key="NSAutorecalculatesCellSize">YES</bool>
 						</object>
-						<object class="NSProgressIndicator" id="627330271">
+						<object class="NSProgressIndicator" id="220783951">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{434, 361}, {16, 16}}</string>
+							<string key="NSFrame">{{461, 370}, {16, 16}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView" ref="434947622"/>
 							<string key="NSReuseIdentifierKey">_NS:945</string>
 							<int key="NSpiFlags">20746</int>
 							<double key="NSMaxValue">100</double>
 						</object>
-						<object class="NSScrollView" id="49083341">
+						<object class="NSScrollView" id="434947622">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
 							<array class="NSMutableArray" key="NSSubviews">
-								<object class="NSClipView" id="348808176">
-									<reference key="NSNextResponder" ref="49083341"/>
+								<object class="NSClipView" id="575502427">
+									<reference key="NSNextResponder" ref="434947622"/>
 									<int key="NSvFlags">2304</int>
 									<array class="NSMutableArray" key="NSSubviews">
-										<object class="NSView" id="790078046">
-											<reference key="NSNextResponder" ref="348808176"/>
+										<object class="NSView" id="553981425">
+											<reference key="NSNextResponder" ref="575502427"/>
 											<int key="NSvFlags">274</int>
 											<array class="NSMutableArray" key="NSSubviews">
-												<object class="NSSearchField" id="422449265">
-													<reference key="NSNextResponder" ref="790078046"/>
+												<object class="NSSearchField" id="106409728">
+													<reference key="NSNextResponder" ref="553981425"/>
 													<int key="NSvFlags">268</int>
-													<string key="NSFrame">{{20, 255}, {96, 22}}</string>
-													<reference key="NSSuperview" ref="790078046"/>
+													<string key="NSFrame">{{20, 264}, {96, 22}}</string>
+													<reference key="NSSuperview" ref="553981425"/>
 													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView" ref="20481593"/>
 													<string key="NSReuseIdentifierKey">_NS:9</string>
 													<bool key="NSEnabled">YES</bool>
-													<object class="NSSearchFieldCell" key="NSCell" id="965529049">
+													<object class="NSSearchFieldCell" key="NSCell" id="133317888">
 														<int key="NSCellFlags">342884416</int>
 														<int key="NSCellFlags2">268436544</int>
 														<string key="NSContents"/>
-														<reference key="NSSupport" ref="211937532"/>
+														<reference key="NSSupport" ref="294115025"/>
 														<string key="NSCellIdentifier">_NS:9</string>
-														<reference key="NSControlView" ref="422449265"/>
+														<reference key="NSControlView" ref="106409728"/>
 														<bool key="NSDrawsBackground">YES</bool>
 														<int key="NSTextBezelStyle">1</int>
-														<reference key="NSBackgroundColor" ref="381750504"/>
-														<reference key="NSTextColor" ref="914613396"/>
+														<reference key="NSBackgroundColor" ref="442790807"/>
+														<reference key="NSTextColor" ref="728083955"/>
 														<object class="NSButtonCell" key="NSSearchButtonCell">
 															<int key="NSCellFlags">0</int>
 															<int key="NSCellFlags2">0</int>
 															<string key="NSContents">search</string>
-															<reference key="NSControlView" ref="422449265"/>
+															<reference key="NSControlView" ref="106409728"/>
 															<string key="NSAction">_searchFieldSearch:</string>
-															<reference key="NSTarget" ref="965529049"/>
+															<reference key="NSTarget" ref="133317888"/>
 															<int key="NSButtonFlags">138690560</int>
 															<int key="NSButtonFlags2">0</int>
 															<string key="NSKeyEquivalent"/>
@@ -630,9 +635,9 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 																	<integer value="1" key="NSAccessibilityEncodedAttributesValueType"/>
 																</dictionary>
 															</array>
-															<reference key="NSControlView" ref="422449265"/>
+															<reference key="NSControlView" ref="106409728"/>
 															<string key="NSAction">_searchFieldCancel:</string>
-															<reference key="NSTarget" ref="965529049"/>
+															<reference key="NSTarget" ref="133317888"/>
 															<int key="NSButtonFlags">138690560</int>
 															<int key="NSButtonFlags2">0</int>
 															<string key="NSKeyEquivalent"/>
@@ -643,15 +648,16 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 													</object>
 													<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 												</object>
-												<object class="NSButton" id="314124250">
-													<reference key="NSNextResponder" ref="790078046"/>
+												<object class="NSButton" id="20481593">
+													<reference key="NSNextResponder" ref="553981425"/>
 													<int key="NSvFlags">268</int>
-													<string key="NSFrame">{{118, 242}, {39, 38}}</string>
-													<reference key="NSSuperview" ref="790078046"/>
+													<string key="NSFrame">{{118, 251}, {39, 38}}</string>
+													<reference key="NSSuperview" ref="553981425"/>
 													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView" ref="366170289"/>
 													<string key="NSReuseIdentifierKey">_NS:1574</string>
 													<bool key="NSEnabled">YES</bool>
-													<object class="NSButtonCell" key="NSCell" id="514268439">
+													<object class="NSButtonCell" key="NSCell" id="94775554">
 														<int key="NSCellFlags">67108864</int>
 														<int key="NSCellFlags2">0</int>
 														<string key="NSContents"/>
@@ -661,7 +667,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 															<int key="NSfFlags">2843</int>
 														</object>
 														<string key="NSCellIdentifier">_NS:1574</string>
-														<reference key="NSControlView" ref="314124250"/>
+														<reference key="NSControlView" ref="20481593"/>
 														<int key="NSButtonFlags">-2037645312</int>
 														<int key="NSButtonFlags2">135</int>
 														<string key="NSAlternateContents"/>
@@ -671,19 +677,20 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 													</object>
 													<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 												</object>
-												<object class="NSPathControl" id="538775076">
-													<reference key="NSNextResponder" ref="790078046"/>
+												<object class="NSPathControl" id="366170289">
+													<reference key="NSNextResponder" ref="553981425"/>
 													<int key="NSvFlags">268</int>
 													<set class="NSMutableSet" key="NSDragTypes">
 														<string>Apple URL pasteboard type</string>
 														<string>NSFilenamesPboardType</string>
 													</set>
-													<string key="NSFrame">{{158, 257}, {179, 20}}</string>
-													<reference key="NSSuperview" ref="790078046"/>
+													<string key="NSFrame">{{158, 266}, {179, 20}}</string>
+													<reference key="NSSuperview" ref="553981425"/>
 													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView" ref="659475932"/>
 													<string key="NSReuseIdentifierKey">_NS:9</string>
 													<bool key="NSEnabled">YES</bool>
-													<object class="NSPathCell" key="NSCell" id="623758844">
+													<object class="NSPathCell" key="NSCell" id="375902757">
 														<int key="NSCellFlags">337641473</int>
 														<int key="NSCellFlags2">131072</int>
 														<object class="NSURL" key="NSContents">
@@ -696,16 +703,16 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 															<int key="NSfFlags">3100</int>
 														</object>
 														<string key="NSCellIdentifier">_NS:9</string>
-														<reference key="NSControlView" ref="538775076"/>
+														<reference key="NSControlView" ref="366170289"/>
 														<array class="NSMutableArray" key="NSPathComponentCells">
 															<object class="NSPathComponentCell">
 																<int key="NSCellFlags">67108928</int>
 																<int key="NSCellFlags2">132096</int>
 																<string key="NSContents">Leopard</string>
 																<reference key="NSSupport" ref="26"/>
-																<reference key="NSControlView" ref="538775076"/>
-																<reference key="NSBackgroundColor" ref="381750504"/>
-																<reference key="NSTextColor" ref="914613396"/>
+																<reference key="NSControlView" ref="366170289"/>
+																<reference key="NSBackgroundColor" ref="442790807"/>
+																<reference key="NSTextColor" ref="728083955"/>
 																<object class="NSURL" key="NSURL">
 																	<nil key="NS.base"/>
 																	<string key="NS.relative">file://localhost//</string>
@@ -716,9 +723,9 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 																<int key="NSCellFlags2">132096</int>
 																<string key="NSContents">Applications</string>
 																<reference key="NSSupport" ref="26"/>
-																<reference key="NSControlView" ref="538775076"/>
-																<reference key="NSBackgroundColor" ref="381750504"/>
-																<reference key="NSTextColor" ref="914613396"/>
+																<reference key="NSControlView" ref="366170289"/>
+																<reference key="NSBackgroundColor" ref="442790807"/>
+																<reference key="NSTextColor" ref="728083955"/>
 																<object class="NSURL" key="NSURL">
 																	<nil key="NS.base"/>
 																	<string key="NS.relative">file://localhost/Applications</string>
@@ -726,24 +733,25 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 															</object>
 														</array>
 														<int key="NSPathStyle">1</int>
-														<reference key="NSDelegate" ref="538775076"/>
+														<reference key="NSDelegate" ref="366170289"/>
 													</object>
 													<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 												</object>
-												<object class="NSSlider" id="606006271">
-													<reference key="NSNextResponder" ref="790078046"/>
+												<object class="NSSlider" id="659475932">
+													<reference key="NSNextResponder" ref="553981425"/>
 													<int key="NSvFlags">268</int>
-													<string key="NSFrame">{{18, 219}, {402, 21}}</string>
-													<reference key="NSSuperview" ref="790078046"/>
+													<string key="NSFrame">{{18, 228}, {429, 21}}</string>
+													<reference key="NSSuperview" ref="553981425"/>
 													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView" ref="244312401"/>
 													<string key="NSReuseIdentifierKey">_NS:9</string>
 													<bool key="NSEnabled">YES</bool>
-													<object class="NSSliderCell" key="NSCell" id="900459295">
+													<object class="NSSliderCell" key="NSCell" id="797616104">
 														<int key="NSCellFlags">-2080374784</int>
 														<int key="NSCellFlags2">0</int>
 														<string key="NSContents"/>
 														<string key="NSCellIdentifier">_NS:9</string>
-														<reference key="NSControlView" ref="606006271"/>
+														<reference key="NSControlView" ref="659475932"/>
 														<double key="NSMaxValue">100</double>
 														<double key="NSMinValue">0.0</double>
 														<double key="NSValue">50</double>
@@ -755,90 +763,93 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 													</object>
 													<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 												</object>
-												<object class="NSProgressIndicator" id="386966664">
-													<reference key="NSNextResponder" ref="790078046"/>
+												<object class="NSProgressIndicator" id="244312401">
+													<reference key="NSNextResponder" ref="553981425"/>
 													<int key="NSvFlags">268</int>
-													<string key="NSFrame">{{18, 193}, {96, 20}}</string>
-													<reference key="NSSuperview" ref="790078046"/>
+													<string key="NSFrame">{{18, 202}, {96, 20}}</string>
+													<reference key="NSSuperview" ref="553981425"/>
 													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView" ref="522812846"/>
 													<string key="NSReuseIdentifierKey">_NS:9</string>
 													<string key="NSHuggingPriority">{250, 250}</string>
 													<int key="NSpiFlags">16399</int>
 													<double key="NSMaxValue">100</double>
 												</object>
 											</array>
-											<string key="NSFrameSize">{438, 297}</string>
-											<reference key="NSSuperview" ref="348808176"/>
+											<string key="NSFrameSize">{465, 306}</string>
+											<reference key="NSSuperview" ref="575502427"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="415393739"/>
+											<reference key="NSNextKeyView" ref="106409728"/>
 											<string key="NSReuseIdentifierKey">_NS:13</string>
 										</object>
 									</array>
-									<string key="NSFrame">{{1, 1}, {438, 297}}</string>
-									<reference key="NSSuperview" ref="49083341"/>
+									<string key="NSFrame">{{1, 1}, {465, 306}}</string>
+									<reference key="NSSuperview" ref="434947622"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView" ref="790078046"/>
+									<reference key="NSNextKeyView" ref="553981425"/>
 									<string key="NSReuseIdentifierKey">_NS:11</string>
-									<reference key="NSDocView" ref="790078046"/>
-									<reference key="NSBGColor" ref="872840702"/>
+									<reference key="NSDocView" ref="553981425"/>
+									<reference key="NSBGColor" ref="152512069"/>
 									<int key="NScvFlags">4</int>
 								</object>
-								<object class="NSScroller" id="415393739">
-									<reference key="NSNextResponder" ref="49083341"/>
+								<object class="NSScroller" id="538426426">
+									<reference key="NSNextResponder" ref="434947622"/>
 									<int key="NSvFlags">256</int>
-									<string key="NSFrame">{{423, 1}, {16, 297}}</string>
-									<reference key="NSSuperview" ref="49083341"/>
+									<string key="NSFrame">{{450, 1}, {16, 306}}</string>
+									<reference key="NSSuperview" ref="434947622"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView" ref="513242516"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:15</string>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
-									<reference key="NSTarget" ref="49083341"/>
+									<reference key="NSTarget" ref="434947622"/>
 									<string key="NSAction">_doScroller:</string>
 									<double key="NSCurValue">1</double>
 									<double key="NSPercent">0.96363627910614014</double>
 								</object>
-								<object class="NSScroller" id="513242516">
-									<reference key="NSNextResponder" ref="49083341"/>
+								<object class="NSScroller" id="522812846">
+									<reference key="NSNextResponder" ref="434947622"/>
 									<int key="NSvFlags">256</int>
-									<string key="NSFrame">{{1, 282}, {438, 16}}</string>
-									<reference key="NSSuperview" ref="49083341"/>
+									<string key="NSFrame">{{1, 291}, {465, 16}}</string>
+									<reference key="NSSuperview" ref="434947622"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView" ref="538426426"/>
 									<string key="NSReuseIdentifierKey">_NS:26</string>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 									<int key="NSsFlags">1</int>
-									<reference key="NSTarget" ref="49083341"/>
+									<reference key="NSTarget" ref="434947622"/>
 									<string key="NSAction">_doScroller:</string>
 									<double key="NSPercent">0.50602412223815918</double>
 								</object>
 							</array>
-							<string key="NSFrame">{{20, 20}, {440, 299}}</string>
+							<string key="NSFrame">{{20, 20}, {467, 308}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="348808176"/>
+							<reference key="NSNextKeyView" ref="575502427"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<int key="NSsFlags">133170</int>
-							<reference key="NSVScroller" ref="415393739"/>
-							<reference key="NSHScroller" ref="513242516"/>
-							<reference key="NSContentView" ref="348808176"/>
+							<reference key="NSVScroller" ref="538426426"/>
+							<reference key="NSHScroller" ref="522812846"/>
+							<reference key="NSContentView" ref="575502427"/>
 							<double key="NSMinMagnification">0.25</double>
 							<double key="NSMaxMagnification">4</double>
 							<double key="NSMagnification">1</double>
 						</object>
-						<object class="NSButton" id="711849705">
+						<object class="NSButton" id="421448182">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{127, 332}, {82, 32}}</string>
+							<string key="NSFrame">{{127, 341}, {82, 32}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView" ref="207213075"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
-							<object class="NSButtonCell" key="NSCell" id="858495273">
+							<object class="NSButtonCell" key="NSCell" id="486608221">
 								<int key="NSCellFlags">67108864</int>
 								<int key="NSCellFlags2">134217728</int>
 								<string key="NSContents">Button</string>
-								<reference key="NSSupport" ref="211937532"/>
+								<reference key="NSSupport" ref="294115025"/>
 								<string key="NSCellIdentifier">_NS:9</string>
-								<reference key="NSControlView" ref="711849705"/>
+								<reference key="NSControlView" ref="421448182"/>
 								<int key="NSButtonFlags">-2038284288</int>
 								<int key="NSButtonFlags2">129</int>
 								<string key="NSAlternateContents"/>
@@ -849,10 +860,10 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
 					</array>
-					<string key="NSFrameSize">{480, 456}</string>
+					<string key="NSFrameSize">{507, 465}</string>
 					<reference key="NSSuperview"/>
 					<reference key="NSWindow"/>
-					<reference key="NSNextKeyView" ref="105844434"/>
+					<reference key="NSNextKeyView" ref="156643557"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
@@ -1059,11 +1070,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<int key="objectID">372</int>
 						<reference key="object" ref="439893737"/>
 						<array class="NSMutableArray" key="children">
-							<object class="IBNSLayoutConstraint" id="71040565">
+							<object class="IBNSLayoutConstraint" id="790170647">
 								<reference key="firstItem" ref="439893737"/>
 								<int key="firstAttribute">6</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="627330271"/>
+								<reference key="secondItem" ref="220783951"/>
 								<int key="secondAttribute">6</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
@@ -1075,27 +1086,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="353736399">
-								<reference key="firstItem" ref="627330271"/>
-								<int key="firstAttribute">3</int>
-								<int key="relation">0</int>
-								<reference key="secondItem" ref="439893737"/>
-								<int key="secondAttribute">3</int>
-								<float key="multiplier">1</float>
-								<object class="IBLayoutConstant" key="constant">
-									<double key="value">79</double>
-								</object>
-								<float key="priority">1000</float>
-								<reference key="containingView" ref="439893737"/>
-								<int key="scoringType">3</int>
-								<float key="scoringTypeFloat">9</float>
-								<int key="contentType">3</int>
-							</object>
-							<object class="IBNSLayoutConstraint" id="419713083">
-								<reference key="firstItem" ref="627330271"/>
+							<object class="IBNSLayoutConstraint" id="561171051">
+								<reference key="firstItem" ref="220783951"/>
 								<int key="firstAttribute">10</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="319546493"/>
+								<reference key="secondItem" ref="207213075"/>
 								<int key="secondAttribute">10</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
@@ -1107,11 +1102,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">24</float>
 								<int key="contentType">2</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="567980873">
+							<object class="IBNSLayoutConstraint" id="183637507">
 								<reference key="firstItem" ref="439893737"/>
 								<int key="firstAttribute">6</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="319546493"/>
+								<reference key="secondItem" ref="207213075"/>
 								<int key="secondAttribute">6</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
@@ -1123,11 +1118,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="244778806">
-								<reference key="firstItem" ref="319546493"/>
+							<object class="IBNSLayoutConstraint" id="159094023">
+								<reference key="firstItem" ref="207213075"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="863741727"/>
+								<reference key="secondItem" ref="110995513"/>
 								<int key="secondAttribute">3</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
@@ -1139,8 +1134,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">24</float>
 								<int key="contentType">2</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="900672234">
-								<reference key="firstItem" ref="711849705"/>
+							<object class="IBNSLayoutConstraint" id="921655580">
+								<reference key="firstItem" ref="421448182"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
 								<reference key="secondItem" ref="439893737"/>
@@ -1155,11 +1150,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="375463630">
-								<reference key="firstItem" ref="711849705"/>
+							<object class="IBNSLayoutConstraint" id="867143238">
+								<reference key="firstItem" ref="421448182"/>
 								<int key="firstAttribute">11</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="140978576"/>
+								<reference key="secondItem" ref="835984235"/>
 								<int key="secondAttribute">11</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
@@ -1171,11 +1166,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">24</float>
 								<int key="contentType">2</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="1008887008">
+							<object class="IBNSLayoutConstraint" id="990692304">
 								<reference key="firstItem" ref="439893737"/>
 								<int key="firstAttribute">4</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="49083341"/>
+								<reference key="secondItem" ref="434947622"/>
 								<int key="secondAttribute">4</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
@@ -1187,11 +1182,27 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="1067456949">
+							<object class="IBNSLayoutConstraint" id="604939766">
+								<reference key="firstItem" ref="434947622"/>
+								<int key="firstAttribute">3</int>
+								<int key="relation">0</int>
+								<reference key="secondItem" ref="835984235"/>
+								<int key="secondAttribute">4</int>
+								<float key="multiplier">1</float>
+								<object class="IBLayoutConstant" key="constant">
+									<double key="value">20</double>
+								</object>
+								<float key="priority">1000</float>
+								<reference key="containingView" ref="439893737"/>
+								<int key="scoringType">6</int>
+								<float key="scoringTypeFloat">24</float>
+								<int key="contentType">3</int>
+							</object>
+							<object class="IBNSLayoutConstraint" id="486710955">
 								<reference key="firstItem" ref="439893737"/>
 								<int key="firstAttribute">6</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="49083341"/>
+								<reference key="secondItem" ref="434947622"/>
 								<int key="secondAttribute">6</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
@@ -1203,24 +1214,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="436049005">
-								<reference key="firstItem" ref="49083341"/>
-								<int key="firstAttribute">9</int>
-								<int key="relation">0</int>
-								<reference key="secondItem" ref="105844434"/>
-								<int key="secondAttribute">9</int>
-								<float key="multiplier">1</float>
-								<object class="IBLayoutConstant" key="constant">
-									<double key="value">0.0</double>
-								</object>
-								<float key="priority">1000</float>
-								<reference key="containingView" ref="439893737"/>
-								<int key="scoringType">6</int>
-								<float key="scoringTypeFloat">24</float>
-								<int key="contentType">2</int>
-							</object>
-							<object class="IBNSLayoutConstraint" id="218809962">
-								<reference key="firstItem" ref="49083341"/>
+							<object class="IBNSLayoutConstraint" id="714634166">
+								<reference key="firstItem" ref="434947622"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
 								<reference key="secondItem" ref="439893737"/>
@@ -1235,27 +1230,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="718649772">
-								<reference key="firstItem" ref="49083341"/>
+							<object class="IBNSLayoutConstraint" id="953025601">
+								<reference key="firstItem" ref="835984235"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="140978576"/>
-								<int key="secondAttribute">4</int>
-								<float key="multiplier">1</float>
-								<object class="IBLayoutConstant" key="constant">
-									<double key="value">20</double>
-								</object>
-								<float key="priority">1000</float>
-								<reference key="containingView" ref="439893737"/>
-								<int key="scoringType">6</int>
-								<float key="scoringTypeFloat">24</float>
-								<int key="contentType">3</int>
-							</object>
-							<object class="IBNSLayoutConstraint" id="861875167">
-								<reference key="firstItem" ref="140978576"/>
-								<int key="firstAttribute">3</int>
-								<int key="relation">0</int>
-								<reference key="secondItem" ref="863741727"/>
+								<reference key="secondItem" ref="110995513"/>
 								<int key="secondAttribute">4</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
@@ -1267,8 +1246,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">24</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="149517965">
-								<reference key="firstItem" ref="140978576"/>
+							<object class="IBNSLayoutConstraint" id="683092071">
+								<reference key="firstItem" ref="835984235"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
 								<reference key="secondItem" ref="439893737"/>
@@ -1283,8 +1262,24 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="276701451">
-								<reference key="firstItem" ref="863741727"/>
+							<object class="IBNSLayoutConstraint" id="198739072">
+								<reference key="firstItem" ref="110995513"/>
+								<int key="firstAttribute">3</int>
+								<int key="relation">0</int>
+								<reference key="secondItem" ref="439893737"/>
+								<int key="secondAttribute">3</int>
+								<float key="multiplier">1</float>
+								<object class="IBLayoutConstant" key="constant">
+									<double key="value">68</double>
+								</object>
+								<float key="priority">1000</float>
+								<reference key="containingView" ref="439893737"/>
+								<int key="scoringType">3</int>
+								<float key="scoringTypeFloat">9</float>
+								<int key="contentType">3</int>
+							</object>
+							<object class="IBNSLayoutConstraint" id="594457436">
+								<reference key="firstItem" ref="110995513"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
 								<reference key="secondItem" ref="439893737"/>
@@ -1299,8 +1294,24 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="324826204">
-								<reference key="firstItem" ref="105844434"/>
+							<object class="IBNSLayoutConstraint" id="290970531">
+								<reference key="firstItem" ref="156643557"/>
+								<int key="firstAttribute">5</int>
+								<int key="relation">0</int>
+								<reference key="secondItem" ref="439893737"/>
+								<int key="secondAttribute">5</int>
+								<float key="multiplier">1</float>
+								<object class="IBNSLayoutSymbolicConstant" key="constant">
+									<double key="value">20</double>
+								</object>
+								<float key="priority">1000</float>
+								<reference key="containingView" ref="439893737"/>
+								<int key="scoringType">8</int>
+								<float key="scoringTypeFloat">29</float>
+								<int key="contentType">3</int>
+							</object>
+							<object class="IBNSLayoutConstraint" id="457644135">
+								<reference key="firstItem" ref="156643557"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
 								<reference key="secondItem" ref="439893737"/>
@@ -1315,13 +1326,13 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<reference ref="105844434"/>
-							<reference ref="863741727"/>
-							<reference ref="140978576"/>
-							<reference ref="319546493"/>
-							<reference ref="627330271"/>
-							<reference ref="49083341"/>
-							<reference ref="711849705"/>
+							<reference ref="156643557"/>
+							<reference ref="110995513"/>
+							<reference ref="835984235"/>
+							<reference ref="207213075"/>
+							<reference ref="220783951"/>
+							<reference ref="434947622"/>
+							<reference ref="421448182"/>
 						</array>
 						<reference key="parent" ref="972006081"/>
 					</object>
@@ -1337,50 +1348,29 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">536</int>
-						<reference key="object" ref="105844434"/>
+						<reference key="object" ref="156643557"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="303240420"/>
-							<object class="IBNSLayoutConstraint" id="552719278">
-								<reference key="firstItem" ref="105844434"/>
-								<int key="firstAttribute">8</int>
-								<int key="relation">0</int>
-								<nil key="secondItem"/>
-								<int key="secondAttribute">0</int>
-								<float key="multiplier">1</float>
-								<object class="IBLayoutConstant" key="constant">
-									<double key="value">33</double>
-								</object>
-								<float key="priority">1000</float>
-								<reference key="containingView" ref="105844434"/>
-								<int key="scoringType">3</int>
-								<float key="scoringTypeFloat">9</float>
-								<int key="contentType">1</int>
-							</object>
+							<reference ref="177152978"/>
 						</array>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">537</int>
-						<reference key="object" ref="303240420"/>
-						<reference key="parent" ref="105844434"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">542</int>
-						<reference key="object" ref="552719278"/>
-						<reference key="parent" ref="105844434"/>
+						<reference key="object" ref="177152978"/>
+						<reference key="parent" ref="156643557"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">552</int>
-						<reference key="object" ref="324826204"/>
+						<reference key="object" ref="457644135"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">553</int>
-						<reference key="object" ref="863741727"/>
+						<reference key="object" ref="110995513"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="195517686"/>
-							<object class="IBNSLayoutConstraint" id="83665049">
-								<reference key="firstItem" ref="863741727"/>
+							<reference ref="408886027"/>
+							<object class="IBNSLayoutConstraint" id="117527782">
+								<reference key="firstItem" ref="110995513"/>
 								<int key="firstAttribute">7</int>
 								<int key="relation">0</int>
 								<nil key="secondItem"/>
@@ -1390,7 +1380,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<double key="value">174</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="863741727"/>
+								<reference key="containingView" ref="110995513"/>
 								<int key="scoringType">3</int>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">1</int>
@@ -1400,26 +1390,26 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">554</int>
-						<reference key="object" ref="195517686"/>
-						<reference key="parent" ref="863741727"/>
+						<reference key="object" ref="408886027"/>
+						<reference key="parent" ref="110995513"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">558</int>
-						<reference key="object" ref="83665049"/>
-						<reference key="parent" ref="863741727"/>
+						<reference key="object" ref="117527782"/>
+						<reference key="parent" ref="110995513"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">562</int>
-						<reference key="object" ref="276701451"/>
+						<reference key="object" ref="594457436"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">563</int>
-						<reference key="object" ref="140978576"/>
+						<reference key="object" ref="835984235"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="908042968"/>
-							<object class="IBNSLayoutConstraint" id="42295525">
-								<reference key="firstItem" ref="140978576"/>
+							<reference ref="474677197"/>
+							<object class="IBNSLayoutConstraint" id="791954232">
+								<reference key="firstItem" ref="835984235"/>
 								<int key="firstAttribute">7</int>
 								<int key="relation">0</int>
 								<nil key="secondItem"/>
@@ -1429,7 +1419,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<double key="value">94</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="140978576"/>
+								<reference key="containingView" ref="835984235"/>
 								<int key="scoringType">3</int>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">1</int>
@@ -1439,360 +1429,345 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">564</int>
-						<reference key="object" ref="908042968"/>
+						<reference key="object" ref="474677197"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="98918414"/>
+							<reference ref="353506307"/>
 						</array>
-						<reference key="parent" ref="140978576"/>
+						<reference key="parent" ref="835984235"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">565</int>
-						<reference key="object" ref="98918414"/>
+						<reference key="object" ref="353506307"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="202486279"/>
-							<reference ref="666358481"/>
-							<reference ref="975058774"/>
+							<reference ref="440881616"/>
+							<reference ref="544140574"/>
+							<reference ref="370507049"/>
 						</array>
-						<reference key="parent" ref="908042968"/>
+						<reference key="parent" ref="474677197"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">566</int>
-						<reference key="object" ref="202486279"/>
-						<reference key="parent" ref="98918414"/>
+						<reference key="object" ref="440881616"/>
+						<reference key="parent" ref="353506307"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">567</int>
-						<reference key="object" ref="666358481"/>
-						<reference key="parent" ref="98918414"/>
+						<reference key="object" ref="544140574"/>
+						<reference key="parent" ref="353506307"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">568</int>
-						<reference key="object" ref="975058774"/>
-						<reference key="parent" ref="98918414"/>
+						<reference key="object" ref="370507049"/>
+						<reference key="parent" ref="353506307"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">569</int>
-						<reference key="object" ref="149517965"/>
+						<reference key="object" ref="683092071"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">570</int>
-						<reference key="object" ref="861875167"/>
+						<reference key="object" ref="953025601"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">571</int>
-						<reference key="object" ref="42295525"/>
-						<reference key="parent" ref="140978576"/>
+						<reference key="object" ref="791954232"/>
+						<reference key="parent" ref="835984235"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">572</int>
-						<reference key="object" ref="319546493"/>
+						<reference key="object" ref="207213075"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="248435379"/>
-							<reference ref="150671897"/>
-							<reference ref="696174312"/>
+							<reference ref="1036597378"/>
+							<reference ref="999180993"/>
+							<reference ref="353960974"/>
 						</array>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">573</int>
-						<reference key="object" ref="248435379"/>
-						<reference key="parent" ref="319546493"/>
+						<reference key="object" ref="1036597378"/>
+						<reference key="parent" ref="207213075"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">574</int>
-						<reference key="object" ref="150671897"/>
-						<reference key="parent" ref="319546493"/>
+						<reference key="object" ref="999180993"/>
+						<reference key="parent" ref="207213075"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">575</int>
-						<reference key="object" ref="696174312"/>
-						<reference key="parent" ref="319546493"/>
+						<reference key="object" ref="353960974"/>
+						<reference key="parent" ref="207213075"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">576</int>
-						<reference key="object" ref="244778806"/>
+						<reference key="object" ref="159094023"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">579</int>
-						<reference key="object" ref="567980873"/>
+						<reference key="object" ref="183637507"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">580</int>
-						<reference key="object" ref="627330271"/>
+						<reference key="object" ref="220783951"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">582</int>
-						<reference key="object" ref="419713083"/>
+						<reference key="object" ref="561171051"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">583</int>
-						<reference key="object" ref="49083341"/>
+						<reference key="object" ref="434947622"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="790078046"/>
-							<reference ref="513242516"/>
-							<reference ref="415393739"/>
+							<reference ref="553981425"/>
+							<reference ref="522812846"/>
+							<reference ref="538426426"/>
 						</array>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">584</int>
-						<reference key="object" ref="790078046"/>
+						<reference key="object" ref="553981425"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="422449265"/>
-							<object class="IBNSLayoutConstraint" id="740637871">
-								<reference key="firstItem" ref="538775076"/>
+							<reference ref="106409728"/>
+							<object class="IBNSLayoutConstraint" id="983756690">
+								<reference key="firstItem" ref="366170289"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">3</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
 									<double key="value">21</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">3</int>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="392680091">
-								<reference key="firstItem" ref="538775076"/>
+							<object class="IBNSLayoutConstraint" id="246023637">
+								<reference key="firstItem" ref="366170289"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">5</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
 									<double key="value">159</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">3</int>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="656973821">
-								<reference key="firstItem" ref="314124250"/>
+							<object class="IBNSLayoutConstraint" id="460944844">
+								<reference key="firstItem" ref="20481593"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="422449265"/>
+								<reference key="secondItem" ref="106409728"/>
 								<int key="secondAttribute">6</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">8</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">6</int>
 								<float key="scoringTypeFloat">24</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="67854887">
-								<reference key="firstItem" ref="314124250"/>
+							<object class="IBNSLayoutConstraint" id="1712236">
+								<reference key="firstItem" ref="20481593"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">3</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">20</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">8</int>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="684247347">
-								<reference key="firstItem" ref="386966664"/>
+							<object class="IBNSLayoutConstraint" id="681622282">
+								<reference key="firstItem" ref="244312401"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">5</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">20</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">8</int>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="847168916">
-								<reference key="firstItem" ref="386966664"/>
+							<object class="IBNSLayoutConstraint" id="901973848">
+								<reference key="firstItem" ref="244312401"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="606006271"/>
+								<reference key="secondItem" ref="659475932"/>
 								<int key="secondAttribute">4</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">8</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">6</int>
 								<float key="scoringTypeFloat">24</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="1049976261">
-								<reference key="firstItem" ref="790078046"/>
+							<object class="IBNSLayoutConstraint" id="181516416">
+								<reference key="firstItem" ref="553981425"/>
 								<int key="firstAttribute">6</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="606006271"/>
+								<reference key="secondItem" ref="659475932"/>
 								<int key="secondAttribute">6</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">20</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">8</int>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="641954820">
-								<reference key="firstItem" ref="606006271"/>
+							<object class="IBNSLayoutConstraint" id="87165846">
+								<reference key="firstItem" ref="659475932"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">5</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">20</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">8</int>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="1059037572">
-								<reference key="firstItem" ref="606006271"/>
+							<object class="IBNSLayoutConstraint" id="784449063">
+								<reference key="firstItem" ref="659475932"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">3</int>
 								<float key="multiplier">1</float>
 								<object class="IBLayoutConstant" key="constant">
 									<double key="value">59</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">3</int>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="432934683">
-								<reference key="firstItem" ref="422449265"/>
+							<object class="IBNSLayoutConstraint" id="942136173">
+								<reference key="firstItem" ref="106409728"/>
 								<int key="firstAttribute">5</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">5</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">20</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">8</int>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<object class="IBNSLayoutConstraint" id="914237706">
-								<reference key="firstItem" ref="422449265"/>
+							<object class="IBNSLayoutConstraint" id="347380840">
+								<reference key="firstItem" ref="106409728"/>
 								<int key="firstAttribute">3</int>
 								<int key="relation">0</int>
-								<reference key="secondItem" ref="790078046"/>
+								<reference key="secondItem" ref="553981425"/>
 								<int key="secondAttribute">3</int>
 								<float key="multiplier">1</float>
 								<object class="IBNSLayoutSymbolicConstant" key="constant">
 									<double key="value">20</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="790078046"/>
+								<reference key="containingView" ref="553981425"/>
 								<int key="scoringType">8</int>
 								<float key="scoringTypeFloat">29</float>
 								<int key="contentType">3</int>
 							</object>
-							<reference ref="314124250"/>
-							<reference ref="538775076"/>
-							<reference ref="606006271"/>
-							<reference ref="386966664"/>
+							<reference ref="20481593"/>
+							<reference ref="366170289"/>
+							<reference ref="659475932"/>
+							<reference ref="244312401"/>
 						</array>
-						<reference key="parent" ref="49083341"/>
+						<reference key="parent" ref="434947622"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">585</int>
-						<reference key="object" ref="513242516"/>
-						<reference key="parent" ref="49083341"/>
+						<reference key="object" ref="522812846"/>
+						<reference key="parent" ref="434947622"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">586</int>
-						<reference key="object" ref="415393739"/>
-						<reference key="parent" ref="49083341"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">588</int>
-						<reference key="object" ref="718649772"/>
-						<reference key="parent" ref="439893737"/>
+						<reference key="object" ref="538426426"/>
+						<reference key="parent" ref="434947622"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">589</int>
-						<reference key="object" ref="218809962"/>
-						<reference key="parent" ref="439893737"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">591</int>
-						<reference key="object" ref="436049005"/>
+						<reference key="object" ref="714634166"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">592</int>
-						<reference key="object" ref="1067456949"/>
-						<reference key="parent" ref="439893737"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">593</int>
-						<reference key="object" ref="1008887008"/>
+						<reference key="object" ref="486710955"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">594</int>
-						<reference key="object" ref="711849705"/>
+						<reference key="object" ref="421448182"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="858495273"/>
+							<reference ref="486608221"/>
 						</array>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">595</int>
-						<reference key="object" ref="858495273"/>
-						<reference key="parent" ref="711849705"/>
+						<reference key="object" ref="486608221"/>
+						<reference key="parent" ref="421448182"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">596</int>
-						<reference key="object" ref="375463630"/>
+						<reference key="object" ref="867143238"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">597</int>
-						<reference key="object" ref="900672234"/>
+						<reference key="object" ref="921655580"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">604</int>
-						<reference key="object" ref="422449265"/>
+						<reference key="object" ref="106409728"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="965529049"/>
-							<object class="IBNSLayoutConstraint" id="98877698">
-								<reference key="firstItem" ref="422449265"/>
+							<reference ref="133317888"/>
+							<object class="IBNSLayoutConstraint" id="1062109649">
+								<reference key="firstItem" ref="106409728"/>
 								<int key="firstAttribute">7</int>
 								<int key="relation">0</int>
 								<nil key="secondItem"/>
@@ -1802,124 +1777,119 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<double key="value">96</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="422449265"/>
+								<reference key="containingView" ref="106409728"/>
 								<int key="scoringType">3</int>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">1</int>
 							</object>
 						</array>
-						<reference key="parent" ref="790078046"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">605</int>
-						<reference key="object" ref="965529049"/>
-						<reference key="parent" ref="422449265"/>
+						<reference key="object" ref="133317888"/>
+						<reference key="parent" ref="106409728"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">606</int>
-						<reference key="object" ref="98877698"/>
-						<reference key="parent" ref="422449265"/>
+						<reference key="object" ref="1062109649"/>
+						<reference key="parent" ref="106409728"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">607</int>
-						<reference key="object" ref="914237706"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="347380840"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">608</int>
-						<reference key="object" ref="432934683"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="942136173"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">598</int>
-						<reference key="object" ref="314124250"/>
+						<reference key="object" ref="20481593"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="514268439"/>
+							<reference ref="94775554"/>
 						</array>
-						<reference key="parent" ref="790078046"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">599</int>
-						<reference key="object" ref="514268439"/>
-						<reference key="parent" ref="314124250"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">609</int>
-						<reference key="object" ref="353736399"/>
-						<reference key="parent" ref="439893737"/>
+						<reference key="object" ref="94775554"/>
+						<reference key="parent" ref="20481593"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">610</int>
-						<reference key="object" ref="71040565"/>
+						<reference key="object" ref="790170647"/>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">611</int>
-						<reference key="object" ref="67854887"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="1712236"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">612</int>
-						<reference key="object" ref="656973821"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="460944844"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">613</int>
-						<reference key="object" ref="538775076"/>
+						<reference key="object" ref="366170289"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="623758844"/>
+							<reference ref="375902757"/>
 						</array>
-						<reference key="parent" ref="790078046"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">614</int>
-						<reference key="object" ref="623758844"/>
-						<reference key="parent" ref="538775076"/>
+						<reference key="object" ref="375902757"/>
+						<reference key="parent" ref="366170289"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">615</int>
-						<reference key="object" ref="392680091"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="246023637"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">616</int>
-						<reference key="object" ref="740637871"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="983756690"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">617</int>
-						<reference key="object" ref="606006271"/>
+						<reference key="object" ref="659475932"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="900459295"/>
+							<reference ref="797616104"/>
 						</array>
-						<reference key="parent" ref="790078046"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">618</int>
-						<reference key="object" ref="900459295"/>
-						<reference key="parent" ref="606006271"/>
+						<reference key="object" ref="797616104"/>
+						<reference key="parent" ref="659475932"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">620</int>
-						<reference key="object" ref="1059037572"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="784449063"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">621</int>
-						<reference key="object" ref="641954820"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="87165846"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">622</int>
-						<reference key="object" ref="1049976261"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="181516416"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">623</int>
-						<reference key="object" ref="386966664"/>
+						<reference key="object" ref="244312401"/>
 						<array class="NSMutableArray" key="children">
-							<object class="IBNSLayoutConstraint" id="224667817">
-								<reference key="firstItem" ref="386966664"/>
+							<object class="IBNSLayoutConstraint" id="725655990">
+								<reference key="firstItem" ref="244312401"/>
 								<int key="firstAttribute">7</int>
 								<int key="relation">0</int>
 								<nil key="secondItem"/>
@@ -1929,28 +1899,48 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<double key="value">92</double>
 								</object>
 								<float key="priority">1000</float>
-								<reference key="containingView" ref="386966664"/>
+								<reference key="containingView" ref="244312401"/>
 								<int key="scoringType">3</int>
 								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">1</int>
 							</object>
 						</array>
-						<reference key="parent" ref="790078046"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">624</int>
-						<reference key="object" ref="847168916"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="901973848"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">625</int>
-						<reference key="object" ref="684247347"/>
-						<reference key="parent" ref="790078046"/>
+						<reference key="object" ref="681622282"/>
+						<reference key="parent" ref="553981425"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">626</int>
-						<reference key="object" ref="224667817"/>
-						<reference key="parent" ref="386966664"/>
+						<reference key="object" ref="725655990"/>
+						<reference key="parent" ref="244312401"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">627</int>
+						<reference key="object" ref="198739072"/>
+						<reference key="parent" ref="439893737"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">628</int>
+						<reference key="object" ref="290970531"/>
+						<reference key="parent" ref="439893737"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">641</int>
+						<reference key="object" ref="604939766"/>
+						<reference key="parent" ref="439893737"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">642</int>
+						<reference key="object" ref="990692304"/>
+						<reference key="parent" ref="439893737"/>
 					</object>
 				</array>
 			</object>
@@ -1973,37 +1963,33 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<string key="371.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="371.IBWindowTemplateEditedContentRect">{{380, 496}, {480, 360}}</string>
 				<integer value="1" key="371.NSWindowTemplate.visibleAtLaunch"/>
-				<array key="372.IBNSViewMetadataConstraints">
-					<reference ref="324826204"/>
-					<reference ref="276701451"/>
-					<reference ref="149517965"/>
-					<reference ref="861875167"/>
-					<reference ref="718649772"/>
-					<reference ref="218809962"/>
-					<reference ref="436049005"/>
-					<reference ref="1067456949"/>
-					<reference ref="1008887008"/>
-					<reference ref="375463630"/>
-					<reference ref="900672234"/>
-					<reference ref="244778806"/>
-					<reference ref="567980873"/>
-					<reference ref="419713083"/>
-					<reference ref="353736399"/>
-					<reference ref="71040565"/>
+				<array class="NSMutableArray" key="372.IBNSViewMetadataConstraints">
+					<reference ref="457644135"/>
+					<reference ref="290970531"/>
+					<reference ref="594457436"/>
+					<reference ref="198739072"/>
+					<reference ref="683092071"/>
+					<reference ref="953025601"/>
+					<reference ref="714634166"/>
+					<reference ref="486710955"/>
+					<reference ref="604939766"/>
+					<reference ref="990692304"/>
+					<reference ref="867143238"/>
+					<reference ref="921655580"/>
+					<reference ref="159094023"/>
+					<reference ref="183637507"/>
+					<reference ref="561171051"/>
+					<reference ref="790170647"/>
 				</array>
 				<string key="372.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="420.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="494.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<array class="NSMutableArray" key="536.IBNSViewMetadataConstraints">
-					<reference ref="552719278"/>
-				</array>
 				<boolean value="NO" key="536.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="536.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="537.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="542.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="552.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<array class="NSMutableArray" key="553.IBNSViewMetadataConstraints">
-					<reference ref="83665049"/>
+					<reference ref="117527782"/>
 				</array>
 				<boolean value="NO" key="553.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="553.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2012,7 +1998,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<string key="56.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="562.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<array key="563.IBNSViewMetadataConstraints">
-					<reference ref="42295525"/>
+					<reference ref="791954232"/>
 				</array>
 				<boolean value="NO" key="563.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="563.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2039,26 +2025,23 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<boolean value="NO" key="583.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="583.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<array key="584.IBNSViewMetadataConstraints">
-					<reference ref="914237706"/>
-					<reference ref="432934683"/>
-					<reference ref="1059037572"/>
-					<reference ref="641954820"/>
-					<reference ref="1049976261"/>
-					<reference ref="847168916"/>
-					<reference ref="684247347"/>
-					<reference ref="67854887"/>
-					<reference ref="656973821"/>
-					<reference ref="392680091"/>
-					<reference ref="740637871"/>
+					<reference ref="347380840"/>
+					<reference ref="942136173"/>
+					<reference ref="784449063"/>
+					<reference ref="87165846"/>
+					<reference ref="181516416"/>
+					<reference ref="901973848"/>
+					<reference ref="681622282"/>
+					<reference ref="1712236"/>
+					<reference ref="460944844"/>
+					<reference ref="246023637"/>
+					<reference ref="983756690"/>
 				</array>
 				<string key="584.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="585.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="586.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="588.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="589.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="591.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="592.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="593.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<boolean value="NO" key="594.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="594.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="595.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2068,7 +2051,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<string key="598.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="599.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<array key="604.IBNSViewMetadataConstraints">
-					<reference ref="98877698"/>
+					<reference ref="1062109649"/>
 				</array>
 				<boolean value="NO" key="604.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="604.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2076,7 +2059,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<string key="606.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="607.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="608.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="609.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="610.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="611.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="612.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2092,19 +2074,23 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<string key="621.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="622.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<array key="623.IBNSViewMetadataConstraints">
-					<reference ref="224667817"/>
+					<reference ref="725655990"/>
 				</array>
 				<boolean value="NO" key="623.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="623.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="624.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="625.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="626.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="627.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="628.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="641.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="642.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">626</int>
+			<int key="maxID">642</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
