@@ -63,11 +63,18 @@ class Actions:
 
 actions = Actions()
 
-from player import loadPlayer
+from player import loadPlayer, PlayerEventCallbacks
 import Traits
 
 class State(object):
-	@UserAttrib(type=Traits.Action, name="▶")
+	def playPauseUpdate(self, attrib, *args):
+		if self.player.playing:
+			attrib.name = "❚❚"
+		else:
+			attrib.name = "▶"
+
+	@UserAttrib(type=Traits.Action, name="▶",
+		updateHandlers=[(PlayerEventCallbacks.onPlayingStateChange,playPauseUpdate)])
 	def playPause(self):
 		self.player.playing = not self.player.playing
 
