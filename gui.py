@@ -48,7 +48,6 @@ import Traits
 
 def buildControlAction(userAttr, inst):
 	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	button.setTitle_(userAttr.name.decode("utf-8"))
 	button.setBezelStyle_(2)
 	try:
 		class ButtonActionHandler(NSObject):
@@ -67,12 +66,14 @@ def buildControlAction(userAttr, inst):
 	actionTarget.retain() # TODO: where would we release this? ...
 	button.setTarget_(actionTarget)
 	button.setAction_("click")
-	return button
+	def update():
+		button.setTitle_(userAttr.name.decode("utf-8"))
+	return button, update
 
 def buildControlOneLineTextLabel(userAttr, inst):
 	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	label.setEditable_(False)
-	return label
+	return label, lambda: None
 
 def buildControlEnum(userAttr, inst):
 	# TODO
@@ -86,22 +87,19 @@ def buildControl(userAttr, inst):
 	def isType(T):
 		try: return issubclass(userAttr.type, T)
 		except TypeError: return isinstance(userAttr.type, T)
-	control = None
 	if isType(Traits.Action):
-		control = buildControlAction(userAttr, inst)
+		return buildControlAction(userAttr, inst)
 	elif isType(Traits.OneLineText):
 		if userAttr.writeable:
 			raise NotImplementedError
 		else:
-			control = buildControlOneLineTextLabel(userAttr, inst)
+			return buildControlOneLineTextLabel(userAttr, inst)
 	elif isType(Traits.Enum):
-		control = buildControlEnum(userAttr, inst)
+		return buildControlEnum(userAttr, inst)
 	elif isType(Traits.List):
-		control = buildControlList(userAttr, inst)
+		return buildControlList(userAttr, inst)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
-	assert control
-	return control
 
 def setupWindow():
 	# some example code: http://lists.apple.com/archives/cocoa-dev/2004/Jan/msg01389.html
@@ -111,7 +109,7 @@ def setupWindow():
 
 	w = NSWindow.alloc()
 	w.initWithContentRect_styleMask_backing_defer_(
-		((200.0, 200.0), (250.0, 100.0)),
+		((200.0, 500.0), (250.0, 300.0)),
 		NSTitledWindowMask |
 		NSClosableWindowMask |
 		NSMiniaturizableWindowMask |
@@ -119,10 +117,18 @@ def setupWindow():
 		NSBackingStoreBuffered, False)
 	w.setTitle_(appinfo.progname)
 
+	updateHandlers = {} # ev -> list of functions (ev,args,kwargs -> ?)
+	global guiHandleUpdate
+	def guiHandleUpdate(ev,args,kwargs):
+		if not app.keyWindow(): return
+		if ev not in updateHandlers: return
+		for handler in updateHandlers[ev]:
+			handler(ev,args,kwargs)
+
 	lastVerticalControl = None
 	for attr in iterUserAttribs(state):
 		print attr
-		control = buildControl(attr, state)
+		control, update = buildControl(attr, state)
 		control.setTranslatesAutoresizingMaskIntoConstraints_(False)
 		w.contentView().addSubview_(control)
 		if not lastVerticalControl:
@@ -146,6 +152,13 @@ def setupWindow():
 			{"c": control}
 		))
 		lastVerticalControl = control
+		update()
+
+		for ev,handler in attr.updateHandlers:
+			def handleFunc(ev,args,kwargs):
+				handler(state, attr, ev, args, kwargs)
+				update()
+			updateHandlers.setdefault(ev,[]).append(handleFunc)
 
 	w.display()
 	w.orderFrontRegardless()
@@ -225,10 +238,8 @@ def reloadModuleHandling():
 	except:
 		sys.excepthook(*sys.exc_info())
 
-def guiHandleUpdate(ev,args,kwargs):
-	from player import PlayerEventCallbacks
-	if ev is PlayerEventCallbacks.onPlayingStateChange:
-		pass
+# This function will get overridden by setupWindow().
+def guiHandleUpdate(*args): pass
 
 def guiMain():
 	for ev,args,kwargs in state.updates.read():
