@@ -3,6 +3,7 @@ from utils import *
 try:
 	PlayerEventCallbacks
 except NameError:
+	# This is fixed. In case we add some, we have to restart.
 	class PlayerEventCallbacks:
 		onSongChange = None
 		onSongFinished = None
