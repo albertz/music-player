@@ -123,7 +123,6 @@ def setupWindow():
 	updateHandlers = [] # list of functions (ev,args,kwargs -> ?)
 	global guiHandleUpdate
 	def guiHandleUpdate(ev,args,kwargs):
-		if not app.keyWindow(): return
 		for handleFunc in updateHandlers:
 			handleFunc(ev,args,kwargs)
 
