@@ -119,47 +119,32 @@ def setupWindow():
 		NSBackingStoreBuffered, False)
 	w.setTitle_(appinfo.progname)
 
-	#w.contentView().setTranslatesAutoresizingMaskIntoConstraints_(False)
-	x = 0
-	y = 0
 	lastVerticalControl = None
 	for attr in iterUserAttribs(state):
 		print attr
 		control = buildControl(attr, state)
-		control.setFrameOrigin_((x,y))
 		control.setTranslatesAutoresizingMaskIntoConstraints_(False)
-		#NSLayoutConstraint.constraintWithItem_attribute_relatedBy_toItem_attribute_multiplier_constant_(
-		#	superview,
-		#	NSLayoutAttributeLeft,
-		#	NSLayoutRelationEqual,
-		#)
-		#control.setAutoresizingMask_(NSViewWidthSizable)
-		#control.setAutoresizingMask_(0)
 		w.contentView().addSubview_(control)
-		if y == 0:
-			print "constraints vertical"
+		if not lastVerticalControl:
 			w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
 				"V:|-[c]",
 				3, # NSLayoutAttributeTop
 				{},
 				{"c": control}
 			))
-		if lastVerticalControl:
-			print "constraints lastVertical"
+		else:
 			w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
 				"V:[last]-[c]",
 				3, # NSLayoutAttributeTop
 				{},
 				{"last": lastVerticalControl, "c": control}
 			))
-		print "constraints horizontal"
 		w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
 			"H:|-[c]-|",
 			1, # NSLayoutAttributeLeft
 			{},
 			{"c": control}
 		))
-		y += 100
 		lastVerticalControl = control
 
 	w.display()
