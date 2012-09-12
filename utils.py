@@ -440,7 +440,7 @@ def ObjCClassAutorenamer(name, bases, dict):
 
 
 
-def getMusicFromDirectory(dir):
+def getMusicPathsFromDirectory(dir):
 	import os, appinfo
 	matches = []
 	for root, dirnames, filenames in os.walk(dir):
@@ -449,6 +449,16 @@ def getMusicFromDirectory(dir):
 				matches.append(os.path.join(root, filename))
 
 	return matches
+
+
+def getSongsFromDirectory(dir):
+	songs = []
+	files = getMusicPathsFromDirectory(dir)
+	import Song
+	for file in files:
+		songs.append(Song(file))
+
+	return songs
 
 
 # A fuzzy set is a dict of values to [0,1] numbers.

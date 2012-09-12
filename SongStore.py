@@ -1,214 +1,152 @@
 import sqlite3
 from Song import Song
 import os
+from kyotocabinet import *
 
 
-# Class for dealing with songs in the database
-# Fills Database with songs and select next song to play
 class SongStore:
-	def __init__(self, databasepath):
-		self.databasepath = databasepath
+	def __init__(self, databasedir):
+		self.databasedir = databasedir
+		self.artistIndex = DB()
+		self.titleIndex = DB()
+		self.genreIndex = DB()
+		self.songStore = DB()
 
-	def initDatabase(self):
-		if not self.databaseExists():
-			conn = sqlite3.connect(self.databasepath)
-			conn.text_factory = str
-			c = conn.cursor()
-			c.execute('''CREATE TABLE songs(key text PRIMARY KEY, value text, available integer)''')
+	def open(self):
+		self.artistIndex.open(self.databasedir + "/artistIndex.kct", DB.OWRITER | DB.OCREATE)
+		self.titleIndex.open(self.databasedir + "/titleIndex.kct", DB.OWRITER | DB.OCREATE)
+		self.genreIndex.open(self.databasedir + "/genreIndex.kct", DB.OWRITER | DB.OCREATE)
+		self.songStore.open(self.databasedir + "/songStore.kct", DB.OWRITER | DB.OCREATE)
 
-			conn.commit()
-			c.close()
+	def close(self):
+		self.artistIndex.close()
+		self.titleIndex.close()
+		self.genreIndex.close()
+		self.songStore.close()
 
-
-	def deleteDatabase(self):
-		import os
-		try:
-			os.remove(self.databasepath)
-		except:
-			pass
-
-	def databaseExists(self):
-		try:
-			with open(self.databasepath) as f: pass
-			return True
-		except IOError as e:
-			return False
-
-	def addSongs(self, filenames):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-
-		for i, file in enumerate(filenames):
-			c.execute('Select count(key) from songs where key = ?', (file,))
-
-			count = c.fetchone()[0]
-
-			if count is 0:
-				song = Song(file)
-				c.execute('INSERT INTO songs VALUES (?,?,1)', (song.url, str(song.metadata)))
-				if i % 500 == 0:
-					conn.commit()
-
-		conn.commit()
-		c.close()
-
-	def addSongsFromDirectory(self, dir):
-		import utils
-		files = utils.getMusicFromDirectory(dir)
-		self.addSongs(files)
-
-
-	#remove deleted files from database and add new ones. Also mark files not available due to unmounted voule, etc
-	def update(self, directories):
-		import utils
-		for dir in directories:
-			self.markDirectoryAvailability(dir)
-			if os.path.exists(dir):
-				filesFromDisk = set(utils.getMusicFromDirectory(dir))
-				filesFromDb = set(self.getSongPathsInDirectory(dir))
-
-				#all songs that are in the database, but not on disk
-				filesToDelete = list(filesFromDb - filesFromDisk)
-
-				self.removeSongs(filesToDelete)
-
-				#new songs added to disk, but not in db
-				filesToAdd = list(filesFromDisk - filesFromDb)
-
-				self.addSongs(filesToAdd)
-
-	def getSongPathsInDirectory(self, dir):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-		c.execute('select key from songs where key like ?', (dir + '%',))
-
-		results = c.fetchall()
-		c.close()
-
-		filenames = []
-
-		for result in results:
-			filenames.append(result[0])
-
-		return filenames
-
-
-	def getSongCount(self):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-		c.execute('Select count(key) from songs')
-		count = c.fetchone()[0]
-		c.close()
-
-		return count
-
-	def search(self, searchString, limit=0):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-
-		param = '%' + searchString + '%'
-		if limit > 0:
-			c.execute('''SELECT key FROM songs where value like ? LIMIT ''' + str(limit), (param,))
+	def add(self, song):
+		if self.songStore[song.fingerprint_AcoustID] is None:
+			self.songStore[song.fingerprint_AcoustID] = set(song.url)
 		else:
-			c.execute('''SELECT key FROM songs where value like ? ''', (param,))
+			self.songStore[song.fingerprint_AcoustID].add(song.url)
 
-		results = c.fetchall()
-		c.close()
+		if self.artistIndex[song.artist] is None:
+			self.artistIndex[song.artist] = set(song.fingerprint_AcoustID)
+		else:
+			self.artistIndex[song.artist].add(song.fingerprint_AcoustID)
 
+		if self.titleIndex[song.title] is None:
+			self.titleIndex[song.title] = set(song.fingerprint_AcoustID)
+		else:
+			self.titleIndex[song.title].add(song.fingerprint_AcoustID)
+
+		if self.genreIndex[song.genre] is None:
+			self.genreIndex[song.genre] = set(song.fingerprint_AcoustID)
+		else:
+			self.genreIndex[song.genre].add(song.fingerprint_AcoustID)
+
+
+	def addMany(self, songs):
+		for song in songs:
+			self.add(song)
+
+
+	def remove(self, song):
+		if self.songStore[song.fingerprint_AcoustID]:
+			self.songStore[song.fingerprint_AcoustID].remove(song.url)
+
+		if len(self.songStore[song.fingerprint_AcoustID]) == 0:
+			self.songStore.remove(song.fingerprint_AcoustID)
+
+		if self.artistIndex[song.artist]:
+			self.artistIndex[song.artist].remove(song.fingerprint_AcoustID)
+
+		if len(self.artistIndex[song.artist]) == 0:
+			self.artistIndex.remove(song.artist)
+
+		if self.titleIndex[song.title]:
+			self.titleIndex[song.title].remove(song.fingerprint_AcoustID)
+
+		if len(self.titleIndex[song.title]) == 0:
+			self.titleIndex.remove(song.title)
+
+		if self.genreIndex[song.genre]:
+			self.genreIndex[song.genre].remove(song.fingerprint_AcoustID)
+
+		if len(self.genreIndex[song.genre]) == 0:
+			self.genreIndex.remove(song.genre)
+
+
+	def removeMany(self, songs):
+		for song in songs:
+			self.remove(song)
+
+	def get(self, AcoustId):
+		return self.songStore[AcoustId]
+
+	def searchByArtist(self, searchString):
+		keys = self.artistIndex.match_prefix(searchString)
 		songs = []
 
-		for result in results:
-			songs.append(Song(result[0]))
+		for key in keys:
+			songSet = self.songStore[key]
+			for song in songSet:
+				songs.append(Song(song))
 
 		return songs
 
-	# picks a new song to play based on an the song given or
-	# randomly picks a song
+
+	def searchByTitle(self, searchString):
+		keys = self.titleIndex.match_prefix(searchString)
+		songs = []
+
+		for key in keys:
+			songSet = self.titleIndex[key]
+			for song in songSet:
+				songs.append(Song(song))
+
+		return songs
+
+
+	def searchByGenre(self, searchString):
+		keys = self.genreIndex.match_prefix(searchString)
+		songs = []
+
+		for key in keys:
+			songSet = self.genreIndex[key]
+			for song in songSet:
+				songs.append(Song(song))
+
+		return songs
+
+
+	def search(self, searchString):
+		songs = []
+
+		songs = songs + self.searchByArtist(searchString)
+		songs = songs + self.searchByTitle(searchString)
+		songs = songs + self.searchByGenre(searchString)
+
+		return songs
+
+
 	def getRandomSongs(self, oldSong=None, limit=1):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-		nextSong = ""
-		if oldSong is None:
-			c.execute('SELECT key FROM songs where available = 1 order by RANDOM() LIMIT ' + str(limit))
-			nextSongs = c.fetchall()
-		else:
-			params = (oldSong.url, "%'album': '" + oldSong.album + "%", "%'artist': '" + oldSong.artist + "%",
-					  "%'composer': '" + oldSong.composer + "%", "%'genre': '" + oldSong.genre + "%")
-
-			c.execute('SELECT key FROM songs where available = 1 and key <> ? and (value like ? or value like ? or value like ? or value like ?) order by RANDOM() LIMIT ' + str(limit), params)
-			nextSongs = c.fetchall()
-
-		c.close()
-
+		from random import sample
 		songs = []
 
-		for song in nextSongs:
-			songs.append(song[0])
+		if oldSong is None:
+			keys = sample(self.songStore.match_prefix(''), limit)
 
-		return songs
+			for key in keys:
+				songSet = self.songStore[key]
+				for song in songSet:
+					songs.append(Song(song))
 
-	def updateSong(self, song):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-		c.execute('''Update songs
-		 set key = ?, value = ?
-		 where key = ?''', (song.url, str(song.metadata), song.url))
 
-		conn.commit()
-		c.close()
-
-	def markDirectoryAvailability(self, dir):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-
-		if os.path.exists(dir):
-			c.execute('''Update songs
-			 set available = 1
-			 where key like ?''', (dir + '%',))
-			conn.commit()
+			return songs
 		else:
-			c.execute('''Update songs
-					 set available = 0
-					 where key like ?''', (dir + '%',))
-			conn.commit()
-		c.close()
 
-	def removeSongs(self, filenames):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
+			songs = songs + self.searchByArtist(oldSong.artist)
+			songs = songs + self.searchByGenre(oldSong.genre)
 
-		for file in filenames:
-			c.execute('Delete from songs where key = ?', (file,))
-
-		conn.commit()
-		c.close()
-
-
-	def removeAllSongs(self):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-		c.execute('Delete from songs')
-		conn.commit()
-		c.close()
-
-
-	def removeDirectories(self, dirs):
-		conn = sqlite3.connect(self.databasepath)
-		conn.text_factory = str
-		c = conn.cursor()
-
-		for dir in dirs:
-			c.execute('Delete from songs where key like ?', (dir + '%',))
-
-		conn.commit()
-		c.close()
-
+			return sample(songs, limit)
