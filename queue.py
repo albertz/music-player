@@ -28,20 +28,20 @@ class RandomFromSongDatabaseGen:
 
 	def __init__(self):
 		from SongStore import SongStore
-		self.database = SongStore(appinfo.musicdatabase)
-		self.database.initDatabase()
+		self.database = SongStore(appinfo.userdir)
 
 		def loadDatabase():
+			import utils
+
+			self.database.open()
+
 			for dir in appinfo.musicdirs:
-				self.database.addSongsFromDirectory(dir)
+				self.database.addMany(utils.getSongsFromDirectory(dir))
+
+			self.database.close()
 
 			self.randomQuality = 0.5
 			print "Done loading songs"
-
-			self.database.update(appinfo.musicdirs)
-
-			print "Done updating database"
-			self.randomQuality = 1
 
 		from threading import Thread
 		loadDatabaseThread = Thread(target=loadDatabase, name="loadDatabase")
@@ -52,7 +52,12 @@ class RandomFromSongDatabaseGen:
 			oldSong = state.recentlyPlayedList.getLastN(1)[0]
 		except:
 			oldSong = None
-		return next(iter(self.database.getRandomSongs(oldSong=oldSong, limit=1)))
+
+		self.database.open()
+		songs = self.database.getRandomSongs(oldSong=oldSong, limit=1)
+		self.database.close()
+
+		return next(iter(songs))
 
 	def __iter__(self):
 		while True:
