@@ -296,6 +296,7 @@ static int stream_seekAbs(PlayerObject* player, double pos) {
 }
 
 /* open a given stream. Return 0 if OK */
+// called by player_openInputStream()
 static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stream_index)
 {
     AVCodecContext *avctx;
@@ -1305,28 +1306,20 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	// The following code is loosely adopted from player_fillOutStream().
 	unsigned long totalFrameCount = 0;
     while (1) {
-        if (player->audio_buf_index >= player->audio_buf_size) {
-			double pts;
-			int audio_size = audio_decode_frame(player, &pts);
-			if (audio_size < 0) {
-				break; // probably EOF or so
-                /* if error, just output silence */
-				//player->audio_buf      = player->silence_buf;
-				//player->audio_buf_size = sizeof(player->silence_buf) / frame_size * frame_size;
-			} else {
-				player->audio_buf_size = audio_size;
-			}
-			player->audio_buf_index = 0;
-        }
-        unsigned long len1 = player->audio_buf_size - player->audio_buf_index;
-		totalFrameCount += len1 / NUMCHANNELS / 2 /* S16 */;
+		player->audio_buf_index = 0;
+		double pts;
+		int audio_size = audio_decode_frame(player, &pts);
+		if (audio_size < 0)
+			break; // probably EOF or so
+		else
+			player->audio_buf_size = audio_size;
+
+		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
 		
-		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf + player->audio_buf_index, (int)len1)) {
+		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf, audio_size)) {
 			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
 			goto final;
 		}
-		
-        player->audio_buf_index += len1;
     }
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
 	
