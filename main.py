@@ -4,13 +4,21 @@ import better_exchook
 better_exchook.install()
 
 from State import state, modules
+import sys
 
 if __name__ == '__main__':	
 
 	import stdinconsole
-	import gui
 
-	if hasattr(gui, "main"):
+	try:
+		import gui
+
+	except:
+		print "error in GUI"
+		sys.excepthook(*sys.exc_info())
+		# continue will stdinconsole
+
+	else:
 		# This will overtake the main loop and raise SystemExit at its end.
 		gui.main()
 
@@ -44,5 +52,5 @@ if __name__ == '__main__':
 			state.updates.cancelAll()
 			break
 	for m in modules: m.stop()
-	
-	
+
+

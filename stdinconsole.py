@@ -62,8 +62,20 @@ def stdinconsoleMain():
 	fd = sys.stdin.fileno()
 	if not os.isatty(fd): return # don't do anything
 
-	import gui
-	if hasattr(gui, "main"):
+	try:
+		# This import will fail if there is no GUI.
+		import gui
+
+	except: # no GUI
+
+		# the main thread is pushing stdin updates to stdinQueue.
+		setTtyNoncanonical(sys.stdin.fileno())
+		print "stdin input ready"
+
+		for ch in stdinQueue.read():
+			handleInput(ch)
+
+	else:
 		# the GUI is handling the main thread.
 		# it means we dont get stdinQueue updates here.
 		# as we need a way to be able to cancel this,
@@ -77,11 +89,3 @@ def stdinconsoleMain():
 			ch = os.read(fd,7)
 			if ch:
 				handleInput(ch)
-
-	else:
-		# the main thread is pushing stdin updates to stdinQueue.
-		setTtyNoncanonical(sys.stdin.fileno())
-		print "stdin input ready"
-
-		for ch in stdinQueue.read():
-			handleInput(ch)
