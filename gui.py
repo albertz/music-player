@@ -159,7 +159,10 @@ def setupWindow():
 
 		if attr.updateHandler:
 			def handleFunc(ev,args,kwargs,attr=attr,update=update):
-				attr.updateHandler(state, attr, ev, args, kwargs)
+				try:
+					attr.updateHandler(state, attr, ev, args, kwargs)
+				except:
+					sys.excepthook(*sys.exc_info())
 				do_in_mainthread(update)
 			updateHandlers.append(handleFunc)
 
