@@ -1302,7 +1302,8 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	ChromaprintContext *chromaprint_ctx = chromaprint_new(CHROMAPRINT_ALGORITHM_DEFAULT);
 	chromaprint_start(chromaprint_ctx, SAMPLERATE, NUMCHANNELS);
 
-	// The following code is loosely adopted from player_fillOutStream().	
+	// The following code is loosely adopted from player_fillOutStream().
+	unsigned long totalFrameCount = 0;
     while (1) {
         if (player->audio_buf_index >= player->audio_buf_size) {
 			double pts;
@@ -1318,6 +1319,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 			player->audio_buf_index = 0;
         }
         unsigned long len1 = player->audio_buf_size - player->audio_buf_index;
+		totalFrameCount += len1 / NUMCHANNELS / 2 /* S16 */;
 		
 		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf + player->audio_buf_index, (int)len1)) {
 			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
@@ -1326,7 +1328,8 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		
         player->audio_buf_index += len1;
     }
-
+	double songDuration = (double)totalFrameCount / SAMPLERATE;
+	
 	if (!chromaprint_finish(chromaprint_ctx)) {
 		fprintf(stderr, "ERROR: fingerprint finish calculation failed\n");
 		goto final;
@@ -1338,7 +1341,9 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		goto final;
 	}
 
-	returnObj = PyString_FromString(fingerprint);
+	returnObj = PyTuple_Pack(2,
+		PyFloat_FromDouble(songDuration),
+		PyString_FromString(fingerprint));
 
 	chromaprint_dealloc(fingerprint);
 	chromaprint_free(chromaprint_ctx);
