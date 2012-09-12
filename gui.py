@@ -82,7 +82,7 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	return label, update
 
 def buildControlList(userAttr, inst):
-	subview = NSView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	def update():
 		pass
 	return subview, update
