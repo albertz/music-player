@@ -9,18 +9,24 @@ def notificationsMain():
 	notifCenter = AppKit.NSUserNotificationCenter.defaultUserNotificationCenter()
 	notifCenter.setDelegate_(appDelegate)
 
+	def notifyCurSong():
+		notif = AppKit.NSUserNotification.alloc().init()
+		notif.setTitle_("MusicPlayer")
+		song = state.curSong
+		try:
+			s = None
+			s = song.userString
+			s = s.decode("utf-8")
+		except:
+			s = str(s)
+		notif.setInformativeText_(s)
+		notifCenter.deliverNotification_(notif)
+		#print "notification:", notif
+
 	for ev,args,kwargs in state.updates.read():
 		if ev is PlayerEventCallbacks.onSongChange:
-			notif = AppKit.NSUserNotification.alloc().init()
-			notif.setTitle_("MusicPlayer")
-			newSong = kwargs["newSong"]
-			s = newSong.userString
-			try:
-				s = s.decode("utf-8")
-			except:
-				s = str(s)
-			notif.setInformativeText_(s)
-			notifCenter.deliverNotification_(notif)
-			#print "notification:", notif
+			notifyCurSong()
+		elif ev is PlayerEventCallbacks.onPlayingStateChange and kwargs["newState"] == True:
+			notifyCurSong()
 
 	del pool
