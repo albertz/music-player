@@ -12,15 +12,18 @@ def sysExec(cmd):
 sysExec(["mkdir","-p","build"])
 os.chdir("build")
 
+staticChromaprint = False
+
 sysExec(["gcc", "-c"] +
 	["../ffmpeg.c"] +
-	glob("../chromaprint/*.cpp") +
+	(glob("../chromaprint/*.cpp") if staticChromaprint else []) +
 	[
 	"-DHAVE_CONFIG_H",
 	"-I", "/System/Library/Frameworks/Python.framework/Headers/",
-	"-I", "../chromaprint",
 	"-g",
-	])
+	] +
+	(["-I", "../chromaprint"] if staticChromaprint else [])
+)
 
 sysExec(["libtool", "-dynamic", "-o", "../ffmpeg.so"] +
 	glob("*.o") +
@@ -28,4 +31,6 @@ sysExec(["libtool", "-dynamic", "-o", "../ffmpeg.so"] +
 	"-framework", "Python",
 	"-lavformat", "-lavutil", "-lavcodec", "-lswresample", "-lportaudio",
 	"-lc", "-lstdc++",
-	])
+	] +
+	([] if staticChromaprint else ["-lchromaprint"])
+)
