@@ -27,10 +27,10 @@ class RandomFromSongDatabaseGen:
 	randomQuality = 0.0
 
 	def __init__(self):
-		from SongStore import SongStore
-		self.database = SongStore(appinfo.userdir)
-
 		def loadDatabase():
+			from SongStore import SongStore
+			self.database = SongStore(appinfo.userdir)
+
 			import utils
 
 			self.database.open()
