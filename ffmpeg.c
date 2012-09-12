@@ -1316,7 +1316,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 
 		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
 		
-		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf, audio_size)) {
+		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf, audio_size / 2)) {
 			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
 			goto final;
 		}
