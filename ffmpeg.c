@@ -30,9 +30,12 @@
 #include <Python.h>
 #include <pythread.h>
 #include <stdio.h>
+#include <chromaprint.h>
 
 //#define DEBUG 1
 
+#define SAMPLERATE 44100
+#define NUMCHANNELS 2
 #define AUDIO_BUFFER_SIZE 2048
 
 typedef struct AudioParams {
@@ -42,6 +45,7 @@ typedef struct AudioParams {
     enum AVSampleFormat fmt;
 } AudioParams;
 
+// this struct is initialized in player_init()
 typedef struct {
     PyObject_HEAD
 	
@@ -56,7 +60,8 @@ typedef struct {
 	AVFormatContext* inStream;
 	PaStream* outStream;
 	PyObject* dict;
-
+	int nextSongOnEof;
+	
 	/* Important note about the lock:
 	To avoid deadlocks with on thread waiting on the Python GIL and another on this lock,
 	we must ensure a strict order in which we might acquire both locks:
@@ -729,7 +734,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 				int eof = 0;
 				if (ret == AVERROR_EOF || url_feof(is->inStream->pb))
 					eof = 1;
-				if(eof) {
+				if(eof && is->nextSongOnEof) {
 					PyGILState_STATE gstate;
 					gstate = PyGILState_Ensure();
 
@@ -789,7 +794,7 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long le
 	// We must not hold the PyGIL here!
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 
-	if(player->inStream == NULL) {
+	if(player->inStream == NULL && player->nextSongOnEof) {
 		PyGILState_STATE gstate;
 		gstate = PyGILState_Ensure();
 
@@ -850,7 +855,7 @@ int paStreamCallback(
 					 PaStreamCallbackFlags statusFlags,
 					 void *userData )
 {
-	player_fillOutStream((PlayerObject*) userData, (uint8_t*) output, frameCount * 2 /* bytes */ * 2 /* stereo */);
+	player_fillOutStream((PlayerObject*) userData, (uint8_t*) output, frameCount * 2 /* bytes */ * NUMCHANNELS);
 	return paContinue;
 }
 
@@ -877,9 +882,9 @@ static int player_setplaying(PlayerObject* player, int playing) {
 		ret = Pa_OpenDefaultStream(
 		   &player->outStream,
 		   0,
-		   2, // numOutputChannels
+		   NUMCHANNELS, // numOutputChannels
 		   paInt16, // sampleFormat
-		   44100, // sampleRate
+		   SAMPLERATE, // sampleRate
 		   AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
 		   &paStreamCallback,
 		   player //void *userData
@@ -944,11 +949,13 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 
 	player->lock = PyThread_allocate_lock();
 
+	player->nextSongOnEof = 1;
+	
 	// see also player_setplaying where we init the PaStream (with same params)
-	player->audio_tgt.freq = 44100;
+	player->audio_tgt.freq = SAMPLERATE;
 	player->audio_tgt.fmt = AV_SAMPLE_FMT_S16;
-	player->audio_tgt.channels = 2;
-	player->audio_tgt.channel_layout = av_get_default_channel_layout(2);
+	player->audio_tgt.channels = NUMCHANNELS;
+	player->audio_tgt.channel_layout = av_get_default_channel_layout(NUMCHANNELS);
 	
 	return 0;
 }
@@ -1261,6 +1268,7 @@ pyGetMetadata(PyObject* self, PyObject* args) {
 	PyObject* returnObj = NULL;
 	PlayerObject* player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
+	player->nextSongOnEof = 0;
 	player->curSong = songObj;
 	player_openInputStream(player);
 	
@@ -1274,9 +1282,81 @@ final:
 }
 
 
+static PyObject *
+pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
+	PyObject* songObj = NULL;
+	if(!PyArg_ParseTuple(args, "O:calcAcoustIdFingerprint", &songObj))
+		return NULL;
+	
+	PyObject* returnObj = NULL;
+	PlayerObject* player = (PlayerObject*) pyCreatePlayer(NULL);
+	if(!player) goto final;
+	player->nextSongOnEof = 0;
+	player->playing = 1; // otherwise audio_decode_frame() wont read
+	player->curSong = songObj;
+	if(player_openInputStream(player) != 0) goto final;
+	if(player->inStream == NULL) goto final;
+	
+	// 	player_fillOutStream(player, (uint8_t*) output, frameCount * 2 /* S16 bytes */ * 2 /* stereo */);
+
+	ChromaprintContext *chromaprint_ctx = chromaprint_new(CHROMAPRINT_ALGORITHM_DEFAULT);
+	chromaprint_start(chromaprint_ctx, SAMPLERATE, NUMCHANNELS);
+
+	// The following code is loosely adopted from player_fillOutStream().	
+    while (1) {
+        if (player->audio_buf_index >= player->audio_buf_size) {
+			double pts;
+			int audio_size = audio_decode_frame(player, &pts);
+			if (audio_size < 0) {
+				break; // probably EOF or so
+                /* if error, just output silence */
+				//player->audio_buf      = player->silence_buf;
+				//player->audio_buf_size = sizeof(player->silence_buf) / frame_size * frame_size;
+			} else {
+				player->audio_buf_size = audio_size;
+			}
+			player->audio_buf_index = 0;
+        }
+        unsigned long len1 = player->audio_buf_size - player->audio_buf_index;
+		
+		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf + player->audio_buf_index, (int)len1)) {
+			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
+			goto final;
+		}
+		
+        player->audio_buf_index += len1;
+    }
+
+	if (!chromaprint_finish(chromaprint_ctx)) {
+		fprintf(stderr, "ERROR: fingerprint finish calculation failed\n");
+		goto final;
+	}
+
+	char* fingerprint = NULL;
+	if (!chromaprint_get_fingerprint(chromaprint_ctx, &fingerprint)) {
+		fprintf(stderr, "ERROR: unable to calculate fingerprint, get_fingerprint failed\n");
+		goto final;
+	}
+
+	returnObj = PyString_FromString(fingerprint);
+
+	chromaprint_dealloc(fingerprint);
+	chromaprint_free(chromaprint_ctx);
+	
+final:
+	if(!returnObj) {
+		returnObj = Py_None;
+		Py_INCREF(returnObj);
+	}
+	Py_XDECREF(player);
+	return returnObj;
+}
+
+
 static PyMethodDef module_methods[] = {
 	{"createPlayer",	(PyCFunction)pyCreatePlayer,	METH_NOARGS,	"creates new player"},
     {"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
+    {"calcAcoustIdFingerprint",		pyCalcAcoustIdFingerprint,	METH_VARARGS,	"calculate AcoustID fingerprint for Song"},
 	{NULL,				NULL}	/* sentinel */
 };
 
