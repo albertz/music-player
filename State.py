@@ -85,7 +85,7 @@ class State(object):
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-	@UserAttrib(type=Traits.OneLineText)
+	@UserAttrib(type=Traits.OneLineText, updateHandler=lambda *args:None)
 	@initBy
 	def curSong(self): return PersistentObject(Song, "cursong.dat")
 
