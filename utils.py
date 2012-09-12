@@ -338,6 +338,8 @@ class Module:
 			mainFunc = getattr(self.module, self.mainFuncName)
 			try:
 				mainFunc()
+			except SystemExit:
+				raise
 			except:
 				print "Exception in thread", thread.name
 				sys.excepthook(*sys.exc_info())

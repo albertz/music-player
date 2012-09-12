@@ -3,7 +3,6 @@ import sys
 
 if sys.platform != "darwin":
 	print "GUI: your platform is probably not supported yet"
-	def guiMain(): pass
 
 import objc
 from AppKit import *
