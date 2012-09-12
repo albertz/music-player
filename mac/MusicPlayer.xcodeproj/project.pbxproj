@@ -7,6 +7,65 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A51600BD7F00A38E78 /* audio_consumer.h */; };
+		233684F11600BD7F00A38E78 /* audio_processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684A61600BD7F00A38E78 /* audio_processor.cpp */; };
+		233684F21600BD7F00A38E78 /* audio_processor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A71600BD7F00A38E78 /* audio_processor.h */; };
+		233684F61600BD7F00A38E78 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684AC1600BD7F00A38E78 /* base64.cpp */; };
+		233684F71600BD7F00A38E78 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684AD1600BD7F00A38E78 /* base64.h */; };
+		233684F81600BD7F00A38E78 /* bit_string_reader.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684AE1600BD7F00A38E78 /* bit_string_reader.h */; };
+		233684F91600BD7F00A38E78 /* bit_string_writer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684AF1600BD7F00A38E78 /* bit_string_writer.h */; };
+		233684FA1600BD7F00A38E78 /* chroma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B01600BD7F00A38E78 /* chroma.cpp */; };
+		233684FB1600BD7F00A38E78 /* chroma.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B11600BD7F00A38E78 /* chroma.h */; };
+		233684FC1600BD7F00A38E78 /* chroma_filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B21600BD7F00A38E78 /* chroma_filter.cpp */; };
+		233684FD1600BD7F00A38E78 /* chroma_filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B31600BD7F00A38E78 /* chroma_filter.h */; };
+		233684FE1600BD7F00A38E78 /* chroma_normalizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B41600BD7F00A38E78 /* chroma_normalizer.h */; };
+		233684FF1600BD7F00A38E78 /* chroma_resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B51600BD7F00A38E78 /* chroma_resampler.cpp */; };
+		233685001600BD7F00A38E78 /* chroma_resampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B61600BD7F00A38E78 /* chroma_resampler.h */; };
+		233685011600BD7F00A38E78 /* chromaprint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B71600BD7F00A38E78 /* chromaprint.cpp */; };
+		233685021600BD7F00A38E78 /* chromaprint.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B81600BD7F00A38E78 /* chromaprint.h */; };
+		233685031600BD7F00A38E78 /* classifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B91600BD7F00A38E78 /* classifier.h */; };
+		233685041600BD7F00A38E78 /* combined_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684BB1600BD7F00A38E78 /* combined_buffer.h */; };
+		233685051600BD7F00A38E78 /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684BC1600BD7F00A38E78 /* debug.h */; };
+		233685061600BD7F00A38E78 /* decoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684BD1600BD7F00A38E78 /* decoder.h */; };
+		2336850C1600BD7F00A38E78 /* feature_vector_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C41600BD7F00A38E78 /* feature_vector_consumer.h */; };
+		2336850D1600BD7F00A38E78 /* fft.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684C51600BD7F00A38E78 /* fft.cpp */; };
+		2336850E1600BD7F00A38E78 /* fft.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C61600BD7F00A38E78 /* fft.h */; };
+		2336850F1600BD7F00A38E78 /* fft_frame.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C71600BD7F00A38E78 /* fft_frame.h */; };
+		233685101600BD7F00A38E78 /* fft_frame_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C81600BD7F00A38E78 /* fft_frame_consumer.h */; };
+		233685111600BD7F00A38E78 /* fft_lib.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C91600BD7F00A38E78 /* fft_lib.h */; };
+		233685121600BD7F00A38E78 /* fft_lib_avfft.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684CA1600BD7F00A38E78 /* fft_lib_avfft.cpp */; };
+		233685131600BD7F00A38E78 /* fft_lib_avfft.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684CB1600BD7F00A38E78 /* fft_lib_avfft.h */; };
+		233685181600BD7F00A38E78 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D01600BD7F00A38E78 /* filter.cpp */; };
+		233685191600BD7F00A38E78 /* filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D11600BD7F00A38E78 /* filter.h */; };
+		2336851A1600BD7F00A38E78 /* filter_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D21600BD7F00A38E78 /* filter_utils.h */; };
+		2336851B1600BD7F00A38E78 /* fingerprint_calculator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D31600BD7F00A38E78 /* fingerprint_calculator.cpp */; };
+		2336851C1600BD7F00A38E78 /* fingerprint_calculator.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D41600BD7F00A38E78 /* fingerprint_calculator.h */; };
+		2336851D1600BD7F00A38E78 /* fingerprint_compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D51600BD7F00A38E78 /* fingerprint_compressor.cpp */; };
+		2336851E1600BD7F00A38E78 /* fingerprint_compressor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D61600BD7F00A38E78 /* fingerprint_compressor.h */; };
+		2336851F1600BD7F00A38E78 /* fingerprint_decompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D71600BD7F00A38E78 /* fingerprint_decompressor.cpp */; };
+		233685201600BD7F00A38E78 /* fingerprint_decompressor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D81600BD7F00A38E78 /* fingerprint_decompressor.h */; };
+		233685211600BD7F00A38E78 /* fingerprinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D91600BD7F00A38E78 /* fingerprinter.cpp */; };
+		233685221600BD7F00A38E78 /* fingerprinter.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DA1600BD7F00A38E78 /* fingerprinter.h */; };
+		233685231600BD7F00A38E78 /* fingerprinter_configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */; };
+		233685241600BD7F00A38E78 /* fingerprinter_configuration.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DC1600BD7F00A38E78 /* fingerprinter_configuration.h */; };
+		233685251600BD7F00A38E78 /* foo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DD1600BD7F00A38E78 /* foo.cpp */; };
+		233685261600BD7F00A38E78 /* image.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DE1600BD7F00A38E78 /* image.h */; };
+		233685271600BD7F00A38E78 /* image_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DF1600BD7F00A38E78 /* image_builder.cpp */; };
+		233685281600BD7F00A38E78 /* image_builder.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E01600BD7F00A38E78 /* image_builder.h */; };
+		233685291600BD7F00A38E78 /* integral_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E11600BD7F00A38E78 /* integral_image.cpp */; };
+		2336852A1600BD7F00A38E78 /* integral_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E21600BD7F00A38E78 /* integral_image.h */; };
+		2336852B1600BD7F00A38E78 /* lloyds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E31600BD7F00A38E78 /* lloyds.cpp */; };
+		2336852C1600BD7F00A38E78 /* lloyds.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E41600BD7F00A38E78 /* lloyds.h */; };
+		2336852D1600BD7F00A38E78 /* moving_average.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E51600BD7F00A38E78 /* moving_average.h */; };
+		2336852E1600BD7F00A38E78 /* quantizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E61600BD7F00A38E78 /* quantizer.h */; };
+		2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E71600BD7F00A38E78 /* silence_remover.cpp */; };
+		233685301600BD7F00A38E78 /* silence_remover.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E81600BD7F00A38E78 /* silence_remover.h */; };
+		233685331600BD7F00A38E78 /* spectral_centroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684EB1600BD7F00A38E78 /* spectral_centroid.cpp */; };
+		233685341600BD7F00A38E78 /* spectral_centroid.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EC1600BD7F00A38E78 /* spectral_centroid.h */; };
+		233685351600BD7F00A38E78 /* spectrum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684ED1600BD7F00A38E78 /* spectrum.cpp */; };
+		233685361600BD7F00A38E78 /* spectrum.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EE1600BD7F00A38E78 /* spectrum.h */; };
+		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
+		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
 		23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
@@ -29,6 +88,65 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		233684A51600BD7F00A38E78 /* audio_consumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_consumer.h; sourceTree = "<group>"; };
+		233684A61600BD7F00A38E78 /* audio_processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_processor.cpp; sourceTree = "<group>"; };
+		233684A71600BD7F00A38E78 /* audio_processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_processor.h; sourceTree = "<group>"; };
+		233684AC1600BD7F00A38E78 /* base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base64.cpp; sourceTree = "<group>"; };
+		233684AD1600BD7F00A38E78 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
+		233684AE1600BD7F00A38E78 /* bit_string_reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bit_string_reader.h; sourceTree = "<group>"; };
+		233684AF1600BD7F00A38E78 /* bit_string_writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bit_string_writer.h; sourceTree = "<group>"; };
+		233684B01600BD7F00A38E78 /* chroma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chroma.cpp; sourceTree = "<group>"; };
+		233684B11600BD7F00A38E78 /* chroma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chroma.h; sourceTree = "<group>"; };
+		233684B21600BD7F00A38E78 /* chroma_filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chroma_filter.cpp; sourceTree = "<group>"; };
+		233684B31600BD7F00A38E78 /* chroma_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chroma_filter.h; sourceTree = "<group>"; };
+		233684B41600BD7F00A38E78 /* chroma_normalizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chroma_normalizer.h; sourceTree = "<group>"; };
+		233684B51600BD7F00A38E78 /* chroma_resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chroma_resampler.cpp; sourceTree = "<group>"; };
+		233684B61600BD7F00A38E78 /* chroma_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chroma_resampler.h; sourceTree = "<group>"; };
+		233684B71600BD7F00A38E78 /* chromaprint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromaprint.cpp; sourceTree = "<group>"; };
+		233684B81600BD7F00A38E78 /* chromaprint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chromaprint.h; sourceTree = "<group>"; };
+		233684B91600BD7F00A38E78 /* classifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = classifier.h; sourceTree = "<group>"; };
+		233684BB1600BD7F00A38E78 /* combined_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = combined_buffer.h; sourceTree = "<group>"; };
+		233684BC1600BD7F00A38E78 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		233684BD1600BD7F00A38E78 /* decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = decoder.h; sourceTree = "<group>"; };
+		233684C41600BD7F00A38E78 /* feature_vector_consumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_vector_consumer.h; sourceTree = "<group>"; };
+		233684C51600BD7F00A38E78 /* fft.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fft.cpp; sourceTree = "<group>"; };
+		233684C61600BD7F00A38E78 /* fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fft.h; sourceTree = "<group>"; };
+		233684C71600BD7F00A38E78 /* fft_frame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fft_frame.h; sourceTree = "<group>"; };
+		233684C81600BD7F00A38E78 /* fft_frame_consumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fft_frame_consumer.h; sourceTree = "<group>"; };
+		233684C91600BD7F00A38E78 /* fft_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fft_lib.h; sourceTree = "<group>"; };
+		233684CA1600BD7F00A38E78 /* fft_lib_avfft.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fft_lib_avfft.cpp; sourceTree = "<group>"; };
+		233684CB1600BD7F00A38E78 /* fft_lib_avfft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fft_lib_avfft.h; sourceTree = "<group>"; };
+		233684D01600BD7F00A38E78 /* filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cpp; sourceTree = "<group>"; };
+		233684D11600BD7F00A38E78 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
+		233684D21600BD7F00A38E78 /* filter_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_utils.h; sourceTree = "<group>"; };
+		233684D31600BD7F00A38E78 /* fingerprint_calculator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fingerprint_calculator.cpp; sourceTree = "<group>"; };
+		233684D41600BD7F00A38E78 /* fingerprint_calculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fingerprint_calculator.h; sourceTree = "<group>"; };
+		233684D51600BD7F00A38E78 /* fingerprint_compressor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fingerprint_compressor.cpp; sourceTree = "<group>"; };
+		233684D61600BD7F00A38E78 /* fingerprint_compressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fingerprint_compressor.h; sourceTree = "<group>"; };
+		233684D71600BD7F00A38E78 /* fingerprint_decompressor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fingerprint_decompressor.cpp; sourceTree = "<group>"; };
+		233684D81600BD7F00A38E78 /* fingerprint_decompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fingerprint_decompressor.h; sourceTree = "<group>"; };
+		233684D91600BD7F00A38E78 /* fingerprinter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fingerprinter.cpp; sourceTree = "<group>"; };
+		233684DA1600BD7F00A38E78 /* fingerprinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fingerprinter.h; sourceTree = "<group>"; };
+		233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fingerprinter_configuration.cpp; sourceTree = "<group>"; };
+		233684DC1600BD7F00A38E78 /* fingerprinter_configuration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fingerprinter_configuration.h; sourceTree = "<group>"; };
+		233684DD1600BD7F00A38E78 /* foo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = foo.cpp; sourceTree = "<group>"; };
+		233684DE1600BD7F00A38E78 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image.h; sourceTree = "<group>"; };
+		233684DF1600BD7F00A38E78 /* image_builder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_builder.cpp; sourceTree = "<group>"; };
+		233684E01600BD7F00A38E78 /* image_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_builder.h; sourceTree = "<group>"; };
+		233684E11600BD7F00A38E78 /* integral_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = integral_image.cpp; sourceTree = "<group>"; };
+		233684E21600BD7F00A38E78 /* integral_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = integral_image.h; sourceTree = "<group>"; };
+		233684E31600BD7F00A38E78 /* lloyds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lloyds.cpp; sourceTree = "<group>"; };
+		233684E41600BD7F00A38E78 /* lloyds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lloyds.h; sourceTree = "<group>"; };
+		233684E51600BD7F00A38E78 /* moving_average.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = moving_average.h; sourceTree = "<group>"; };
+		233684E61600BD7F00A38E78 /* quantizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quantizer.h; sourceTree = "<group>"; };
+		233684E71600BD7F00A38E78 /* silence_remover.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = silence_remover.cpp; sourceTree = "<group>"; };
+		233684E81600BD7F00A38E78 /* silence_remover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = silence_remover.h; sourceTree = "<group>"; };
+		233684EB1600BD7F00A38E78 /* spectral_centroid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = spectral_centroid.cpp; sourceTree = "<group>"; };
+		233684EC1600BD7F00A38E78 /* spectral_centroid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectral_centroid.h; sourceTree = "<group>"; };
+		233684ED1600BD7F00A38E78 /* spectrum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = spectrum.cpp; sourceTree = "<group>"; };
+		233684EE1600BD7F00A38E78 /* spectrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectrum.h; sourceTree = "<group>"; };
+		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
+		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3915E3B2CC00376BF6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		23A14A3C15E3B2CC00376BF6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -69,9 +187,77 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		233684A41600BD7F00A38E78 /* chromaprint */ = {
+			isa = PBXGroup;
+			children = (
+				233685391600BF0200A38E78 /* config.h */,
+				233684A51600BD7F00A38E78 /* audio_consumer.h */,
+				233684A61600BD7F00A38E78 /* audio_processor.cpp */,
+				233684A71600BD7F00A38E78 /* audio_processor.h */,
+				233684AC1600BD7F00A38E78 /* base64.cpp */,
+				233684AD1600BD7F00A38E78 /* base64.h */,
+				233684AE1600BD7F00A38E78 /* bit_string_reader.h */,
+				233684AF1600BD7F00A38E78 /* bit_string_writer.h */,
+				233684B01600BD7F00A38E78 /* chroma.cpp */,
+				233684B11600BD7F00A38E78 /* chroma.h */,
+				233684B21600BD7F00A38E78 /* chroma_filter.cpp */,
+				233684B31600BD7F00A38E78 /* chroma_filter.h */,
+				233684B41600BD7F00A38E78 /* chroma_normalizer.h */,
+				233684B51600BD7F00A38E78 /* chroma_resampler.cpp */,
+				233684B61600BD7F00A38E78 /* chroma_resampler.h */,
+				233684B71600BD7F00A38E78 /* chromaprint.cpp */,
+				233684B81600BD7F00A38E78 /* chromaprint.h */,
+				233684B91600BD7F00A38E78 /* classifier.h */,
+				233684BB1600BD7F00A38E78 /* combined_buffer.h */,
+				233684BC1600BD7F00A38E78 /* debug.h */,
+				233684BD1600BD7F00A38E78 /* decoder.h */,
+				233684C41600BD7F00A38E78 /* feature_vector_consumer.h */,
+				233684C51600BD7F00A38E78 /* fft.cpp */,
+				233684C61600BD7F00A38E78 /* fft.h */,
+				233684C71600BD7F00A38E78 /* fft_frame.h */,
+				233684C81600BD7F00A38E78 /* fft_frame_consumer.h */,
+				233684C91600BD7F00A38E78 /* fft_lib.h */,
+				233684CA1600BD7F00A38E78 /* fft_lib_avfft.cpp */,
+				233684CB1600BD7F00A38E78 /* fft_lib_avfft.h */,
+				233684D01600BD7F00A38E78 /* filter.cpp */,
+				233684D11600BD7F00A38E78 /* filter.h */,
+				233684D21600BD7F00A38E78 /* filter_utils.h */,
+				233684D31600BD7F00A38E78 /* fingerprint_calculator.cpp */,
+				233684D41600BD7F00A38E78 /* fingerprint_calculator.h */,
+				233684D51600BD7F00A38E78 /* fingerprint_compressor.cpp */,
+				233684D61600BD7F00A38E78 /* fingerprint_compressor.h */,
+				233684D71600BD7F00A38E78 /* fingerprint_decompressor.cpp */,
+				233684D81600BD7F00A38E78 /* fingerprint_decompressor.h */,
+				233684D91600BD7F00A38E78 /* fingerprinter.cpp */,
+				233684DA1600BD7F00A38E78 /* fingerprinter.h */,
+				233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */,
+				233684DC1600BD7F00A38E78 /* fingerprinter_configuration.h */,
+				233684DD1600BD7F00A38E78 /* foo.cpp */,
+				233684DE1600BD7F00A38E78 /* image.h */,
+				233684DF1600BD7F00A38E78 /* image_builder.cpp */,
+				233684E01600BD7F00A38E78 /* image_builder.h */,
+				233684E11600BD7F00A38E78 /* integral_image.cpp */,
+				233684E21600BD7F00A38E78 /* integral_image.h */,
+				233684E31600BD7F00A38E78 /* lloyds.cpp */,
+				233684E41600BD7F00A38E78 /* lloyds.h */,
+				233684E51600BD7F00A38E78 /* moving_average.h */,
+				233684E61600BD7F00A38E78 /* quantizer.h */,
+				233684E71600BD7F00A38E78 /* silence_remover.cpp */,
+				233684E81600BD7F00A38E78 /* silence_remover.h */,
+				233684EB1600BD7F00A38E78 /* spectral_centroid.cpp */,
+				233684EC1600BD7F00A38E78 /* spectral_centroid.h */,
+				233684ED1600BD7F00A38E78 /* spectrum.cpp */,
+				233684EE1600BD7F00A38E78 /* spectrum.h */,
+				233684EF1600BD7F00A38E78 /* utils.h */,
+			);
+			name = chromaprint;
+			path = ../chromaprint;
+			sourceTree = "<group>";
+		};
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
+				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
@@ -147,6 +333,44 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */,
+				233684F21600BD7F00A38E78 /* audio_processor.h in Headers */,
+				233684F71600BD7F00A38E78 /* base64.h in Headers */,
+				233684F81600BD7F00A38E78 /* bit_string_reader.h in Headers */,
+				233684F91600BD7F00A38E78 /* bit_string_writer.h in Headers */,
+				233684FB1600BD7F00A38E78 /* chroma.h in Headers */,
+				233684FD1600BD7F00A38E78 /* chroma_filter.h in Headers */,
+				233684FE1600BD7F00A38E78 /* chroma_normalizer.h in Headers */,
+				233685001600BD7F00A38E78 /* chroma_resampler.h in Headers */,
+				233685021600BD7F00A38E78 /* chromaprint.h in Headers */,
+				233685031600BD7F00A38E78 /* classifier.h in Headers */,
+				233685041600BD7F00A38E78 /* combined_buffer.h in Headers */,
+				233685051600BD7F00A38E78 /* debug.h in Headers */,
+				233685061600BD7F00A38E78 /* decoder.h in Headers */,
+				2336850C1600BD7F00A38E78 /* feature_vector_consumer.h in Headers */,
+				2336850E1600BD7F00A38E78 /* fft.h in Headers */,
+				2336850F1600BD7F00A38E78 /* fft_frame.h in Headers */,
+				233685101600BD7F00A38E78 /* fft_frame_consumer.h in Headers */,
+				233685111600BD7F00A38E78 /* fft_lib.h in Headers */,
+				233685131600BD7F00A38E78 /* fft_lib_avfft.h in Headers */,
+				233685191600BD7F00A38E78 /* filter.h in Headers */,
+				2336851A1600BD7F00A38E78 /* filter_utils.h in Headers */,
+				2336851C1600BD7F00A38E78 /* fingerprint_calculator.h in Headers */,
+				2336851E1600BD7F00A38E78 /* fingerprint_compressor.h in Headers */,
+				233685201600BD7F00A38E78 /* fingerprint_decompressor.h in Headers */,
+				233685221600BD7F00A38E78 /* fingerprinter.h in Headers */,
+				233685241600BD7F00A38E78 /* fingerprinter_configuration.h in Headers */,
+				233685261600BD7F00A38E78 /* image.h in Headers */,
+				233685281600BD7F00A38E78 /* image_builder.h in Headers */,
+				2336852A1600BD7F00A38E78 /* integral_image.h in Headers */,
+				2336852C1600BD7F00A38E78 /* lloyds.h in Headers */,
+				2336852D1600BD7F00A38E78 /* moving_average.h in Headers */,
+				2336852E1600BD7F00A38E78 /* quantizer.h in Headers */,
+				233685301600BD7F00A38E78 /* silence_remover.h in Headers */,
+				233685341600BD7F00A38E78 /* spectral_centroid.h in Headers */,
+				233685361600BD7F00A38E78 /* spectrum.h in Headers */,
+				233685371600BD7F00A38E78 /* utils.h in Headers */,
+				2336853A1600BF0200A38E78 /* config.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,6 +484,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */,
+				233684F11600BD7F00A38E78 /* audio_processor.cpp in Sources */,
+				233684F61600BD7F00A38E78 /* base64.cpp in Sources */,
+				233684FA1600BD7F00A38E78 /* chroma.cpp in Sources */,
+				233684FC1600BD7F00A38E78 /* chroma_filter.cpp in Sources */,
+				233684FF1600BD7F00A38E78 /* chroma_resampler.cpp in Sources */,
+				233685011600BD7F00A38E78 /* chromaprint.cpp in Sources */,
+				2336850D1600BD7F00A38E78 /* fft.cpp in Sources */,
+				233685121600BD7F00A38E78 /* fft_lib_avfft.cpp in Sources */,
+				233685181600BD7F00A38E78 /* filter.cpp in Sources */,
+				2336851B1600BD7F00A38E78 /* fingerprint_calculator.cpp in Sources */,
+				2336851D1600BD7F00A38E78 /* fingerprint_compressor.cpp in Sources */,
+				2336851F1600BD7F00A38E78 /* fingerprint_decompressor.cpp in Sources */,
+				233685211600BD7F00A38E78 /* fingerprinter.cpp in Sources */,
+				233685231600BD7F00A38E78 /* fingerprinter_configuration.cpp in Sources */,
+				233685251600BD7F00A38E78 /* foo.cpp in Sources */,
+				233685271600BD7F00A38E78 /* image_builder.cpp in Sources */,
+				233685291600BD7F00A38E78 /* integral_image.cpp in Sources */,
+				2336852B1600BD7F00A38E78 /* lloyds.cpp in Sources */,
+				2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */,
+				233685331600BD7F00A38E78 /* spectral_centroid.cpp in Sources */,
+				233685351600BD7F00A38E78 /* spectrum.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,10 +550,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -349,10 +590,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
 				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/Cellar/ffmpeg/0.10.2/lib,
-				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -366,10 +603,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
 				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/Cellar/ffmpeg/0.10.2/lib,
-				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -384,8 +617,10 @@
 				HEADER_SEARCH_PATHS = (
 					/System/Library/Frameworks/Python.framework/Headers,
 					/usr/local/include,
+					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
 					"-lavformat",
 					"-lavutil",
@@ -405,8 +640,10 @@
 				HEADER_SEARCH_PATHS = (
 					/System/Library/Frameworks/Python.framework/Headers,
 					/usr/local/include,
+					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
 					"-lavformat",
 					"-lavutil",
