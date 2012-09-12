@@ -1298,11 +1298,25 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	if(player_openInputStream(player) != 0) goto final;
 	if(player->inStream == NULL) goto final;
 	
-	// 	player_fillOutStream(player, (uint8_t*) output, frameCount * 2 /* S16 bytes */ * 2 /* stereo */);
+	// fpcalc source for reference:
+	// https://github.com/lalinsky/chromaprint/blob/master/examples/fpcalc.c
 
 	ChromaprintContext *chromaprint_ctx = chromaprint_new(CHROMAPRINT_ALGORITHM_DEFAULT);
 	chromaprint_start(chromaprint_ctx, SAMPLERATE, NUMCHANNELS);
 
+	// Note that we don't have any max_length handling yet.
+	// fpcalc uses a default of 120 seconds.
+	// This function right now doesn't rely on any external song duration
+	// source, so it is a perfect reliable way to calculate also the
+	// song duration.
+	// I'm not sure how expensive audio_decode_frame is compared to
+	// chromaprint_feed, so if we just decode everything to calculate
+	// a reliable song duration, it might make sense to just feed
+	// everything to chromaprint.
+	// Maybe we can optimize audio_decode_frame though to just return the
+	// len and don't do any decoding if we just want to calculate the len.
+	// This is all open for future hacking ... But it works good enough now.
+	
 	// The following code is loosely adopted from player_fillOutStream().
 	unsigned long totalFrameCount = 0;
     while (1) {
