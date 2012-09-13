@@ -1290,7 +1290,10 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		return NULL;
 	
 	PyObject* returnObj = NULL;
-	PlayerObject* player = (PlayerObject*) pyCreatePlayer(NULL);
+	PlayerObject* player = NULL;
+	ChromaprintContext *chromaprint_ctx = NULL;
+
+	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
 	player->playing = 1; // otherwise audio_decode_frame() wont read
@@ -1301,7 +1304,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	// fpcalc source for reference:
 	// https://github.com/lalinsky/chromaprint/blob/master/examples/fpcalc.c
 
-	ChromaprintContext *chromaprint_ctx = chromaprint_new(CHROMAPRINT_ALGORITHM_DEFAULT);
+	chromaprint_ctx = chromaprint_new(CHROMAPRINT_ALGORITHM_DEFAULT);
 	chromaprint_start(chromaprint_ctx, SAMPLERATE, NUMCHANNELS);
 
 	// Note that we don't have any max_length handling yet.
@@ -1353,9 +1356,10 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		PyString_FromString(fingerprint));
 
 	chromaprint_dealloc(fingerprint);
-	chromaprint_free(chromaprint_ctx);
 	
 final:
+	if(chromaprint_ctx)
+		chromaprint_free(chromaprint_ctx);
 	if(!returnObj) {
 		returnObj = Py_None;
 		Py_INCREF(returnObj);
