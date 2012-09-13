@@ -46,7 +46,7 @@ def setupAppleMenu():
 import Traits
 
 def buildControlAction(userAttr, inst):
-	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (30.0, 30.0)))
+	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 30.0)))
 	button.setBezelStyle_(2)
 	try:
 		class ButtonActionHandler(NSObject):
@@ -72,8 +72,10 @@ def buildControlAction(userAttr, inst):
 
 def buildControlOneLineTextLabel(userAttr, inst):
 	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 25.0)))
+	label.setBordered_(False)
+	label.setBezeled_(True)
+	#label.setDrawsBackground_(False)
 	label.setEditable_(False)
-	#label.cell().setWraps_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
 	def update():
 		s = userAttr.__get__(inst)
@@ -82,6 +84,13 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	return label, update
 
 def buildControlList(userAttr, inst):
+	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	subview.setTitle_(userAttr.name.decode("utf-8"))
+	def update():
+		pass
+	return subview, update
+
+def buildControlObject(userAttr, inst):
 	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	subview.setTitle_(userAttr.name.decode("utf-8"))
 	def update():
@@ -100,6 +109,8 @@ def buildControl(userAttr, inst):
 		raise NotImplementedError
 	elif userAttr.isType(Traits.List):
 		return buildControlList(userAttr, inst)
+	elif userAttr.isType(Traits.Object):
+		return buildControlObject(userAttr, inst)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 
@@ -112,7 +123,7 @@ def setupWindow():
 
 	win = NSWindow.alloc()
 	win.initWithContentRect_styleMask_backing_defer_(
-		((200.0, 500.0), (250.0, 300.0)),
+		((200.0, 500.0), (300.0, 300.0)),
 		NSTitledWindowMask |
 		NSClosableWindowMask |
 		NSMiniaturizableWindowMask |
@@ -135,7 +146,26 @@ def setupWindow():
 
 	defaultSpaceX, defaultSpaceY = 8, 8
 	x, y = defaultSpaceX, defaultSpaceY
-	lastVerticalControl = None
+	maxY = 0
+	lastControl = None
+
+	def finishLastHoriz():
+		if lastControl:
+			w = win.contentView().bounds().size.width - x - defaultSpaceY
+			lastControl.setFrame_(((x,y),(w,h)))
+			lastControl.setAutoresizingMask_(NSViewWidthSizable)
+
+	def finishLastVert():
+		if lastControl:
+			h = lastControl.frame().origin.y + lastControl.frame().size.height + defaultSpaceY
+			win.setContentMinSize_((250.0,h))
+
+			# make the last one vertically resizable
+			h = win.contentView().bounds().size.height - y - defaultSpaceY
+			w = win.contentView().bounds().size.width - defaultSpaceY * 2
+			lastControl.setFrame_(((x,y),(w,h)))
+			lastControl.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+
 	for attr in iterUserAttribs(state):
 		print attr
 		control, update = buildControl(attr, state)
@@ -143,14 +173,24 @@ def setupWindow():
 		# We can easily make this whole GUI working for earlier MacOSX versions.
 		win.contentView().addSubview_(control)
 
-		if lastVerticalControl:
-			y = lastVerticalControl.frame().origin.y + lastVerticalControl.frame().size.height + defaultSpaceY
-		w = win.contentView().bounds().size.width - defaultSpaceY * 2
-		h = control.frame().size.height # default
-		control.setFrame_(((x,y),(w,h)))
+		if attr.alignRight and lastControl: # align next right
+			x = lastControl.frame().origin.x + lastControl.frame().size.width + defaultSpaceX
+			# y from before
+			w = control.frame().size.width # default
+			h = control.frame().size.height # default
 
-		control.setAutoresizingMask_(NSViewWidthSizable)
-		lastVerticalControl = control
+		else: # align next below
+			finishLastHoriz()
+			x = defaultSpaceX
+			y = maxY + defaultSpaceY
+			w = control.frame().size.width # default
+			h = control.frame().size.height # default
+
+		control.setFrame_(((x,y),(w,h)))
+		control.setAutoresizingMask_(0)
+
+		lastControl = control
+		maxY = max(maxY, control.frame().origin.y + control.frame().size.height)
 
 		update()
 
@@ -163,14 +203,8 @@ def setupWindow():
 				do_in_mainthread(update)
 			updateHandlers.append(handleFunc)
 
-	h = lastVerticalControl.frame().origin.y + lastVerticalControl.frame().size.height + defaultSpaceY
-	win.setContentMinSize_((100.0,h))
-
-	# make the last one vertically resizable
-	h = win.contentView().bounds().size.height - y - defaultSpaceY
-	w = win.contentView().bounds().size.width - defaultSpaceY * 2
-	lastVerticalControl.setFrame_(((x,y),(w,h)))
-	lastVerticalControl.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	finishLastHoriz()
+	finishLastVert()
 
 	win.display()
 	win.orderFrontRegardless()

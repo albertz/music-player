@@ -77,15 +77,21 @@ class State(object):
 	def playPause(self):
 		self.player.playing = not self.player.playing
 
-	@UserAttrib(type=Traits.Action, name="▶▶|")
+	@UserAttrib(type=Traits.Action, name="▶▶|", alignRight=True)
 	def nextSong(self):
 		self.player.nextSong()
 
-	@UserAttrib(type=Traits.List, writeable=True)
+	@UserAttrib(type=Traits.OneLineText, updateHandler=lambda *args:None, alignRight=True)
+	@property
+	def curSongStr(self):
+		try: return self.player.curSong.userString
+		except: return "???"
+
+	@UserAttrib(type=Traits.List)
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-	@UserAttrib(type=Traits.OneLineText, updateHandler=lambda *args:None)
+	@UserAttrib(type=Traits.Object, updateHandler=lambda *args:None)
 	@initBy
 	def curSong(self): return PersistentObject(Song, "cursong.dat")
 

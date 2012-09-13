@@ -9,4 +9,5 @@ class OneLineText(TraitType): pass
 class Enum(TraitType):
 	def __init__(self, enums):
 		self.enums = enums
+class Object(TraitType): pass
 class Action(TraitType): pass
