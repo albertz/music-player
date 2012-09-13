@@ -456,7 +456,7 @@ def getMusicPathsFromDirectory(dir):
 def getSongsFromDirectory(dir):
 	songs = []
 	files = getMusicPathsFromDirectory(dir)
-	import Song
+	from Song import Song
 	for file in files:
 		songs.append(Song(file))
 
