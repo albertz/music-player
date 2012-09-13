@@ -57,7 +57,7 @@ class DB:
 
         for record in self.db.RangeIter():
             if record[0].startsWith(searchString):
-                keys.add(record[0])
+                keys.append(record[0])
 
         return keys
 
