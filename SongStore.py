@@ -1,28 +1,36 @@
-import sqlite3
 from Song import Song
-import os
-from kyotocabinet import *
 
+# http://code.google.com/p/leveldb/
+# http://code.google.com/p/py-leveldb/
+from leveldb import *
+
+import appinfo
+import utils
+
+def dbRepr(o): return utils.betterRepr(o)
+def dbUnRepr(s): return eval(s)
+
+class DB:
+	def __init__(self, filename):
+		self.filename = filename
+		self.db = LevelDB(appinfo.userdir + "/" + filename)
+
+	def __getitem__(self, item):
+		return dbUnRepr(self.db.Get(dbRepr(item)))
+
+	def __setitem__(self, key, value):
+		self.db.Put(dbRepr(key), dbRepr(value))
+
+	def __delitem__(self, key):
+		self.db.Delete(dbRepr(key))
 
 class SongStore:
-	def __init__(self, databasedir):
+	def __init__(self):
 		self.databasedir = databasedir
-		self.artistIndex = DB()
-		self.titleIndex = DB()
-		self.genreIndex = DB()
-		self.songStore = DB()
-
-	def open(self):
-		self.artistIndex.open(self.databasedir + "/artistIndex.kct", DB.OWRITER | DB.OCREATE)
-		self.titleIndex.open(self.databasedir + "/titleIndex.kct", DB.OWRITER | DB.OCREATE)
-		self.genreIndex.open(self.databasedir + "/genreIndex.kct", DB.OWRITER | DB.OCREATE)
-		self.songStore.open(self.databasedir + "/songStore.kct", DB.OWRITER | DB.OCREATE)
-
-	def close(self):
-		self.artistIndex.close()
-		self.titleIndex.close()
-		self.genreIndex.close()
-		self.songStore.close()
+		self.artistIndex = DB("artistIndex.db")
+		self.titleIndex = DB("titleIndex.db")
+		self.genreIndex = DB("genreIndex.db")
+		self.songStore = DB("songStore.db")
 
 	def add(self, song):
 		if self.songStore[song.fingerprint_AcoustID] is None:
