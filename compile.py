@@ -14,23 +14,40 @@ os.chdir("build")
 
 staticChromaprint = False
 
-sysExec(["gcc", "-c"] +
-	["../ffmpeg.c"] +
-	(glob("../chromaprint/*.cpp") if staticChromaprint else []) +
+ffmpegFiles = ["../ffmpeg.c"] + \
+	(glob("../chromaprint/*.cpp") if staticChromaprint else [])
+
+sysExec(["gcc", "-c"] + ffmpegFiles +
 	[
-	"-DHAVE_CONFIG_H",
-	"-I", "/System/Library/Frameworks/Python.framework/Headers/",
-	"-g",
+		"-DHAVE_CONFIG_H",
+		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
+		"-g",
 	] +
 	(["-I", "../chromaprint"] if staticChromaprint else [])
 )
 
 sysExec(["libtool", "-dynamic", "-o", "../ffmpeg.so"] +
-	glob("*.o") +
+	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in ffmpegFiles] +
 	[
-	"-framework", "Python",
-	"-lavformat", "-lavutil", "-lavcodec", "-lswresample", "-lportaudio",
-	"-lc", "-lstdc++",
+		"-framework", "Python",
+		"-lavformat", "-lavutil", "-lavcodec", "-lswresample", "-lportaudio",
+		"-lc", "-lstdc++",
 	] +
 	([] if staticChromaprint else ["-lchromaprint"])
+)
+
+sysExec(["gcc", "-c"] + ["../kyotocabinet.cc"] +
+	[
+		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
+		"-g",
+	]
+)
+
+sysExec(["libtool", "-dynamic", "-o", "../kyotocabinet.so"] +
+	["kyotocabinet.o"] +
+	[
+		"-framework", "Python",
+		"-lkyotocabinet",
+		"-lc", "-lstdc++",
+	]
 )
