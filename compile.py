@@ -51,3 +51,21 @@ sysExec(["libtool", "-dynamic", "-o", "../kyotocabinet.so"] +
 		"-lc", "-lstdc++",
 	]
 )
+
+levelDbFiles = glob("../leveldb*.cc")
+
+sysExec(["gcc", "-c"] + levelDbFiles +
+	[
+		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
+		"-g",
+	]
+)
+
+sysExec(["libtool", "-dynamic", "-o", "../leveldb.so"] +
+	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in levelDbFiles] +
+	[
+		"-framework", "Python",
+		"-lleveldb", "-lsnappy",
+		"-lc", "-lstdc++",
+	]
+)
