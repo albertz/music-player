@@ -71,7 +71,7 @@ def buildControlAction(userAttr, inst):
 	return button, update
 
 def buildControlOneLineTextLabel(userAttr, inst):
-	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 25.0)))
 	label.setEditable_(False)
 	#label.cell().setWraps_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
@@ -163,7 +163,12 @@ def setupWindow():
 				do_in_mainthread(update)
 			updateHandlers.append(handleFunc)
 
+	h = lastVerticalControl.frame().origin.y + lastVerticalControl.frame().size.height + defaultSpaceY
+	win.setContentMinSize_((100.0,h))
+
+	# make the last one vertically resizable
 	h = win.contentView().bounds().size.height - y - defaultSpaceY
+	w = win.contentView().bounds().size.width - defaultSpaceY * 2
 	lastVerticalControl.setFrame_(((x,y),(w,h)))
 	lastVerticalControl.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 
