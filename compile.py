@@ -36,22 +36,6 @@ sysExec(["libtool", "-dynamic", "-o", "../ffmpeg.so"] +
 	([] if staticChromaprint else ["-lchromaprint"])
 )
 
-sysExec(["gcc", "-c"] + ["../kyotocabinet.cc"] +
-	[
-		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
-		"-g",
-	]
-)
-
-sysExec(["libtool", "-dynamic", "-o", "../kyotocabinet.so"] +
-	["kyotocabinet.o"] +
-	[
-		"-framework", "Python",
-		"-lkyotocabinet",
-		"-lc", "-lstdc++",
-	]
-)
-
 levelDbFiles = glob("../leveldb*.cc")
 
 sysExec(["gcc", "-c"] + levelDbFiles +
