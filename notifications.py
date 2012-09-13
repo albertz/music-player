@@ -12,7 +12,7 @@ def notificationsMain():
 	def notifyCurSong():
 		notif = AppKit.NSUserNotification.alloc().init()
 		notif.setTitle_("MusicPlayer")
-		song = state.curSong
+		song = state.player.curSong
 		try:
 			s = None
 			s = song.userString
