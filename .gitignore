@@ -7,4 +7,7 @@
 xcuserdata
 build
 
+# from test_bmpthumb.py
+thumbnail.bmp
+
 .idea
