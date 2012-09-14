@@ -105,7 +105,7 @@ class State(object):
 		song.openFile()
 		import ffmpeg
 		duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81)
-		# this is somewhat hacky for now...
+		# TODO: this is somewhat hacky for now...
 		if song == self.player.curSong:
 			self.player.curSong.duration = duration
 			self.player.curSong.bmpThumbnail = bmpData
