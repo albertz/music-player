@@ -78,9 +78,13 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	label.setEditable_(False)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
 	def update():
-		s = userAttr.__get__(inst)
-		s = str(s)
-		label.setStringValue_(s.decode("utf-8"))
+		labelContent = userAttr.__get__(inst)
+		s = "???"
+		try:
+			s = str(labelContent)
+			s = s.decode("utf-8")
+		except: pass
+		label.setStringValue_(s)
 	return label, update
 
 def buildControlList(userAttr, inst):
