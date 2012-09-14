@@ -61,9 +61,6 @@ class DB:
 
         return keys
 
-    def getValueSet(self, keys):
-        pass
-
 
 
 class SongStore:
