@@ -1428,6 +1428,48 @@ void bmpSetPixel(char* img, int w, int x, int y, unsigned char r, unsigned char 
 }
 
 
+// f must be in [0,1]
+static
+void rainbowColor(float f, unsigned char* r, unsigned char* g, unsigned char* b) {
+	if(f < 1.0/6) {
+		f *= 6;
+		*r = 255;
+		*g = 255 * f;
+		*b = 0;
+	}
+	else if(f < 2.0/6) {
+		f = f * 6 + 1;
+		*r = 255 * (1 - f);
+		*g = 255;
+		*b = 0;
+	}
+	else if(f < 3.0/6) {
+		f = f * 6 + 2;
+		*r = 0;
+		*g = 255;
+		*b = 255 * f;
+	}
+	else if(f < 4.0/6) {
+		f = f * 6 + 3;
+		*r = 0;
+		*g = 255 * (1 - f);
+		*b = 255;
+	}
+	else if(f < 5.0/6) {
+		f = f * 6 + 4;
+		*r = 255 * f;
+		*g = 0;
+		*b = 255;
+	}	
+	else if(f < 6.0/6) {
+		f = f * 6 + 5;
+		*r = 255;
+		*g = 0;
+		*b = 255 * (1 - f);
+	}
+}
+
+
 // idea loosely from:
 // http://www.freesound.org/
 // https://github.com/endolith/freesound-thumbnailer/blob/master/processing.py
@@ -1567,7 +1609,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 						
 		// get color from spectralCentroid
 		unsigned char r = 0, g = 0, b = 0;
-		r = g = b = (unsigned char) (spectralCentroid * 255.0); // TODO: nicer...
+		rainbowColor(spectralCentroid, &r, &g, &b);
 
 		int y1 = bmpHeight * 0.5 + peakMin * (bmpHeight - 4) * 0.5;
 		int y2 = bmpHeight * 0.5 + peakMax * (bmpHeight - 4) * 0.5;
