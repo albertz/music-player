@@ -11,3 +11,4 @@ class Enum(TraitType):
 		self.enums = enums
 class Object(TraitType): pass
 class Action(TraitType): pass
+class Image(TraitType): pass

@@ -26,10 +26,12 @@
 
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
+#include <libavcodec/avfft.h>
 #include <portaudio.h>
 #include <Python.h>
 #include <pythread.h>
 #include <stdio.h>
+#include <math.h>
 #include <chromaprint.h>
 
 //#define DEBUG 1
@@ -1369,10 +1371,305 @@ final:
 }
 
 
+// note that each row in imgDataStart is aligned to 4 bytes
+#define ALIGN4(n) ((n)+3 - ((n)+3) % 4)
+// each single pixel is decoded as BGR
+static
+char* createBitmap24Bpp(int w, int h, char** imgDataStart, size_t* bmpSize) {
+	assert(imgDataStart);
+
+	// http://en.wikipedia.org/wiki/BMP_file_format
+	
+	static const int FileHeaderSize = 14;
+	static const int InfoHeaderSize = 40; // format BITMAPINFOHEADER
+	*bmpSize = FileHeaderSize + InfoHeaderSize + ALIGN4(3 * w) * h;
+	char* bmp = malloc(*bmpSize);
+	if(!bmp) return NULL;
+	memset(bmp, 0, *bmpSize);
+		
+	unsigned char* bmpfileheader = (unsigned char*) bmp;
+	unsigned char* bmpinfoheader = (unsigned char*) bmp + FileHeaderSize;
+	*imgDataStart = bmp + FileHeaderSize + InfoHeaderSize;
+		
+	// header field
+	bmpfileheader[ 0] = 'B';
+	bmpfileheader[ 1] = 'M';
+	
+	bmpfileheader[ 2] = (unsigned char)(*bmpSize    );
+	bmpfileheader[ 3] = (unsigned char)(*bmpSize>> 8);
+	bmpfileheader[ 4] = (unsigned char)(*bmpSize>>16);
+	bmpfileheader[ 5] = (unsigned char)(*bmpSize>>24);
+
+	assert(FileHeaderSize + InfoHeaderSize < 256);
+	bmpfileheader[10] = FileHeaderSize + InfoHeaderSize; // starting address of image data (32bit)
+
+	bmpinfoheader[ 0] = InfoHeaderSize; // size of info header. (32bit)
+	
+	bmpinfoheader[ 4] = (unsigned char)(       w    );
+	bmpinfoheader[ 5] = (unsigned char)(       w>> 8);
+	bmpinfoheader[ 6] = (unsigned char)(       w>>16);
+	bmpinfoheader[ 7] = (unsigned char)(       w>>24);
+	bmpinfoheader[ 8] = (unsigned char)(       h    );
+	bmpinfoheader[ 9] = (unsigned char)(       h>> 8);
+	bmpinfoheader[10] = (unsigned char)(       h>>16);
+	bmpinfoheader[11] = (unsigned char)(       h>>24);
+	
+	bmpinfoheader[12] = 1; // num of color planes. must be 1 (16bit)
+	bmpinfoheader[14] = 24; // bpp (16bit)
+	
+	return bmp;
+}
+
+static
+void bmpSetPixel(char* img, int w, int x, int y, unsigned char r, unsigned char g, unsigned char b) {
+	img[y * ALIGN4(3 * w) + x * 3 + 0] = (char) b;
+	img[y * ALIGN4(3 * w) + x * 3 + 1] = (char) g;
+	img[y * ALIGN4(3 * w) + x * 3 + 2] = (char) r;
+}
+
+
+// f must be in [0,1]
+static
+void rainbowColor(float f, unsigned char* r, unsigned char* g, unsigned char* b) {
+	if(f < 1.0/6) {
+		f *= 6;
+		*r = 255;
+		*g = 255 * f;
+		*b = 0;
+	}
+	else if(f < 2.0/6) {
+		f = f * 6 + 1;
+		*r = 255 * (1 - f);
+		*g = 255;
+		*b = 0;
+	}
+	else if(f < 3.0/6) {
+		f = f * 6 + 2;
+		*r = 0;
+		*g = 255;
+		*b = 255 * f;
+	}
+	else if(f < 4.0/6) {
+		f = f * 6 + 3;
+		*r = 0;
+		*g = 255 * (1 - f);
+		*b = 255;
+	}
+	else if(f < 5.0/6) {
+		f = f * 6 + 4;
+		*r = 255 * f;
+		*g = 0;
+		*b = 255;
+	}	
+	else if(f < 6.0/6) {
+		f = f * 6 + 5;
+		*r = 255;
+		*g = 0;
+		*b = 255 * (1 - f);
+	}
+}
+
+
+// idea loosely from:
+// http://www.freesound.org/
+// https://github.com/endolith/freesound-thumbnailer/blob/master/processing.py
+
+static PyObject *
+pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
+	int bmpWidth = 400, bmpHeight = 101;
+	unsigned char bgR = 100, bgG = bgR, bgB = bgR;
+	unsigned char timeR = 170, timeG = timeR, timeB = timeR;
+	int timelineSecInterval = 10;
+	PyObject* songObj = NULL;
+	if(!PyArg_ParseTuple(args, "O|ii(bbb)(bbb)i:calcBitmapThumbnail",
+		&songObj,
+		&bmpWidth, &bmpHeight,
+		&bgR, &bgG, &bgB,
+		&timeR, &timeG, &timeB,
+		&timelineSecInterval))
+		return NULL;
+
+	char* img = NULL;
+	size_t bmpSize = 0;
+	char* bmp = createBitmap24Bpp(bmpWidth, bmpHeight, &img, &bmpSize);
+	if(!bmp)
+		return NULL; // out of memory
+		
+	RDFTContext* fftCtx = NULL;
+	float* samplesBuf = NULL;
+	PyObject* returnObj = NULL;
+	PlayerObject* player = NULL;
+		
+	player = (PlayerObject*) pyCreatePlayer(NULL);
+	if(!player) goto final;
+	player->nextSongOnEof = 0;
+	player->playing = 1; // otherwise audio_decode_frame() wont read
+	player->curSong = songObj;
+	if(player_openInputStream(player) != 0) goto final;
+	if(player->inStream == NULL) goto final;	
+	
+	// First count totalFrameCount.
+	unsigned long totalFrameCount = 0;
+    while (1) {
+		player->audio_buf_index = 0;
+		double pts;
+		int audio_size = audio_decode_frame(player, &pts);
+		if (audio_size < 0)
+			break; // probably EOF or so
+		else
+			player->audio_buf_size = audio_size;
+		// (uint8_t *)player->audio_buf, audio_size / 2
+		
+		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
+    }
+	double songDuration = (double)totalFrameCount / SAMPLERATE;
+
+	// Seek back.
+	stream_seekAbs(player, 0.0);
+	
+	// init the processor
+#define fftSizeLog2 (11)
+#define fftSize (1 << fftSizeLog2)
+	float freqWindow[fftSize];
+	for(int i = 0; i < fftSize; ++i)
+		// Hanning window
+		freqWindow[i] = (float) (0.5 * (1.0 - cos((2.0 * M_PI * i) / (fftSize - 1))));
+	fftCtx = av_rdft_init(fftSizeLog2, DFT_R2C);
+	if(!fftCtx) {
+		printf("ERROR: av_rdft_init failed\n");
+		goto final;
+	}
+	// Note: We have to use av_mallocz here to have the right mem alignment.
+	// That is also why we can't allocate it on the stack (without doing alignment).
+	samplesBuf = (float *)av_mallocz(sizeof(float) * fftSize);
+	
+	double samplesPerPixel = totalFrameCount / (double)bmpWidth;
+	
+	unsigned long frame = 0;
+	for(int x = 0; x < bmpWidth; ++x) {
+
+		// draw background
+		for(int y = 0; y < bmpHeight; ++y)
+			bmpSetPixel(img, bmpWidth, x, y, bgR, bgG, bgB);
+
+		if((int)(songDuration * x / bmpWidth / timelineSecInterval) < (int)(songDuration * (x+1) / bmpWidth / timelineSecInterval)) {
+			// draw timeline
+			for(int y = 0; y < bmpHeight; ++y)
+				bmpSetPixel(img, bmpWidth, x, y, timeR, timeG, timeB);
+		}
+
+		int samplesBufIndex = 0;
+		memset(samplesBuf, 0, sizeof(float) * fftSize);
+
+		float peakMin = 0, peakMax = 0;
+		while(frame < (x + 1) * samplesPerPixel) {
+			player->audio_buf_index = 0;
+			double pts;
+			int audio_size = audio_decode_frame(player, &pts);
+			if (audio_size < 0)
+				break; // probably EOF or so
+			else
+				player->audio_buf_size = audio_size;
+			
+			for(size_t i = 0; i < audio_size / 2; ++i) {
+				int16_t* sampleAddr = (int16_t*) player->audio_buf + i;
+				int16_t sample = *sampleAddr; // TODO: endian swap?
+				float sampleFloat = sample / ((double) 0x8000);
+
+				if(sampleFloat < peakMin) peakMin = sampleFloat;
+				if(sampleFloat > peakMax) peakMax = sampleFloat;
+
+				if(samplesBufIndex < fftSize) {
+					samplesBuf[samplesBufIndex] += sampleFloat * freqWindow[samplesBufIndex] * 0.5f /* we do this twice for each channel */;
+				}
+				if(i % 2 == 1) samplesBufIndex++;
+			}
+
+			frame += audio_size / NUMCHANNELS / 2 /* S16 */;
+		}
+
+		av_rdft_calc(fftCtx, samplesBuf);
+
+		float absFftData[fftSize / 2 + 1];
+		float *in_ptr = samplesBuf;
+		float *out_ptr = absFftData;
+		out_ptr[0] = in_ptr[0] * in_ptr[0];
+		out_ptr[fftSize / 2] = in_ptr[1] * in_ptr[1];
+		out_ptr += 1;
+		in_ptr += 2;
+		for(int i = 1; i < fftSize / 2; i++) {
+			*out_ptr++ = in_ptr[0] * in_ptr[0] + in_ptr[1] * in_ptr[1];
+			in_ptr += 2;
+		}
+
+		float energy = 0;
+		for(int i = 0; i < fftSize / 2; ++i)
+			energy += absFftData[i];
+		
+		// compute the spectral centroid in hertz
+		float spectralCentroid = 0;
+		for(int i = 0; i < fftSize / 2; ++i)
+			spectralCentroid += absFftData[i] * i;
+		spectralCentroid /= energy;
+		spectralCentroid /= fftSize / 2;
+		spectralCentroid *= SAMPLERATE;
+		spectralCentroid *= 0.5;
+		
+		// clip
+		static const float lowerFreq = 100;
+		static const float higherFreq = 22050;
+		if(spectralCentroid < lowerFreq) spectralCentroid = lowerFreq;
+		if(spectralCentroid > higherFreq) spectralCentroid = higherFreq;
+
+		// apply log so it's proportional to human perception of frequency
+		spectralCentroid = log10(spectralCentroid);
+		
+		// scale to [0,1]
+		spectralCentroid -= log10(lowerFreq);
+		spectralCentroid /= (log10(higherFreq) - log10(lowerFreq));
+		
+		//printf("x %i, peak %f,%f, spec %f\n", x, peakMin, peakMax, spectralCentroid);
+		
+		// get color from spectralCentroid
+		unsigned char r = 0, g = 0, b = 0;
+		rainbowColor(spectralCentroid, &r, &g, &b);
+
+		int y1 = bmpHeight * 0.5 + peakMin * (bmpHeight - 4) * 0.5;
+		int y2 = bmpHeight * 0.5 + peakMax * (bmpHeight - 4) * 0.5;
+		if(y1 < 0) y1 = 0;
+		if(y2 >= bmpHeight) y2 = bmpHeight - 1;
+		
+		// draw line
+		for(int y = y1; y <= y2; ++y)
+			bmpSetPixel(img, bmpWidth, x, y, r, g, b);
+	}
+	
+	returnObj = PyTuple_Pack(2,
+		PyFloat_FromDouble(songDuration),
+		PyString_FromStringAndSize(bmp, bmpSize));
+		
+final:
+	if(bmp)
+		free(bmp);
+	if(fftCtx)
+		av_rdft_end(fftCtx);
+	if(samplesBuf)
+		av_free(samplesBuf);
+	if(!returnObj) {
+		returnObj = Py_None;
+		Py_INCREF(returnObj);
+	}
+	Py_XDECREF(player);
+	return returnObj;
+}
+
+
+
 static PyMethodDef module_methods[] = {
 	{"createPlayer",	(PyCFunction)pyCreatePlayer,	METH_NOARGS,	"creates new player"},
     {"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
     {"calcAcoustIdFingerprint",		pyCalcAcoustIdFingerprint,	METH_VARARGS,	"calculate AcoustID fingerprint for Song"},
+    {"calcBitmapThumbnail",		pyCalcBitmapThumbnail,	METH_VARARGS,	"calculate bitmap thumbnail for Song"},
 	{NULL,				NULL}	/* sentinel */
 };
 
