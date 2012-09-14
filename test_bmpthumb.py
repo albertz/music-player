@@ -29,9 +29,26 @@ else:
 	if len(sys.argv) >= 2: i = int(sys.argv[1])
 	filename = files[i]
 
+bmpWidth = 500
+bmpHeight = 151
+bgColor = (50,50,50)
+timelineColor = (100,100,100)
+timelineInterval = 5 # every 5 sec
+
 assert os.path.isfile(filename)
 import ffmpeg
-duration, bmp = ffmpeg.calcBitmapThumbnail(Song(filename))
+duration, bmp = ffmpeg.calcBitmapThumbnail(Song(filename), bmpWidth, bmpHeight, bgColor, timelineColor, timelineInterval)
+
+def formatTime(t):
+	if t is None: return "?"
+	mins = long(t // 60)
+	t -= mins * 60
+	hours = mins // 60
+	mins -= hours * 60
+	if hours: return "%02i:%02i:%02.0f" % (hours,mins,t)
+	return "%02i:%02.0f" % (mins,t)
+
+print filename, formatTime(duration)
 
 open("thumbnail.bmp", "w").write(bmp)
 
