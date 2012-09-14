@@ -71,7 +71,7 @@ def buildControlAction(userAttr, inst):
 	return button, update
 
 def buildControlOneLineTextLabel(userAttr, inst):
-	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 25.0)))
+	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 25.0)))
 	label.setBordered_(False)
 	label.setBezeled_(True)
 	#label.setDrawsBackground_(False)
@@ -97,6 +97,70 @@ def buildControlObject(userAttr, inst):
 		pass
 	return subview, update
 
+def buildControlImage(userAttr, inst):
+	subview = NSView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	imgview = NSImageView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
+	imgview.setImageScaling_(NSScaleToFit)
+	imgview2 = NSImageView.alloc().initWithFrame_(((0.0, 0.0), (10.0, 80.0)))
+	imgview2.setImageScaling_(NSScaleToFit)
+	subview.addSubview_(imgview)
+	subview.addSubview_(imgview2)
+	imgview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	imgview2.setAutoresizingMask_(NSViewHeightSizable)
+
+	from threading import Lock
+	lock = Lock()
+
+	def update():
+		def loadImage():
+			# NOTE: TODO: this is hacky as it assumes this is the song thumbnail image
+			# we need to abstract this more later on ...
+			# just a hack because I want to go to sleep
+			song = state.player.curSong
+			pool = NSAutoreleasePool.alloc().init()
+			if song:
+				attr = userAttr.__get__(inst) # the attr is a function which is supposed to return some image data, e.g. a BMP
+				imgData = attr()
+				data = NSData.alloc().initWithBytes_length_(imgData, len(imgData))
+				img = NSImage.alloc().initWithData_(data)
+			else:
+				img = NSImage.alloc().initWithSize_((10,10))
+				img.lockFocus()
+				NSColor.grayColor().set()
+				NSBezierPath.fillRect_(((0,0),(10,10)))
+				img.unlockFocus()
+
+			img2 = NSImage.alloc().initWithSize_((5,1))
+			img2.lockFocus()
+			for i in range(5):
+				a = 100 - abs(i - 2) * 50
+				NSColor.colorWithDeviceRed_green_blue_alpha_(0.0,0.0,0.0,a).setFill()
+				NSBezierPath.fillRect_(((i,0),(1,1)))
+			img2.unlockFocus()
+
+			do_in_mainthread(lambda: imgview.setImage_(img))
+			do_in_mainthread(lambda: imgview2.setImage_(img2))
+			if song:
+				import time
+				while song == state.player.curSong:
+					x = subview.bounds().size.width * state.player.curSongPos / state.player.curSong.duration
+					y = imgview2.frame().origin.y
+					w = imgview2.frame().size.width
+					h = imgview2.frame().size.height
+					imgview2.setFrame_(((x,y),(w,h)))
+
+					# another hack: update time
+					updateHandlers["curSongPos"](None,None,None)
+
+					time.sleep(0.1)
+			del pool
+		def wrapThread():
+			with lock:
+				loadImage()
+		from threading import Thread
+		Thread(target=wrapThread, name="image handler").start()
+	return subview, update
+
 def buildControl(userAttr, inst):
 	if userAttr.isType(Traits.Action):
 		return buildControlAction(userAttr, inst)
@@ -111,6 +175,8 @@ def buildControl(userAttr, inst):
 		return buildControlList(userAttr, inst)
 	elif userAttr.isType(Traits.Object):
 		return buildControlObject(userAttr, inst)
+	elif userAttr.isType(Traits.Image):
+		return buildControlImage(userAttr, inst)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 
@@ -138,22 +204,44 @@ def setupWindow():
 		NSFlippedView = objc.lookUpClass("NSFlippedView")
 	win.setContentView_(NSFlippedView.alloc().init())
 
-	updateHandlers = [] # list of functions (ev,args,kwargs -> ?)
+	global updateHandlers
+	updateHandlers = {} # map attrName -> functions (ev,args,kwargs -> ?)
 	global guiHandleUpdate
 	def guiHandleUpdate(ev,args,kwargs):
-		for handleFunc in updateHandlers:
+		for handleFunc in updateHandlers.values():
 			handleFunc(ev,args,kwargs)
 
 	defaultSpaceX, defaultSpaceY = 8, 8
 	x, y = defaultSpaceX, defaultSpaceY
 	maxY = 0
 	lastControl = None
+	lastHorizControls = []
 
 	def finishLastHoriz():
-		if lastControl:
-			w = win.contentView().bounds().size.width - x - defaultSpaceY
-			lastControl.setFrame_(((x,y),(w,h)))
-			lastControl.setAutoresizingMask_(NSViewWidthSizable)
+		if not lastControl: return
+		varWidthControl = None
+		for attr,control in lastHorizControls:
+			if attr.variableWidth:
+				varWidthControl = control
+				break
+		if not varWidthControl:
+			varWidthControl = lastControl
+		x = win.contentView().bounds().size.width
+		for attr,control in reversed(lastHorizControls):
+			w = control.frame().size.width
+			h = control.frame().size.height
+			y = control.frame().origin.y
+
+			if control is varWidthControl:
+				w = x - control.frame().origin.x - defaultSpaceY
+				x = control.frame().origin.x
+				control.setFrame_(((x,y),(w,h)))
+				control.setAutoresizingMask_(NSViewWidthSizable)
+				break
+			else:
+				x -= w + defaultSpaceY
+				control.setFrame_(((x,y),(w,h)))
+				control.setAutoresizingMask_(NSViewMinXMargin)
 
 	def finishLastVert():
 		if lastControl:
@@ -181,6 +269,7 @@ def setupWindow():
 
 		else: # align next below
 			finishLastHoriz()
+			lastHorizControls = []
 			x = defaultSpaceX
 			y = maxY + defaultSpaceY
 			w = control.frame().size.width # default
@@ -190,6 +279,7 @@ def setupWindow():
 		control.setAutoresizingMask_(0)
 
 		lastControl = control
+		lastHorizControls += [(attr,control)]
 		maxY = max(maxY, control.frame().origin.y + control.frame().size.height)
 
 		update()
@@ -201,7 +291,7 @@ def setupWindow():
 				except:
 					sys.excepthook(*sys.exc_info())
 				do_in_mainthread(update)
-			updateHandlers.append(handleFunc)
+			updateHandlers[attr.name] = handleFunc
 
 	finishLastHoriz()
 	finishLastVert()
