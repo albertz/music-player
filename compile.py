@@ -17,7 +17,7 @@ staticChromaprint = False
 ffmpegFiles = ["../ffmpeg.c"] + \
 	(glob("../chromaprint/*.cpp") if staticChromaprint else [])
 
-sysExec(["gcc", "-c"] + ffmpegFiles +
+sysExec(["cc", "-std=c99", "-c"] + ffmpegFiles +
 	[
 		"-DHAVE_CONFIG_H",
 		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
@@ -38,7 +38,7 @@ sysExec(["libtool", "-dynamic", "-o", "../ffmpeg.so"] +
 
 levelDbFiles = glob("../leveldb*.cc")
 
-sysExec(["gcc", "-c"] + levelDbFiles +
+sysExec(["cc", "-c"] + levelDbFiles +
 	[
 		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
 		"-g",
