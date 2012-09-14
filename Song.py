@@ -15,7 +15,7 @@ class Song:
 	def __nonzero__(self): # this is mostly for noninited Song objects
 		return bool(self.url)
 	def __eq__(self, other):
-		return self.url == other.url
+		return hasattr(other, "url") and self.url == other.url
 	def openFile(self):
 		if not self.f:
 			self.f = open(self.url)
