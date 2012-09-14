@@ -9,7 +9,7 @@ from player import PlayerEventCallbacks
 import lastfm
 
 def track(event, args, kwargs):
-	print "track:", repr(event), repr(args), repr(kwargs)
+	print "track:", repr(event), repr(args), repr(kwargs)[0:50]
 	if event is PlayerEventCallbacks.onSongChange:
 		oldSong = kwargs["oldSong"]
 		newSong = kwargs["newSong"]
