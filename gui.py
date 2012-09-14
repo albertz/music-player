@@ -46,7 +46,7 @@ def setupAppleMenu():
 import Traits
 
 def buildControlAction(userAttr, inst):
-	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 30.0)))
 	button.setBezelStyle_(2)
 	try:
 		class ButtonActionHandler(NSObject):
@@ -71,18 +71,28 @@ def buildControlAction(userAttr, inst):
 	return button, update
 
 def buildControlOneLineTextLabel(userAttr, inst):
-	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (80.0, 25.0)))
+	label.setBordered_(False)
+	label.setBezeled_(True)
+	#label.setDrawsBackground_(False)
 	label.setEditable_(False)
-	#label.cell().setWraps_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
 	def update():
 		s = userAttr.__get__(inst)
 		s = str(s)
-		label.setStringValue_(s.decode("utf-8")[0:50]) # TODO autosize ...
+		label.setStringValue_(s.decode("utf-8"))
 	return label, update
 
 def buildControlList(userAttr, inst):
 	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	subview.setTitle_(userAttr.name.decode("utf-8"))
+	def update():
+		pass
+	return subview, update
+
+def buildControlObject(userAttr, inst):
+	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	subview.setTitle_(userAttr.name.decode("utf-8"))
 	def update():
 		pass
 	return subview, update
@@ -99,6 +109,8 @@ def buildControl(userAttr, inst):
 		raise NotImplementedError
 	elif userAttr.isType(Traits.List):
 		return buildControlList(userAttr, inst)
+	elif userAttr.isType(Traits.Object):
+		return buildControlObject(userAttr, inst)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 
@@ -109,15 +121,22 @@ def setupWindow():
 	# https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ControlCell/ControlCell.html#//apple_ref/doc/uid/10000015i
 	# http://cocoadev.com/wiki/FlowLayoutView
 
-	w = NSWindow.alloc()
-	w.initWithContentRect_styleMask_backing_defer_(
-		((200.0, 500.0), (250.0, 300.0)),
+	win = NSWindow.alloc()
+	win.initWithContentRect_styleMask_backing_defer_(
+		((200.0, 500.0), (300.0, 300.0)),
 		NSTitledWindowMask |
 		NSClosableWindowMask |
 		NSMiniaturizableWindowMask |
 		NSResizableWindowMask,
 		NSBackingStoreBuffered, False)
-	w.setTitle_(appinfo.progname)
+	win.setTitle_(appinfo.progname)
+
+	try:
+		class NSFlippedView(NSView):
+			def isFlipped(self): return True
+	except:
+		NSFlippedView = objc.lookUpClass("NSFlippedView")
+	win.setContentView_(NSFlippedView.alloc().init())
 
 	updateHandlers = [] # list of functions (ev,args,kwargs -> ?)
 	global guiHandleUpdate
@@ -125,35 +144,53 @@ def setupWindow():
 		for handleFunc in updateHandlers:
 			handleFunc(ev,args,kwargs)
 
-	lastVerticalControl = None
+	defaultSpaceX, defaultSpaceY = 8, 8
+	x, y = defaultSpaceX, defaultSpaceY
+	maxY = 0
+	lastControl = None
+
+	def finishLastHoriz():
+		if lastControl:
+			w = win.contentView().bounds().size.width - x - defaultSpaceY
+			lastControl.setFrame_(((x,y),(w,h)))
+			lastControl.setAutoresizingMask_(NSViewWidthSizable)
+
+	def finishLastVert():
+		if lastControl:
+			h = lastControl.frame().origin.y + lastControl.frame().size.height + defaultSpaceY
+			win.setContentMinSize_((250.0,h))
+
+			# make the last one vertically resizable
+			h = win.contentView().bounds().size.height - y - defaultSpaceY
+			w = win.contentView().bounds().size.width - defaultSpaceY * 2
+			lastControl.setFrame_(((x,y),(w,h)))
+			lastControl.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+
 	for attr in iterUserAttribs(state):
 		print attr
 		control, update = buildControl(attr, state)
-		control.setTranslatesAutoresizingMaskIntoConstraints_(False)
-		w.contentView().addSubview_(control)
-		if not lastVerticalControl:
-			w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
-				"V:|-[c]",
-				3, # NSLayoutAttributeTop
-				{},
-				{"c": control}
-			))
-		else:
-			w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
-				"V:[last]-[c]",
-				3, # NSLayoutAttributeTop
-				{},
-				{"last": lastVerticalControl, "c": control}
-			))
-		w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
-			"H:|-[c]-|",
-			1, # NSLayoutAttributeLeft
-			{},
-			{"c": control}
-		))
-		#if lastVerticalControl and lastVerticalControl.isType(Traits.List):
-		#
-		lastVerticalControl = control
+		# Note: Avoid NSLayoutConstraint as this is >=10.7.
+		# We can easily make this whole GUI working for earlier MacOSX versions.
+		win.contentView().addSubview_(control)
+
+		if attr.alignRight and lastControl: # align next right
+			x = lastControl.frame().origin.x + lastControl.frame().size.width + defaultSpaceX
+			# y from before
+			w = control.frame().size.width # default
+			h = control.frame().size.height # default
+
+		else: # align next below
+			finishLastHoriz()
+			x = defaultSpaceX
+			y = maxY + defaultSpaceY
+			w = control.frame().size.width # default
+			h = control.frame().size.height # default
+
+		control.setFrame_(((x,y),(w,h)))
+		control.setAutoresizingMask_(0)
+
+		lastControl = control
+		maxY = max(maxY, control.frame().origin.y + control.frame().size.height)
 
 		update()
 
@@ -166,21 +203,17 @@ def setupWindow():
 				do_in_mainthread(update)
 			updateHandlers.append(handleFunc)
 
-	w.contentView().addConstraints_(NSLayoutConstraint.constraintsWithVisualFormat_options_metrics_views_(
-		"V:[c]-|",
-		0,
-		{},
-		{"c": lastVerticalControl}
-	))
+	finishLastHoriz()
+	finishLastVert()
 
-	w.display()
-	w.orderFrontRegardless()
-	w.makeMainWindow()
-	w.makeKeyWindow()
+	win.display()
+	win.orderFrontRegardless()
+	win.makeMainWindow()
+	win.makeKeyWindow()
 
 	app.activateIgnoringOtherApps_(True)
 	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
-	w.retain()
+	win.retain()
 
 def setupAfterAppFinishedLaunching(delegate):
 	state.quit = quit
