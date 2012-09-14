@@ -1477,8 +1477,16 @@ void rainbowColor(float f, unsigned char* r, unsigned char* g, unsigned char* b)
 static PyObject *
 pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 	int bmpWidth = 400, bmpHeight = 101;
+	unsigned char bgR = 100, bgG = bgR, bgB = bgR;
+	unsigned char timeR = 170, timeG = timeR, timeB = timeR;
+	int timelineSecInterval = 10;
 	PyObject* songObj = NULL;
-	if(!PyArg_ParseTuple(args, "O:calcBitmapThumbnail", &songObj))
+	if(!PyArg_ParseTuple(args, "O|ii(bbb)(bbb)i:calcBitmapThumbnail",
+		&songObj,
+		&bmpWidth, &bmpHeight,
+		&bgR, &bgG, &bgB,
+		&timeR, &timeG, &timeB,
+		&timelineSecInterval))
 		return NULL;
 
 	char* img = NULL;
@@ -1486,8 +1494,9 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 	char* bmp = createBitmap24Bpp(bmpWidth, bmpHeight, &img, &bmpSize);
 	if(!bmp)
 		return NULL; // out of memory
-	
-	RDFTContext* fftCtx = NULL;	
+		
+	RDFTContext* fftCtx = NULL;
+	float* samplesBuf = NULL;
 	PyObject* returnObj = NULL;
 	PlayerObject* player = NULL;
 		
@@ -1530,15 +1539,27 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 		printf("ERROR: av_rdft_init failed\n");
 		goto final;
 	}
+	// Note: We have to use av_mallocz here to have the right mem alignment.
+	// That is also why we can't allocate it on the stack (without doing alignment).
+	samplesBuf = (float *)av_mallocz(sizeof(float) * fftSize);
 	
 	double samplesPerPixel = totalFrameCount / (double)bmpWidth;
 	
 	unsigned long frame = 0;
 	for(int x = 0; x < bmpWidth; ++x) {
 
-		float samplesBuf[fftSize];
+		// draw background
+		for(int y = 0; y < bmpHeight; ++y)
+			bmpSetPixel(img, bmpWidth, x, y, bgR, bgG, bgB);
+
+		if((int)(songDuration * x / bmpWidth / timelineSecInterval) < (int)(songDuration * (x+1) / bmpWidth / timelineSecInterval)) {
+			// draw timeline
+			for(int y = 0; y < bmpHeight; ++y)
+				bmpSetPixel(img, bmpWidth, x, y, timeR, timeG, timeB);
+		}
+
 		int samplesBufIndex = 0;
-		memset(samplesBuf, 0, sizeof(samplesBuf));
+		memset(samplesBuf, 0, sizeof(float) * fftSize);
 
 		float peakMin = 0, peakMax = 0;
 		while(frame < (x + 1) * samplesPerPixel) {
@@ -1606,7 +1627,9 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 		// scale to [0,1]
 		spectralCentroid -= log10(lowerFreq);
 		spectralCentroid /= (log10(higherFreq) - log10(lowerFreq));
-						
+		
+		//printf("x %i, peak %f,%f, spec %f\n", x, peakMin, peakMax, spectralCentroid);
+		
 		// get color from spectralCentroid
 		unsigned char r = 0, g = 0, b = 0;
 		rainbowColor(spectralCentroid, &r, &g, &b);
@@ -1614,7 +1637,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 		int y1 = bmpHeight * 0.5 + peakMin * (bmpHeight - 4) * 0.5;
 		int y2 = bmpHeight * 0.5 + peakMax * (bmpHeight - 4) * 0.5;
 		if(y1 < 0) y1 = 0;
-		if(y2 >= bmpHeight) y2 = bmpHeight;
+		if(y2 >= bmpHeight) y2 = bmpHeight - 1;
 		
 		// draw line
 		for(int y = y1; y <= y2; ++y)
@@ -1629,7 +1652,9 @@ final:
 	if(bmp)
 		free(bmp);
 	if(fftCtx)
-		av_rdft_end(fftCtx);	
+		av_rdft_end(fftCtx);
+	if(samplesBuf)
+		av_free(samplesBuf);
 	if(!returnObj) {
 		returnObj = Py_None;
 		Py_INCREF(returnObj);
