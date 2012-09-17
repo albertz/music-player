@@ -79,9 +79,7 @@ class State(object):
 
 	@UserAttrib(type=Traits.Action, name="▶▶|", alignRight=True)
 	def nextSong(self):
-		print "state nextSong"
 		self.player.nextSong()
-		print "state nextSong finish"
 
 	@UserAttrib(type=Traits.OneLineText, updateHandler=lambda *args:None, alignRight=True, variableWidth=True)
 	@property
