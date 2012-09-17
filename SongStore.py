@@ -65,10 +65,10 @@ class DB:
 
 class SongStore:
     def __init__(self):
-        self.artistIndex = DB(".artists")
-        self.titleIndex = DB(".titles")
-        self.genreIndex = DB(".genres")
-        self.songStore = DB(".songs")
+        self.artistIndex = DB("artists.db")
+        self.titleIndex = DB("titles.db")
+        self.genreIndex = DB("genres.db")
+        self.songStore = DB("songs.db")
 
     def add(self, song):
         self.songStore.setAppend(song.fingerprint_AcoustID, song.url)
