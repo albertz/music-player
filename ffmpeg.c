@@ -1564,7 +1564,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			PyGILState_STATE gstate = PyGILState_Ensure();
 			
 			Py_INCREF(bmp);
-			PyObject* args = PyTuple_Pack(2, PyFloat_FromDouble((double) x / bmpWidth), bmp);
+			PyObject* args = PyTuple_Pack(3, PyFloat_FromDouble((double) x / bmpWidth), PyFloat_FromDouble(songDuration), bmp);
 			PyObject* retObj = PyObject_CallObject(procCallback, args);
 			if(PyErr_Occurred()) {
 				PyErr_Print();
