@@ -1385,7 +1385,7 @@ PyObject* createBitmap24Bpp(int w, int h, char** imgDataStart) {
 	size_t bmpSize = FileHeaderSize + InfoHeaderSize + ALIGN4(3 * w) * h;
 	PyObject* bmp = PyString_FromStringAndSize(NULL, bmpSize);
 	if(!bmp) return NULL;
-	memset(bmp, 0, bmpSize);
+	memset(PyString_AS_STRING(bmp), 0, bmpSize);
 		
 	unsigned char* bmpfileheader = (unsigned char*) PyString_AS_STRING(bmp);
 	unsigned char* bmpinfoheader = bmpfileheader + FileHeaderSize;
@@ -1571,8 +1571,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 				procCallback = NULL; // don't call again
 			}
 			Py_XDECREF(retObj);
-			Py_DECREF(args);
-			Py_DECREF(bmp);
+			Py_DECREF(args); // this also decrefs bmp
 			
 			PyGILState_Release(gstate);
 		}
