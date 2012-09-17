@@ -1,161 +1,169 @@
-
 from Song import Song
 from State import state
 from player import PlayerEventCallbacks
 from utils import *
 import math, random
 import appinfo
+from SongStore import SongStore
 
 class RandomFileQueueGen:
-	randomQuality = 0.5
+    randomQuality = 0.5
 
-	def __init__(self, dir):
-		import os
-		from RandomFileQueue import RandomFileQueue
-		self.fileQueue = RandomFileQueue(
-			rootdir = os.path.expanduser(dir),
-			fileexts = appinfo.formats)
+    def __init__(self, dir):
+        import os
+        from RandomFileQueue import RandomFileQueue
 
-	def next(self):
-		return self.fileQueue.getNextFile()
+        self.fileQueue = RandomFileQueue(
+            rootdir=os.path.expanduser(dir),
+            fileexts=appinfo.formats)
 
-	def __iter__(self):
-		while True:
-			yield self.next()
+    def next(self):
+        return self.fileQueue.getNextFile()
+
+    def __iter__(self):
+        while True:
+            yield self.next()
+
 
 class RandomFromSongDatabaseGen:
-	randomQuality = 0.0
+    randomQuality = 0.0
+    database = SongStore()
 
-	def __init__(self):
-		def loadDatabase():
-			from SongStore import SongStore
-			self.database = SongStore()
+    def __init__(self):
+        def loadDatabase():
+            import utils
 
-			import utils
+            print "updating database"
 
-			for dir in appinfo.musicdirs:
-				self.database.addMany(utils.getSongsFromDirectory(dir))
+            for dir in appinfo.musicdirs:
+                self.database.addMany(utils.getSongsFromDirectory(dir))
 
-			self.randomQuality = 0.5
-			print "Done loading songs"
+            self.randomQuality = 0.5
+            print "Done loading songs"
 
-		from threading import Thread
-		loadDatabaseThread = Thread(target=loadDatabase, name="loadDatabase")
-		loadDatabaseThread.start()
+        from threading import Thread
 
-	def next(self):
-		try:
-			oldSong = state.recentlyPlayedList.getLastN(1)[0]
-		except:
-			oldSong = None
+        loadDatabaseThread = Thread(target=loadDatabase, name="loadDatabase")
+        loadDatabaseThread.start()
 
-		self.database.open()
-		songs = self.database.getRandomSongs(oldSong=oldSong, limit=1)
-		self.database.close()
 
-		return next(iter(songs))
+    def next(self):
+        try:
+            oldSong = state.recentlyPlayedList.getLastN(1)[0]
+        except:
+            oldSong = None
 
-	def __iter__(self):
-		while True:
-			yield self.next()
+        songs = self.database.getRandomSongs(oldSong=oldSong, limit=1)
+
+        return next(iter(songs))
+
+
+def __iter__(self):
+    while True:
+        yield self.next()
 
 
 class RandomSongs:
-	randomQuality = 0.5
-	def __init__(self, generators):
-		self.generators = [gen() for gen in generators]
-	def next(self):
-		while True:
-			generators = list(self.generators)
-			if not generators:
-				raise StopIteration
-			qualitySum = sum([gen.randomQuality for gen in generators])
-			self.randomQuality = qualitySum / len(generators)
-			r = random.random() * qualitySum
-			i = 0
-			gen = generators[i]
-			while i < len(generators)-1 and r > gen.randomQuality:
-				r -= gen.randomQuality
-				i += 1
-				gen = generators[i]
-			try:
-				return next(gen)
-			except StopIteration:
-				#print "warning: generator", gen, "raised StopIteration"
-				#sys.excepthook(*sys.exc_info())
-				pass
-			generators.pop(i)
-	def __iter__(self):
-		while True:
-			yield self.next()
+    randomQuality = 0.5
+
+    def __init__(self, generators):
+        self.generators = [gen() for gen in generators]
+
+    def next(self):
+        while True:
+            generators = list(self.generators)
+            if not generators:
+                raise StopIteration
+            qualitySum = sum([gen.randomQuality for gen in generators])
+            self.randomQuality = qualitySum / len(generators)
+            r = random.random() * qualitySum
+            i = 0
+            gen = generators[i]
+            while i < len(generators) - 1 and r > gen.randomQuality:
+                r -= gen.randomQuality
+                i += 1
+                gen = generators[i]
+            try:
+                return next(gen)
+            except StopIteration:
+                #print "warning: generator", gen, "raised StopIteration"
+                #sys.excepthook(*sys.exc_info())
+                pass
+            generators.pop(i)
+
+    def __iter__(self):
+        while True:
+            yield self.next()
 
 from collections import deque
 from threading import Lock
 
 class InfQueue:
-	def __init__(self):
-		self.generator = RandomSongs([
-			RandomFromSongDatabaseGen,
-			lambda: RandomSongs([
-				(lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
-		])
-		self.checkNextNForBest = 10
-		self.checkLastNForContext = 10
+    def __init__(self):
+        self.generator = RandomSongs([
+            RandomFromSongDatabaseGen,
+            lambda: RandomSongs([
+            (lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
+        ])
+        self.checkNextNForBest = 10
+        self.checkLastNForContext = 10
 
-	def calcContextMatchScore(self, song):
-		count = 0
-		lastSongs = state.recentlyPlayedList.getLastN(self.checkLastNForContext)
-		lastSongs = filter(lambda s: not s.skipped, lastSongs)
-		if not lastSongs: return 0.0
-		for lastSong in lastSongs:
-			count += max(intersectFuzzySets(song.tags, lastSong.tags).values() + [0])
-		s = float(count) / self.checkLastNForContext
-		# We likely get small values here. Boost a bit but keep in [0,1] range. sqrt is a good fit.
-		return math.sqrt(s)
+    def calcContextMatchScore(self, song):
+        count = 0
+        lastSongs = state.recentlyPlayedList.getLastN(self.checkLastNForContext)
+        lastSongs = filter(lambda s: not s.skipped, lastSongs)
+        if not lastSongs: return 0.0
+        for lastSong in lastSongs:
+            count += max(intersectFuzzySets(song.tags, lastSong.tags).values() + [0])
+        s = float(count) / self.checkLastNForContext
+        # We likely get small values here. Boost a bit but keep in [0,1] range. sqrt is a good fit.
+        return math.sqrt(s)
 
-	def calcRating(self, song):
-		import rating
-		song.rating = rating.getRating(song.url, default=0.0)
-		return song.rating
+    def calcRating(self, song):
+        import rating
 
-	def calcScore(self, song):
-		scores = []
-		scores += [self.calcRating(song) * random.gauss(1, 0.5)]
-		scores += [self.calcContextMatchScore(song) * random.gauss(1, 0.5)]
-		return sum(scores) + random.gauss(1, 0.5)
+        song.rating = rating.getRating(song.url, default=0.0)
+        return song.rating
 
-	def getNextSong(self):
-		filenames = takeN(self.generator, self.checkNextNForBest)
-		songs = map(Song, filenames)
-		scores = map(lambda song: (self.calcScore(song), song), songs)
-		best = max(scores)
-		song = best[1]
-		return song
+    def calcScore(self, song):
+        scores = []
+        scores += [self.calcRating(song) * random.gauss(1, 0.5)]
+        scores += [self.calcContextMatchScore(song) * random.gauss(1, 0.5)]
+        return sum(scores) + random.gauss(1, 0.5)
+
+    def getNextSong(self):
+        filenames = takeN(self.generator, self.checkNextNForBest)
+        songs = map(Song, filenames)
+        scores = map(lambda song: (self.calcScore(song), song), songs)
+        best = max(scores)
+        song = best[1]
+        return song
 
 
 class MainQueue:
-	def __init__(self):
-		self.lock = Lock()
-		self.manualQueue = deque()
-		self.infiniteQueue = InfQueue()
+    def __init__(self):
+        self.lock = Lock()
+        self.manualQueue = deque()
+        self.infiniteQueue = InfQueue()
 
-	def getNextSong(self):
-		with self.lock:
-			if self.manualQueue:
-				return self.manualQueue.popleft()
-			return self.infiniteQueue.getNextSong()
+    def getNextSong(self):
+        with self.lock:
+            if self.manualQueue:
+                return self.manualQueue.popleft()
+            return self.infiniteQueue.getNextSong()
 
-	def fillUpTo(self, n=10):
-		with self.lock:
-			while len(self.manualQueue) < n:
-				self.manualQueue.append(self.infiniteQueue.getNextSong())
+    def fillUpTo(self, n=10):
+        with self.lock:
+            while len(self.manualQueue) < n:
+                self.manualQueue.append(self.infiniteQueue.getNextSong())
 
 queue = MainQueue()
 
 def getNextSong():
-	return queue.getNextSong()
+    return queue.getNextSong()
+
 
 def queueMain():
-	for ev,args,kwargs in state.updates.read():
-		if ev is PlayerEventCallbacks.onSongChange:
-			queue.fillUpTo()
+    for ev, args, kwargs in state.updates.read():
+        if ev is PlayerEventCallbacks.onSongChange:
+            queue.fillUpTo()
