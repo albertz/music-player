@@ -102,8 +102,26 @@ def buildControlObject(userAttr, inst):
 		pass
 	return subview, update
 
+def SongDisplayView_MouseClickCallback(x):
+	song = state.player.curSong
+	if not song: return
+	if not song.duration: return
+	if song.duration < 0: return
+	state.player.seekAbs(x * song.duration)
+
 def buildControlSongDisplay(userAttr, inst):
-	subview = NSView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	try:
+		class SongDisplayView(NSView):
+			def mouseDown_(self, event):
+				location = self.convertPoint_fromView_(event.locationInWindow(), None)
+				if NSPointInRect(location, self.bounds()):
+					x = float(location.x) / self.bounds().size.width
+					if x < 0 or x > 1: return
+					SongDisplayView_MouseClickCallback(x)
+	except:
+		SongDisplayView = objc.lookUpClass("SongDisplayView") # already defined earlier
+
+	subview = SongDisplayView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	imgview = NSImageView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
 	imgview.setImageScaling_(NSScaleToFit)
 	imgview2 = NSImageView.alloc().initWithFrame_(((0.0, 0.0), (10.0, 80.0)))
