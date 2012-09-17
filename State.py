@@ -79,7 +79,9 @@ class State(object):
 
 	@UserAttrib(type=Traits.Action, name="▶▶|", alignRight=True)
 	def nextSong(self):
+		print "state nextSong"
 		self.player.nextSong()
+		print "state nextSong finish"
 
 	@UserAttrib(type=Traits.OneLineText, updateHandler=lambda *args:None, alignRight=True, variableWidth=True)
 	@property
@@ -95,8 +97,8 @@ class State(object):
 		try: return formatTime(self.player.curSongPos) + " / " + formatTime(self.player.curSong.duration)
 		except: return "???"
 
-	@UserAttrib(type=Traits.SongDisplay, updateHandler=lambda *args:None)
-	def curSongThumbAndPos(self): pass
+	@UserAttrib(type=Traits.SongDisplay)
+	def curSongDisplay(self): pass
 
 	@UserAttrib(type=Traits.List)
 	@initBy

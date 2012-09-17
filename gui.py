@@ -166,15 +166,20 @@ def buildControlSongDisplay(userAttr, inst):
 			return True
 
 		def getBmpData():
+			pool = NSAutoreleasePool.alloc().init() # for setSongBitmap
+
 			with lock:
 				if state.player.curSong is not curSong: return None
 				if curSong.bmpThumbnail:
+					setSongBitmap(curSong.bmpThumbnail)
+					del pool
 					return curSong.bmpThumbnail
 
 				# create song copy for calcBitmapThumbnail
 				song = Song(url=curSong.url)
 
-			pool = NSAutoreleasePool.alloc().init() # for calcBmpCallback -> setSongBitmap
+			do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
+
 			song.openFile()
 			import ffmpeg
 			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
