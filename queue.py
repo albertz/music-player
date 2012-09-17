@@ -1,10 +1,10 @@
-
 from Song import Song
 from State import state
 from player import PlayerEventCallbacks
 from utils import *
 import math, random
 import appinfo
+from SongStore import SongStore
 
 class RandomFileQueueGen:
 	randomQuality = 0.5
@@ -12,9 +12,10 @@ class RandomFileQueueGen:
 	def __init__(self, dir):
 		import os
 		from RandomFileQueue import RandomFileQueue
+
 		self.fileQueue = RandomFileQueue(
-			rootdir = os.path.expanduser(dir),
-			fileexts = appinfo.formats)
+			rootdir=os.path.expanduser(dir),
+			fileexts=appinfo.formats)
 
 	def next(self):
 		return self.fileQueue.getNextFile()
@@ -23,15 +24,16 @@ class RandomFileQueueGen:
 		while True:
 			yield self.next()
 
+
 class RandomFromSongDatabaseGen:
 	randomQuality = 0.0
+	database = SongStore()
 
 	def __init__(self):
 		def loadDatabase():
-			from SongStore import SongStore
-			self.database = SongStore()
-
 			import utils
+
+			print "updating database"
 
 			for dir in appinfo.musicdirs:
 				self.database.addMany(utils.getSongsFromDirectory(dir))
@@ -40,8 +42,10 @@ class RandomFromSongDatabaseGen:
 			print "Done loading songs"
 
 		from threading import Thread
+
 		loadDatabaseThread = Thread(target=loadDatabase, name="loadDatabase")
 		loadDatabaseThread.start()
+
 
 	def next(self):
 		try:
@@ -49,21 +53,22 @@ class RandomFromSongDatabaseGen:
 		except:
 			oldSong = None
 
-		self.database.open()
 		songs = self.database.getRandomSongs(oldSong=oldSong, limit=1)
-		self.database.close()
 
 		return next(iter(songs))
 
-	def __iter__(self):
-		while True:
-			yield self.next()
+
+def __iter__(self):
+	while True:
+		yield self.next()
 
 
 class RandomSongs:
 	randomQuality = 0.5
+
 	def __init__(self, generators):
 		self.generators = [gen() for gen in generators]
+
 	def next(self):
 		while True:
 			generators = list(self.generators)
@@ -74,7 +79,7 @@ class RandomSongs:
 			r = random.random() * qualitySum
 			i = 0
 			gen = generators[i]
-			while i < len(generators)-1 and r > gen.randomQuality:
+			while i < len(generators) - 1 and r > gen.randomQuality:
 				r -= gen.randomQuality
 				i += 1
 				gen = generators[i]
@@ -85,6 +90,7 @@ class RandomSongs:
 				#sys.excepthook(*sys.exc_info())
 				pass
 			generators.pop(i)
+
 	def __iter__(self):
 		while True:
 			yield self.next()
@@ -97,7 +103,7 @@ class InfQueue:
 		self.generator = RandomSongs([
 			RandomFromSongDatabaseGen,
 			lambda: RandomSongs([
-				(lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
+			(lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
 		])
 		self.checkNextNForBest = 10
 		self.checkLastNForContext = 10
@@ -115,6 +121,7 @@ class InfQueue:
 
 	def calcRating(self, song):
 		import rating
+
 		song.rating = rating.getRating(song.url, default=0.0)
 		return song.rating
 
@@ -158,7 +165,8 @@ queue = MainQueue()
 def getNextSong():
 	return queue.getNextSong()
 
+
 def queueMain():
-	for ev,args,kwargs in state.updates.read():
+	for ev, args, kwargs in state.updates.read():
 		if ev is PlayerEventCallbacks.onSongChange:
 			queue.fillUpTo()

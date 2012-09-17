@@ -53,6 +53,7 @@ Requirements:
 
 * ffmpeg
 * portaudio
-* kyoto cabinet 1.2.76
-* kyoto cabinet python 2.7 bindings 1.18
+* leveldb
+* py-leveldb
+* chromaprint
 
