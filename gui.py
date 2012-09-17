@@ -148,23 +148,22 @@ def buildControlSongDisplay(userAttr, inst):
 	def update():
 		curSong = state.player.curSong
 		if not curSong:
-			do_in_mainthread(lambda: imgview.setImage_(None))
+			do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
 			return
 
-		def setSongBitmap(bmpData):
+		def setSongBitmap(bmpData, wait=True):
 			with lock:
 				if state.player.curSong is not curSong: return None
-				pool = NSAutoreleasePool.alloc().init()
 				data = NSData.alloc().initWithBytes_length_(bmpData, len(bmpData))
 				img = NSImage.alloc().initWithData_(data)
-				do_in_mainthread(lambda: imgview.setImage_(img))
-				del pool
+				do_in_mainthread(lambda: imgview.setImage_(img), wait=wait)
 
 		def calcBmpCallback(completion, duration, bmpData):
 			with lock:
-				if state.player.curSong is not curSong: return
+				if state.player.curSong is not curSong: return False
 				curSong.duration = duration
-			setSongBitmap(bmpData)
+			setSongBitmap(bmpData, wait=False)
+			return True
 
 		def getBmpData():
 			with lock:
@@ -175,6 +174,7 @@ def buildControlSongDisplay(userAttr, inst):
 				# create song copy for calcBitmapThumbnail
 				song = Song(url=curSong.url)
 
+			pool = NSAutoreleasePool.alloc().init() # for calcBmpCallback -> setSongBitmap
 			song.openFile()
 			import ffmpeg
 			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
@@ -183,6 +183,8 @@ def buildControlSongDisplay(userAttr, inst):
 				curSong.duration = duration
 				curSong.bmpThumbnail = bmpData
 			setSongBitmap(bmpData)
+
+			del pool
 			return bmpData
 
 		def playCursorUpdater():
@@ -259,7 +261,8 @@ def setupWindow():
 	updateHandlers = {} # map attrName -> functions (ev,args,kwargs -> ?)
 	global guiHandleUpdate
 	def guiHandleUpdate(ev,args,kwargs):
-		for handleFunc in updateHandlers.values():
+		for attrName,handleFunc in updateHandlers.items():
+			print "update", attrName
 			handleFunc(ev,args,kwargs)
 
 	defaultSpaceX, defaultSpaceY = 8, 8
