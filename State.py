@@ -95,24 +95,8 @@ class State(object):
 		try: return formatTime(self.player.curSongPos) + " / " + formatTime(self.player.curSong.duration)
 		except: return "???"
 
-	@UserAttrib(type=Traits.Image, updateHandler=lambda *args:None)
-	def curSongThumbAndPos(self):
-		if not self.player.curSong: return
-		if self.player.curSong.bmpThumbnail:
-			return self.player.curSong.bmpThumbnail
-		# create song copy for calcBitmapThumbnail
-		song = Song(url=self.player.curSong.url)
-		song.openFile()
-		import ffmpeg
-		duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81)
-		# TODO: this is somewhat hacky for now...
-		if song == self.player.curSong:
-			self.player.curSong.duration = duration
-			self.player.curSong.bmpThumbnail = bmpData
-		if song == self.curSong:
-			self.curSong.duration = duration
-			self.player.curSong.bmpThumbnail = bmpData
-		return bmpData
+	@UserAttrib(type=Traits.SongDisplay, updateHandler=lambda *args:None)
+	def curSongThumbAndPos(self): pass
 
 	@UserAttrib(type=Traits.List)
 	@initBy

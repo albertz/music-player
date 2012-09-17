@@ -12,3 +12,7 @@ class Enum(TraitType):
 class Object(TraitType): pass
 class Action(TraitType): pass
 class Image(TraitType): pass
+
+# For now, it's just easier to have the song display (song thumbnail + play cursor)
+# as a special type.
+class SongDisplay(TraitType): pass

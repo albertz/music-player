@@ -14,7 +14,8 @@ except NameError: pools = deque()
 # just in case that we are not the main thread
 pools.append(NSAutoreleasePool.alloc().init())
 
-import os, sys
+import os
+from Song import Song
 from State import state, modules
 from utils import *
 import appinfo
@@ -101,7 +102,7 @@ def buildControlObject(userAttr, inst):
 		pass
 	return subview, update
 
-def buildControlImage(userAttr, inst):
+def buildControlSongDisplay(userAttr, inst):
 	subview = NSView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	imgview = NSImageView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
 	imgview.setImageScaling_(NSScaleToFit)
@@ -115,54 +116,82 @@ def buildControlImage(userAttr, inst):
 	from threading import Lock
 	lock = Lock()
 
+	def initSongCursorImg():
+		img2 = NSImage.alloc().initWithSize_((5,1))
+		img2.lockFocus()
+		for i in range(5):
+			a = 100 - abs(i - 2) * 50
+			NSColor.colorWithDeviceRed_green_blue_alpha_(0.0,0.0,0.0,a).setFill()
+			NSBezierPath.fillRect_(((i,0),(1,1)))
+		img2.unlockFocus()
+		do_in_mainthread(lambda: imgview2.setImage_(img2))
+	initSongCursorImg()
+
 	def update():
-		def loadImage():
-			# NOTE: TODO: this is hacky as it assumes this is the song thumbnail image
-			# we need to abstract this more later on ...
-			# just a hack because I want to go to sleep
-			song = state.player.curSong
-			pool = NSAutoreleasePool.alloc().init()
-			if song:
-				attr = userAttr.__get__(inst) # the attr is a function which is supposed to return some image data, e.g. a BMP
-				imgData = attr()
-				data = NSData.alloc().initWithBytes_length_(imgData, len(imgData))
+		curSong = state.player.curSong
+		if not curSong:
+			do_in_mainthread(lambda: imgview.setImage_(None))
+			return
+
+		def setSongBitmap(bmpData):
+			with lock:
+				if state.player.curSong is not curSong: return None
+				pool = NSAutoreleasePool.alloc().init()
+				data = NSData.alloc().initWithBytes_length_(bmpData, len(bmpData))
 				img = NSImage.alloc().initWithData_(data)
-			else:
-				img = NSImage.alloc().initWithSize_((10,10))
-				img.lockFocus()
-				NSColor.grayColor().set()
-				NSBezierPath.fillRect_(((0,0),(10,10)))
-				img.unlockFocus()
+				do_in_mainthread(lambda: imgview.setImage_(img))
+				del pool
 
-			img2 = NSImage.alloc().initWithSize_((5,1))
-			img2.lockFocus()
-			for i in range(5):
-				a = 100 - abs(i - 2) * 50
-				NSColor.colorWithDeviceRed_green_blue_alpha_(0.0,0.0,0.0,a).setFill()
-				NSBezierPath.fillRect_(((i,0),(1,1)))
-			img2.unlockFocus()
+		def calcBmpCallback(completion, duration, bmpData):
+			with lock:
+				if state.player.curSong is not curSong: return
+				curSong.duration = duration
+			setSongBitmap(bmpData)
 
-			do_in_mainthread(lambda: imgview.setImage_(img))
-			do_in_mainthread(lambda: imgview2.setImage_(img2))
-			if song:
-				import time
-				while song == state.player.curSong:
-					x = subview.bounds().size.width * state.player.curSongPos / state.player.curSong.duration
-					y = imgview2.frame().origin.y
+		def getBmpData():
+			with lock:
+				if state.player.curSong is not curSong: return None
+				if curSong.bmpThumbnail:
+					return curSong.bmpThumbnail
+
+				# create song copy for calcBitmapThumbnail
+				song = Song(url=curSong.url)
+
+			song.openFile()
+			import ffmpeg
+			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
+
+			with lock:
+				curSong.duration = duration
+				curSong.bmpThumbnail = bmpData
+			setSongBitmap(bmpData)
+			return bmpData
+
+		def playCursorUpdater():
+			pool = NSAutoreleasePool.alloc().init()
+
+			import time
+			while True:
+				with lock:
+					if curSong is not state.player.curSong: break
+
 					w = imgview2.frame().size.width
 					h = imgview2.frame().size.height
+					x = subview.bounds().size.width * state.player.curSongPos / curSong.duration - w / 2
+					y = imgview2.frame().origin.y
 					imgview2.setFrame_(((x,y),(w,h)))
 
 					# another hack: update time
 					updateHandlers["curSongPos"](None,None,None)
 
-					time.sleep(0.1)
+				time.sleep(0.1)
+
 			del pool
-		def wrapThread():
-			with lock:
-				loadImage()
+
 		from threading import Thread
-		Thread(target=wrapThread, name="image handler").start()
+		Thread(target=playCursorUpdater, name="GUI play cursor updater").start()
+		Thread(target=getBmpData, name="GUI song bitmap loader").start()
+
 	return subview, update
 
 def buildControl(userAttr, inst):
@@ -179,8 +208,8 @@ def buildControl(userAttr, inst):
 		return buildControlList(userAttr, inst)
 	elif userAttr.isType(Traits.Object):
 		return buildControlObject(userAttr, inst)
-	elif userAttr.isType(Traits.Image):
-		return buildControlImage(userAttr, inst)
+	elif userAttr.isType(Traits.SongDisplay):
+		return buildControlSongDisplay(userAttr, inst)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 
