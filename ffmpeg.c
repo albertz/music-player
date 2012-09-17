@@ -1375,30 +1375,30 @@ final:
 #define ALIGN4(n) ((n)+3 - ((n)+3) % 4)
 // each single pixel is decoded as BGR
 static
-char* createBitmap24Bpp(int w, int h, char** imgDataStart, size_t* bmpSize) {
+PyObject* createBitmap24Bpp(int w, int h, char** imgDataStart) {
 	assert(imgDataStart);
 
 	// http://en.wikipedia.org/wiki/BMP_file_format
 	
 	static const int FileHeaderSize = 14;
 	static const int InfoHeaderSize = 40; // format BITMAPINFOHEADER
-	*bmpSize = FileHeaderSize + InfoHeaderSize + ALIGN4(3 * w) * h;
-	char* bmp = malloc(*bmpSize);
+	size_t bmpSize = FileHeaderSize + InfoHeaderSize + ALIGN4(3 * w) * h;
+	PyObject* bmp = PyString_FromStringAndSize(NULL, bmpSize);
 	if(!bmp) return NULL;
-	memset(bmp, 0, *bmpSize);
+	memset(bmp, 0, bmpSize);
 		
-	unsigned char* bmpfileheader = (unsigned char*) bmp;
-	unsigned char* bmpinfoheader = (unsigned char*) bmp + FileHeaderSize;
-	*imgDataStart = bmp + FileHeaderSize + InfoHeaderSize;
+	unsigned char* bmpfileheader = (unsigned char*) PyString_AS_STRING(bmp);
+	unsigned char* bmpinfoheader = bmpfileheader + FileHeaderSize;
+	*imgDataStart = (char*) bmpinfoheader + InfoHeaderSize;
 		
 	// header field
 	bmpfileheader[ 0] = 'B';
 	bmpfileheader[ 1] = 'M';
 	
-	bmpfileheader[ 2] = (unsigned char)(*bmpSize    );
-	bmpfileheader[ 3] = (unsigned char)(*bmpSize>> 8);
-	bmpfileheader[ 4] = (unsigned char)(*bmpSize>>16);
-	bmpfileheader[ 5] = (unsigned char)(*bmpSize>>24);
+	bmpfileheader[ 2] = (unsigned char)(bmpSize    );
+	bmpfileheader[ 3] = (unsigned char)(bmpSize>> 8);
+	bmpfileheader[ 4] = (unsigned char)(bmpSize>>16);
+	bmpfileheader[ 5] = (unsigned char)(bmpSize>>24);
 
 	assert(FileHeaderSize + InfoHeaderSize < 256);
 	bmpfileheader[10] = FileHeaderSize + InfoHeaderSize; // starting address of image data (32bit)
@@ -1475,23 +1475,30 @@ void rainbowColor(float f, unsigned char* r, unsigned char* g, unsigned char* b)
 // https://github.com/endolith/freesound-thumbnailer/blob/master/processing.py
 
 static PyObject *
-pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
+pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
+	PyObject* songObj = NULL;
 	int bmpWidth = 400, bmpHeight = 101;
 	unsigned char bgR = 100, bgG = bgR, bgB = bgR;
 	unsigned char timeR = 170, timeG = timeR, timeB = timeR;
 	int timelineSecInterval = 10;
-	PyObject* songObj = NULL;
-	if(!PyArg_ParseTuple(args, "O|ii(bbb)(bbb)i:calcBitmapThumbnail",
+	PyObject* procCallback = NULL;
+	static char *kwlist[] = {
+		"song", "width", "height",
+		"backgroundColor", "timelineColor",
+		"timelineSecInterval",
+		"procCallback",
+		NULL};
+	if(!PyArg_ParseTupleAndKeywords(args, kws, "O|ii(bbb)(bbb)iO:calcBitmapThumbnail", kwlist,
 		&songObj,
 		&bmpWidth, &bmpHeight,
 		&bgR, &bgG, &bgB,
 		&timeR, &timeG, &timeB,
-		&timelineSecInterval))
+		&timelineSecInterval,
+		&procCallback))
 		return NULL;
 
 	char* img = NULL;
-	size_t bmpSize = 0;
-	char* bmp = createBitmap24Bpp(bmpWidth, bmpHeight, &img, &bmpSize);
+	PyObject* bmp = createBitmap24Bpp(bmpWidth, bmpHeight, &img);
 	if(!bmp)
 		return NULL; // out of memory
 		
@@ -1551,6 +1558,23 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 		// draw background
 		for(int y = 0; y < bmpHeight; ++y)
 			bmpSetPixel(img, bmpWidth, x, y, bgR, bgG, bgB);
+
+		if(procCallback) {
+			PyGILState_STATE gstate = PyGILState_Ensure();
+			
+			Py_INCREF(bmp);
+			PyObject* args = PyTuple_Pack(2, PyFloat_FromDouble((double) x / bmpWidth), bmp);
+			PyObject* retObj = PyObject_CallObject(procCallback, args);
+			if(PyErr_Occurred()) {
+				PyErr_Print();
+				procCallback = NULL; // don't call again
+			}
+			Py_XDECREF(retObj);
+			Py_DECREF(args);
+			Py_DECREF(bmp);
+			
+			PyGILState_Release(gstate);
+		}
 
 		if((int)(songDuration * x / bmpWidth / timelineSecInterval) < (int)(songDuration * (x+1) / bmpWidth / timelineSecInterval)) {
 			// draw timeline
@@ -1643,14 +1667,23 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args) {
 		for(int y = y1; y <= y2; ++y)
 			bmpSetPixel(img, bmpWidth, x, y, r, g, b);
 	}
+
+	// We have to hold the Python GIL for this block
+	// because of the callback, other Python code/threads
+	// might have references to bmp.
+	{
+		PyGILState_STATE gstate = PyGILState_Ensure();
+
+		returnObj = PyTuple_Pack(2,
+			PyFloat_FromDouble(songDuration),
+			bmp);
+		bmp = NULL; // returnObj has taken over the reference
+
+		PyGILState_Release(gstate);
+	}
 	
-	returnObj = PyTuple_Pack(2,
-		PyFloat_FromDouble(songDuration),
-		PyString_FromStringAndSize(bmp, bmpSize));
-		
 final:
-	if(bmp)
-		free(bmp);
+	Py_XDECREF(bmp); // this is multithreading safe in all cases where bmp != NULL
 	if(fftCtx)
 		av_rdft_end(fftCtx);
 	if(samplesBuf)
@@ -1669,7 +1702,7 @@ static PyMethodDef module_methods[] = {
 	{"createPlayer",	(PyCFunction)pyCreatePlayer,	METH_NOARGS,	"creates new player"},
     {"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
     {"calcAcoustIdFingerprint",		pyCalcAcoustIdFingerprint,	METH_VARARGS,	"calculate AcoustID fingerprint for Song"},
-    {"calcBitmapThumbnail",		pyCalcBitmapThumbnail,	METH_VARARGS,	"calculate bitmap thumbnail for Song"},
+    {"calcBitmapThumbnail",		(PyCFunction)pyCalcBitmapThumbnail,	METH_VARARGS|METH_KEYWORDS,	"calculate bitmap thumbnail for Song"},
 	{NULL,				NULL}	/* sentinel */
 };
 
