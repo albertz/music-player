@@ -143,12 +143,15 @@ class MainQueue:
 		with self.lock:
 			if self.manualQueue:
 				return self.manualQueue.popleft()
-			return self.infiniteQueue.getNextSong()
+		return self.infiniteQueue.getNextSong()
 
 	def fillUpTo(self, n=10):
-		with self.lock:
-			while len(self.manualQueue) < n:
-				self.manualQueue.append(self.infiniteQueue.getNextSong())
+		while True:
+			with self.lock:
+				if len(self.manualQueue) >= n: break
+			nextSong = self.infiniteQueue.getNextSong()
+			with self.lock:
+				self.manualQueue.append(nextSong)
 
 queue = MainQueue()
 
