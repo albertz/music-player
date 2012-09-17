@@ -110,7 +110,7 @@ def buildControlImage(userAttr, inst):
 	subview.addSubview_(imgview)
 	subview.addSubview_(imgview2)
 	imgview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
-	imgview2.setAutoresizingMask_(NSViewHeightSizable)
+	imgview2.setAutoresizingMask_(NSViewHeightSizable|NSViewMinXMargin|NSViewMaxXMargin)
 
 	from threading import Lock
 	lock = Lock()
