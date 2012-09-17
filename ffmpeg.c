@@ -1566,14 +1566,27 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			Py_INCREF(bmp);
 			PyObject* args = PyTuple_Pack(3, PyFloat_FromDouble((double) x / bmpWidth), PyFloat_FromDouble(songDuration), bmp);
 			PyObject* retObj = PyObject_CallObject(procCallback, args);
+			int stop = 0;
 			if(PyErr_Occurred()) {
 				PyErr_Print();
 				procCallback = NULL; // don't call again
+				stop = 1; // just break the whole thing
 			}
+			else if(retObj)
+				stop = !PyObject_IsTrue(retObj);
+			else // retObj == NULL, strange, should be error
+				stop = 1;
 			Py_XDECREF(retObj);
 			Py_DECREF(args); // this also decrefs bmp
 			
+			if(stop) {
+				Py_DECREF(bmp);
+				bmp = NULL;
+			}
+
 			PyGILState_Release(gstate);
+			
+			if(stop) goto final;
 		}
 
 		if((int)(songDuration * x / bmpWidth / timelineSecInterval) < (int)(songDuration * (x+1) / bmpWidth / timelineSecInterval)) {
