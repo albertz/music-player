@@ -69,7 +69,7 @@ def buildControlAction(userAttr, inst):
 	button.setTarget_(actionTarget)
 	button.setAction_("click")
 	def update(ev, args, kwargs):
-		do_in_mainthread(lambda : button.setTitle_(userAttr.name.decode("utf-8")))
+		do_in_mainthread(lambda : button.setTitle_(userAttr.name.decode("utf-8")), wait=False)
 	return button, update
 
 def buildControlOneLineTextLabel(userAttr, inst):
@@ -86,7 +86,7 @@ def buildControlOneLineTextLabel(userAttr, inst):
 			s = str(labelContent)
 			s = s.decode("utf-8")
 		except: pass
-		do_in_mainthread(lambda: label.setStringValue_(s))
+		do_in_mainthread(lambda: label.setStringValue_(s), wait=False)
 	return label, update
 
 def buildControlList(userAttr, inst):
@@ -159,9 +159,7 @@ def buildControlSongDisplay(userAttr, inst):
 		def calcBmpCallback(self, song, completion, duration, bmpData):
 			if subview.window() is None: return False # window was closed
 			with self.lock:
-				if song != self.curSong:
-					print "calcBmpCallback, new song", song, self.curSong
-					return False
+				if song != self.curSong: return False
 				self.curSong.duration = duration
 			self.setSongBitmap(bmpData, wait=False)
 			return True
@@ -170,29 +168,34 @@ def buildControlSongDisplay(userAttr, inst):
 			better_exchook.install()
 			pool = NSAutoreleasePool.alloc().init() # for setSongBitmap
 
+			bmpData = None
 			with self.lock:
 				if state.player.curSong is not self.curSong: return None
 				if self.curSong.bmpThumbnail:
-					self.setSongBitmap(self.curSong.bmpThumbnail)
-					del pool
-					return self.curSong.bmpThumbnail
+					bmpData = self.curSong.bmpThumbnail
+				else:
+					# create song copy for calcBitmapThumbnail
+					song = Song(url=self.curSong.url)
 
-				# create song copy for calcBitmapThumbnail
-				song = Song(url=self.curSong.url)
+			if bmpData:
+				self.setSongBitmap(self.curSong.bmpThumbnail)
+				del pool
+				return
 
 			do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
 
 			song.openFile()
 			import ffmpeg
-			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = self.calcBmpCallback)
+			bmpThumbRet = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = self.calcBmpCallback)
+			if bmpThumbRet:
+				duration, bmpData = bmpThumbRet
 
-			with self.lock:
-				self.curSong.duration = duration
-				self.curSong.bmpThumbnail = bmpData
-			self.setSongBitmap(bmpData)
+				with self.lock:
+					self.curSong.duration = duration
+					self.curSong.bmpThumbnail = bmpData
+				self.setSongBitmap(bmpData)
 
 			del pool
-			return bmpData
 
 		def playCursorUpdater(self):
 			better_exchook.install()
@@ -228,7 +231,6 @@ def buildControlSongDisplay(userAttr, inst):
 				do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
 				return
 
-			print "set song to", self.curSong
 			from threading import Thread
 			Thread(target=self.getBmpData, name="GUI song bitmap loader").start()
 
