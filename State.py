@@ -95,7 +95,7 @@ class State(object):
 		try: return formatTime(self.player.curSongPos) + " / " + formatTime(self.player.curSong.duration)
 		except: return "???"
 
-	@UserAttrib(type=Traits.SongDisplay)
+	@UserAttrib(type=Traits.SongDisplay, updateHandler=lambda *args:None)
 	def curSongDisplay(self): pass
 
 	@UserAttrib(type=Traits.List)
