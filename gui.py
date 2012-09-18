@@ -156,14 +156,6 @@ def buildControlSongDisplay(userAttr, inst):
 			img = NSImage.alloc().initWithData_(data)
 			do_in_mainthread(lambda: imgview.setImage_(img), wait=wait)
 
-		def calcBmpCallback(self, song, completion, duration, bmpData):
-			if subview.window() is None: return False # window was closed
-			with self.lock:
-				if song != self.curSong: return False
-				self.curSong.duration = duration
-			self.setSongBitmap(bmpData, wait=False)
-			return True
-
 		def getBmpData(self):
 			better_exchook.install()
 			pool = NSAutoreleasePool.alloc().init() # for setSongBitmap
@@ -184,16 +176,38 @@ def buildControlSongDisplay(userAttr, inst):
 
 			do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
 
-			song.openFile()
-			import ffmpeg
-			bmpThumbRet = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = self.calcBmpCallback)
-			if bmpThumbRet:
+			def doBmpCalc(queue):
+				try:
+					def calcBmpCallback(song, completion, duration, bmpData):
+						if subview.window() is None: return False # window was closed
+						with self.lock:
+							if song != self.curSong: return False
+						queue.put((duration, bmpData))
+						return True
+
+					song.openFile()
+					import ffmpeg
+					bmpThumbRet = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
+					if bmpThumbRet:
+						queue.put(bmpThumbRet)
+				except:
+					print "doBmpCalc raised exception"
+					sys.excepthook(*sys.exc_info())
+				queue.put(None)
+			from multiprocessing import Process, Queue
+			queue = Queue()
+			Process(target=doBmpCalc, args=(queue,)).start()
+
+			while True:
+				bmpThumbRet = queue.get()
+				if bmpThumbRet is None: break
+
 				duration, bmpData = bmpThumbRet
 
 				with self.lock:
 					self.curSong.duration = duration
 					self.curSong.bmpThumbnail = bmpData
-				self.setSongBitmap(bmpData)
+				self.setSongBitmap(bmpData, wait=False)
 
 			del pool
 
