@@ -20,7 +20,7 @@ Features of this player:
 
 About the DJ mode, what I want (maybe some of these somewhat configurable):
 
-* continously always add songs
+* continuously always add songs
 * liked songs more often
 * context-based choices, e.g. related songs more likely
 * possibility to easily manually add songs to the list
@@ -39,12 +39,12 @@ About the database:
 TODO / possible additional missing features:
 
 * volume normalization
-* beat frequence determination and clever DJ-like fading
-* echoprint.me or similiar song determination (mostly for metadata, esp. if missing)
+* beat frequency determination and clever DJ-like fading
+* echoprint.me or similar song determination (mostly for metadata, esp. if missing)
 * use tags given by Last.fm (mostly more tags)
 * integrate iTunes database (rating, volume normalization, metatags)
 * Last.fm streaming support
-* watch msic directory for changes (e.g. new files added)
+* watch music directory for changes (e.g. new files added)
 
 -- Albert Zeyer, <http://www.az2000.de>
 
