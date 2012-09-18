@@ -1559,8 +1559,8 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 		for(int y = 0; y < bmpHeight; ++y)
 			bmpSetPixel(img, bmpWidth, x, y, bgR, bgG, bgB);
 
-		// call the callback every 10 secs
-		if(procCallback && (int)(songDuration * x / bmpWidth / 10) < (int)(songDuration * (x+1) / bmpWidth / 10)) {
+		// call the callback every 60 secs
+		if(procCallback && (int)(songDuration * x / bmpWidth / 60) < (int)(songDuration * (x+1) / bmpWidth / 60)) {
 			PyGILState_STATE gstate = PyGILState_Ensure();
 			
 			Py_INCREF(bmp);
