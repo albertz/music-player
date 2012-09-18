@@ -1,5 +1,6 @@
 
 import sys
+from player import PlayerEventCallbacks
 
 if sys.platform != "darwin":
 	print "GUI: your platform is probably not supported yet"
@@ -67,8 +68,8 @@ def buildControlAction(userAttr, inst):
 	actionTarget.retain() # TODO: where would we release this? ...
 	button.setTarget_(actionTarget)
 	button.setAction_("click")
-	def update():
-		button.setTitle_(userAttr.name.decode("utf-8"))
+	def update(ev, args, kwargs):
+		do_in_mainthread(lambda : button.setTitle_(userAttr.name.decode("utf-8")))
 	return button, update
 
 def buildControlOneLineTextLabel(userAttr, inst):
@@ -78,27 +79,27 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	#label.setDrawsBackground_(False)
 	label.setEditable_(False)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
-	def update():
+	def update(ev, args, kwargs):
 		labelContent = userAttr.__get__(inst)
 		s = "???"
 		try:
 			s = str(labelContent)
 			s = s.decode("utf-8")
 		except: pass
-		label.setStringValue_(s)
+		do_in_mainthread(lambda: label.setStringValue_(s))
 	return label, update
 
 def buildControlList(userAttr, inst):
 	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	subview.setTitle_(userAttr.name.decode("utf-8"))
-	def update():
+	def update(ev, args, kwargs):
 		pass
 	return subview, update
 
 def buildControlObject(userAttr, inst):
 	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	subview.setTitle_(userAttr.name.decode("utf-8"))
-	def update():
+	def update(ev, args, kwargs):
 		pass
 	return subview, update
 
@@ -132,92 +133,110 @@ def buildControlSongDisplay(userAttr, inst):
 	imgview2.setAutoresizingMask_(NSViewHeightSizable|NSViewMinXMargin|NSViewMaxXMargin)
 
 	from threading import Lock
-	lock = Lock()
 
-	def initSongCursorImg():
-		img2 = NSImage.alloc().initWithSize_((5,1))
-		img2.lockFocus()
-		for i in range(5):
-			a = 100 - abs(i - 2) * 50
-			NSColor.colorWithDeviceRed_green_blue_alpha_(0.0,0.0,0.0,a).setFill()
-			NSBezierPath.fillRect_(((i,0),(1,1)))
-		img2.unlockFocus()
-		do_in_mainthread(lambda: imgview2.setImage_(img2))
-	initSongCursorImg()
+	class SongDisplay:
+		def __init__(self):
+			self.lock = Lock()
+			self.curSong = None
 
-	def update():
-		curSong = state.player.curSong
-		if not curSong:
-			do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
-			return
+		def initSongCursorImg(self):
+			img2 = NSImage.alloc().initWithSize_((5,1))
+			img2.lockFocus()
+			for i in range(5):
+				a = 100 - abs(i - 2) * 50
+				NSColor.colorWithDeviceRed_green_blue_alpha_(0.0,0.0,0.0,a).setFill()
+				NSBezierPath.fillRect_(((i,0),(1,1)))
+			img2.unlockFocus()
+			do_in_mainthread(lambda: imgview2.setImage_(img2))
 
-		def setSongBitmap(bmpData, wait=True):
-			with lock:
-				if state.player.curSong is not curSong: return None
-				data = NSData.alloc().initWithBytes_length_(bmpData, len(bmpData))
-				img = NSImage.alloc().initWithData_(data)
-				do_in_mainthread(lambda: imgview.setImage_(img), wait=wait)
+		def setSongBitmap(self, bmpData, wait=True):
+			with self.lock:
+				if state.player.curSong is not self.curSong: return None
+			data = NSData.alloc().initWithBytes_length_(bmpData, len(bmpData))
+			img = NSImage.alloc().initWithData_(data)
+			do_in_mainthread(lambda: imgview.setImage_(img), wait=wait)
 
-		def calcBmpCallback(completion, duration, bmpData):
-			with lock:
-				if state.player.curSong is not curSong: return False
-				curSong.duration = duration
-			setSongBitmap(bmpData, wait=False)
+		def calcBmpCallback(self, song, completion, duration, bmpData):
+			if subview.window() is None: return False # window was closed
+			with self.lock:
+				if song != self.curSong:
+					print "calcBmpCallback, new song", song, self.curSong
+					return False
+				self.curSong.duration = duration
+			self.setSongBitmap(bmpData, wait=False)
 			return True
 
-		def getBmpData():
+		def getBmpData(self):
+			better_exchook.install()
 			pool = NSAutoreleasePool.alloc().init() # for setSongBitmap
 
-			with lock:
-				if state.player.curSong is not curSong: return None
-				if curSong.bmpThumbnail:
-					setSongBitmap(curSong.bmpThumbnail)
+			with self.lock:
+				if state.player.curSong is not self.curSong: return None
+				if self.curSong.bmpThumbnail:
+					self.setSongBitmap(self.curSong.bmpThumbnail)
 					del pool
-					return curSong.bmpThumbnail
+					return self.curSong.bmpThumbnail
 
 				# create song copy for calcBitmapThumbnail
-				song = Song(url=curSong.url)
+				song = Song(url=self.curSong.url)
 
 			do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
 
 			song.openFile()
 			import ffmpeg
-			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
+			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = self.calcBmpCallback)
 
-			with lock:
-				curSong.duration = duration
-				curSong.bmpThumbnail = bmpData
-			setSongBitmap(bmpData)
+			with self.lock:
+				self.curSong.duration = duration
+				self.curSong.bmpThumbnail = bmpData
+			self.setSongBitmap(bmpData)
 
 			del pool
 			return bmpData
 
-		def playCursorUpdater():
+		def playCursorUpdater(self):
+			better_exchook.install()
 			pool = NSAutoreleasePool.alloc().init()
 
 			import time
+			i = 0
 			while True:
-				with lock:
-					if curSong is not state.player.curSong: break
-
-					w = imgview2.frame().size.width
-					h = imgview2.frame().size.height
-					x = subview.bounds().size.width * state.player.curSongPos / curSong.duration - w / 2
-					y = imgview2.frame().origin.y
-					imgview2.setFrame_(((x,y),(w,h)))
-
-					# another hack: update time
-					updateHandlers["curSongPos"](None,None,None)
-
+				i += 1
 				time.sleep(0.1)
+				if subview.window() is None: return # window was closed
+				if self.curSong is None: continue
+				if self.curSong is not state.player.curSong: continue
+
+				w = imgview2.frame().size.width
+				h = imgview2.frame().size.height
+				x = subview.bounds().size.width * state.player.curSongPos / self.curSong.duration - w / 2
+				y = imgview2.frame().origin.y
+				imgview2.setFrame_(((x,y),(w,h)))
+
+				# another hack: update time
+				updateHandlers["curSongPos"](None,None,None)
 
 			del pool
 
-		from threading import Thread
-		Thread(target=playCursorUpdater, name="GUI play cursor updater").start()
-		Thread(target=getBmpData, name="GUI song bitmap loader").start()
+		def update(self, ev, args, kwargs):
+			#if ev is PlayerEventCallbacks.onSongChange:
+			with self.lock:
+				if self.curSong is state.player.curSong: return # song not changed
+				self.curSong = state.player.curSong
 
-	return subview, update
+			if not self.curSong:
+				do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
+				return
+
+			print "set song to", self.curSong
+			from threading import Thread
+			Thread(target=self.getBmpData, name="GUI song bitmap loader").start()
+
+	songDisplay = SongDisplay()
+	songDisplay.initSongCursorImg()
+	Thread(target=songDisplay.playCursorUpdater, name="GUI play cursor updater").start()
+
+	return subview, songDisplay.update
 
 def buildControl(userAttr, inst):
 	if userAttr.isType(Traits.Action):
@@ -341,7 +360,7 @@ def setupWindow():
 		lastHorizControls += [(attr,control)]
 		maxY = max(maxY, control.frame().origin.y + control.frame().size.height)
 
-		update()
+		update(None,None,None)
 
 		if attr.updateHandler:
 			def handleFunc(ev,args,kwargs,attr=attr,update=update):
@@ -349,7 +368,7 @@ def setupWindow():
 					attr.updateHandler(state, attr, ev, args, kwargs)
 				except:
 					sys.excepthook(*sys.exc_info())
-				do_in_mainthread(update)
+				update(ev, args, kwargs)
 			updateHandlers[attr.name] = handleFunc
 
 	finishLastHoriz()
