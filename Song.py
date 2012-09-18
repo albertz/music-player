@@ -16,6 +16,8 @@ class Song:
 		return bool(self.url)
 	def __eq__(self, other):
 		return hasattr(other, "url") and self.url == other.url
+	def __ne__(self, other):
+		return not self == other
 	def openFile(self):
 		if not self.f:
 			self.f = open(self.url)
