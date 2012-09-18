@@ -268,7 +268,7 @@ def setupWindow():
 
 	win = NSWindow.alloc()
 	win.initWithContentRect_styleMask_backing_defer_(
-		((200.0, 500.0), (300.0, 300.0)),
+		((200.0, 500.0), (400.0, 400.0)),
 		NSTitledWindowMask |
 		NSClosableWindowMask |
 		NSMiniaturizableWindowMask |
