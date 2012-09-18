@@ -1564,7 +1564,12 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			PyGILState_STATE gstate = PyGILState_Ensure();
 			
 			Py_INCREF(bmp);
-			PyObject* args = PyTuple_Pack(3, PyFloat_FromDouble((double) x / bmpWidth), PyFloat_FromDouble(songDuration), bmp);
+			Py_INCREF(songObj);
+			PyObject* args = PyTuple_Pack(4,
+				songObj,
+				PyFloat_FromDouble((double) x / bmpWidth),
+				PyFloat_FromDouble(songDuration),
+				bmp);
 			PyObject* retObj = PyObject_CallObject(procCallback, args);
 			int stop = 0;
 			if(PyErr_Occurred()) {
@@ -1577,7 +1582,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			else // retObj == NULL, strange, should be error
 				stop = 1;
 			Py_XDECREF(retObj);
-			Py_DECREF(args); // this also decrefs bmp
+			Py_DECREF(args); // this also decrefs song and bmp
 			
 			if(stop) {
 				Py_DECREF(bmp);
