@@ -201,20 +201,26 @@ def buildControlSongDisplay(userAttr, inst):
 			better_exchook.install()
 			pool = NSAutoreleasePool.alloc().init()
 
+			def updateCursor():
+				with self.lock:
+					if self.curSong is None: return
+					if state.player.curSong is not self.curSong: return
+					w = imgview2.frame().size.width
+					h = imgview2.frame().size.height
+					x = subview.bounds().size.width * state.player.curSongPos / self.curSong.duration - w / 2
+					y = imgview2.frame().origin.y
+					imgview2.setFrame_(((x,y),(w,h)))
+
 			import time
 			i = 0
 			while True:
 				i += 1
 				time.sleep(0.1)
 				if subview.window() is None: return # window was closed
-				if self.curSong is None: continue
-				if self.curSong is not state.player.curSong: continue
-
-				w = imgview2.frame().size.width
-				h = imgview2.frame().size.height
-				x = subview.bounds().size.width * state.player.curSongPos / self.curSong.duration - w / 2
-				y = imgview2.frame().origin.y
-				imgview2.setFrame_(((x,y),(w,h)))
+				with self.lock:
+					if self.curSong is None: continue
+					if self.curSong is not state.player.curSong: continue
+				do_in_mainthread(updateCursor, wait=False)
 
 				# another hack: update time
 				updateHandlers["curSongPos"](None,None,None)
@@ -288,7 +294,6 @@ def setupWindow():
 	global guiHandleUpdate
 	def guiHandleUpdate(ev,args,kwargs):
 		for attrName,handleFunc in updateHandlers.items():
-			print "update", attrName
 			handleFunc(ev,args,kwargs)
 
 	defaultSpaceX, defaultSpaceY = 8, 8
