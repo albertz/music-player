@@ -85,10 +85,13 @@ class RandomSongs:
 				gen = generators[i]
 			try:
 				return next(gen)
-			except StopIteration:
+			#except StopIteration:
 				#print "warning: generator", gen, "raised StopIteration"
 				#sys.excepthook(*sys.exc_info())
-				pass
+				#pass
+			except: # just catch any exception, esp non-StopIteration
+				print "RandomSongs generator raised exception"
+				sys.excepthook(*sys.exc_info())
 			generators.pop(i)
 
 	def __iter__(self):
