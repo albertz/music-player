@@ -40,6 +40,18 @@
 #define NUMCHANNELS 2
 #define AUDIO_BUFFER_SIZE 2048
 
+/* Some confusion about Python functions and their reference counting:
+
+ PyObject_GetAttrString: returns new reference!
+ PyDict_SetItem: increments reference on key and value!
+ PyDict_SetItemString: increments reference on value!
+ PyDict_GetItemString: does not inc ref of returned obj, i.e. borrowed ref! (unline PyObject_GetAttrString)
+ PyTuple_Pack: increments references on passed objects
+ PyTuple_SetItem: does *not* increment references, i.e. steals ref (unline PyDict_SetItem)
+ PyList_Append: inc ref of passed object
+ PyList_SetItem: does *not* inc ref on obj!
+*/
+
 typedef struct AudioParams {
     int freq;
     int channels;
@@ -120,7 +132,8 @@ static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) 
 	readPacketFunc = PyObject_GetAttrString(player->curSong, "readPacket");
 	if(readPacketFunc == NULL) goto final;
 	
-	args = PyTuple_Pack(1, PyInt_FromLong(buf_size));
+	args = PyTuple_New(1);
+	PyTuple_SetItem(args, 0, PyInt_FromLong(buf_size));
 	retObj = PyObject_CallObject(readPacketFunc, args);
 	
 	if(!retObj || !PyString_Check(retObj)) {
@@ -165,8 +178,10 @@ static int player_seek(PlayerObject* player, int64_t offset, int whence) {
 	seekRawFunc = PyObject_GetAttrString(player->curSong, "seekRaw");
 	if(seekRawFunc == NULL) goto final;
 
-	args = PyTuple_Pack(2, PyLong_FromLongLong(offset), PyInt_FromLong(whence));
+	args = PyTuple_New(2);
 	if(args == NULL) goto final;
+	PyTuple_SetItem(args, 0, PyLong_FromLongLong(offset));
+	PyTuple_SetItem(args, 1, PyInt_FromLong(whence));
 	retObj = PyObject_CallObject(seekRawFunc, args);
 	if(retObj == NULL) goto final; // pass through any Python exception
 	
@@ -406,7 +421,9 @@ static void player_setSongMetadata(PlayerObject* player) {
 		if(strcmp("language", tag->key) == 0)
 			continue;
 		
-		PyDict_SetItemString(player->curSongMetadata, tag->key, PyString_FromString(tag->value));
+		PyObject* value = PyString_FromString(tag->value);
+		PyDict_SetItemString(player->curSongMetadata, tag->key, value);
+		Py_DECREF(value);
 	}
 	
 	if(player->curSongLen > 0)
@@ -419,8 +436,10 @@ static void player_setSongMetadata(PlayerObject* player) {
 			PyErr_Clear();
 			PyDict_DelItemString(player->curSongMetadata, "duration");
 		}
-		else
+		else {
 			PyDict_SetItemString(player->curSongMetadata, "duration", floatObj);
+			Py_DECREF(floatObj);
+		}
 	}
 }
 
@@ -536,17 +555,14 @@ static int player_getNextSong(PlayerObject* player, int skipped) {
 				
 				PyObject* kwargs = PyDict_New();
 				assert(kwargs);
-				if(oldSong) {
-					Py_INCREF(oldSong);
+				if(oldSong)
 					PyDict_SetItemString(kwargs, "oldSong", oldSong);
-				}
-				else {
-					Py_INCREF(Py_None);
+				else
 					PyDict_SetItemString(kwargs, "oldSong", Py_None);
-				}
-				Py_INCREF(player->curSong);
 				PyDict_SetItemString(kwargs, "newSong", player->curSong);
+				PyObject* skippedObj = PyBool_FromLong(skipped);
 				PyDict_SetItemString(kwargs, "skipped", PyBool_FromLong(skipped));
+				Py_DECREF(skippedObj);
 				
 				PyObject* retObj = PyEval_CallObjectWithKeywords(onSongChange, NULL, kwargs);
 				Py_XDECREF(retObj);
@@ -750,10 +766,8 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 							
 							PyObject* kwargs = PyDict_New();
 							assert(kwargs);
-							if(player->curSong) {
-								Py_INCREF(player->curSong);
+							if(player->curSong)
 								PyDict_SetItemString(kwargs, "song", player->curSong);
-							}
 							
 							PyObject* retObj = PyEval_CallObjectWithKeywords(onSongFinished, NULL, kwargs);
 							Py_XDECREF(retObj);
@@ -919,8 +933,12 @@ static int player_setplaying(PlayerObject* player, int playing) {
 			
 			PyObject* kwargs = PyDict_New();
 			assert(kwargs);
-			PyDict_SetItemString(kwargs, "oldState", PyBool_FromLong(oldplayingstate));
-			PyDict_SetItemString(kwargs, "newState", PyBool_FromLong(playing));
+			PyObject* stateObj = PyBool_FromLong(oldplayingstate);
+			PyDict_SetItemString(kwargs, "oldState", stateObj);
+			Py_DECREF(stateObj);
+			stateObj = PyBool_FromLong(playing);
+			PyDict_SetItemString(kwargs, "newState", stateObj);
+			Py_DECREF(stateObj);
 			
 			PyObject* retObj = PyEval_CallObjectWithKeywords(onPlayingStateChange, NULL, kwargs);
 			Py_XDECREF(retObj);
@@ -1085,9 +1103,9 @@ PyObject* player_getdict(PlayerObject* player) {
 		// i.e. we requested for it.
 		// This is most likely from IPython or so, thus give the developer
 		// a list of possible entries.
-		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onSongChange", Py_None);
-		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onSongFinished", Py_None);
-		Py_INCREF(Py_None); PyDict_SetItemString(player->dict, "onPlayingStateChange", Py_None);
+		PyDict_SetItemString(player->dict, "onSongChange", Py_None);
+		PyDict_SetItemString(player->dict, "onSongFinished", Py_None);
+		PyDict_SetItemString(player->dict, "onPlayingStateChange", Py_None);
 	}
 	return player->dict;
 }
@@ -1104,16 +1122,16 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		PyObject* mlist = PyList_New(0);
-		PyList_Append(mlist, PyString_FromString("queue"));
-		PyList_Append(mlist, PyString_FromString("playing"));
-		PyList_Append(mlist, PyString_FromString("curSong"));
-		PyList_Append(mlist, PyString_FromString("curSongPos"));
-		PyList_Append(mlist, PyString_FromString("curSongLen"));
-		PyList_Append(mlist, PyString_FromString("curSongMetadata"));		
-		PyList_Append(mlist, PyString_FromString("seekAbs"));
-		PyList_Append(mlist, PyString_FromString("seekRel"));
-		PyList_Append(mlist, PyString_FromString("nextSong"));
+		PyObject* mlist = PyList_New(9);
+		PyList_SetItem(mlist, 0, PyString_FromString("queue"));
+		PyList_SetItem(mlist, 1, PyString_FromString("playing"));
+		PyList_SetItem(mlist, 2, PyString_FromString("curSong"));
+		PyList_SetItem(mlist, 3, PyString_FromString("curSongPos"));
+		PyList_SetItem(mlist, 4, PyString_FromString("curSongLen"));
+		PyList_SetItem(mlist, 5, PyString_FromString("curSongMetadata"));
+		PyList_SetItem(mlist, 6, PyString_FromString("seekAbs"));
+		PyList_SetItem(mlist, 7, PyString_FromString("seekRel"));
+		PyList_SetItem(mlist, 8, PyString_FromString("nextSong"));
 		return mlist;
 	}
 	
