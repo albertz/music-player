@@ -50,7 +50,6 @@ for f in files:
 
 print "after getMetadata"
 step()
-sys.exit()
 
 
 for f in files:
