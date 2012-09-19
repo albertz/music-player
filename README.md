@@ -38,7 +38,8 @@ About the database:
 
 TODO / possible additional missing features:
 
-* volume normalization
+* [Volume normalization](http://en.wikipedia.org/wiki/Audio_normalization). I guess just [ReplayGain](http://en.wikipedia.org/wiki/ReplayGain) support.
+* [Gapless playback](http://en.wikipedia.org/wiki/Gapless_playback). I think ffmpeg provides some way to get the exact specified start/end of a song. Otherwise this is just a question of buffering.
 * beat frequency determination and clever DJ-like fading
 * echoprint.me or similar song determination (mostly for metadata, esp. if missing)
 * use tags given by Last.fm (mostly more tags)
