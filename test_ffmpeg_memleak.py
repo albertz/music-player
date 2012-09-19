@@ -4,24 +4,27 @@ import sys, os, gc
 def step():
 	gc.collect()
 	os.system("ps axu %i" % os.getpid())
-	print "\npress enter to continue"
-	sys.stdin.readline()
+	#print "\npress enter to continue"
+	#sys.stdin.readline()
 
 def progr():
 	sys.stdout.write(".")
 	sys.stdout.flush()
 
-from RandomFileQueue import RandomFileQueue
-fileQueue = RandomFileQueue(
-	rootdir=os.path.expanduser("~/Music"),
-	fileexts=["mp3", "ogg", "flac", "wma"])
+def getFileList(n):
+	from RandomFileQueue import RandomFileQueue
+	fileQueue = RandomFileQueue(
+		rootdir=os.path.expanduser("~/Music"),
+		fileexts=["mp3", "ogg", "flac", "wma"])
+	return [fileQueue.getNextFile() for i in xrange(n)]
 
+N = 10
+files = getFileList(N)
 
 import ffmpeg
 print "imported"
 step()
 
-N = 10
 
 for i in xrange(N):
 	ffmpeg.createPlayer()
@@ -41,24 +44,25 @@ class Song:
 		r = self.f.seek(offset, whence)
 		return self.f.tell()
 
-for i in xrange(N):
-	ffmpeg.getMetadata(Song(fileQueue.getNextFile()))
+for f in files:
+	ffmpeg.getMetadata(Song(f))
 	progr()
 
 print "after getMetadata"
 step()
+sys.exit()
 
 
-for i in xrange(N):
-	ffmpeg.calcAcoustIdFingerprint(Song(fileQueue.getNextFile()))
+for f in files:
+	ffmpeg.calcAcoustIdFingerprint(Song(f))
 	progr()
 
 print "after calcAcoustIdFingerprint"
 step()
 
 
-for i in xrange(N):
-	ffmpeg.calcBitmapThumbnail(Song(fileQueue.getNextFile()))
+for f in files:
+	ffmpeg.calcBitmapThumbnail(Song(f))
 	progr()
 
 print "after calcBitmapThumbnail"
