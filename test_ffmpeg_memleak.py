@@ -42,16 +42,24 @@ class Song:
 		return self.f.tell()
 
 for i in xrange(N):
-	ffmpeg.calcBitmapThumbnail(Song(fileQueue.getNextFile()))
-	progr()
-
-print "after calcBitmapThumbnail"
-step()
-
-for i in xrange(N):
 	ffmpeg.getMetadata(Song(fileQueue.getNextFile()))
 	progr()
 
 print "after getMetadata"
 step()
 
+
+for i in xrange(N):
+	ffmpeg.calcAcoustIdFingerprint(Song(fileQueue.getNextFile()))
+	progr()
+
+print "after calcAcoustIdFingerprint"
+step()
+
+
+for i in xrange(N):
+	ffmpeg.calcBitmapThumbnail(Song(fileQueue.getNextFile()))
+	progr()
+
+print "after calcBitmapThumbnail"
+step()
