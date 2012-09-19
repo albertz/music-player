@@ -5,7 +5,7 @@ Annoyed by all existing players because some subset of:
 
 * not open source
 * missing sound format ([FLAC](http://flac.sourceforge.net/itunes.html), Ogg, ...)
-* bugs ([1](http://bugzilla.songbirdnest.com/show_bug.cgi?id=23640), [2](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25023), [3](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25042), [4](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18503), [5](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18505), [6](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18480), [7](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18478), [8](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25073), [9](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25024), ...)
+* bugs ([1](http://bugzilla.songbirdnest.com/show_bug.cgi?id=23640), [2](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25023), [3](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25042), [4](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18503), [5](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18505), [6](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18480), [7](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18478), [8](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25073), [9](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25024), [10](http://bugzilla.songbirdnest.com/show_bug.cgi?id=5975), ...)
 * missing output possibility (RAOP, PulseAudio, ...)
 * no or too limited DJ mode
 * no library / database
@@ -20,7 +20,7 @@ Features of this player:
 
 About the DJ mode, what I want (maybe some of these somewhat configurable):
 
-* continously always add songs
+* continuously always add songs
 * liked songs more often
 * context-based choices, e.g. related songs more likely
 * possibility to easily manually add songs to the list
@@ -38,22 +38,31 @@ About the database:
 
 TODO / possible additional missing features:
 
-* volume normalization
-* beat frequence determination and clever DJ-like fading
-* echoprint.me or similiar song determination (mostly for metadata, esp. if missing)
+* [Volume normalization](http://en.wikipedia.org/wiki/Audio_normalization). I guess just [ReplayGain](http://en.wikipedia.org/wiki/ReplayGain) support.
+* [Gapless playback](http://en.wikipedia.org/wiki/Gapless_playback). I think ffmpeg provides some way to get the exact specified start/end of a song. Otherwise this is just a question of buffering.
+* beat frequency determination and clever DJ-like fading
+* echoprint.me or similar song determination (mostly for metadata, esp. if missing)
 * use tags given by Last.fm (mostly more tags)
 * integrate iTunes database (rating, volume normalization, metatags)
 * Last.fm streaming support
-* watch msic directory for changes (e.g. new files added)
+* watch music directory for changes (e.g. new files added)
 
--- Albert Zeyer, <http://www.az2000.de>
+Installation:
 
-
-Requirements:
+So far, there is a prebuild MacOSX app bundle in the download section which should just work. Otherwise, to get the source working, you need these requirements (e.g. install on MacOSX via Homebrew):
 
 * ffmpeg
 * portaudio
 * leveldb
-* py-leveldb
 * chromaprint
 
+Then call `./compile.py` to build the Python modules (it will build the Python modules `ffmpeg.so` and `leveldb.so`).
+
+To start the player, just call `./main.py`.
+
+The current GUI is Cocoa only. Additional Qt support is planned. The music player also works without any GUI.
+
+Authors:
+
+* Albert Zeyer, <http://www.az2000.de>: founder of the project, main core, ffmpeg module, etc.
+* Bryan Joseph, <http://bryaninspired.com>: database

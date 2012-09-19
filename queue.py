@@ -4,7 +4,6 @@ from player import PlayerEventCallbacks
 from utils import *
 import math, random
 import appinfo
-from SongStore import SongStore
 
 class RandomFileQueueGen:
 	randomQuality = 0.5
@@ -20,12 +19,9 @@ class RandomFileQueueGen:
 	def next(self):
 		return self.fileQueue.getNextFile()
 
-	def __iter__(self):
-		while True:
-			yield self.next()
-
 
 class RandomFromSongDatabaseGen:
+	from SongStore import SongStore
 	randomQuality = 0.0
 	database = SongStore()
 
@@ -57,10 +53,6 @@ class RandomFromSongDatabaseGen:
 
 		return next(iter(songs))
 
-
-def __iter__(self):
-	while True:
-		yield self.next()
 
 
 class RandomSongs:
