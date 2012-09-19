@@ -47,14 +47,22 @@ TODO / possible additional missing features:
 * Last.fm streaming support
 * watch music directory for changes (e.g. new files added)
 
--- Albert Zeyer, <http://www.az2000.de>
+Installation:
 
-
-Requirements:
+So far, there is a prebuild MacOSX app bundle in the download section which should just work. Otherwise, to get the source working, you need these requirements (e.g. install on MacOSX via Homebrew):
 
 * ffmpeg
 * portaudio
 * leveldb
-* py-leveldb
 * chromaprint
 
+Then call `./compile.py` to build the Python modules (it will build the Python modules `ffmpeg.so` and `leveldb.so`).
+
+To start the player, just call `./main.py`.
+
+The current GUI is Cocoa only. Additional Qt support is planned. The music player also works without any GUI.
+
+Authors:
+
+* Albert Zeyer, <http://www.az2000.de>: founder of the project, main core, ffmpeg module, etc.
+* Bryan Joseph, <http://bryaninspired.com>: database
