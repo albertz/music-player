@@ -973,6 +973,15 @@ void player_dealloc(PyObject* obj) {
 	Py_XDECREF(player->dict);
 	player->dict = NULL;
 	
+	Py_XDECREF(player->curSong);
+	player->curSong = NULL;
+
+	Py_XDECREF(player->curSongMetadata);
+	player->curSongMetadata = NULL;
+	
+	Py_XDECREF(player->queue);
+	player->queue = NULL;
+
 	if(player->outStream) {
 		Pa_CloseStream(player->outStream);
 		player->outStream = NULL;
@@ -982,10 +991,17 @@ void player_dealloc(PyObject* obj) {
 		avformat_close_input(&player->inStream);
 		player->inStream = NULL;
 	}
-		
-	Py_XDECREF(player->queue);
-	player->queue = NULL;
-		
+	
+	if(player->frame) {
+		av_free(player->frame);
+		player->frame = NULL;
+	}
+	
+	if(player->swr_ctx) {
+		swr_free(&player->swr_ctx);
+		player->swr_ctx = NULL;
+	}
+			
 	PyThread_free_lock(player->lock);
 	player->lock = NULL;
 	
@@ -1272,6 +1288,7 @@ pyGetMetadata(PyObject* self, PyObject* args) {
 	PlayerObject* player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
+	Py_INCREF(songObj);
 	player->curSong = songObj;
 	player_openInputStream(player);
 	
@@ -1299,6 +1316,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
 	player->playing = 1; // otherwise audio_decode_frame() wont read
+	Py_INCREF(songObj);
 	player->curSong = songObj;
 	if(player_openInputStream(player) != 0) goto final;
 	if(player->inStream == NULL) goto final;
@@ -1511,6 +1529,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
 	player->playing = 1; // otherwise audio_decode_frame() wont read
+	Py_INCREF(songObj);
 	player->curSong = songObj;
 	if(player_openInputStream(player) != 0) goto final;
 	if(player->inStream == NULL) goto final;	
