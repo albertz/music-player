@@ -56,6 +56,8 @@ So far, there is a prebuild MacOSX app bundle in the download section which shou
 * leveldb
 * chromaprint
 
+(Debian/Ubuntu: `sudo apt-get install libavformat-dev libavcodec-dev libswscale-dev libportaudio-dev python-dev`)
+
 Then call `./compile.py` to build the Python modules (it will build the Python modules `ffmpeg.so` and `leveldb.so`).
 
 To start the player, just call `./main.py`.
