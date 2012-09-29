@@ -9,6 +9,23 @@ def sysExec(cmd):
     r = os.system(" ".join(cmd))
     if r != 0: sys.exit(r)
 
+def link(outfile, infiles, options):
+	if sys.platform == "darwin":
+		sysExec(
+			["libtool", "-dynamic", "-o", outfile] +
+			infiles +
+			options + 
+			["-lc", "-lstdc++"]
+		)
+	else:
+		sysExec(
+			["ld", "-shared", "-o", outfile] +
+			["-L/usr/local/lib"] +
+			options +
+			infiles +
+			["-lc"]
+		)
+
 sysExec(["mkdir","-p","build"])
 os.chdir("build")
 
@@ -20,18 +37,23 @@ ffmpegFiles = ["../ffmpeg.c"] + \
 sysExec(["cc", "-std=c99", "-c"] + ffmpegFiles +
 	[
 		"-DHAVE_CONFIG_H",
-		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
+		"-I", "/System/Library/Frameworks/Python.framework/Headers/", # mac
+		"-I", "/usr/include/python2.7", # common linux/unix
 		"-g",
 	] +
 	(["-I", "../chromaprint"] if staticChromaprint else [])
 )
 
-sysExec(["libtool", "-dynamic", "-o", "../ffmpeg.so"] +
-	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in ffmpegFiles] +
+link(
+	"../ffmpeg.so",
+	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in ffmpegFiles],
+	(["-framework","Python"] if sys.platform == "darwin" else ["-lpython2.7"]) +
 	[
-		"-framework", "Python",
-		"-lavformat", "-lavutil", "-lavcodec", "-lswresample", "-lportaudio",
-		"-lc", "-lstdc++",
+		"-lavutil",
+		"-lavformat",
+		"-lavcodec",
+		"-lswresample",
+		"-lportaudio",
 	] +
 	([] if staticChromaprint else ["-lchromaprint"])
 )
@@ -40,16 +62,17 @@ levelDbFiles = glob("../leveldb*.cc")
 
 sysExec(["cc", "-c"] + levelDbFiles +
 	[
-		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
+		"-I", "/System/Library/Frameworks/Python.framework/Headers/", # mac
+		"-I", "/usr/include/python2.7", # common linux/unix
 		"-g",
 	]
 )
 
-sysExec(["libtool", "-dynamic", "-o", "../leveldb.so"] +
-	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in levelDbFiles] +
+link(
+	"../leveldb.so",
+	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in levelDbFiles],
+	(["-framework","Python"] if sys.platform == "darwin" else ["-lpython2.7"]) +
 	[
-		"-framework", "Python",
 		"-lleveldb", "-lsnappy",
-		"-lc", "-lstdc++",
 	]
 )

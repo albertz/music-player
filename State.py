@@ -122,7 +122,6 @@ class State(object):
 		"""
 		import sys, os, signal
 		os.kill(0, signal.SIGINT)
-		sys.exit()
 
 # Only init new state if it is new, not at module reload.
 try:

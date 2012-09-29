@@ -21,12 +21,13 @@ class RandomFileQueueGen:
 
 
 class RandomFromSongDatabaseGen:
-	from SongStore import SongStore
 	randomQuality = 0.0
-	database = SongStore()
 
 	def __init__(self):
 		def loadDatabase():
+			from SongStore import SongStore
+			self.database = SongStore()
+
 			import utils
 
 			print "updating database"
@@ -41,7 +42,6 @@ class RandomFromSongDatabaseGen:
 
 		loadDatabaseThread = Thread(target=loadDatabase, name="loadDatabase")
 		loadDatabaseThread.start()
-
 
 	def next(self):
 		try:

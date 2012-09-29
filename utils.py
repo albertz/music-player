@@ -3,7 +3,11 @@
 # by PyObjC on the first import would be released at exit by the main thread
 # which would crash (because it was created in a different thread).
 # http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
-import objc
+try:
+	import objc
+except ImportError:
+	# probably not MacOSX. doesn't matter
+	pass
 
 from collections import deque
 from threading import Condition, Thread, currentThread
@@ -265,10 +269,11 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	return LazyObject()
 
 def PersistentObject(baseType, filename, persistentRepr = False):
+	import appinfo
+	fullfn = appinfo.userdir + "/" + filename
 	def load():
-		import appinfo
 		try:
-			f = open(appinfo.userdir + "/" + filename)
+			f = open(fullfn)
 		except IOError: # e.g. file-not-found. that's ok
 			return baseType()
 
@@ -285,8 +290,7 @@ def PersistentObject(baseType, filename, persistentRepr = False):
 		return obj
 	def save(obj):
 		s = betterRepr(obj.__get__(None))
-		import appinfo
-		f = open(appinfo.userdir + "/" + filename, "w")
+		f = open(fullfn, "w")
 		f.write(s)
 		f.write("\n")
 		f.close()

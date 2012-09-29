@@ -1,3 +1,8 @@
+""" This is the tracker module which is supposed to track played songs
+to some online services like Last.fm.
+
+Note that later, it might make more sense to have separate
+modules for each online service. Right now, it is just Last.fm. """
 
 from utils import *
 from pprint import pprint
@@ -6,6 +11,7 @@ import sys
 from State import state
 from player import PlayerEventCallbacks
 
+import appinfo
 import lastfm
 
 def track(event, args, kwargs):
@@ -25,6 +31,8 @@ def track(event, args, kwargs):
 		lastfm.onSongFinished(song)
 
 def trackerMain():
+	if not appinfo.config.lastFm: return
+
 	lastfm.login()
 	for ev,args,kwargs in state.updates.read():
 		try:

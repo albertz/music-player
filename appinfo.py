@@ -29,3 +29,20 @@ musicdirs = (os.path.expanduser("~/Music"),)
 
 try: os.makedirs(userdir)
 except: pass
+
+
+import utils
+
+class Config:
+	lastFm = True
+	def __init__(self, **kwargs):
+		for k in dir(self):
+			if k.startswith("_"): continue
+			setattr(self, k, getattr(self, k)) # to have it in own dict
+		for k,v in kwargs.items():
+			setattr(self, k, v)
+	def __repr__(self):
+		return "Config(**%s)" % utils.betterRepr(self.__dict__)
+
+config = utils.PersistentObject(Config, "main.cfg")
+config.save()
