@@ -34,7 +34,12 @@ class RandomFileQueue:
 			def load(self):
 				self.isLoaded = True
 				# Note: If we could use the C readdir() more directly, that would be much faster because it already provides the stat info (wether it is a file or dir), so we don't need to do a separate call for isfile/isdir.
-				for f in os.listdir(self.base):
+				try:
+					listeddir = os.listdir(self.base)
+				except:
+					# it might fail because of permission errors or whatever
+					listeddir = []
+				for f in listeddir:
 					if f.startswith("."): continue
 					if os.path.isfile(self.base + "/" + f):
 						if hasCorrectFileext(f):
