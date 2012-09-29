@@ -20,7 +20,8 @@ ffmpegFiles = ["../ffmpeg.c"] + \
 sysExec(["cc", "-std=c99", "-c"] + ffmpegFiles +
 	[
 		"-DHAVE_CONFIG_H",
-		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
+		"-I", "/System/Library/Frameworks/Python.framework/Headers/", # mac
+		"-I", "/usr/include/python2.7", # common linux/unix
 		"-g",
 	] +
 	(["-I", "../chromaprint"] if staticChromaprint else [])
