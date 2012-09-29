@@ -269,9 +269,9 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	return LazyObject()
 
 def PersistentObject(baseType, filename, persistentRepr = False):
+	import appinfo
 	fullfn = appinfo.userdir + "/" + filename
 	def load():
-		import appinfo
 		try:
 			f = open(fullfn)
 		except IOError: # e.g. file-not-found. that's ok
@@ -290,7 +290,6 @@ def PersistentObject(baseType, filename, persistentRepr = False):
 		return obj
 	def save(obj):
 		s = betterRepr(obj.__get__(None))
-		import appinfo
 		f = open(fullfn, "w")
 		f.write(s)
 		f.write("\n")
