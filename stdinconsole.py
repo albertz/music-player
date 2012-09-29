@@ -8,9 +8,13 @@ def readNextInput():
 	ch = os.read(sys.stdin.fileno(),7)
 	stdinQueue.put(ch)
 
+oldTermios = None
+
 def setTtyNoncanonical(fd, timeout=0):
+	global oldTermios
 	import termios
 	old = termios.tcgetattr(fd)
+	if not oldTermios: oldTermios = old
 	new = termios.tcgetattr(fd)
 	new[3] = new[3] & ~termios.ICANON & ~termios.ECHO
 	# http://www.unixguide.net/unix/programming/3.6.2.shtml
@@ -23,6 +27,12 @@ def setTtyNoncanonical(fd, timeout=0):
 
 	termios.tcsetattr(fd, termios.TCSANOW, new)
 	termios.tcsendbreak(fd,0)
+
+def restoreTty(fd):
+	if oldTermios:
+		import termios
+		termios.tcsetattr(fd, termios.TCSANOW, oldTermios)
+		termios.tcsendbreak(fd, 0)
 
 
 from State import state, reloadModules
@@ -89,3 +99,5 @@ def stdinconsoleMain():
 			ch = os.read(fd,7)
 			if ch:
 				handleInput(ch)
+
+	restoreTty(fd)
