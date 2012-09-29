@@ -1,9 +1,11 @@
+import better_exchook
+better_exchook.install()
 
 import sys, os, gc
 
 def step():
 	gc.collect()
-	os.system("ps axu %i" % os.getpid())
+	os.system("ps up %i" % os.getpid())
 	#print "\npress enter to continue"
 	#sys.stdin.readline()
 
@@ -20,6 +22,8 @@ def getFileList(n):
 
 N = 10
 files = getFileList(N)
+from pprint import pprint
+pprint(files)
 
 import ffmpeg
 print "imported"
