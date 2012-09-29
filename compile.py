@@ -12,30 +12,10 @@ def sysExec(cmd):
 sysExec(["mkdir","-p","build"])
 os.chdir("build")
 
-def includeExists(fn):
-	for p in ["/usr/include", "/usr/local/include"]:
-		if os.path.exists(p + "/" + fn): return True
-	return False
-
 staticChromaprint = False
-staticSwresample = False
-
-if not includeExists("libswresample/libswresample.h"):
-	print "forcing staticSwresample = True"
-	staticSwresample = True
 
 ffmpegFiles = ["../ffmpeg.c"] + \
 	(glob("../chromaprint/*.cpp") if staticChromaprint else [])
-
-if staticSwresample:
-	ffmpegFiles += map(lambda fn: "../libs/libswresample/" + fn,
-		[
-			"audioconvert.c",
-			"dither.c",
-			"rematrix.c",
-			"resample.c",
-			"swresample.c",
-		])
 
 sysExec(["cc", "-std=c99", "-c"] + ffmpegFiles +
 	[
@@ -43,8 +23,7 @@ sysExec(["cc", "-std=c99", "-c"] + ffmpegFiles +
 		"-I", "/System/Library/Frameworks/Python.framework/Headers/",
 		"-g",
 	] +
-	(["-I", "../chromaprint"] if staticChromaprint else []) +
-	(["-I", "../libs/libswresample"] if staticSwresample else [])
+	(["-I", "../chromaprint"] if staticChromaprint else [])
 )
 
 sysExec(["libtool", "-dynamic", "-o", "../ffmpeg.so"] +
