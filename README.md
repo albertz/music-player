@@ -56,7 +56,7 @@ So far, there is a prebuild MacOSX app bundle in the download section which shou
 * leveldb
 * chromaprint
 
-(Debian/Ubuntu: `sudo apt-get install libavformat-dev libavcodec-dev libswscale-dev libportaudio-dev python-dev`)
+(Debian/Ubuntu: `sudo apt-get install libportaudio-dev python-dev libchromaprint-dev yasm`. libswresample does not exist, so install ffmpeg from source. `./configure && make && sudo make install` should just work.)
 
 Then call `./compile.py` to build the Python modules (it will build the Python modules `ffmpeg.so` and `leveldb.so`).
 
