@@ -31,6 +31,7 @@
 #include <Python.h>
 #include <pythread.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <chromaprint.h>
 
@@ -869,11 +870,11 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long le
 
 static
 int paStreamCallback(
-					 const void *input, void *output,
-					 unsigned long frameCount,
-					 const PaStreamCallbackTimeInfo* timeInfo,
-					 PaStreamCallbackFlags statusFlags,
-					 void *userData )
+	const void *input, void *output,
+	unsigned long frameCount,
+	const PaStreamCallbackTimeInfo* timeInfo,
+	PaStreamCallbackFlags statusFlags,
+	void *userData )
 {
 	player_fillOutStream((PlayerObject*) userData, (uint8_t*) output, frameCount * 2 /* bytes */ * NUMCHANNELS);
 	return paContinue;
