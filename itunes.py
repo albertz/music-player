@@ -7,7 +7,11 @@ import sys
 import codecs # utf8
 import os
 
-libraryXmlFile = codecs.open(os.path.expanduser("~/Music/iTunes/iTunes Music Library.xml"), "r", "utf-8")
+try:
+	libraryXmlFile = codecs.open(os.path.expanduser("~/Music/iTunes/iTunes Music Library.xml"), "r", "utf-8")
+except:
+	sys.excepthook(*sys.exc_info())
+	libraryXmlFile = None
 
 def parse_xml(stream):
 	state = 0
@@ -167,7 +171,10 @@ def parse_plist(xmlIter):
 		if node == "plist":
 			for entry in parse_plist_content(xmlIter, []): yield entry
 
-libraryPlistIter = parse_plist(parse_xml(libraryXmlFile))
+if libraryXmlFile:
+	libraryPlistIter = parse_plist(parse_xml(libraryXmlFile))
+else:
+	libraryPlistIter = []
 
 def songsIter(plistIter):
 	for prefix, value in plistIter:
