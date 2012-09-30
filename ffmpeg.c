@@ -136,9 +136,10 @@ static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) 
 	args = PyTuple_New(1);
 	PyTuple_SetItem(args, 0, PyInt_FromLong(buf_size));
 	retObj = PyObject_CallObject(readPacketFunc, args);
+	if(retObj == NULL) goto final;
 	
-	if(!retObj || !PyString_Check(retObj)) {
-		printf("song.readPacket didn't returned a string\n");
+	if(!PyString_Check(retObj)) {
+		printf("song.readPacket didn't returned a string but a %s\n", retObj->ob_type->tp_name);
 		goto final;
 	}
 	
@@ -187,7 +188,7 @@ static int player_seek(PlayerObject* player, int64_t offset, int whence) {
 	if(retObj == NULL) goto final; // pass through any Python exception
 	
 	if(!PyInt_Check(retObj)) {
-		printf("song.seekRaw didn't returned an int\n");
+		printf("song.seekRaw didn't returned an int but a %s\n", retObj->ob_type->tp_name);
 		goto final;
 	}
 	ret = (int) PyInt_AsLong(retObj); // NOTE: I don't really know what would be the best strategy in case of overflow...
