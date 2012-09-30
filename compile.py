@@ -26,6 +26,11 @@ def link(outfile, infiles, options):
 			["-lc"]
 		)
 
+CFLAGS = os.environ["CFLAGS"].split()
+
+def cc(files, options):
+	sysExec(["cc"] + options + CFLAGS + ["-c"] + files)
+
 sysExec(["mkdir","-p","build"])
 os.chdir("build")
 
@@ -34,8 +39,10 @@ staticChromaprint = False
 ffmpegFiles = ["../ffmpeg.c"] + \
 	(glob("../chromaprint/*.cpp") if staticChromaprint else [])
 
-sysExec(["cc", "-std=c99", "-c"] + ffmpegFiles +
+cc(
+	ffmpegFiles,
 	[
+		"-std=c99",
 		"-DHAVE_CONFIG_H",
 		"-I", "/System/Library/Frameworks/Python.framework/Headers/", # mac
 		"-I", "/usr/include/python2.7", # common linux/unix
@@ -60,7 +67,8 @@ link(
 
 levelDbFiles = glob("../leveldb*.cc")
 
-sysExec(["cc", "-c"] + levelDbFiles +
+cc(
+	levelDbFiles,
 	[
 		"-I", "/System/Library/Frameworks/Python.framework/Headers/", # mac
 		"-I", "/usr/include/python2.7", # common linux/unix
