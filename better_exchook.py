@@ -90,9 +90,6 @@ def set_linecache(filename, source):
 	import linecache
 	linecache.cache[filename] = None, None, [line+'\n' for line in source.splitlines()], filename
 
-if "raw_input" not in globals():
-	raw_input = input
-
 def simple_debug_shell(globals, locals):
 	try: import readline
 	except: pass # ignore
@@ -103,6 +100,7 @@ def simple_debug_shell(globals, locals):
 		except:
 			print("breaked debug shell: " + sys.exc_info()[0].__name__)
 			break
+		if s.strip() == "": continue
 		try:
 			c = compile(s, COMPILE_STRING_FN, "single")
 		except Exception as e:
@@ -111,6 +109,9 @@ def simple_debug_shell(globals, locals):
 			set_linecache(COMPILE_STRING_FN, s)
 			try:
 				ret = eval(c, globals, locals)
+			except (KeyboardInterrupt, SystemExit):
+				print("debug shell exit: " + sys.exc_info()[0].__name__)
+				break
 			except:
 				print("Error executing %r" % s)
 				better_exchook(*sys.exc_info(), autodebugshell=False)
