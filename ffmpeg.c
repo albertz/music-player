@@ -1733,9 +1733,9 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
-		returnObj = PyTuple_Pack(2,
-			PyFloat_FromDouble(songDuration),
-			bmp);
+		returnObj = PyTuple_New(2);
+		PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
+		PyTuple_SetItem(returnObj, 1, bmp);
 		bmp = NULL; // returnObj has taken over the reference
 
 		PyGILState_Release(gstate);
