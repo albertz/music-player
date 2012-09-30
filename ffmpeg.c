@@ -447,6 +447,19 @@ static void player_setSongMetadata(PlayerObject* player) {
 	}
 }
 
+static void closeInputStream(AVFormatContext* formatCtx) {
+	for(int i = 0; i < formatCtx->nb_streams; ++i) {
+		avcodec_close(formatCtx->streams[i]->codec);
+	}
+	avformat_close_input(&formatCtx);
+}
+
+static void player_closeInputStream(PlayerObject* player) {
+	if(!player->inStream) return;
+	closeInputStream(player->inStream);
+	player->inStream = NULL;	
+}
+
 static
 int player_openInputStream(PlayerObject* player) {
 	char* urlStr = NULL;
@@ -454,10 +467,7 @@ int player_openInputStream(PlayerObject* player) {
 	assert(player->curSong != NULL);
 	PyObject* curSong = player->curSong;
 	
-	if(player->inStream) {
-		avformat_close_input(&player->inStream);
-		player->inStream = NULL;
-	}
+	player_closeInputStream(player);
 	
 	AVFormatContext* formatCtx = initFormatCtx(player);
 	if(!formatCtx) {
@@ -513,7 +523,7 @@ int player_openInputStream(PlayerObject* player) {
 
 final:
 	if(urlStr) free(urlStr);
-	if(formatCtx) avformat_close_input(&formatCtx);
+	if(formatCtx) closeInputStream(formatCtx);
 	if(player->inStream) return 0;
 	return -1;
 }
@@ -1009,10 +1019,7 @@ void player_dealloc(PyObject* obj) {
 		player->outStream = NULL;
 	}
 
-	if(player->inStream) {
-		avformat_close_input(&player->inStream);
-		player->inStream = NULL;
-	}
+	player_closeInputStream(player);
 	
 	if(player->frame) {
 		av_free(player->frame);
