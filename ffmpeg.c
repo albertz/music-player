@@ -453,8 +453,14 @@ static void player_setSongMetadata(PlayerObject* player) {
 }
 
 static void closeInputStream(AVFormatContext* formatCtx) {
-	av_free(formatCtx->pb);
-	formatCtx->pb = NULL;
+	if(formatCtx->pb) {
+		if(formatCtx->pb->buffer) {
+			av_free(formatCtx->pb->buffer);
+			formatCtx->pb->buffer = NULL;
+		}
+		av_free(formatCtx->pb);
+		formatCtx->pb = NULL;
+	}
 	for(int i = 0; i < formatCtx->nb_streams; ++i) {
 		avcodec_close(formatCtx->streams[i]->codec);
 	}
