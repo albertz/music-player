@@ -59,7 +59,11 @@ class Song:
 		return d
 
 	def __repr__(self):
-		return "Song(%s)" % ", ".join([key + "=" + repr(value) for (key,value) in self.rootAttribDict.items()])
+		# Earlier we exported all set attribs (via rootAttribDict).
+		# However, that is often a very huge repr, e.g. because of bmpThumbnail.
+		# Now, just keep it very simple and short.
+		# We should have the DB in place for fast lookup of other attribs.
+		return "Song(url=%r)" % self.url
 
 	def __str__(self):
 		if not self.url: return "Song()"
