@@ -1,3 +1,6 @@
+import better_exchook
+better_exchook.install()
+
 import ffmpeg
 
 class Song:
@@ -17,14 +20,16 @@ class Song:
 		
 def songs():
 	files = [
-		"/Users/az/Music/Classic/Glenn Gould Plays Bach/Two- & Three-Part Inventions - Gould/19 Bach - Invention 13 in a (BWV 784).mp3",
-		"/Users/az/Music/Rock/Tool/Lateralus/09 Lateralus.flac",
-		"/Users/az/Music/Cults - Cults 7/Cults - Cults 7- - 03 The Curse.flac",
-		"/Users/az/Music/Special/zorba/(01) - Theme From Zorba The Greek.ogg",
-		"/Users/az/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3",
-		"/Users/az/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3",
-		"/Users/az/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3",
+		"~/Music/Classic/Glenn Gould Plays Bach/Two- & Three-Part Inventions - Gould/19 Bach - Invention 13 in a (BWV 784).mp3",
+		"~/Music/Rock/Tool/Lateralus/09 Lateralus.flac",
+		"~/Music/Cults - Cults 7/Cults - Cults 7- - 03 The Curse.flac",
+		"~/Music/Special/zorba/(01) - Theme From Zorba The Greek.ogg",
+		"~/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3",
+		"~/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3",
+		"~/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3",
 	]
+	import os
+	files = map(os.path.expanduser, files)
 	i = 0
 	while True:
 		yield Song(files[i])
@@ -64,7 +69,10 @@ def prepareStdin():
 		
 		termios.tcsetattr(fd, termios.TCSANOW, new)
 		termios.tcsendbreak(fd,0)
-	
+
+		import atexit
+		atexit.register(lambda: termios.tcsetattr(fd, termios.TCSANOW, old))	
+
 def getchar(timeout = 0):
 	fd = sys.stdin.fileno()
 	ch = os.read(fd,7)
