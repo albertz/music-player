@@ -313,6 +313,12 @@ static int stream_seekAbs(PlayerObject* player, double pos) {
 		);
 }
 
+static void player_resetStreamPackets(PlayerObject* player) {
+	av_free_packet(&player->audio_pkt);
+	memset(&player->audio_pkt, 0, sizeof(player->audio_pkt));
+	memset(&player->audio_pkt_temp, 0, sizeof(player->audio_pkt_temp));
+}
+
 /* open a given stream. Return 0 if OK */
 // called by player_openInputStream()
 static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stream_index)
@@ -374,8 +380,7 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
 			 we correct audio sync only if larger than this threshold */
 			//is->audio_diff_threshold = 2.0 * is->audio_hw_buf_size / av_samples_get_buffer_size(NULL, is->audio_tgt.channels, is->audio_tgt.freq, is->audio_tgt.fmt, 1);
 			
-			memset(&is->audio_pkt, 0, sizeof(is->audio_pkt));
-			memset(&is->audio_pkt_temp, 0, sizeof(is->audio_pkt_temp));
+			player_resetStreamPackets(is);
 			//packet_queue_start(&is->audioq);
 			//SDL_PauseAudio(0);
 			break;
@@ -457,6 +462,7 @@ static void closeInputStream(AVFormatContext* formatCtx) {
 }
 
 static void player_closeInputStream(PlayerObject* player) {
+	player_resetStreamPackets(player);
 	if(!player->inStream) return;
 	closeInputStream(player->inStream);
 	player->inStream = NULL;	
@@ -737,9 +743,8 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
         }
 		
         /* free the current packet */
-        if (pkt->data)
-            av_free_packet(pkt);
-        memset(pkt_temp, 0, sizeof(*pkt_temp));
+		av_free_packet(pkt);
+		memset(pkt_temp, 0, sizeof(*pkt_temp));
 		
         if (!is->playing /* || is->audioq.abort_request */) {
             return -1;
