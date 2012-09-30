@@ -46,9 +46,9 @@
  PyObject_GetAttrString: returns new reference!
  PyDict_SetItem: increments reference on key and value!
  PyDict_SetItemString: increments reference on value!
- PyDict_GetItemString: does not inc ref of returned obj, i.e. borrowed ref! (unline PyObject_GetAttrString)
+ PyDict_GetItemString: does not inc ref of returned obj, i.e. borrowed ref! (unlike PyObject_GetAttrString)
  PyTuple_Pack: increments references on passed objects
- PyTuple_SetItem: does *not* increment references, i.e. steals ref (unline PyDict_SetItem)
+ PyTuple_SetItem: does *not* increment references, i.e. steals ref (unlike PyDict_SetItem)
  PyList_Append: inc ref of passed object
  PyList_SetItem: does *not* inc ref on obj!
 */
