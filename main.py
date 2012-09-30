@@ -3,6 +3,12 @@
 import better_exchook
 better_exchook.install()
 
+# Do this early to do some option parsing and maybe special handling.
+import appinfo
+
+# This might do some init which might be important to be done in the main thread.
+import utils
+
 from State import state, modules
 import sys
 
