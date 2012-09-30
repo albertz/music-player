@@ -69,6 +69,16 @@ def handleInput(ch):
 		sys.excepthook(*sys.exc_info())
 
 def stdinconsoleMain():
+	import appinfo
+	if appinfo.args.shell:
+		print "Setting up Python shell interface"
+		# This is hacky for now but actually I don't really know a better way.
+		# The problem is that the main thread might be used by the GUI.
+		# Thus, we can only cancel this here via the shell itself.
+		from better_exchook import debug_shell
+		debug_shell({},{"state":state})
+		return
+	
 	fd = sys.stdin.fileno()
 	if not os.isatty(fd): return # don't do anything
 
