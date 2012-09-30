@@ -2,6 +2,7 @@
 # loosely inspired from https://github.com/albertz/PictureSlider/blob/master/PictureSlider/FileQueue.cpp
 
 import os, random
+from os import access, R_OK
 
 C_nonloaded_dirs_expectedFac = 0.5
 C_nonloaded_dirs_expectedMin = 100
@@ -42,7 +43,7 @@ class RandomFileQueue:
 				for f in listeddir:
 					if f.startswith("."): continue
 					if os.path.isfile(self.base + "/" + f):
-						if hasCorrectFileext(f):
+						if hasCorrectFileext(f) and access(self.base + "/" + f, R_OK):
 							self.files += [f]
 					elif os.path.isdir(self.base + "/" + f):
 						subdir = Dir()
