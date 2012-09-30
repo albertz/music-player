@@ -1,0 +1,57 @@
+Some thoughts about attribs. Mostly this is about Song object attribs.
+
+About attrib read access time:
+- some of the attribs are immediately available for access (e.g. url)
+- some are more or less fast to query (very fast: some local dict cache, fast: DB query, slower: metadata from file)
+- some are expensive to calculate (bmpThumbnail, fingerprint, replayGain)
+- some might have fast ways to get an approximation (duration, tags)
+
+About the read access:
+- sometimes an approximation is enough (mostly for visual feedback)
+- if we only got an approximation now, we should update later once we have the exact value, i.e. register a callback
+- sometimes we really need the exact value
+- sometimes, if the attrib is not available now, we can just ignore it; but we might also want a callback (also for immediate visual feedback)
+
+(About write access: Maybe just write to the DB. Simple as that.)
+
+So, some ideas about a proposal:
+
+For attrib read access, make it explicit what kind of data we allow. The return value also should specify what we got.
+
+Possible to specify timeout?
+
+Interface:
+get(object, attrib, timeout, accuracy, callback) -> value, accuracy
+- timeout as float in seconds
+- accuracy in [0,1], default = 1
+- callback(object, attrib, value, accuracy), default = None
+
+Or: Maybe only a callback system and no simple return value? <- No, makes it only more complicated.
+
+Default value for timeout?
+
+In case the value with the accuracy is not available in the timeout, the return should be (None, 0). Or the best value? If we would return the best value, we might often need an extra check in the code if the returned value has the wanted accuracy. We actually would not need the accuracy parameter. Maybe accuracy=0 should have the special meaning to just return the best available (if none yet, use the timeout).
+
+timeout itself will probably only be an estimation. Consider the value 0 as __dict__ access and maybe also local cache query. DB is probably already notable slower. Maybe just use 0.01 secs as limit for DB access.
+
+Maybe just use a thread (pool) to get the exact value. In the calling thread, wait for the value or the timeout. Then return what we get.
+
+def get(object, attrib, timeout, accuracy, callback):
+	event = Event()
+	class Return:
+		value = None
+		accuracy = 0
+	ret = Return()
+	def doGet():
+		# check __dict___
+		# check local cache
+		# check DB
+		# calculate and store in DB
+		# after each pass: if we got value with accuracy, event.set()
+		pass
+	event.wait(timeout=timeout)
+	return ret.value, ret.accuracy
+
+The object itself must specify for each attrib:
+- calculate function
+- maybe a map {timeout, accuracy : calc function}? so we can maybe, depending on the timeout, call the calc function directly
