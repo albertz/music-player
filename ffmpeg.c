@@ -167,10 +167,10 @@ final:
 	return (int) ret;
 }
 
-static int player_seek(PlayerObject* player, int64_t offset, int whence) {
+static int64_t player_seek(PlayerObject* player, int64_t offset, int whence) {
 	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
 	//printf("player_seek %lli %i\n", offset, whence);
-	int ret = -1;
+	int64_t ret = -1;
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
 	PyObject *seekRawFunc = NULL, *args = NULL, *retObj = NULL;
