@@ -26,7 +26,7 @@ def link(outfile, infiles, options):
 			["-lc"]
 		)
 
-CFLAGS = os.environ["CFLAGS"].split()
+CFLAGS = os.environ.get("CFLAGS", "").split()
 
 def cc(files, options):
 	sysExec(["cc"] + options + CFLAGS + ["-c"] + files)
