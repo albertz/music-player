@@ -1606,11 +1606,11 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			
 			Py_INCREF(bmp);
 			Py_INCREF(songObj);
-			PyObject* args = PyTuple_Pack(4,
-				songObj,
-				PyFloat_FromDouble((double) x / bmpWidth),
-				PyFloat_FromDouble(songDuration),
-				bmp);
+			PyObject* args = PyTuple_New(4);
+			PyTuple_SetItem(args, 0, songObj);
+			PyTuple_SetItem(args, 1, PyFloat_FromDouble((double) x / bmpWidth));
+			PyTuple_SetItem(args, 2, PyFloat_FromDouble(songDuration));
+			PyTuple_SetItem(args, 3, bmp);
 			PyObject* retObj = PyObject_CallObject(procCallback, args);
 			int stop = 0;
 			if(PyErr_Occurred()) {
