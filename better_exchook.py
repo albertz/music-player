@@ -124,13 +124,24 @@ def simple_debug_shell(globals, locals):
 		
 def debug_shell(user_ns, user_global_ns):
 	ipshell = None
-	try:
-		from IPython.Shell import IPShellEmbed,IPShell
-		ipshell = IPShell(argv=[], user_ns=user_ns, user_global_ns=user_global_ns)
-	except: pass
+	if not ipshell:
+		# old? doesn't work anymore. but probably has earlier, so leave it
+		try:
+			from IPython.Shell import IPShellEmbed,IPShell
+			ipshell = IPShell(argv=[], user_ns=user_ns, user_global_ns=user_global_ns)
+			ipshell = ipshell.mainloop
+		except: pass
+	if not ipshell:
+		try:
+			from IPython import embed
+			class DummyMod(object): pass
+			module = DummyMod()
+			module.__dict__ = user_global_ns
+			module.__name__ = "DummyMod"
+			ipshell = lambda: embed(user_ns=user_ns, user_module=module)
+		except: pass
 	if ipshell:
-		#ipshell()
-		ipshell.mainloop()
+		ipshell()
 	else:
 		simple_debug_shell(user_global_ns, user_ns)						
 
