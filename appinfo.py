@@ -46,3 +46,12 @@ class Config:
 
 config = utils.PersistentObject(Config, "main.cfg")
 config.save()
+
+
+import argparse
+argParser = argparse.ArgumentParser()
+argParser.add_argument(
+	"--shell", action="store_true",
+	help="uses a Python shell instead of the standard stdin control")
+args = argParser.parse_args()
+
