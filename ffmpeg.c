@@ -463,9 +463,10 @@ static void closeInputStream(AVFormatContext* formatCtx) {
 
 static void player_closeInputStream(PlayerObject* player) {
 	player_resetStreamPackets(player);
-	if(!player->inStream) return;
-	closeInputStream(player->inStream);
-	player->inStream = NULL;	
+	if(player->inStream) {
+		closeInputStream(player->inStream);
+		player->inStream = NULL;
+	}
 }
 
 static
@@ -815,6 +816,8 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 			
 			if(pkt->stream_index == is->audio_stream)
 				break;
+
+			av_free_packet(pkt);
 		}
 		
         *pkt_temp = *pkt;
