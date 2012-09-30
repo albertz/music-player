@@ -46,9 +46,9 @@
  PyObject_GetAttrString: returns new reference!
  PyDict_SetItem: increments reference on key and value!
  PyDict_SetItemString: increments reference on value!
- PyDict_GetItemString: does not inc ref of returned obj, i.e. borrowed ref! (unline PyObject_GetAttrString)
+ PyDict_GetItemString: does not inc ref of returned obj, i.e. borrowed ref! (unlike PyObject_GetAttrString)
  PyTuple_Pack: increments references on passed objects
- PyTuple_SetItem: does *not* increment references, i.e. steals ref (unline PyDict_SetItem)
+ PyTuple_SetItem: does *not* increment references, i.e. steals ref (unlike PyDict_SetItem)
  PyList_Append: inc ref of passed object
  PyList_SetItem: does *not* inc ref on obj!
 */
@@ -447,6 +447,19 @@ static void player_setSongMetadata(PlayerObject* player) {
 	}
 }
 
+static void closeInputStream(AVFormatContext* formatCtx) {
+	for(int i = 0; i < formatCtx->nb_streams; ++i) {
+		avcodec_close(formatCtx->streams[i]->codec);
+	}
+	avformat_close_input(&formatCtx);
+}
+
+static void player_closeInputStream(PlayerObject* player) {
+	if(!player->inStream) return;
+	closeInputStream(player->inStream);
+	player->inStream = NULL;	
+}
+
 static
 int player_openInputStream(PlayerObject* player) {
 	char* urlStr = NULL;
@@ -454,10 +467,7 @@ int player_openInputStream(PlayerObject* player) {
 	assert(player->curSong != NULL);
 	PyObject* curSong = player->curSong;
 	
-	if(player->inStream) {
-		avformat_close_input(&player->inStream);
-		player->inStream = NULL;
-	}
+	player_closeInputStream(player);
 	
 	AVFormatContext* formatCtx = initFormatCtx(player);
 	if(!formatCtx) {
@@ -513,7 +523,7 @@ int player_openInputStream(PlayerObject* player) {
 
 final:
 	if(urlStr) free(urlStr);
-	if(formatCtx) avformat_close_input(&formatCtx);
+	if(formatCtx) closeInputStream(formatCtx);
 	if(player->inStream) return 0;
 	return -1;
 }
@@ -1009,10 +1019,7 @@ void player_dealloc(PyObject* obj) {
 		player->outStream = NULL;
 	}
 
-	if(player->inStream) {
-		avformat_close_input(&player->inStream);
-		player->inStream = NULL;
-	}
+	player_closeInputStream(player);
 	
 	if(player->frame) {
 		av_free(player->frame);
@@ -1606,11 +1613,11 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			
 			Py_INCREF(bmp);
 			Py_INCREF(songObj);
-			PyObject* args = PyTuple_Pack(4,
-				songObj,
-				PyFloat_FromDouble((double) x / bmpWidth),
-				PyFloat_FromDouble(songDuration),
-				bmp);
+			PyObject* args = PyTuple_New(4);
+			PyTuple_SetItem(args, 0, songObj);
+			PyTuple_SetItem(args, 1, PyFloat_FromDouble((double) x / bmpWidth));
+			PyTuple_SetItem(args, 2, PyFloat_FromDouble(songDuration));
+			PyTuple_SetItem(args, 3, bmp);
 			PyObject* retObj = PyObject_CallObject(procCallback, args);
 			int stop = 0;
 			if(PyErr_Occurred()) {
@@ -1733,9 +1740,9 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
-		returnObj = PyTuple_Pack(2,
-			PyFloat_FromDouble(songDuration),
-			bmp);
+		returnObj = PyTuple_New(2);
+		PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
+		PyTuple_SetItem(returnObj, 1, bmp);
 		bmp = NULL; // returnObj has taken over the reference
 
 		PyGILState_Release(gstate);
