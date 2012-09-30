@@ -77,6 +77,8 @@ def stdinconsoleMain():
 		# Thus, we can only cancel this here via the shell itself.
 		from better_exchook import debug_shell
 		debug_shell({},{"state":state})
+		# The shell exited. Quit.
+		state.quit()
 		return
 	
 	fd = sys.stdin.fileno()
