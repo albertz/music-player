@@ -60,7 +60,8 @@ typedef struct AudioParams {
     enum AVSampleFormat fmt;
 } AudioParams;
 
-// this struct is initialized in player_init()
+// The player structure. Create by ffmpeg.createPlayer().
+// This struct is initialized in player_init().
 typedef struct {
     PyObject_HEAD
 	
