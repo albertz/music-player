@@ -1788,11 +1788,25 @@ final:
 
 
 
+static PyObject *
+pySetFfmpegLogLevel(PyObject* self, PyObject* args) {
+	int level = 0;
+	if(!PyArg_ParseTuple(args, "i:setFfmpegLogLevel", &level))
+		return NULL;
+	
+	av_log_set_level(level);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 static PyMethodDef module_methods[] = {
 	{"createPlayer",	(PyCFunction)pyCreatePlayer,	METH_NOARGS,	"creates new player"},
     {"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
     {"calcAcoustIdFingerprint",		pyCalcAcoustIdFingerprint,	METH_VARARGS,	"calculate AcoustID fingerprint for Song"},
     {"calcBitmapThumbnail",		(PyCFunction)pyCalcBitmapThumbnail,	METH_VARARGS|METH_KEYWORDS,	"calculate bitmap thumbnail for Song"},
+    {"setFfmpegLogLevel",		pySetFfmpegLogLevel,	METH_VARARGS,	"set FFmpeg log level (av_log_set_level)"},
 	{NULL,				NULL}	/* sentinel */
 };
 
