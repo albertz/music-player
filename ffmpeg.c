@@ -187,11 +187,15 @@ static int player_seek(PlayerObject* player, int64_t offset, int whence) {
 	retObj = PyObject_CallObject(seekRawFunc, args);
 	if(retObj == NULL) goto final; // pass through any Python exception
 	
-	if(!PyInt_Check(retObj)) {
+	// NOTE: I don't really know what would be the best strategy in case of overflow...
+	if(PyInt_Check(retObj))
+		ret = (int) PyInt_AsLong(retObj);
+	else if(PyLong_Check(retObj))
+		ret = (int) PyLong_AsLong(retObj);
+	else {
 		printf("song.seekRaw didn't returned an int but a %s\n", retObj->ob_type->tp_name);
 		goto final;
 	}
-	ret = (int) PyInt_AsLong(retObj); // NOTE: I don't really know what would be the best strategy in case of overflow...
 
 final:
 	Py_XDECREF(retObj);
