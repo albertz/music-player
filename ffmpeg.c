@@ -60,6 +60,12 @@ typedef struct AudioParams {
     enum AVSampleFormat fmt;
 } AudioParams;
 
+// see smoothClip()
+typedef struct SmoothClipCalc {
+	float x1, x2;
+	double a,b,c,d;
+} SmoothClipCalc;
+
 // The player structure. Create by ffmpeg.createPlayer().
 // This struct is initialized in player_init().
 typedef struct {
@@ -77,6 +83,8 @@ typedef struct {
 	PaStream* outStream;
 	PyObject* dict;
 	int nextSongOnEof;
+	float volume;
+	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	
 	/* Important note about the lock:
 	To avoid deadlocks with on thread waiting on the Python GIL and another on this lock,
@@ -120,6 +128,33 @@ typedef struct {
 	AVFrame *frame;
 
 } PlayerObject;
+
+/*
+For values y in [0,x1], this is just y (i.e. identity function).
+For values y >= x2, this is just 1 (i.e. constant 1 function).
+For y in [x1,x2], we use a cubic spline interpolation to just make it smooth.
+Use smoothClip_setX() to set the spline factors.
+*/
+static double smoothClip(SmoothClipCalc* s, double y) {
+	if(y <= s->x1) return y;
+	if(y >= s->x2) return 1;
+	y = s->a * y*y*y + s->b * y*y + s->c * y + s->d;
+	if(y <= s->x1) return s->x1;
+	if(y >= 1) return 1;
+	return y;
+}
+
+static void smoothClip_setX(SmoothClipCalc* s, float x1, float x2) {
+	if(x1 < 0) x1 = 0;
+	if(x1 > 1) x1 = 1;
+	if(x2 < x1) x2 = x1;
+	s->x1 = x1;
+	s->x2 = x2;
+	s->a = ((x1 + x2 - 2) / pow(x2 - x1, 3));
+	s->b = ((- (((x1 + x2 - 2) * pow(x1, 2)) / pow(x2 - x1, 3)) - ((4 * x2 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + ((6 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) - ((7 * pow(x2, 2) * (x1 + x2 - 2)) / pow(x2 - x1, 3)) + ((6 * x2 * (x1 + x2 - 2)) / pow(x2 - x1, 3)) - 1) / (4 * x2 - 4));
+	s->c = (1 / 2) * ((((x1 + x2 - 2) * pow(x1, 2)) / pow(x2 - x1, 3)) + ((4 * x2 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) - ((6 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + ((pow(x2, 2) * (x1 + x2 - 2)) / pow(x2 - x1, 3)) - ((6 * x2 * (x1 + x2 - 2)) / pow(x2 - x1, 3)) - ((4 * (- (((x1 + x2 - 2) * pow(x1, 2)) / pow(x2 - x1, 3)) - ((4 * x2 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + ((6 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) - ((7 * pow(x2, 2) * (x1 + x2 - 2)) / pow(x2 - x1, 3)) + ((6 * x2 * (x1 + x2 - 2)) / pow(x2 - x1, 3)) - 1)) / (4 * x2 - 4)) + 1);
+	s->d = (1 / 4) * ((((x1 + x2 - 2) * pow(x1, 3)) / pow(x2 - x1, 3)) - ((4 * x2 * (x1 + x2 - 2) * pow(x1, 2)) / pow(x2 - x1, 3)) - (((x1 + x2 - 2) * pow(x1, 2)) / pow(x2 - x1, 3)) - ((pow(x2, 2) * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + ((2 * x2 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + ((6 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + x1 - ((pow(x2, 2) * (x1 + x2 - 2)) / pow(x2 - x1, 3)) + ((6 * x2 * (x1 + x2 - 2)) / pow(x2 - x1, 3)) + ((4 * (- (((x1 + x2 - 2) * pow(x1, 2)) / pow(x2 - x1, 3)) - ((4 * x2 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + ((6 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) - ((7 * pow(x2, 2) * (x1 + x2 - 2)) / pow(x2 - x1, 3)) + ((6 * x2 * (x1 + x2 - 2)) / pow(x2 - x1, 3)) - 1)) / (4 * x2 - 4)) + 1);
+}
 
 static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) {
 	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
@@ -634,6 +669,12 @@ static int synchronize_audio(PlayerObject *is, int nb_samples)
 	return wanted_nb_samples;	
 }
 
+static int volumeAdjustNeeded(PlayerObject* p) {
+	if(p->volume != 1) return 1;
+	if(p->volumeSmoothClip.x1 != p->volumeSmoothClip.x2) return 1;
+	return 0;
+}
+
 // called from player_fillOutStream
 /* decode one audio frame and returns its uncompressed size */
 static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
@@ -742,6 +783,24 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
                 is->audio_buf = is->frame->data[0];
                 resampled_data_size = data_size;
             }
+			
+			if(volumeAdjustNeeded(is)) {
+				for(size_t i = 0; i < resampled_data_size / 2; ++i) {
+					int16_t* sampleAddr = (int16_t*) is->audio_buf + i;
+					int16_t sample = *sampleAddr; // TODO: endian swap?
+					float sampleFloat = sample / ((float) 0x8000);
+					
+					sampleFloat *= is->volume;
+					sampleFloat = smoothClip(&is->volumeSmoothClip, sampleFloat);
+					if(sampleFloat < -1) sampleFloat = -1;
+					if(sampleFloat > 1) sampleFloat = 1;
+					
+					sample = sampleFloat * (float) 0x8000;
+					if(sample < -0x8000) sample = -0x8000;
+					if(sample > 0x7fff) sample = 0x7fff;
+					*sampleAddr = sample; // TODO: endian swap?
+				}
+			}
 			
             /* if no pts, then compute it */
             pts = is->audio_clock;
@@ -1010,6 +1069,8 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->lock = PyThread_allocate_lock();
 
 	player->nextSongOnEof = 1;
+	player->volume = 0.9f;
+	smoothClip_setX(&player->volumeSmoothClip, 0.95f, 10.0f);
 	
 	// see also player_setplaying where we init the PaStream (with same params)
 	player->audio_tgt.freq = SAMPLERATE;
@@ -1158,7 +1219,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		PyObject* mlist = PyList_New(9);
+		PyObject* mlist = PyList_New(11);
 		PyList_SetItem(mlist, 0, PyString_FromString("queue"));
 		PyList_SetItem(mlist, 1, PyString_FromString("playing"));
 		PyList_SetItem(mlist, 2, PyString_FromString("curSong"));
@@ -1168,6 +1229,8 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, 6, PyString_FromString("seekAbs"));
 		PyList_SetItem(mlist, 7, PyString_FromString("seekRel"));
 		PyList_SetItem(mlist, 8, PyString_FromString("nextSong"));
+		PyList_SetItem(mlist, 9, PyString_FromString("volume"));
+		PyList_SetItem(mlist, 10, PyString_FromString("volumeSmoothClip"));
 		return mlist;
 	}
 	
@@ -1223,6 +1286,17 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		return PyCFunction_New(&md_nextSong, (PyObject*) player);
 	}
 
+	if(strcmp(key, "volume") == 0) {
+		return PyFloat_FromDouble(player->volume);
+	}
+
+	if(strcmp(key, "volumeSmoothClip") == 0) {
+		PyObject* t = PyTuple_New(2);
+		PyTuple_SetItem(t, 0, PyFloat_FromDouble(player->volumeSmoothClip.x1));
+		PyTuple_SetItem(t, 1, PyFloat_FromDouble(player->volumeSmoothClip.x2));
+		return t;
+	}
+
 	PyObject* dict = player_getdict(player);
 	if(dict) { // should always be true...
         Py_INCREF(dict);
@@ -1254,6 +1328,22 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 
 	if(strcmp(key, "playing") == 0) {
 		return player_setplaying(player, PyObject_IsTrue(value));
+	}
+
+	if(strcmp(key, "volume") == 0) {
+		if(!PyArg_Parse(value, "f", &player->volume))
+			return -1;
+		if(player->volume < 0) player->volume = 0;
+		if(player->volume > 5) player->volume = 5; // Well, this is made up. But it makes sense to have a limit somewhere...
+		return 0;
+	}
+	
+	if(strcmp(key, "volumeSmoothClip") == 0) {
+		float x1, x2;
+		if(!PyArg_ParseTuple(value, "ff", &x1, &x2))
+			return -1;
+		smoothClip_setX(&player->volumeSmoothClip, x1, x2);
+		return 0;
 	}
 
 	PyObject* s = PyString_FromString(key);
