@@ -130,12 +130,14 @@ typedef struct {
 } PlayerObject;
 
 /*
+For values y < 0, mirror.
 For values y in [0,x1], this is just y (i.e. identity function).
 For values y >= x2, this is just 1 (i.e. constant 1 function).
 For y in [x1,x2], we use a cubic spline interpolation to just make it smooth.
 Use smoothClip_setX() to set the spline factors.
 */
 static double smoothClip(SmoothClipCalc* s, double y) {
+	if(y < 0) return -smoothClip(s, -y);
 	if(y <= s->x1) return y;
 	if(y >= s->x2) return 1;
 	y = s->a * y*y*y + s->b * y*y + s->c * y + s->d;
