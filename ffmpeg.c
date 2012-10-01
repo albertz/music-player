@@ -155,7 +155,7 @@ static void smoothClip_setX(SmoothClipCalc* s, float x1, float x2) {
 		s->b = 0;
 		s->c = 1;
 		s->d = 0;
-		return 0;
+		return;
 	}
 	s->a = ((x1 + x2 - 2) / pow(x2 - x1, 3));
 	s->b = ((- (((x1 + x2 - 2) * pow(x1, 2)) / pow(x2 - x1, 3)) - ((4 * x2 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) + ((6 * (x1 + x2 - 2) * x1) / pow(x2 - x1, 3)) - ((7 * pow(x2, 2) * (x1 + x2 - 2)) / pow(x2 - x1, 3)) + ((6 * x2 * (x1 + x2 - 2)) / pow(x2 - x1, 3)) - 1) / (4 * x2 - 4));
