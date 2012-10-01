@@ -42,10 +42,3 @@ duration, replaygain = ffmpeg.calcReplayGain(Song(filename))
 print("duration: %f" % duration)
 print("replaygain: %f" % replaygain)
 
-import math
-x = replaygain
-print x
-x = 64.82 - x
-print x
-x = math.pow(10, x / 20)
-print x
