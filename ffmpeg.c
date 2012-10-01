@@ -1896,6 +1896,7 @@ final:
 #define RMS_WINDOW_TIME 0.050 // ReplayGain spec standard
 #define MAX_SAMPLES_PER_WINDOW  (size_t) (SAMPLERATE * RMS_WINDOW_TIME) // ReplayGain spec standard
 #define NUM_REPLAYGAIN_STAGES 3
+#define REPLAYGAIN_LOUD_PERC 0.95 // ReplayGain spec standard
 
 typedef struct ReplayGainBuffersPerChannelStage {
 	float data[MAX_SAMPLES_PER_WINDOW + MAX_FILTER_ORDER];
@@ -1943,7 +1944,9 @@ static double replayGainHandleWindow(ReplayGainBuffer* buffer) {
 			sum += *d2 * *d2;
 		}
 	}
-	return sum;
+	sum /= NUMCHANNELS * MAX_SAMPLES_PER_WINDOW;
+	double decibel = 10 * log10(sum);
+	return decibel;
 }
 
 static PyObject *
@@ -1976,8 +1979,9 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	memset(buffer, 0, sizeof(ReplayGainBuffer));
 	
 	// The following code is loosely adopted from player_fillOutStream().
+	unsigned long totalFrameCount = 0;
 	size_t samplePos = 0;
-	double maxSum = 0;
+	double maxSum = log10(1e-37);
     while (1) {
 		player->audio_buf_index = 0;
 		double pts;
@@ -1986,6 +1990,8 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 			break; // probably EOF or so
 		else
 			player->audio_buf_size = audio_size;
+
+		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
 				
 		short channel = 0;
 		for(size_t i = 0; i < audio_size / 2; ++i) {
@@ -2001,8 +2007,8 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 				++samplePos;
 				if(samplePos >= MAX_SAMPLES_PER_WINDOW) {
 					// buffer is full. i.e. we have a full window. handle it.
-					double sum = replayGainHandleWindow(buffer);
-					if(sum > maxSum) maxSum = sum;
+					double m = replayGainHandleWindow(buffer);
+					if(m > maxSum) maxSum = m;
 					
 					// move on now.
 					for(int chan = 0; chan < NUMCHANNELS; ++chan)
@@ -2016,12 +2022,11 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 			}
 		}
     }
-	
-	maxSum /= NUMCHANNELS * MAX_SAMPLES_PER_WINDOW;
-	maxSum = sqrt(maxSum);
-	
-	returnObj = PyTuple_New(0);
-	PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(maxSum));
+	double songDuration = (double)totalFrameCount / SAMPLERATE;
+		
+	returnObj = PyTuple_New(2);
+	PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
+	PyTuple_SetItem(returnObj, 1, PyFloat_FromDouble(maxSum));
 	
 final:
 	if(buffer) free(buffer);
