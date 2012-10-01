@@ -1897,6 +1897,9 @@ final:
 #define MAX_SAMPLES_PER_WINDOW  (size_t) (SAMPLERATE * RMS_WINDOW_TIME) // ReplayGain spec standard
 #define NUM_REPLAYGAIN_STAGES 3
 #define REPLAYGAIN_LOUD_PERC 0.95 // ReplayGain spec standard
+#define RG_STEPS_per_dB      100.    // loudness table entries per dB
+#define RG_MAX_dB            120.    // loudness table entries for 0...MAX_dB (normal max. values are 70...80 dB)
+#define RG_PINK_REF          64.82
 
 typedef struct ReplayGainBuffersPerChannelStage {
 	float data[MAX_SAMPLES_PER_WINDOW + MAX_FILTER_ORDER];
@@ -1908,6 +1911,7 @@ typedef struct ReplayGainBuffersPerChannel {
 
 typedef struct ReplayGainBuffer {
 	ReplayGainBuffersPerChannel channels[NUMCHANNELS];
+	uint32_t loudnessTable[(size_t)(RG_STEPS_per_dB * RG_MAX_dB)];
 } ReplayGainBuffer;
 
 static void _genericFilter(float* out, const float* in, const float* kernel, int order) {
@@ -1945,7 +1949,14 @@ static double replayGainHandleWindow(ReplayGainBuffer* buffer) {
 		}
 	}
 	sum /= NUMCHANNELS * MAX_SAMPLES_PER_WINDOW;
-	double decibel = 10 * log10(sum);
+	double decibel = 10 * log10(sum + 1e-37);
+	
+	int i = RG_STEPS_per_dB * decibel;
+	if(i < 0) i = 0;
+	if(i >= sizeof(buffer->loudnessTable)/sizeof(buffer->loudnessTable[0]))
+		i = sizeof(buffer->loudnessTable)/sizeof(buffer->loudnessTable[0]) - 1;
+	buffer->loudnessTable[i]++;
+
 	return decibel;
 }
 
@@ -1981,7 +1992,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	// The following code is loosely adopted from player_fillOutStream().
 	unsigned long totalFrameCount = 0;
 	size_t samplePos = 0;
-	double maxSum = log10(1e-37);
+	size_t windowCount = 0;
     while (1) {
 		player->audio_buf_index = 0;
 		double pts;
@@ -1997,7 +2008,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 		for(size_t i = 0; i < audio_size / 2; ++i) {
 			int16_t* sampleAddr = (int16_t*) player->audio_buf + i;
 			int16_t sample = *sampleAddr; // TODO: endian swap?
-			float sampleFloat = sample / ((double) 0x8000);
+			float sampleFloat = sample;  // / ((double) 0x8000);
 			
 			buffer->channels[channel].stages[0].data[samplePos + MAX_FILTER_ORDER] = sampleFloat;
 			
@@ -2007,8 +2018,8 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 				++samplePos;
 				if(samplePos >= MAX_SAMPLES_PER_WINDOW) {
 					// buffer is full. i.e. we have a full window. handle it.
-					double m = replayGainHandleWindow(buffer);
-					if(m > maxSum) maxSum = m;
+					replayGainHandleWindow(buffer);
+					++windowCount;
 					
 					// move on now.
 					for(int chan = 0; chan < NUMCHANNELS; ++chan)
@@ -2023,10 +2034,20 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 		}
     }
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
-		
+	
+	float gain = 0;
+	int64_t upperLoudness = (int64_t) ceil(windowCount * (1.0 - REPLAYGAIN_LOUD_PERC));
+	for(int i = sizeof(buffer->loudnessTable)/sizeof(buffer->loudnessTable[0]) - 1; i >= 0; --i) {
+		upperLoudness -= buffer->loudnessTable[i];
+		if(upperLoudness <= 0) {
+			gain = RG_PINK_REF - (float)i / RG_STEPS_per_dB;
+			break;
+		}
+	}
+	
 	returnObj = PyTuple_New(2);
 	PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
-	PyTuple_SetItem(returnObj, 1, PyFloat_FromDouble(maxSum));
+	PyTuple_SetItem(returnObj, 1, PyFloat_FromDouble(gain));
 	
 final:
 	if(buffer) free(buffer);
