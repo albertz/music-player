@@ -1,7 +1,19 @@
+
 class Song:
+	"""
+	The Song object. It represents a Song. It is also compatible to the ffmpeg.player.
+	It also stores information about the song.
+	Songs are considered as equal if they are they have the same url.
+	Note that we have *some* additional state, thus equal Song objects
+	are different internally:
+	- self.f: the open file handle (and its state)
+	- self.skipped: the song was skipped on last play
+	"""
+	
+	# This should be the list of all attribs in __repr__.
+	# This is *not* the list of all further attribs (like bmpThumbnail).
 	url = None
 	skipped = False
-	bmpThumbnail = None
 
 	def __init__(self, *args, **kwargs): # we must support an empty init for PersistentObject
 		self.f = None
@@ -59,11 +71,10 @@ class Song:
 		return d
 
 	def __repr__(self):
-		# Earlier we exported all set attribs (via rootAttribDict).
-		# However, that is often a very huge repr, e.g. because of bmpThumbnail.
-		# Now, just keep it very simple and short.
-		# We should have the DB in place for fast lookup of other attribs.
-		return "Song(url=%r)" % self.url
+		# This has changed back and forth.
+		# __repr__ is used by PersistentObject. Thus, we want all information here
+		# which are important for later usage.
+		return "Song(%s)" % (", ".join(["%s=%r" % (key,value) for (key,value) in self.rootAttribDict.items()]))
 
 	def __str__(self):
 		if not self.url: return "Song()"

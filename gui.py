@@ -163,7 +163,7 @@ def buildControlSongDisplay(userAttr, inst):
 			bmpData = None
 			with self.lock:
 				if state.player.curSong is not self.curSong: return None
-				if self.curSong.bmpThumbnail:
+				if getattr(self.curSong, "bmpThumbnail", None):
 					bmpData = self.curSong.bmpThumbnail
 				else:
 					# create song copy for calcBitmapThumbnail
