@@ -26,7 +26,8 @@ def update(song):
 			if getattr(song, "bmpThumbnail", None) is None:
 				song.close()
 				song.openFile() # this is another process, so safe
-				duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81)
+				# We have song.gain which mostly lowers the volume. So increase here for nicer display.
+				duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, volume = 1.5)
 				queue.put(("duration", duration))
 				queue.put(("bmpThumbnail", bmpData))
 

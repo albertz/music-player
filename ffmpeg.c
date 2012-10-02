@@ -1694,19 +1694,24 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	unsigned char timeR = 170, timeG = timeR, timeB = timeR;
 	int timelineSecInterval = 10;
 	PyObject* procCallback = NULL;
+	float volume = 1; // better default value here. note that we also do gain handling if it is set
+	float volumeSmoothClipX1 = 0.95, volumeSmoothClipX2 = 10;
 	static char *kwlist[] = {
 		"song", "width", "height",
 		"backgroundColor", "timelineColor",
 		"timelineSecInterval",
 		"procCallback",
+		"volume",
+		"volumeSmootClip",
 		NULL};
-	if(!PyArg_ParseTupleAndKeywords(args, kws, "O|ii(bbb)(bbb)iO:calcBitmapThumbnail", kwlist,
+	if(!PyArg_ParseTupleAndKeywords(args, kws, "O|ii(bbb)(bbb)iOf(ff):calcBitmapThumbnail", kwlist,
 		&songObj,
 		&bmpWidth, &bmpHeight,
 		&bgR, &bgG, &bgB,
 		&timeR, &timeG, &timeB,
 		&timelineSecInterval,
-		&procCallback))
+		&procCallback,
+		&volume, &volumeSmoothClipX1, &volumeSmoothClipX2))
 		return NULL;
 
 	char* img = NULL;
@@ -1722,7 +1727,8 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
-	player->volume = 1; // better default value here. via song.gain, we can control the gain. and ignore volumeSmoothClip for now...
+	player->volume = volume;
+	smoothClip_setX(&player->volumeSmoothClip, volumeSmoothClipX1, volumeSmoothClipX2);
 	player->playing = 1; // otherwise audio_decode_frame() wont read
 	Py_INCREF(songObj);
 	player->curSong = songObj;
