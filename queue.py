@@ -96,7 +96,7 @@ from threading import Lock
 class MainQueue:
 	def __init__(self):
 		self.lock = Lock()
-		self.queue = deque()
+		self.queue = PersistentObject(deque, "queue.dat", namespace=globals())
 
 		self.generator = RandomSongs([
 			RandomFromSongDatabaseGen,
@@ -154,6 +154,8 @@ class MainQueue:
 			nextSong = self.getNextSong_auto()
 			with self.lock:
 				self.queue.append(nextSong)
+		with self.lock:
+			self.queue.save()
 
 queue = MainQueue()
 
@@ -161,6 +163,7 @@ def getNextSong():
 	return queue.getNextSong()
 
 def queueMain():
+	queue.fillUpTo() # add some right away if empty...
 	for ev, args, kwargs in state.updates.read():
 		if ev is PlayerEventCallbacks.onSongChange:
 			queue.fillUpTo()
