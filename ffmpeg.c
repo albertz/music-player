@@ -19,12 +19,13 @@
 //		curSong: current song (read only)
 //		curSongPos: current song pos (read only)
 //		curSongLen: current song len (read only)
+//		curSongGainFactor: current song gain. read from song.gain (see below). can also be written
 //		seekAbs(t) / seekRel(t): seeking functions (t in seconds, accepts float)
 //		nextSong(): skip to next song function
 //	song object expected interface:
 //		readPacket(bufSize): should return some string
 //		seekRaw(offset, whence): should seek and return the current pos
-//		gain: some gain in decible, e.g. calculated by calcReplayGain
+//		gain: some gain in decible, e.g. calculated by calcReplayGain. if not present, is ignored
 //		url: some url, can be anything printable (not used at the moment)
 //	and other functions, see their embedded doc ...
 
@@ -58,6 +59,12 @@
  PyList_SetItem: does *not* inc ref on obj!
 */
 
+static int PyDict_SetItemString_retain(PyObject* dict, const char* key, PyObject* value) {
+	int ret = PyDict_SetItemString(dict, key, value);
+	Py_DECREF(value);
+	return ret;
+}
+
 typedef struct AudioParams {
 	int freq;
 	int channels;
@@ -82,14 +89,15 @@ typedef struct {
 	PyObject* curSong;
 	double curSongLen;
 	PyObject* curSongMetadata;
+	float curSongGainFactor;
+	float volume;
+	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	
 	// private
 	AVFormatContext* inStream;
 	PaStream* outStream;
 	PyObject* dict;
 	int nextSongOnEof;
-	float volume;
-	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	
 	/* Important note about the lock:
 	To avoid deadlocks with on thread waiting on the Python GIL and another on this lock,
@@ -485,15 +493,11 @@ static void player_setSongMetadata(PlayerObject* player) {
 		if(strcmp("language", tag->key) == 0)
 			continue;
 		
-		PyObject* value = PyString_FromString(tag->value);
-		PyDict_SetItemString(player->curSongMetadata, tag->key, value);
-		Py_DECREF(value);
+		PyDict_SetItemString_retain(player->curSongMetadata, tag->key, PyString_FromString(tag->value));
 	}
 	
 	if(player->curSongLen > 0) {
-		PyObject* value = PyFloat_FromDouble(player->curSongLen);
-		PyDict_SetItemString(player->curSongMetadata, "duration", value);
-		Py_DECREF(value);
+		PyDict_SetItemString_retain(player->curSongMetadata, "duration", PyFloat_FromDouble(player->curSongLen));
 	}
 	else if(PyDict_GetItemString(player->curSongMetadata, "duration")) {
 		// we have an earlier duration metadata which is a string now.
@@ -504,8 +508,7 @@ static void player_setSongMetadata(PlayerObject* player) {
 			PyDict_DelItemString(player->curSongMetadata, "duration");
 		}
 		else {
-			PyDict_SetItemString(player->curSongMetadata, "duration", floatObj);
-			Py_DECREF(floatObj);
+			PyDict_SetItemString_retain(player->curSongMetadata, "duration", floatObj);
 		}
 	}
 }
@@ -593,6 +596,25 @@ int player_openInputStream(PlayerObject* player) {
 		player->curSongLen = -1;
 	
 	player_setSongMetadata(player);
+	
+	player->curSongGainFactor = 1;
+	if(PyObject_HasAttrString(player->curSong, "gain")) {
+		PyObject* gainObj = PyObject_GetAttrString(player->curSong, "gain");
+		if(gainObj) {
+			float gain = 0;
+			if(!PyArg_Parse(gainObj, "f", &gain))
+				printf("song.gain is not a float");
+			else
+				player->curSongGainFactor = pow(10, gain / 20);
+			Py_DECREF(gainObj);
+		}
+		else { // !gainObj
+			// strange. reset any errors...
+			if(PyErr_Occurred())
+				PyErr_Print();
+		}
+	}
+	// TODO: maybe alternatively try to read from metatags?
 
 final:
 	if(urlStr) free(urlStr);
@@ -626,49 +648,49 @@ static int player_getNextSong(PlayerObject* player, int skipped) {
 	if(!player->curSong || PyErr_Occurred())
 		goto final;
 	
-	if(player->curSong && player_openInputStream(player) != 0) {
+	int errorOnOpening = 0;
+	if(player_openInputStream(player) != 0) {
 		// This is not fatal, so don't make a Python exception.
 		// When we are in playing state, we will just skip to the next song.
 		// This can happen if we don't support the format or whatever.
 		printf("cannot open input stream\n");
+		errorOnOpening = 1;
 	}
-		
-	if(player->curSong) {
-		if(player->dict) {
-			Py_INCREF(player->dict);
-			PyObject* onSongChange = PyDict_GetItemString(player->dict, "onSongChange");
-			if(onSongChange && onSongChange != Py_None) {
-				Py_INCREF(onSongChange);
-				
-				PyObject* kwargs = PyDict_New();
-				assert(kwargs);
-				if(oldSong)
-					PyDict_SetItemString(kwargs, "oldSong", oldSong);
-				else
-					PyDict_SetItemString(kwargs, "oldSong", Py_None);
-				PyDict_SetItemString(kwargs, "newSong", player->curSong);
-				PyObject* skippedObj = PyBool_FromLong(skipped);
-				PyDict_SetItemString(kwargs, "skipped", PyBool_FromLong(skipped));
-				Py_DECREF(skippedObj);
-				
-				PyObject* retObj = PyEval_CallObjectWithKeywords(onSongChange, NULL, kwargs);
-				Py_XDECREF(retObj);
-				
-				// errors are not fatal from the callback, so handle it now and go on
-				if(PyErr_Occurred()) {
-					PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
-				}
-				
-				Py_DECREF(kwargs);
-				Py_DECREF(onSongChange);
+	else if(!player->inStream) {
+		// This is strange, player_openInputStream should have returned !=0.
+		printf("strange error on open input stream\n");
+		errorOnOpening = 1;		
+	}
+	else
+		// everything fine!
+		ret = 0;
+	
+	// make callback onSongChange
+	if(player->dict) {
+		PyObject* onSongChange = PyDict_GetItemString(player->dict, "onSongChange");
+		if(onSongChange && onSongChange != Py_None) {
+			PyObject* kwargs = PyDict_New();
+			assert(kwargs);
+			if(oldSong)
+				PyDict_SetItemString(kwargs, "oldSong", oldSong);
+			else
+				PyDict_SetItemString(kwargs, "oldSong", Py_None);
+			PyDict_SetItemString(kwargs, "newSong", player->curSong);
+			PyDict_SetItemString_retain(kwargs, "skipped", PyBool_FromLong(skipped));
+			PyDict_SetItemString_retain(kwargs, "errorOnOpening", PyBool_FromLong(errorOnOpening));
+			
+			PyObject* retObj = PyEval_CallObjectWithKeywords(onSongChange, NULL, kwargs);
+			Py_XDECREF(retObj);
+			
+			// errors are not fatal from the callback, so handle it now and go on
+			if(PyErr_Occurred()) {
+				PyErr_Print(); // prints traceback to stderr, resets error indicator. also handles sys.excepthook if it is set (see pythonrun.c, it's not said explicitely in the docs)
 			}
-			Py_DECREF(player->dict);
+			
+			Py_DECREF(kwargs);
 		}
 	}
 
-	if(player->curSong && player->inStream)
-		ret = 0;
-	
 final:
 	Py_XDECREF(oldSong);
 	PyGILState_Release(gstate);
@@ -686,6 +708,7 @@ static int synchronize_audio(PlayerObject *is, int nb_samples)
 static int volumeAdjustNeeded(PlayerObject* p) {
 	if(p->volume != 1) return 1;
 	if(p->volumeSmoothClip.x1 != p->volumeSmoothClip.x2) return 1;
+	if(p->curSongGainFactor != 1) return 1;
 	return 0;
 }
 
@@ -801,10 +824,12 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 			if(volumeAdjustNeeded(is)) {
 				for(size_t i = 0; i < resampled_data_size / 2; ++i) {
 					int16_t* sampleAddr = (int16_t*) is->audio_buf + i;
-					int16_t sample = *sampleAddr; // TODO: endian swap?
+					int32_t sample = *sampleAddr; // TODO: endian swap?
 					float sampleFloat = sample / ((float) 0x8000);
 					
 					sampleFloat *= is->volume;
+					sampleFloat *= is->curSongGainFactor;
+					
 					sampleFloat = smoothClip(&is->volumeSmoothClip, sampleFloat);
 					if(sampleFloat < -1) sampleFloat = -1;
 					if(sampleFloat > 1) sampleFloat = 1;
@@ -812,7 +837,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 					sample = sampleFloat * (float) 0x8000;
 					if(sample < -0x8000) sample = -0x8000;
 					if(sample > 0x7fff) sample = 0x7fff;
-					*sampleAddr = sample; // TODO: endian swap?
+					*sampleAddr = (int16_t) sample; // TODO: endian swap?
 				}
 			}
 			
@@ -1045,12 +1070,8 @@ static int player_setplaying(PlayerObject* player, int playing) {
 			
 			PyObject* kwargs = PyDict_New();
 			assert(kwargs);
-			PyObject* stateObj = PyBool_FromLong(oldplayingstate);
-			PyDict_SetItemString(kwargs, "oldState", stateObj);
-			Py_DECREF(stateObj);
-			stateObj = PyBool_FromLong(playing);
-			PyDict_SetItemString(kwargs, "newState", stateObj);
-			Py_DECREF(stateObj);
+			PyDict_SetItemString_retain(kwargs, "oldState", PyBool_FromLong(oldplayingstate));
+			PyDict_SetItemString_retain(kwargs, "newState", PyBool_FromLong(playing));
 			
 			PyObject* retObj = PyEval_CallObjectWithKeywords(onPlayingStateChange, NULL, kwargs);
 			Py_XDECREF(retObj);
@@ -1082,6 +1103,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 
 	player->lock = PyThread_allocate_lock();
 
+	player->curSongGainFactor = 1;
 	player->nextSongOnEof = 1;
 	player->volume = 0.9f;
 	smoothClip_setX(&player->volumeSmoothClip, 0.95f, 10.0f);
@@ -1233,18 +1255,19 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		PyObject* mlist = PyList_New(11);
+		PyObject* mlist = PyList_New(12);
 		PyList_SetItem(mlist, 0, PyString_FromString("queue"));
 		PyList_SetItem(mlist, 1, PyString_FromString("playing"));
 		PyList_SetItem(mlist, 2, PyString_FromString("curSong"));
 		PyList_SetItem(mlist, 3, PyString_FromString("curSongPos"));
 		PyList_SetItem(mlist, 4, PyString_FromString("curSongLen"));
 		PyList_SetItem(mlist, 5, PyString_FromString("curSongMetadata"));
-		PyList_SetItem(mlist, 6, PyString_FromString("seekAbs"));
-		PyList_SetItem(mlist, 7, PyString_FromString("seekRel"));
-		PyList_SetItem(mlist, 8, PyString_FromString("nextSong"));
-		PyList_SetItem(mlist, 9, PyString_FromString("volume"));
-		PyList_SetItem(mlist, 10, PyString_FromString("volumeSmoothClip"));
+		PyList_SetItem(mlist, 6, PyString_FromString("curSongGainFactor"));
+		PyList_SetItem(mlist, 7, PyString_FromString("seekAbs"));
+		PyList_SetItem(mlist, 8, PyString_FromString("seekRel"));
+		PyList_SetItem(mlist, 9, PyString_FromString("nextSong"));
+		PyList_SetItem(mlist, 10, PyString_FromString("volume"));
+		PyList_SetItem(mlist, 11, PyString_FromString("volumeSmoothClip"));
 		return mlist;
 	}
 	
@@ -1285,6 +1308,12 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 			Py_INCREF(player->curSongMetadata);
 			return player->curSongMetadata;
 		}
+		goto returnNone;
+	}
+
+	if(strcmp(key, "curSongGainFactor") == 0) {
+		if(player->curSong)
+			return PyFloat_FromDouble(player->curSongGainFactor);
 		goto returnNone;
 	}
 
@@ -1342,6 +1371,12 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 
 	if(strcmp(key, "playing") == 0) {
 		return player_setplaying(player, PyObject_IsTrue(value));
+	}
+
+	if(strcmp(key, "curSongGainFactor") == 0) {
+		if(!PyArg_Parse(value, "f", &player->curSongGainFactor))
+			return -1;
+		return 0;
 	}
 
 	if(strcmp(key, "volume") == 0) {
