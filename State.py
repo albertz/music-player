@@ -147,6 +147,7 @@ for modname in [
 	"gui",
 	"stdinconsole",
 	"notifications",
+	"preloader",
 ]:
 	if not getModule(modname):
 		modules.append(Module(modname))
