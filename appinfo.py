@@ -48,6 +48,9 @@ config = utils.PersistentObject(Config, "main.cfg")
 config.save()
 
 
+import sys
+if not getattr(sys, "argv", None):
+	sys.argv = ["."] # foo... constructor of ArgumentParser needs that
 import argparse
 argParser = argparse.ArgumentParser()
 argParser.add_argument(
