@@ -1722,6 +1722,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
+	player->volume = 1; // better default value here. via song.gain, we can control the gain. and ignore volumeSmoothClip for now...
 	player->playing = 1; // otherwise audio_decode_frame() wont read
 	Py_INCREF(songObj);
 	player->curSong = songObj;
