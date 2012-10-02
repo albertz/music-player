@@ -179,10 +179,6 @@ class Song:
 	def genre(self):
 		return self.metadata.get("genre", "")
 
-	@property
-	def fingerprint_AcoustID(self):
-		return self.url
-
 	# dict from tag to value [0,1] (weighted tagmap, tag fuzzy set)
 	@property
 	def tags(self):
