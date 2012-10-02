@@ -93,8 +93,11 @@ class RandomSongs:
 from collections import deque
 from threading import Lock
 
-class InfQueue:
+class MainQueue:
 	def __init__(self):
+		self.lock = Lock()
+		self.queue = deque()
+
 		self.generator = RandomSongs([
 			RandomFromSongDatabaseGen,
 			lambda: RandomSongs([
@@ -103,10 +106,20 @@ class InfQueue:
 		self.checkNextNForBest = 10
 		self.checkLastNForContext = 10
 
+	def getNextSong(self):
+		with self.lock:
+			if self.queue:
+				return self.queue.popleft()
+		return getNextSong_auto()
+		
 	def calcContextMatchScore(self, song):
 		count = 0
-		lastSongs = state.recentlyPlayedList.getLastN(self.checkLastNForContext)
-		lastSongs = filter(lambda s: not s.skipped, lastSongs)
+		lastSongs = []
+		with self.lock:
+			lastSongs += [self.queue[-i] for i in range(1,min(self.checkLastNForContext,len(self.queue))+1)]
+		if len(lastSongs) < self.checkLastNForContext:
+			lastSongs += state.recentlyPlayedList.getLastN(self.checkLastNForContext - len(lastSongs))
+		lastSongs = filter(lambda s: not getattr(s, "skipped", False), lastSongs)
 		if not lastSongs: return 0.0
 		for lastSong in lastSongs:
 			count += max(intersectFuzzySets(song.tags, lastSong.tags).values() + [0])
@@ -126,7 +139,7 @@ class InfQueue:
 		scores += [self.calcContextMatchScore(song) * random.gauss(1, 0.5)]
 		return sum(scores) + random.gauss(1, 0.5)
 
-	def getNextSong(self):
+	def getNextSong_auto(self):
 		filenames = takeN(self.generator, self.checkNextNForBest)
 		songs = map(Song, filenames)
 		scores = map(lambda song: (self.calcScore(song), song), songs)
@@ -134,32 +147,18 @@ class InfQueue:
 		song = best[1]
 		return song
 
-
-class MainQueue:
-	def __init__(self):
-		self.lock = Lock()
-		self.manualQueue = deque()
-		self.infiniteQueue = InfQueue()
-
-	def getNextSong(self):
-		with self.lock:
-			if self.manualQueue:
-				return self.manualQueue.popleft()
-		return self.infiniteQueue.getNextSong()
-
 	def fillUpTo(self, n=10):
 		while True:
 			with self.lock:
-				if len(self.manualQueue) >= n: break
-			nextSong = self.infiniteQueue.getNextSong()
+				if len(self.queue) >= n: break
+			nextSong = self.getNextSong_auto()
 			with self.lock:
-				self.manualQueue.append(nextSong)
+				self.queue.append(nextSong)
 
 queue = MainQueue()
 
 def getNextSong():
 	return queue.getNextSong()
-
 
 def queueMain():
 	for ev, args, kwargs in state.updates.read():
