@@ -14,15 +14,20 @@
 //	createPlayer() -> player object with:
 //		queue: song generator
 //		playing: True or False, initially False
+//		volume: 1.0 is norm; this is just a factor to each sample. default is 0.9
+//		volumeSmoothClip: smooth clipping, see below. set to (1,1) to disable. default is (0.95,10)
 //		curSong: current song (read only)
 //		curSongPos: current song pos (read only)
 //		curSongLen: current song len (read only)
 //		seekAbs(t) / seekRel(t): seeking functions (t in seconds, accepts float)
 //		nextSong(): skip to next song function
 //	song object expected interface:
-//		url: some url, can be anything
 //		readPacket(bufSize): should return some string
 //		seekRaw(offset, whence): should seek and return the current pos
+//		gain: some gain in decible, e.g. calculated by calcReplayGain
+//		url: some url, can be anything printable (not used at the moment)
+//	and other functions, see their embedded doc ...
+
 
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
