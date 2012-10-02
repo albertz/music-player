@@ -76,7 +76,11 @@ def stdinconsoleMain():
 		# The problem is that the main thread might be used by the GUI.
 		# Thus, we can only cancel this here via the shell itself.
 		from better_exchook import debug_shell
-		debug_shell({},globals())
+		from queue import queue
+		debug_shell({}, {
+			"state": state,
+			"queue": queue,
+			})
 		# The shell exited. Quit.
 		state.quit()
 		return
