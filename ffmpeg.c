@@ -54,10 +54,10 @@
 */
 
 typedef struct AudioParams {
-    int freq;
-    int channels;
-    int64_t channel_layout;
-    enum AVSampleFormat fmt;
+	int freq;
+	int channels;
+	int64_t channel_layout;
+	enum AVSampleFormat fmt;
 } AudioParams;
 
 // see smoothClip()
@@ -69,11 +69,11 @@ typedef struct SmoothClipCalc {
 // The player structure. Create by ffmpeg.createPlayer().
 // This struct is initialized in player_init().
 typedef struct {
-    PyObject_HEAD
+	PyObject_HEAD
 	
 	// public
 	PyObject* queue;
-    int playing;
+	int playing;
 	PyObject* curSong;
 	double curSongLen;
 	PyObject* curSongMetadata;
@@ -107,22 +107,22 @@ typedef struct {
 	PyThread_type_lock lock;
 	
 	// audio_decode
-    int audio_stream;
-    double audio_clock;
-    AVStream *audio_st;
-    DECLARE_ALIGNED(16,uint8_t,audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
-    uint8_t silence_buf[AUDIO_BUFFER_SIZE];
-    uint8_t *audio_buf;
-    uint8_t *audio_buf1;
-    unsigned int audio_buf_size; /* in bytes */
-    int audio_buf_index; /* in bytes */
-    int audio_write_buf_size;
-    AVPacket audio_pkt_temp;
-    AVPacket audio_pkt;
+	int audio_stream;
+	double audio_clock;
+	AVStream *audio_st;
+	DECLARE_ALIGNED(16,uint8_t,audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
+	uint8_t silence_buf[AUDIO_BUFFER_SIZE];
+	uint8_t *audio_buf;
+	uint8_t *audio_buf1;
+	unsigned int audio_buf_size; /* in bytes */
+	int audio_buf_index; /* in bytes */
+	int audio_write_buf_size;
+	AVPacket audio_pkt_temp;
+	AVPacket audio_pkt;
 	int do_flush;
-    struct AudioParams audio_src;
-    struct AudioParams audio_tgt;
-    struct SwrContext *swr_ctx;
+	struct AudioParams audio_src;
+	struct AudioParams audio_tgt;
+	struct SwrContext *swr_ctx;
 //    double audio_current_pts;
 //    double audio_current_pts_drift;
 	AVFrame *frame;
@@ -376,50 +376,50 @@ static void player_resetStreamPackets(PlayerObject* player) {
 // called by player_openInputStream()
 static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stream_index)
 {
-    AVCodecContext *avctx;
-    AVCodec *codec;
+	AVCodecContext *avctx;
+	AVCodec *codec;
  //   AVDictionaryEntry *t = NULL;
 	
-    if (stream_index < 0 || stream_index >= ic->nb_streams)
-        return -1;
-    avctx = ic->streams[stream_index]->codec;
+	if (stream_index < 0 || stream_index >= ic->nb_streams)
+		return -1;
+	avctx = ic->streams[stream_index]->codec;
 	
-    codec = avcodec_find_decoder(avctx->codec_id);
-    if (!codec) {
+	codec = avcodec_find_decoder(avctx->codec_id);
+	if (!codec) {
 		printf("avcodec_find_decoder failed\n");
-        return -1;
+		return -1;
 	}
 	
-    //avctx->workaround_bugs   = workaround_bugs;
-    //avctx->lowres            = lowres;
-    if(avctx->lowres > codec->max_lowres){
-        av_log(avctx, AV_LOG_WARNING, "The maximum value for lowres supported by the decoder is %d\n",
+	//avctx->workaround_bugs   = workaround_bugs;
+	//avctx->lowres            = lowres;
+	if(avctx->lowres > codec->max_lowres){
+		av_log(avctx, AV_LOG_WARNING, "The maximum value for lowres supported by the decoder is %d\n",
 			   codec->max_lowres);
-        avctx->lowres= codec->max_lowres;
-    }
-    //avctx->idct_algo         = idct;
-    //avctx->skip_frame        = skip_frame;
-    //avctx->skip_idct         = skip_idct;
-    //avctx->skip_loop_filter  = skip_loop_filter;
-    //avctx->error_concealment = error_concealment;
+		avctx->lowres= codec->max_lowres;
+	}
+	//avctx->idct_algo         = idct;
+	//avctx->skip_frame        = skip_frame;
+	//avctx->skip_idct         = skip_idct;
+	//avctx->skip_loop_filter  = skip_loop_filter;
+	//avctx->error_concealment = error_concealment;
 	
-    if(avctx->lowres) avctx->flags |= CODEC_FLAG_EMU_EDGE;
-    //if (fast)   avctx->flags2 |= CODEC_FLAG2_FAST;
-    if(codec->capabilities & CODEC_CAP_DR1)
-        avctx->flags |= CODEC_FLAG_EMU_EDGE;
+	if(avctx->lowres) avctx->flags |= CODEC_FLAG_EMU_EDGE;
+	//if (fast)   avctx->flags2 |= CODEC_FLAG2_FAST;
+	if(codec->capabilities & CODEC_CAP_DR1)
+		avctx->flags |= CODEC_FLAG_EMU_EDGE;
 	
-    if (avcodec_open2(avctx, codec, NULL /*opts*/) < 0) {
+	if (avcodec_open2(avctx, codec, NULL /*opts*/) < 0) {
 		printf("avcodec_open2 failed\n");
-        return -1;
+		return -1;
 	}
 	
-    /* prepare audio output */
-    //if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
-    //    is->audio_tgt = is->audio_src;
-    //}
+	/* prepare audio output */
+	//if (avctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+	//    is->audio_tgt = is->audio_src;
+	//}
 	
-    ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
-    switch (avctx->codec_type) {
+	ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+	switch (avctx->codec_type) {
 		case AVMEDIA_TYPE_AUDIO:
 			is->audio_stream = stream_index;
 			is->audio_st = ic->streams[stream_index];
@@ -440,9 +440,9 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
 		default:
 			printf("stream_component_open: not an audio stream\n");
 			return -1;
-    }
+	}
 		
-    return 0;
+	return 0;
 }
 
 static char* objStrDup(PyObject* obj) {
@@ -674,7 +674,7 @@ final:
  * or external master clock */
 static int synchronize_audio(PlayerObject *is, int nb_samples)
 {
-    int wanted_nb_samples = nb_samples;
+	int wanted_nb_samples = nb_samples;
 	return wanted_nb_samples;	
 }
 
@@ -693,105 +693,105 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 	if(is->inStream == NULL) return -1;
 	if(is->audio_st == NULL) return -1;
 	
-    AVPacket *pkt_temp = &is->audio_pkt_temp;
-    AVPacket *pkt = &is->audio_pkt;
-    AVCodecContext *dec = is->audio_st->codec;
-    int len1, len2, data_size, resampled_data_size;
-    int64_t dec_channel_layout;
-    int got_frame;
-    double pts;
-    int new_packet = 0;
-    int flush_complete = 0;
-    int wanted_nb_samples;
+	AVPacket *pkt_temp = &is->audio_pkt_temp;
+	AVPacket *pkt = &is->audio_pkt;
+	AVCodecContext *dec = is->audio_st->codec;
+	int len1, len2, data_size, resampled_data_size;
+	int64_t dec_channel_layout;
+	int got_frame;
+	double pts;
+	int new_packet = 0;
+	int flush_complete = 0;
+	int wanted_nb_samples;
 	
-    for (;;) {
-        /* NOTE: the audio packet can contain several frames */
-        while (pkt_temp->size > 0 || (!pkt_temp->data && new_packet)) {
-            if (!is->frame) {
-                if (!(is->frame = avcodec_alloc_frame()))
-                    return AVERROR(ENOMEM);
-            } else
-                avcodec_get_frame_defaults(is->frame);
+	for (;;) {
+		/* NOTE: the audio packet can contain several frames */
+		while (pkt_temp->size > 0 || (!pkt_temp->data && new_packet)) {
+			if (!is->frame) {
+				if (!(is->frame = avcodec_alloc_frame()))
+					return AVERROR(ENOMEM);
+			} else
+				avcodec_get_frame_defaults(is->frame);
 			
-            if (!is->playing)
-                return -1;
+			if (!is->playing)
+				return -1;
 			
-            if (flush_complete)
-                break;
-            new_packet = 0;
-            len1 = avcodec_decode_audio4(dec, is->frame, &got_frame, pkt_temp);
-            if (len1 < 0) {
-                /* if error, we skip the frame */
-                pkt_temp->size = 0;
-                break;
-            }
+			if (flush_complete)
+				break;
+			new_packet = 0;
+			len1 = avcodec_decode_audio4(dec, is->frame, &got_frame, pkt_temp);
+			if (len1 < 0) {
+				/* if error, we skip the frame */
+				pkt_temp->size = 0;
+				break;
+			}
 			//printf("avcodec_decode_audio4: %i\n", len1);
 			
-            pkt_temp->data += len1;
-            pkt_temp->size -= len1;
+			pkt_temp->data += len1;
+			pkt_temp->size -= len1;
 			
-            if (!got_frame) {
-                /* stop sending empty packets if the decoder is finished */
-                if (!pkt_temp->data && dec->codec->capabilities & CODEC_CAP_DELAY)
-                    flush_complete = 1;
-                continue;
-            }
-            data_size = av_samples_get_buffer_size(NULL, dec->channels,
-                                                   is->frame->nb_samples,
-                                                   dec->sample_fmt, 1);
+			if (!got_frame) {
+				/* stop sending empty packets if the decoder is finished */
+				if (!pkt_temp->data && dec->codec->capabilities & CODEC_CAP_DELAY)
+					flush_complete = 1;
+				continue;
+			}
+			data_size = av_samples_get_buffer_size(NULL, dec->channels,
+												   is->frame->nb_samples,
+												   dec->sample_fmt, 1);
 			
-            dec_channel_layout =
+			dec_channel_layout =
 			(dec->channel_layout && dec->channels == av_get_channel_layout_nb_channels(dec->channel_layout)) ?
 			dec->channel_layout : av_get_default_channel_layout(dec->channels);
-            wanted_nb_samples = synchronize_audio(is, is->frame->nb_samples);
+			wanted_nb_samples = synchronize_audio(is, is->frame->nb_samples);
 			
-            if (dec->sample_fmt    != is->audio_src.fmt            ||
-                dec_channel_layout != is->audio_src.channel_layout ||
-                dec->sample_rate   != is->audio_src.freq           ||
-                (wanted_nb_samples != is->frame->nb_samples && !is->swr_ctx)) {
-                swr_free(&is->swr_ctx);
-                is->swr_ctx = swr_alloc_set_opts(NULL,
-                                                 is->audio_tgt.channel_layout, is->audio_tgt.fmt, is->audio_tgt.freq,
-                                                 dec_channel_layout,           dec->sample_fmt,   dec->sample_rate,
-                                                 0, NULL);
-                if (!is->swr_ctx || swr_init(is->swr_ctx) < 0) {
-                    fprintf(stderr, "Cannot create sample rate converter for conversion of %d Hz %s %d channels to %d Hz %s %d channels!\n",
+			if (dec->sample_fmt    != is->audio_src.fmt            ||
+				dec_channel_layout != is->audio_src.channel_layout ||
+				dec->sample_rate   != is->audio_src.freq           ||
+				(wanted_nb_samples != is->frame->nb_samples && !is->swr_ctx)) {
+				swr_free(&is->swr_ctx);
+				is->swr_ctx = swr_alloc_set_opts(NULL,
+												 is->audio_tgt.channel_layout, is->audio_tgt.fmt, is->audio_tgt.freq,
+												 dec_channel_layout,           dec->sample_fmt,   dec->sample_rate,
+												 0, NULL);
+				if (!is->swr_ctx || swr_init(is->swr_ctx) < 0) {
+					fprintf(stderr, "Cannot create sample rate converter for conversion of %d Hz %s %d channels to %d Hz %s %d channels!\n",
 							dec->sample_rate,   av_get_sample_fmt_name(dec->sample_fmt),   dec->channels,
 							is->audio_tgt.freq, av_get_sample_fmt_name(is->audio_tgt.fmt), is->audio_tgt.channels);
-                    break;
-                }
-                is->audio_src.channel_layout = dec_channel_layout;
-                is->audio_src.channels = dec->channels;
-                is->audio_src.freq = dec->sample_rate;
-                is->audio_src.fmt = dec->sample_fmt;
-            }
+					break;
+				}
+				is->audio_src.channel_layout = dec_channel_layout;
+				is->audio_src.channels = dec->channels;
+				is->audio_src.freq = dec->sample_rate;
+				is->audio_src.fmt = dec->sample_fmt;
+			}
 			
-            if (is->swr_ctx) {
-                const uint8_t **in = (const uint8_t **)is->frame->extended_data;
-                uint8_t *out[] = {is->audio_buf2};
-                int out_count = sizeof(is->audio_buf2) / is->audio_tgt.channels / av_get_bytes_per_sample(is->audio_tgt.fmt);
-                if (wanted_nb_samples != is->frame->nb_samples) {
-                    if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - is->frame->nb_samples) * is->audio_tgt.freq / dec->sample_rate,
+			if (is->swr_ctx) {
+				const uint8_t **in = (const uint8_t **)is->frame->extended_data;
+				uint8_t *out[] = {is->audio_buf2};
+				int out_count = sizeof(is->audio_buf2) / is->audio_tgt.channels / av_get_bytes_per_sample(is->audio_tgt.fmt);
+				if (wanted_nb_samples != is->frame->nb_samples) {
+					if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - is->frame->nb_samples) * is->audio_tgt.freq / dec->sample_rate,
 											 wanted_nb_samples * is->audio_tgt.freq / dec->sample_rate) < 0) {
-                        fprintf(stderr, "swr_set_compensation() failed\n");
-                        break;
-                    }
-                }
-                len2 = swr_convert(is->swr_ctx, out, out_count, in, is->frame->nb_samples);
-                if (len2 < 0) {
-                    fprintf(stderr, "swr_convert() failed\n");
-                    break;
-                }
-                if (len2 == out_count) {
-                    fprintf(stderr, "warning: audio buffer is probably too small\n");
-                    swr_init(is->swr_ctx);
-                }
-                is->audio_buf = is->audio_buf2;
-                resampled_data_size = len2 * is->audio_tgt.channels * av_get_bytes_per_sample(is->audio_tgt.fmt);
-            } else {
-                is->audio_buf = is->frame->data[0];
-                resampled_data_size = data_size;
-            }
+						fprintf(stderr, "swr_set_compensation() failed\n");
+						break;
+					}
+				}
+				len2 = swr_convert(is->swr_ctx, out, out_count, in, is->frame->nb_samples);
+				if (len2 < 0) {
+					fprintf(stderr, "swr_convert() failed\n");
+					break;
+				}
+				if (len2 == out_count) {
+					fprintf(stderr, "warning: audio buffer is probably too small\n");
+					swr_init(is->swr_ctx);
+				}
+				is->audio_buf = is->audio_buf2;
+				resampled_data_size = len2 * is->audio_tgt.channels * av_get_bytes_per_sample(is->audio_tgt.fmt);
+			} else {
+				is->audio_buf = is->frame->data[0];
+				resampled_data_size = data_size;
+			}
 			
 			if(volumeAdjustNeeded(is)) {
 				for(size_t i = 0; i < resampled_data_size / 2; ++i) {
@@ -811,37 +811,37 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 				}
 			}
 			
-            /* if no pts, then compute it */
-            pts = is->audio_clock;
-            *pts_ptr = pts;
-            is->audio_clock += (double)data_size /
+			/* if no pts, then compute it */
+			pts = is->audio_clock;
+			*pts_ptr = pts;
+			is->audio_clock += (double)data_size /
 			(dec->channels * dec->sample_rate * av_get_bytes_per_sample(dec->sample_fmt));
-            /*{
-                static double last_clock;
-                printf("audio: delay=%0.3f clock=%0.3f pts=%0.3f\n",
-                       is->audio_clock - last_clock,
-                       is->audio_clock, pts);
-                last_clock = is->audio_clock;
-            }*/
-            return resampled_data_size;
-        }
+			/*{
+				static double last_clock;
+				printf("audio: delay=%0.3f clock=%0.3f pts=%0.3f\n",
+					   is->audio_clock - last_clock,
+					   is->audio_clock, pts);
+				last_clock = is->audio_clock;
+			}*/
+			return resampled_data_size;
+		}
 		
-        /* free the current packet */
+		/* free the current packet */
 		av_free_packet(pkt);
 		memset(pkt_temp, 0, sizeof(*pkt_temp));
 		
-        if (!is->playing /* || is->audioq.abort_request */) {
-            return -1;
-        }
+		if (!is->playing /* || is->audioq.abort_request */) {
+			return -1;
+		}
 		
-        /* read next packet */
-        /*if ((new_packet = packet_queue_get(&is->audioq, pkt, 1)) < 0)
-            return -1;
+		/* read next packet */
+		/*if ((new_packet = packet_queue_get(&is->audioq, pkt, 1)) < 0)
+			return -1;
 		
-        if (pkt->data == flush_pkt.data) {
-            avcodec_flush_buffers(dec);
-            flush_complete = 0;
-        }
+		if (pkt->data == flush_pkt.data) {
+			avcodec_flush_buffers(dec);
+			flush_complete = 0;
+		}
 		*/
 		
 		if(is->do_flush) {
@@ -903,13 +903,13 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 			av_free_packet(pkt);
 		}
 		
-        *pkt_temp = *pkt;
+		*pkt_temp = *pkt;
 		
-        /* if update the audio clock with the pts */
-        if (pkt->pts != AV_NOPTS_VALUE) {
-            is->audio_clock = av_q2d(is->audio_st->time_base)*pkt->pts;
-        }
-    }
+		/* if update the audio clock with the pts */
+		if (pkt->pts != AV_NOPTS_VALUE) {
+			is->audio_clock = av_q2d(is->audio_st->time_base)*pkt->pts;
+		}
+	}
 }
 
 // called from paStreamCallback
@@ -933,37 +933,37 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long le
 	
 	PlayerObject* is = player;
 	int audio_size;
-    unsigned long len1;
-    int bytes_per_sec;
-    int frame_size = av_samples_get_buffer_size(NULL, is->audio_tgt.channels, 1, is->audio_tgt.fmt, 1);
-    double pts;
+	unsigned long len1;
+	int bytes_per_sec;
+	int frame_size = av_samples_get_buffer_size(NULL, is->audio_tgt.channels, 1, is->audio_tgt.fmt, 1);
+	double pts;
 	
    // audio_callback_time = av_gettime();
 	
 	//printf("player_fillOutStream %i %i %i\n", len, is->audio_buf_index, is->audio_buf_size);
-    while (len > 0) {
-        if (is->audio_buf_index >= is->audio_buf_size) {
+	while (len > 0) {
+		if (is->audio_buf_index >= is->audio_buf_size) {
 			audio_size = audio_decode_frame(is, &pts);
 			if (audio_size < 0) {
-                /* if error, just output silence */
+				/* if error, just output silence */
 				is->audio_buf      = is->silence_buf;
 				is->audio_buf_size = sizeof(is->silence_buf) / frame_size * frame_size;
 			} else {
 				is->audio_buf_size = audio_size;
 			}
 			is->audio_buf_index = 0;
-        }
-        len1 = is->audio_buf_size - is->audio_buf_index;
-        if (len1 > len)
-            len1 = len;
-        memcpy(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
-        len -= len1;
-        stream += len1;
-        is->audio_buf_index += len1;
-    }
-    bytes_per_sec = is->audio_tgt.freq * is->audio_tgt.channels * av_get_bytes_per_sample(is->audio_tgt.fmt);
-    is->audio_write_buf_size = is->audio_buf_size - is->audio_buf_index;
-    /* Let's assume the audio driver that is used by SDL has two periods. */
+		}
+		len1 = is->audio_buf_size - is->audio_buf_index;
+		if (len1 > len)
+			len1 = len;
+		memcpy(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
+		len -= len1;
+		stream += len1;
+		is->audio_buf_index += len1;
+	}
+	bytes_per_sec = is->audio_tgt.freq * is->audio_tgt.channels * av_get_bytes_per_sample(is->audio_tgt.fmt);
+	is->audio_write_buf_size = is->audio_buf_size - is->audio_buf_index;
+	/* Let's assume the audio driver that is used by SDL has two periods. */
   //  is->audio_current_pts = is->audio_clock - (double)(2 * is->audio_hw_buf_size + is->audio_write_buf_size) / bytes_per_sec;
 //    is->audio_current_pts_drift = is->audio_current_pts - audio_callback_time / 1000000.0;
 
@@ -1308,14 +1308,14 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 
 	PyObject* dict = player_getdict(player);
 	if(dict) { // should always be true...
-        Py_INCREF(dict);
-        PyObject* res = PyDict_GetItemString(dict, key);
-        if (res != NULL) {
-            Py_INCREF(res);
-            Py_DECREF(dict);
-            return res;
-        }
-        Py_DECREF(dict);		
+		Py_INCREF(dict);
+		PyObject* res = PyDict_GetItemString(dict, key);
+		if (res != NULL) {
+			Py_INCREF(res);
+			Py_DECREF(dict);
+			return res;
+		}
+		Py_DECREF(dict);		
 	}
 
 	PyErr_Format(PyExc_AttributeError, "PlayerObject has no attribute '%.400s'", key);
@@ -1496,7 +1496,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	
 	// The following code is loosely adopted from player_fillOutStream().
 	unsigned long totalFrameCount = 0;
-    while (1) {
+	while (1) {
 		player->audio_buf_index = 0;
 		double pts;
 		int audio_size = audio_decode_frame(player, &pts);
@@ -1511,7 +1511,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
 			goto final;
 		}
-    }
+	}
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
 	
 	if (!chromaprint_finish(chromaprint_ctx)) {
@@ -1690,7 +1690,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	
 	// First count totalFrameCount.
 	unsigned long totalFrameCount = 0;
-    while (1) {
+	while (1) {
 		player->audio_buf_index = 0;
 		double pts;
 		int audio_size = audio_decode_frame(player, &pts);
@@ -1701,7 +1701,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 		// (uint8_t *)player->audio_buf, audio_size / 2
 		
 		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
-    }
+	}
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
 
 	// Seek back.
@@ -2074,11 +2074,11 @@ pySetFfmpegLogLevel(PyObject* self, PyObject* args) {
 
 static PyMethodDef module_methods[] = {
 	{"createPlayer",	(PyCFunction)pyCreatePlayer,	METH_NOARGS,	"creates new player"},
-    {"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
-    {"calcAcoustIdFingerprint",		pyCalcAcoustIdFingerprint,	METH_VARARGS,	"calculate AcoustID fingerprint for Song"},
-    {"calcBitmapThumbnail",		(PyCFunction)pyCalcBitmapThumbnail,	METH_VARARGS|METH_KEYWORDS,	"calculate bitmap thumbnail for Song"},
-    {"calcReplayGain",		(PyCFunction)pyCalcReplayGain,	METH_VARARGS|METH_KEYWORDS,	"calculate ReplayGain for Song"},
-    {"setFfmpegLogLevel",		pySetFfmpegLogLevel,	METH_VARARGS,	"set FFmpeg log level (av_log_set_level)"},
+	{"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
+	{"calcAcoustIdFingerprint",		pyCalcAcoustIdFingerprint,	METH_VARARGS,	"calculate AcoustID fingerprint for Song"},
+	{"calcBitmapThumbnail",		(PyCFunction)pyCalcBitmapThumbnail,	METH_VARARGS|METH_KEYWORDS,	"calculate bitmap thumbnail for Song"},
+	{"calcReplayGain",		(PyCFunction)pyCalcReplayGain,	METH_VARARGS|METH_KEYWORDS,	"calculate ReplayGain for Song"},
+	{"setFfmpegLogLevel",		pySetFfmpegLogLevel,	METH_VARARGS,	"set FFmpeg log level (av_log_set_level)"},
 	{NULL,				NULL}	/* sentinel */
 };
 
@@ -2107,11 +2107,11 @@ initffmpeg(void)
 {
 	//printf("initffmpeg\n");
 	init();
-    if (PyType_Ready(&Player_Type) < 0)
-        Py_FatalError("Can't initialize player type");
+	if (PyType_Ready(&Player_Type) < 0)
+		Py_FatalError("Can't initialize player type");
 	PyObject* m = Py_InitModule3("ffmpeg", module_methods, module_doc);
 	if(!m) {
-        Py_FatalError("Can't initialize ffmpeg module");
+		Py_FatalError("Can't initialize ffmpeg module");
 		return;
 	}
 	
