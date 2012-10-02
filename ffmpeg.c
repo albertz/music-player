@@ -1525,9 +1525,9 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		goto final;
 	}
 
-	returnObj = PyTuple_Pack(2,
-		PyFloat_FromDouble(songDuration),
-		PyString_FromString(fingerprint));
+	returnObj = PyTuple_New(2);
+	PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
+	PyTuple_SetItem(returnObj, 1, PyString_FromString(fingerprint));
 
 	chromaprint_dealloc(fingerprint);
 	
