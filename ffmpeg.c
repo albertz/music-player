@@ -1993,7 +1993,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	unsigned long totalFrameCount = 0;
 	size_t samplePos = 0;
 	size_t windowCount = 0;
-    while (1) {
+	while (1) {
 		player->audio_buf_index = 0;
 		double pts;
 		int audio_size = audio_decode_frame(player, &pts);
@@ -2032,8 +2032,21 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 				}
 			}
 		}
-    }
+	}
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
+	
+	// some samples left
+	if(samplePos > 0) {
+		// reset further samples
+		for(; samplePos < MAX_SAMPLES_PER_WINDOW; ++samplePos) {
+			buffer->channels[0].stages[0].data[samplePos + MAX_FILTER_ORDER] = 0;
+			buffer->channels[1].stages[0].data[samplePos + MAX_FILTER_ORDER] = 0;
+		}
+		
+		// handle last window
+		replayGainHandleWindow(buffer);
+		++windowCount;
+	}
 	
 	float gain = 0;
 	int64_t upperLoudness = (int64_t) ceil(windowCount * (1.0 - REPLAYGAIN_LOUD_PERC));
