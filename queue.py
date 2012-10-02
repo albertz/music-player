@@ -105,13 +105,17 @@ class MainQueue:
 		])
 		self.checkNextNForBest = 10
 		self.checkLastNForContext = 10
-
+		
 	def getNextSong(self):
 		with self.lock:
 			if self.queue:
 				return self.queue.popleft()
 		return getNextSong_auto()
-		
+
+	def peekNextN(self, n): # only from self.queue, no adding! might return less
+		with self.lock:
+			return [self.queue[i] for i in range(min(n, len(self.queue)))]
+
 	def calcContextMatchScore(self, song):
 		count = 0
 		lastSongs = []
