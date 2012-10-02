@@ -278,7 +278,7 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	LazyObject = type("LazyObject", (object,), attribs)
 	return LazyObject()
 
-def PersistentObject(baseType, filename, persistentRepr = False):
+def PersistentObject(baseType, filename, persistentRepr = False, namespace = None):
 	import appinfo
 	fullfn = appinfo.userdir + "/" + filename
 	def load():
@@ -289,12 +289,15 @@ def PersistentObject(baseType, filename, persistentRepr = False):
 
 		# some common types
 		g = {baseType.__name__: baseType} # the baseType itself
-		g.update(globals()) # all what we have here
-		if baseType.__module__:
-			# the module of the basetype
-			import sys
-			m = sys.modules[baseType.__module__]
-			g.update([(varname,getattr(m,varname)) for varname in dir(m)])
+		if namespace is None:
+			g.update(globals()) # all what we have here
+			if baseType.__module__:
+				# the module of the basetype
+				import sys
+				m = sys.modules[baseType.__module__]
+				g.update([(varname,getattr(m,varname)) for varname in dir(m)])
+		else:
+			g.update(namespace)
 		obj = eval(f.read(), g)
 		assert isinstance(obj, baseType)
 		return obj
