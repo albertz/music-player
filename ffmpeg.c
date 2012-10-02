@@ -2035,19 +2035,6 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	}
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
 	
-	// some samples left
-	if(samplePos > 0) {
-		// reset further samples
-		for(; samplePos < MAX_SAMPLES_PER_WINDOW; ++samplePos) {
-			buffer->channels[0].stages[0].data[samplePos + MAX_FILTER_ORDER] = 0;
-			buffer->channels[1].stages[0].data[samplePos + MAX_FILTER_ORDER] = 0;
-		}
-		
-		// handle last window
-		replayGainHandleWindow(buffer);
-		++windowCount;
-	}
-	
 	float gain = 0;
 	int64_t upperLoudness = (int64_t) ceil(windowCount * (1.0 - REPLAYGAIN_LOUD_PERC));
 	for(int i = sizeof(buffer->loudnessTable)/sizeof(buffer->loudnessTable[0]) - 1; i >= 0; --i) {
