@@ -170,7 +170,7 @@ def buildControlSongDisplay(userAttr, inst):
 					song = Song(url=self.curSong.url)
 
 			if bmpData:
-				self.setSongBitmap(self.curSong.bmpThumbnail)
+				self.setSongBitmap(bmpData)
 				del pool
 				return
 
