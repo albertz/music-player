@@ -41,4 +41,4 @@ pprint(metadata)
 duration, replaygain = ffmpeg.calcReplayGain(Song(filename))
 print("duration: %f" % duration)
 print("replaygain: %f" % replaygain)
-
+print("gain factor: %f" % (10. ** (replaygain / 20)))
