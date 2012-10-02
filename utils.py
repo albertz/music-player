@@ -243,7 +243,7 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 		load()
 		try: return getattr(obj.value, key)
 		except AttributeError:
-			return object.__getattribute__(self, key)
+			return object.__getattribute__(self, key)				
 	def obj_setattr(self, key, value):
 		load()
 		return setattr(obj.value, key, value)
@@ -265,7 +265,17 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 		"__get__": obj_desc_get,
 		"__set__": obj_desc_set,
 		})
-	LazyObject = type("LazyObject", (object,baseType), attribs)
+	# just set them so that we have them in the class. needed for __len__, __str__, etc.
+	for a in dir(baseType):
+		if a == "__new__": continue
+		if a == "__init__": continue
+		if a in attribs.keys(): continue
+		class WrapProp(object):
+			def __get__(self, inst, type=None, attrib=a):
+				load()
+				return object.__getattribute__(obj.value, attrib)
+		attribs[a] = WrapProp()
+	LazyObject = type("LazyObject", (object,), attribs)
 	return LazyObject()
 
 def PersistentObject(baseType, filename, persistentRepr = False):
