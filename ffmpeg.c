@@ -792,6 +792,9 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 				is->audio_src.channels = dec->channels;
 				is->audio_src.freq = dec->sample_rate;
 				is->audio_src.fmt = dec->sample_fmt;
+				/*printf("conversion of %d Hz %s %d channels to %d Hz %s %d channels!\n",
+						dec->sample_rate,   av_get_sample_fmt_name(dec->sample_fmt),   dec->channels,
+						is->audio_tgt.freq, av_get_sample_fmt_name(is->audio_tgt.fmt), is->audio_tgt.channels);*/
 			}
 			
 			if (is->swr_ctx) {
@@ -1942,7 +1945,6 @@ final:
 #define MAX_FILTER_ORDER 10
 #define RMS_WINDOW_TIME 0.050 // ReplayGain spec standard
 #define MAX_SAMPLES_PER_WINDOW  (size_t) (SAMPLERATE * RMS_WINDOW_TIME) // ReplayGain spec standard
-#define NUM_REPLAYGAIN_STAGES 3
 #define REPLAYGAIN_LOUD_PERC 0.95 // ReplayGain spec standard
 #define RG_STEPS_per_dB      100.    // loudness table entries per dB
 #define RG_MAX_dB            120.    // loudness table entries for 0...MAX_dB (normal max. values are 70...80 dB)
@@ -1953,6 +1955,7 @@ typedef struct ReplayGainBuffersPerChannelStage {
 } ReplayGainBuffersPerChannelStage;
 
 typedef struct ReplayGainBuffersPerChannel {
+#define NUM_REPLAYGAIN_STAGES 3
 	ReplayGainBuffersPerChannelStage stages[NUM_REPLAYGAIN_STAGES]; // in, step, out
 } ReplayGainBuffersPerChannel;
 
@@ -1990,15 +1993,16 @@ static double replayGainHandleWindow(ReplayGainBuffer* buffer) {
 			float* d0 = buffer->channels[chan].stages[0].data + MAX_FILTER_ORDER + samplePos;
 			float* d1 = buffer->channels[chan].stages[1].data + MAX_FILTER_ORDER + samplePos;
 			float* d2 = buffer->channels[chan].stages[2].data + MAX_FILTER_ORDER + samplePos;
+
 			yuleFilter(d1, d0);
 			*d1 += 1e-10; // hack from original implementation: to avoid slowdown because of denormals
 			butterFilter(d2, d1);
 			sum += *d2 * *d2;
 		}
 	}
-	sum /= NUMCHANNELS * MAX_SAMPLES_PER_WINDOW;
-	double decibel = 10 * log10(sum + 1e-37);
-	
+
+	double decibel = 10 * log10(sum / (NUMCHANNELS * MAX_SAMPLES_PER_WINDOW) + 1e-37);
+		
 	int i = RG_STEPS_per_dB * decibel;
 	if(i < 0) i = 0;
 	if(i >= sizeof(buffer->loudnessTable)/sizeof(buffer->loudnessTable[0]))
@@ -2029,8 +2033,11 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	player->nextSongOnEof = 0;
 	player->playing = 1; // otherwise audio_decode_frame() wont read
 	player->volume = 1; smoothClip_setX(&player->volumeSmoothClip, 1, 1); // avoid volume adjustments
+	assert(!volumeAdjustNeeded(player));
 	Py_INCREF(songObj);
 	player->curSong = songObj;
+	if(PyObject_HasAttrString(songObj, "gain"))
+		printf("pyCalcReplayGain: warning: song has gain already - this will lead to wrong gain calculation\n");
 	if(player_openInputStream(player) != 0) goto final;
 	if(player->inStream == NULL) goto final;
 	
@@ -2056,7 +2063,9 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 		for(size_t i = 0; i < audio_size / 2; ++i) {
 			int16_t* sampleAddr = (int16_t*) player->audio_buf + i;
 			int16_t sample = *sampleAddr; // TODO: endian swap?
-			float sampleFloat = sample;  // / ((double) 0x8000);
+			// It is by purpose that we don't normalize to [-1,1] but stay in the range [-0x8000,0x7fff].
+			// That is because it was originially based on CD data, which is 16-bit signed integers.
+			float sampleFloat = sample;
 			
 			buffer->channels[channel].stages[0].data[samplePos + MAX_FILTER_ORDER] = sampleFloat;
 			
