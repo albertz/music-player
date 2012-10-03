@@ -34,7 +34,7 @@ def update(song):
 			if getattr(song, "fingerprint_AcoustID", None) is None:
 				song.close()
 				song.openFile()
-				song.gain = 1 # just use original
+				song.gain = 0 # just use original
 				duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
 				queue.put(("duration", duration))
 				queue.put(("fingerprint_AcoustID", fingerprint))
