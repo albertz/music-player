@@ -2074,7 +2074,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 							memcpy(
 								buffer->channels[chan].stages[stage].data,
 								buffer->channels[chan].stages[stage].data + MAX_SAMPLES_PER_WINDOW,
-								MAX_FILTER_ORDER);
+								MAX_FILTER_ORDER * sizeof(buffer->channels[0].stages[0].data[0]));
 					samplePos = 0;
 				}
 			}
