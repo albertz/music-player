@@ -1991,6 +1991,7 @@ static double replayGainHandleWindow(ReplayGainBuffer* buffer) {
 			float* d1 = buffer->channels[chan].stages[1].data + MAX_FILTER_ORDER + samplePos;
 			float* d2 = buffer->channels[chan].stages[2].data + MAX_FILTER_ORDER + samplePos;
 			yuleFilter(d1, d0);
+			*d1 += 1e-10; // hack from original implementation: to avoid slowdown because of denormals
 			butterFilter(d2, d1);
 			sum += *d2 * *d2;
 		}
