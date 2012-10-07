@@ -105,6 +105,7 @@ class MainQueue:
 		])
 		self.checkNextNForBest = 10
 		self.checkLastNForContext = 10
+		self.checkLastInQueueNForContext = 2
 		
 	def getNextSong(self):
 		with self.lock:
@@ -120,14 +121,13 @@ class MainQueue:
 		count = 0
 		lastSongs = []
 		with self.lock:
-			lastSongs += [self.queue[-i] for i in range(1,min(self.checkLastNForContext,len(self.queue))+1)]
-		if len(lastSongs) < self.checkLastNForContext:
-			lastSongs += state.recentlyPlayedList.getLastN(self.checkLastNForContext - len(lastSongs))
+			lastSongs += [self.queue[-i] for i in range(1,min(self.checkLastInQueueNForContext,len(self.queue))+1)]
+		lastSongs += state.recentlyPlayedList.getLastN(self.checkLastNForContext)
 		lastSongs = filter(lambda s: not getattr(s, "skipped", False), lastSongs)
 		if not lastSongs: return 0.0
 		for lastSong in lastSongs:
 			count += max(intersectFuzzySets(song.tags, lastSong.tags).values() + [0])
-		s = float(count) / self.checkLastNForContext
+		s = float(count) / (self.checkLastNForContext + self.checkLastInQueueNForContext)
 		# We likely get small values here. Boost a bit but keep in [0,1] range. sqrt is a good fit.
 		return math.sqrt(s)
 
