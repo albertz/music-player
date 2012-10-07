@@ -198,6 +198,17 @@ def formatTime(t):
 	if hours: return "%02i:%02i:%02.0f" % (hours,mins,t)
 	return "%02i:%02.0f" % (mins,t)
 
+def formatFilesize(s):
+	L = 800
+	Symbols = ["byte", "KB", "MB", "GB", "TB"]
+	i = 0
+	while True:
+		if s < L: break
+		if i == len(Symbols) - 1: break
+		s /= 1024.
+		i += 1
+	return "%.3g %s" % (s, Symbols[i])
+
 def doAsync(f, name=None):
 	from threading import Thread
 	if name is None: name = repr(f)

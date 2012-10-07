@@ -97,10 +97,23 @@ def buildControlList(userAttr, inst):
 	return subview, update
 
 def buildControlObject(userAttr, inst):
-	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	subview.setTitle_(userAttr.name.decode("utf-8"))
+	#subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	#subview.setTitle_(userAttr.name.decode("utf-8"))
+	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 25.0)))
+	label.setBordered_(False)
+	label.setBezeled_(True)
+	#label.setDrawsBackground_(False)
+	label.setEditable_(False)
+	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
 	def update(ev, args, kwargs):
-		pass
+		labelContent = userAttr.__get__(inst)
+		s = "???"
+		try:
+			s = labelContent.userLongString
+			s = s.decode("utf-8")
+		except: pass			
+		do_in_mainthread(lambda: label.setStringValue_(s), wait=False)
+	return label, update
 	return subview, update
 
 def SongDisplayView_MouseClickCallback(x):

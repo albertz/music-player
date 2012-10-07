@@ -182,8 +182,8 @@ class Song:
 	# dict from tag to value [0,1] (weighted tagmap, tag fuzzy set)
 	@property
 	def tags(self):
-		taglist = self.metadata.get("genre", "").split(",")
-		taglist = map(str.strip, taglist)
+		import re
+		taglist = re.split("\s*(?:,|/|;)?\s*", self.metadata.get("genre", ""))
 		taglist = filter(None, taglist)
 		return dict([(tag,1.0) for tag in taglist])
 
@@ -199,6 +199,34 @@ class Song:
 		if artist and title: return artist + " - " + title
 		import os
 		return os.path.basename(self.url)
+
+	@property
+	def userLongString(self):
+		import utils
+		s = self.userString
+		duration = self.duration
+		if duration >= 0:
+			s += ", " + utils.formatTime(duration)
+		try:
+			import os
+			size = os.stat(self.url).st_size
+		except:
+			size = None
+		s += ", " + self.fileext
+		if size and duration > 0:
+			s += ", %.3g kbit/s" % (size * 8 / 1024. / duration)
+		if size:
+			s += ", " + utils.formatFilesize(size)
+		return s
+	
+	@property
+	def userLongDescription(self):
+		data = dict(self.metadata)
+		mainKeys = ["artist","title"]
+		for key in mainKeys:
+			data[key] = data.get(key, "").strip()
+		# TODO ...
+		data = sorted()
 
 def test():
 	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac")
