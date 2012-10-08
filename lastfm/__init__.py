@@ -172,7 +172,12 @@ class Client:
 					# This is an API error, we would very likely get the same error again, so just stop
 					return
 				return ret
-			except: # RESTSocketError or so
+			except rest.RESTSocketError:
+				# maybe no internet connection
+				# dont print an error, dont spam	
+				# wait a bit and retry
+				time.sleep(1)
+			except:
 				import sys
 				sys.excepthook(*sys.exc_info())
 				import time
