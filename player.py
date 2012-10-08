@@ -9,6 +9,23 @@ except NameError:
 		onSongFinished = None
 		onPlayingStateChange = None
 
+	print "load queue"
+	
+def songs(state):
+	if state.curSong:
+		# We just started the player and we have a current song from persistent storage.
+		# Yield it now so that we begin playing with this song.
+		# Yield the Song object itself, though, not the ObjectProxy. The ObjectProxy
+		# would result in very strange behavior later for onSongChange events.
+		song = state.curSong.__get__(None)
+		song.openFile()
+		yield song
+	import queue
+	while True:
+		song = queue.getNextSong()
+		song.openFile()
+		yield song
+
 def loadPlayer(state):
 	import ffmpeg
 	player = ffmpeg.createPlayer()
@@ -16,7 +33,7 @@ def loadPlayer(state):
 		cb = EventCallback(targetQueue=state.updates, name=e)
 		setattr(PlayerEventCallbacks, e, cb)
 		setattr(player, e, cb)
-	player.queue = state.queue
+	player.queue = songs(state)
 	return player
 
 def playerMain():

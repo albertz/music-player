@@ -111,12 +111,14 @@ class UserAttrib(object):
 	 etc.
 	"""
 	staticCounter = 0
-	def __init__(self, name=None, type=None, writeable=False, updateHandler=None, alignRight=False, variableWidth=False):
+	def __init__(self, name=None, type=None, writeable=False, updateHandler=None, alignRight=False, spaceX=None, spaceY=None, variableWidth=False):
 		self.name = name
 		self.type = type
 		self.writeable = writeable
 		self.updateHandler = updateHandler
 		self.alignRight = alignRight
+		self.spaceX = spaceX
+		self.spaceY = spaceY
 		self.variableWidth = variableWidth
 		self.__class__.staticCounter += 1
 		# Keep an index. This is so that we know the order of initialization later on.

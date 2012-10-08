@@ -1,10 +1,24 @@
 
+from contextlib import contextmanager
+
 class TraitType: pass
 
 # These types just say what a property/UserAttrib/object should behave like, i.e. what protocol it should support.
 # This is not really defined yet/strictly. It is used for now by the GUI.
 
-class List(TraitType): pass
+class List(TraitType):
+	def onInsert(self, index): pass
+	def onRemove(self, index): pass
+	
+	@property
+	@contextmanager
+	def lock(self): yield
+	
+	def insert(self, index, value): pass
+	def remove(self, index): pass
+	def __getitem__(self, index): pass
+	def __len__(self): pass
+	
 class OneLineText(TraitType): pass
 class Enum(TraitType):
 	def __init__(self, enums):

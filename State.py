@@ -3,26 +3,6 @@
 from utils import *
 from Song import Song
 
-def loadQueue(state):
-	print "load queue"
-	
-	def songs():
-		if state.curSong:
-			# We just started the player and we have a current song from persistent storage.
-			# Yield it now so that we begin playing with this song.
-			# Yield the Song object itself, though, not the ObjectProxy. The ObjectProxy
-			# would result in very strange behavior later for onSongChange events.
-			song = state.curSong.__get__(None)
-			song.openFile()
-			yield song
-		import queue
-		while True:
-			song = queue.getNextSong()
-			song.openFile()
-			yield song
-
-	return songs()
-	
 from collections import deque
 
 class RecentlyplayedList:
@@ -81,34 +61,36 @@ class State(object):
 	def nextSong(self):
 		self.player.nextSong()
 
-	@UserAttrib(type=Traits.OneLineText, updateHandler=lambda *args:None, alignRight=True, variableWidth=True)
+	@UserAttrib(type=Traits.OneLineText, alignRight=True, variableWidth=True)
 	@property
 	def curSongStr(self):
 		if not self.player.curSong: return ""
 		try: return self.player.curSong.userString
 		except: return "???"
 
-	@UserAttrib(type=Traits.OneLineText, updateHandler=lambda *args:None, alignRight=True)
+	@UserAttrib(type=Traits.OneLineText, alignRight=True)
 	@property
 	def curSongPos(self):
 		if not self.player.curSong: return ""
 		try: return formatTime(self.player.curSongPos) + " / " + formatTime(self.player.curSong.duration)
 		except: return "???"
 
-	@UserAttrib(type=Traits.SongDisplay, updateHandler=lambda *args:None)
+	@UserAttrib(type=Traits.SongDisplay)
 	def curSongDisplay(self): pass
 
 	@UserAttrib(type=Traits.List)
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-	@UserAttrib(type=Traits.Object, updateHandler=lambda *args:None)
+	@UserAttrib(type=Traits.Object, spaceY=0)
 	@initBy
 	def curSong(self): return PersistentObject(Song, "cursong.dat")
 
-	@UserAttrib(type=Traits.List)
+	@UserAttrib(type=Traits.List, spaceY=0)
 	@initBy
-	def queue(self): return loadQueue(self)
+	def queue(self):
+		import queue
+		return queue.queue
 
 	@initBy
 	def updates(self): return OnRequestQueue()
