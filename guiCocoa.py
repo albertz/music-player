@@ -88,21 +88,24 @@ def setup():
 
 
 def buildControlAction(userAttr, inst):
-	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 30.0)))
+	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 25.0)))
 	button.setBezelStyle_(NSRoundedBezelStyle)
 	actionTarget = ButtonActionHandler.alloc().initWithArgs(userAttr, inst)
 	actionTarget.retain() # TODO: where would we release this? ...
 	button.setTarget_(actionTarget)
 	button.setAction_("click")
-	def update(ev, args, kwargs):
-		do_in_mainthread(lambda : button.setTitle_(userAttr.name.decode("utf-8")), wait=False)
+	def do_update(): button.setTitle_(userAttr.name.decode("utf-8"))
+	do_update()
+	button.sizeToFit() # to get height
+	button.setFrameSize_((50, button.frame().size.height))
+	def update(ev, args, kwargs): do_in_mainthread(do_update, wait=False)
 	control = CocoaGuiObject()
 	control.nativeGuiObject = button
 	control.updateContent = update
 	return control
 
 def buildControlOneLineTextLabel(userAttr, inst):
-	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 25.0)))
+	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 22.0)))
 	label.setBordered_(False)
 	label.setBezeled_(True)
 	label.setBezelStyle_(NSTextFieldRoundedBezel)
@@ -110,6 +113,9 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	label.setEditable_(False)
 	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
+	control = CocoaGuiObject()
+	control.nativeGuiObject = label
+
 	def update(ev, args, kwargs):
 		labelContent = userAttr.__get__(inst)
 		s = "???"
@@ -121,10 +127,9 @@ def buildControlOneLineTextLabel(userAttr, inst):
 			label.setStringValue_(s)
 			if userAttr.autosizeWidth:
 				label.sizeToFit()
+				control.layoutLine()
 		do_in_mainthread(do_update, wait=False)
 
-	control = CocoaGuiObject()
-	control.nativeGuiObject = label
 	control.updateContent = update
 	return control
 

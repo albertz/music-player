@@ -67,7 +67,7 @@ class State(object):
 		try: return self.player.curSong.userString
 		except: return "???"
 
-	@UserAttrib(type=Traits.OneLineText, alignRight=True)
+	@UserAttrib(type=Traits.OneLineText, alignRight=True, autosizeWidth=True)
 	@property
 	def curSongPos(self):
 		if not self.player.curSong: return ""

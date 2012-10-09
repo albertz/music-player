@@ -51,7 +51,7 @@ class GuiObject:
 			if control.attr.spaceX is not None: spaceX = control.attr.spaceX
 
 			w,h = control.size
-			y = minY + (maxH - h) / 2
+			y = minY + (maxH - h) / 2.
 			
 			control.pos = (x,y)
 			control.size = (w,h)
