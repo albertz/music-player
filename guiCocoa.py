@@ -89,7 +89,7 @@ def setup():
 
 def buildControlAction(userAttr, inst):
 	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 30.0)))
-	button.setBezelStyle_(2)
+	button.setBezelStyle_(NSRoundedBezelStyle)
 	actionTarget = ButtonActionHandler.alloc().initWithArgs(userAttr, inst)
 	actionTarget.retain() # TODO: where would we release this? ...
 	button.setTarget_(actionTarget)
@@ -105,8 +105,10 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 25.0)))
 	label.setBordered_(False)
 	label.setBezeled_(True)
-	#label.setDrawsBackground_(False)
+	label.setBezelStyle_(NSTextFieldRoundedBezel)
+	label.setDrawsBackground_(False)
 	label.setEditable_(False)
+	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
 	def update(ev, args, kwargs):
 		labelContent = userAttr.__get__(inst)
@@ -115,7 +117,11 @@ def buildControlOneLineTextLabel(userAttr, inst):
 			s = str(labelContent)
 			s = s.decode("utf-8")
 		except: pass
-		do_in_mainthread(lambda: label.setStringValue_(s), wait=False)
+		def do_update():
+			label.setStringValue_(s)
+			if userAttr.autosizeWidth:
+				label.sizeToFit()
+		do_in_mainthread(do_update, wait=False)
 
 	control = CocoaGuiObject()
 	control.nativeGuiObject = label
@@ -278,7 +284,7 @@ def buildControlSongDisplay(userAttr, inst):
 				do_in_mainthread(updateCursor, wait=False)
 
 				# another hack: update time
-				control.parent.childs["curSongPos"][1].updateContent(None,None,None)
+				control.parent.childs["curSongPos"].updateContent(None,None,None)
 
 			del pool
 

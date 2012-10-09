@@ -7,6 +7,7 @@ class GuiObject:
 	"This defines the protocol we must support"
 	
 	parent = None
+	attr = None # if this is a child of something, this is the access attrib of the parent.subjectObject
 	pos = (0,0)
 	size = (0,0)
 	autoresize = (False,False,False,False) # wether to modify x,y,w,h on resize
@@ -22,64 +23,95 @@ class GuiObject:
 	def addChild(self, childGuiObject): pass
 
 	def updateContent(self, ev, args, kwargs):
-		for attr,obj in self.childs.values():
-			if attr.updateHandler:
+		for control in self.childs.values():
+			if control.attr.updateHandler:
 				try:
-					attr.updateHandler(self.subjectObject, attr, ev, args, kwargs)
+					control.attr.updateHandler(self.subjectObject, control.attr, ev, args, kwargs)
 				except:
 					sys.excepthook(*sys.exc_info())
-			obj.updateContent(ev, args, kwargs)
+			control.updateContent(ev, args, kwargs)
 	
-	childs = {} # (attrName -> attr,guiObject) map. this might change...
+	def guiObjectsInLine(self):
+		obj = self
+		while True:
+			if not getattr(obj, "leftGuiObject", None): break
+			obj = obj.leftGuiObject
+		while obj:
+			yield obj
+			obj = getattr(obj, "rightGuiObject", None)
+
+	def layoutLine(self):
+		line = list(self.guiObjectsInLine())
+		minY = min([control.pos[1] for control in line])
+		maxH = max([control.size[1] for control in line])
+		
+		x = self.parent.OuterSpace[0]
+		for control in line:
+			spaceX = self.parent.DefaultSpace[0]
+			if control.attr.spaceX is not None: spaceX = control.attr.spaceX
+
+			w,h = control.size
+			y = minY + (maxH - h) / 2
+			
+			control.pos = (x,y)
+			control.size = (w,h)
+			
+			x += w + spaceX
+
+		varWidthControl = None
+		for control in line:
+			if control.attr.variableWidth:
+				varWidthControl = control
+				break
+		if not varWidthControl:
+			varWidthControl = line[-1]
+		x = self.parent.innerSize[0] - self.parent.OuterSpace[0]
+		for control in reversed(line):
+			w,h = control.size
+			y = control.pos[1]
+	
+			if control is varWidthControl:
+				w = x - control.pos[0]
+				x = control.pos[0]
+				control.pos = (x,y)
+				control.size = (w,h)
+				control.autoresize = (False,False,True,False)
+				break
+			else:
+				x -= w
+				control.pos = (x,y)
+				control.size = (w,h)
+				control.autoresize = (True,False,False,False)
+				x -= self.parent.DefaultSpace[0]
+		
+	
+	firstChildGuiObject = None
+	childs = {} # (attrName -> guiObject) map. this might change...
 	def setupChilds(self):
 		"If this is a container (a generic object), this does the layouting of the childs"
 
+		self.firstChildGuiObject = None
 		self.childs = {}
 		x, y = self.OuterSpace
 		maxX, maxY = 0, 0
 		lastControl = None
-		lastHorizControls = []
 		lastVertControls = []
 		
 		def finishLastHoriz():
 			if not lastControl: return
-			varWidthControl = None
-			for attr,control in lastHorizControls:
-				if attr.variableWidth:
-					varWidthControl = control
-					break
-			if not varWidthControl:
-				varWidthControl = lastControl
-			x = self.innerSize[0] - self.OuterSpace[0]
-			for attr,control in reversed(lastHorizControls):
-				w,h = control.size
-				y = control.pos[1]
-		
-				if control is varWidthControl:
-					w = x - control.pos[0]
-					x = control.pos[0]
-					control.pos = (x,y)
-					control.size = (w,h)
-					control.autoresize = (False,False,True,False)
-					break
-				else:
-					x -= w
-					control.pos = (x,y)
-					control.size = (w,h)
-					control.autoresize = (True,False,False,False)
-					x -= self.DefaultSpace[0]
+			lastControl.layoutLine()
 
 		def finishLastVert():
 			if not lastControl: return
 			varHeightControl = None
-			for attr,control in lastVertControls:
-				if attr.variableHeight:
+			for control in lastVertControls:
+				if control.attr.variableHeight:
 					varHeightControl = control
 					break
 			if not varHeightControl:
 				varHeightControl = lastControl
 			y = self.innerSize[1] - self.OuterSpace[1]
-			for attr,control in reversed(lastVertControls):
+			for control in reversed(lastVertControls):
 				w,h = control.size
 				x = control.pos[0]
 				
@@ -100,8 +132,11 @@ class GuiObject:
 		for attr in iterUserAttribs(self.subjectObject):
 			control = buildControl(attr, self.subjectObject)
 			control.parent = self
+			control.attr = attr
+			if not self.firstChildGuiObject:
+				self.firstChildGuiObject = control
 			self.addChild(control)
-			self.childs[attr.name] = (attr, control)
+			self.childs[attr.name] = control
 			
 			spaceX, spaceY = self.DefaultSpace
 			if attr.spaceX is not None: spaceX = attr.spaceX
@@ -111,20 +146,24 @@ class GuiObject:
 				x = lastControl.pos[0] + lastControl.size[0] + spaceX
 				# y from before
 				w,h = control.size # default
-		
+				control.leftGuiObject = lastControl
+				if lastControl:
+					lastControl.rightGuiObject = control
+				
 			else: # align next below
 				finishLastHoriz()
-				lastHorizControls = []
 				x = self.OuterSpace[0]
 				y = maxY + spaceY
 				w,h = control.size # default
+				control.topGuiObject = lastControl
+				if lastControl:
+					lastControl.bottomGuiObject = control
 				
 			control.pos = (x,y)
 			control.size = (w,h)
 		
 			lastControl = control
-			lastHorizControls += [(attr,control)]
-			lastVertControls += [(attr,control)]
+			lastVertControls += [control]
 			maxX = max(maxX, control.pos[0] + control.size[0])
 			maxY = max(maxY, control.pos[1] + control.size[1])
 		
