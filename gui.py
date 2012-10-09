@@ -63,11 +63,12 @@ class GuiObject:
 					control.autoresize = (False,False,True,False)
 					break
 				else:
-					x -= w + self.DefaultSpace[0]
+					x -= w
 					control.pos = (x,y)
 					control.size = (w,h)
 					control.autoresize = (True,False,False,False)
-		
+					x -= self.DefaultSpace[0]
+
 		def finishLastVert():
 			if not lastControl: return
 			varHeightControl = None
@@ -90,10 +91,11 @@ class GuiObject:
 					control.autoresize = control.autoresize[0:3] + (True,)
 					break
 				else:
-					y -= h + self.DefaultSpace[1]
+					y -= h
 					control.pos = (x,y)
 					control.size = (w,h)
 					control.autoresize = control.autoresize[0:1] + (True,) + control.autoresize[2:4]
+					y -= self.DefaultSpace[1]
 		
 		for attr in iterUserAttribs(self.subjectObject):
 			control = buildControl(attr, self.subjectObject)
