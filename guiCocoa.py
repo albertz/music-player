@@ -123,14 +123,11 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	return control
 
 def buildControlList(userAttr, inst):
-	subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	subview.setTitlePosition_(NSNoTitle)
-	scrollview = NSScrollView.alloc().initWithFrame_(subview.bounds())
+	scrollview = NSScrollView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
-	subview.addSubview_(scrollview)
 
 	control = CocoaGuiObject()
-	control.nativeGuiObject = subview
+	control.nativeGuiObject = scrollview
 	return control
 
 def buildControlObject(userAttr, inst):
