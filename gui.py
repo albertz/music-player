@@ -39,6 +39,7 @@ class GuiObject:
 		maxX, maxY = 0, 0
 		lastControl = None
 		lastHorizControls = []
+		lastVertControls = []
 		
 		def finishLastHoriz():
 			if not lastControl: return
@@ -49,14 +50,13 @@ class GuiObject:
 					break
 			if not varWidthControl:
 				varWidthControl = lastControl
-			x = self.innerSize[0]
+			x = self.innerSize[0] - self.OuterSpace[0]
 			for attr,control in reversed(lastHorizControls):
-				w = control.size[0]
-				h = control.size[1]
+				w,h = control.size
 				y = control.pos[1]
 		
 				if control is varWidthControl:
-					w = x - control.pos[0] - self.OuterSpace[0]
+					w = x - control.pos[0]
 					x = control.pos[0]
 					control.pos = (x,y)
 					control.size = (w,h)
@@ -69,15 +69,31 @@ class GuiObject:
 					control.autoresize = (True,False,False,False)
 		
 		def finishLastVert():
-			if lastControl:
-				h = lastControl.pos[1] + lastControl.size[1] + self.DefaultSpace[1]
-		
-				# make the last one vertically resizable
-				h = self.innerSize[1] - y - self.OuterSpace[1]
-				w = self.innerSize[0] - self.OuterSpace[0] * 2
-				lastControl.pos = (x,y)
-				lastControl.size = (w,h)
-				lastControl.autoresize = (False,False,True,True)
+			if not lastControl: return
+			varHeightControl = None
+			for attr,control in lastVertControls:
+				if attr.variableHeight:
+					varHeightControl = control
+					break
+			if not varHeightControl:
+				varHeightControl = lastControl
+			y = self.innerSize[1] - self.OuterSpace[1]
+			for attr,control in reversed(lastVertControls):
+				w,h = control.size
+				x = control.pos[0]
+				
+				if control is varHeightControl:
+					h = y - control.pos[1]
+					y = control.pos[1]
+					control.pos = (x,y)
+					control.size = (w,h)
+					control.autoresize = control.autoresize[0:3] + (True,)
+					break
+				else:
+					y -= h + self.DefaultSpace[1]
+					control.pos = (x,y)
+					control.size = (w,h)
+					control.autoresize = control.autoresize[0:1] + (True,) + control.autoresize[2:4]
 		
 		for attr in iterUserAttribs(self.subjectObject):
 			control = buildControl(attr, self.subjectObject)
@@ -106,6 +122,7 @@ class GuiObject:
 		
 			lastControl = control
 			lastHorizControls += [(attr,control)]
+			lastVertControls += [(attr,control)]
 			maxX = max(maxX, control.pos[0] + control.size[0])
 			maxY = max(maxY, control.pos[1] + control.size[1])
 		

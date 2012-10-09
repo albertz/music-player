@@ -85,7 +85,7 @@ class State(object):
 	@initBy
 	def curSong(self): return PersistentObject(Song, "cursong.dat")
 
-	@UserAttrib(type=Traits.List, spaceY=0)
+	@UserAttrib(type=Traits.Object, spaceY=0)
 	@initBy
 	def queue(self):
 		import queue

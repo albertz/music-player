@@ -97,7 +97,6 @@ from threading import Lock
 class MainQueue:
 	def __init__(self):
 		self.lock = Lock()
-		self.queue = PersistentObject(deque, "queue.dat", namespace=globals())
 
 		self.generator = RandomSongs([
 			RandomFromSongDatabaseGen,
@@ -107,6 +106,10 @@ class MainQueue:
 		self.checkNextNForBest = 10
 		self.checkLastNForContext = 10
 		self.checkLastInQueueNForContext = 2
+
+	@UserAttrib(type=Traits.List, variableHeight=True)
+	@initBy
+	def queue(self): return PersistentObject(deque, "queue.dat", namespace=globals())
 		
 	def getNextSong(self):
 		with self.lock:
@@ -152,6 +155,7 @@ class MainQueue:
 		song = best[1]
 		return song
 
+	@UserAttrib(type=Traits.Action)
 	def fillUpTo(self, n=10):
 		while True:
 			with self.lock:

@@ -134,7 +134,7 @@ def buildControlList(userAttr, inst):
 	return control
 
 def buildControlObject(userAttr, inst):
-	subview = NSView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	control = CocoaGuiObject()
 	control.nativeGuiObject = subview
 	control.subjectObject = userAttr.__get__(inst)
