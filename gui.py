@@ -12,6 +12,8 @@ class GuiObject:
 	autoresize = (False,False,False,False) # wether to modify x,y,w,h on resize
 	nativeGuiObject = None	
 	subjectObject = None
+	DefaultSpace = (8,8)
+	OuterSpace = (8,8)
 	
 	@property
 	def innerSize(self): return self.size
@@ -33,7 +35,7 @@ class GuiObject:
 		"If this is a container (a generic object), this does the layouting of the childs"
 
 		self.childs = {}
-		x, y = DefaultSpaceX, DefaultSpaceY
+		x, y = self.OuterSpace
 		maxX, maxY = 0, 0
 		lastControl = None
 		lastHorizControls = []
@@ -54,25 +56,25 @@ class GuiObject:
 				y = control.pos[1]
 		
 				if control is varWidthControl:
-					w = x - control.pos[0] - DefaultSpaceY
+					w = x - control.pos[0] - self.OuterSpace[0]
 					x = control.pos[0]
 					control.pos = (x,y)
 					control.size = (w,h)
 					control.autoresize = (False,False,True,False)
 					break
 				else:
-					x -= w + DefaultSpaceY
+					x -= w + self.DefaultSpace[0]
 					control.pos = (x,y)
 					control.size = (w,h)
 					control.autoresize = (True,False,False,False)
 		
 		def finishLastVert():
 			if lastControl:
-				h = lastControl.pos[1] + lastControl.size[1] + DefaultSpaceY
+				h = lastControl.pos[1] + lastControl.size[1] + self.DefaultSpace[1]
 		
 				# make the last one vertically resizable
-				h = self.innerSize[1] - y - DefaultSpaceY
-				w = self.innerSize[0] - DefaultSpaceY * 2
+				h = self.innerSize[1] - y - self.OuterSpace[1]
+				w = self.innerSize[0] - self.OuterSpace[0] * 2
 				lastControl.pos = (x,y)
 				lastControl.size = (w,h)
 				lastControl.autoresize = (False,False,True,True)
@@ -83,8 +85,7 @@ class GuiObject:
 			self.addChild(control)
 			self.childs[attr.name] = (attr, control)
 			
-			spaceX = DefaultSpaceX
-			spaceY = DefaultSpaceY
+			spaceX, spaceY = self.DefaultSpace
 			if attr.spaceX is not None: spaceX = attr.spaceX
 			if attr.spaceY is not None: spaceY = attr.spaceY
 			
@@ -96,7 +97,7 @@ class GuiObject:
 			else: # align next below
 				finishLastHoriz()
 				lastHorizControls = []
-				x = spaceX
+				x = self.OuterSpace[0]
 				y = maxY + spaceY
 				w,h = control.size # default
 				
@@ -114,5 +115,5 @@ class GuiObject:
 		finishLastVert()
 		
 		# Handy for now. This return might change.
-		return (maxX, maxY)
+		return (maxX + self.OuterSpace[0], maxY + self.OuterSpace[1])
 	

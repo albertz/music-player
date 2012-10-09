@@ -134,26 +134,13 @@ def buildControlList(userAttr, inst):
 	return control
 
 def buildControlObject(userAttr, inst):
-	#subview = NSBox.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	#subview.setTitle_(userAttr.name.decode("utf-8"))
-	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 25.0)))
-	label.setBordered_(True)
-	#label.setBezeled_(True)
-	label.setDrawsBackground_(True)
-	label.setEditable_(False)
-	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
-	def update(ev, args, kwargs):
-		labelContent = userAttr.__get__(inst)
-		s = "???"
-		try:
-			s = labelContent.userLongString
-			s = s.decode("utf-8")
-		except: pass			
-		do_in_mainthread(lambda: label.setStringValue_(s), wait=False)
-	
+	subview = NSView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	control = CocoaGuiObject()
-	control.nativeGuiObject = label
-	control.updateContent = update
+	control.nativeGuiObject = subview
+	control.subjectObject = userAttr.__get__(inst)
+	control.OuterSpace = (0,0)
+	w,h = control.setupChilds()
+	control.size = (w,h)
 	return control
 
 def SongDisplayView_MouseClickCallback(x):
@@ -338,8 +325,6 @@ def buildControl(userAttr, inst):
 		return buildControlSongDisplay(userAttr, inst)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
-
-DefaultSpaceX, DefaultSpaceY = 8, 8
 
 window = None
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from utils import *
+import Traits
 from Song import Song
 
 from collections import deque
@@ -43,8 +44,6 @@ class Actions:
 
 actions = Actions()
 
-from player import loadPlayer, PlayerEventCallbacks
-import Traits
 
 class State(object):
 	def playPauseUpdate(self, attrib, *args):
@@ -96,7 +95,9 @@ class State(object):
 	def updates(self): return OnRequestQueue()
 
 	@initBy
-	def player(self): return loadPlayer(self)
+	def player(self):
+		from player import loadPlayer
+		return loadPlayer(self)
 
 	def quit(self):
 		""" This works in all threads except the main thread. It will quit the whole app.

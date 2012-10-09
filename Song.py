@@ -1,4 +1,7 @@
 
+import Traits
+from utils import UserAttrib
+
 class Song:
 	"""
 	The Song object. It represents a Song. It is also compatible to the ffmpeg.player.
@@ -200,6 +203,7 @@ class Song:
 		import os
 		return os.path.basename(self.url)
 
+	@UserAttrib(type=Traits.OneLineText)
 	@property
 	def userLongString(self):
 		import utils

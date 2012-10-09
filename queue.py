@@ -2,6 +2,7 @@ from Song import Song
 from State import state
 from player import PlayerEventCallbacks
 from utils import *
+import Traits
 import math, random
 import appinfo
 
