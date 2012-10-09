@@ -176,6 +176,7 @@ class Client:
 				# maybe no internet connection
 				# dont print an error, dont spam	
 				# wait a bit and retry
+				import time
 				time.sleep(1)
 			except:
 				import sys
