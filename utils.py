@@ -447,6 +447,10 @@ def objc_setClass(obj, clazz):
 	obj.__class__ = clazz
 
 def do_in_mainthread(f, wait=True):
+	from AppKit import NSThread
+	if NSThread.isMainThread():
+		return f()
+
 	try:
 		NSObject = objc.lookUpClass("NSObject")
 		class PyAsyncCallHelper(NSObject):
@@ -455,7 +459,11 @@ def do_in_mainthread(f, wait=True):
 				self.ret = None
 				return self
 			def call_(self, o):
-				self.ret = self.f()
+				try:
+					self.ret = self.f()
+				except:
+					print "Exception in PyAsyncCallHelper call"
+					sys.excepthook(*sys.exc_info())					
 	except:
 		PyAsyncCallHelper = objc.lookUpClass("PyAsyncCallHelper") # already defined earlier
 

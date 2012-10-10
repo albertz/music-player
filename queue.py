@@ -92,11 +92,54 @@ class RandomSongs:
 			yield self.next()
 
 from collections import deque
-from threading import Lock
+from threading import RLock
 
+class ListWrapper: # implements the List trait
+	def __init__(self, owner, list): # parent is supposed to be the MainQueue
+		self.owner = owner
+		self.lock = owner.lock
+		self.list = list
+	
+	def onInsert(self, index, value): pass
+	def onRemove(self, index): pass
+	def onClear(self): pass
+	
+	def insert(self, index, value):
+		with self.lock:
+			self.list.insert(index, value)
+			self.onInsert(index, value)
+	def remove(self, index):
+		with self.lock:
+			self.list.remove(index)
+			self.onRemove(index)
+	def popleft(self):
+		with self.lock:
+			obj = self.list.popleft()
+			self.onRemove(0)
+			return obj
+	def append(self, value):
+		with self.lock:
+			self.list.append(value)
+			self.onInsert(len(self.list)-1, value)
+	def clear(self):
+		with self.lock:
+			self.list.clear()
+			self.onClear()
+	def __getitem__(self, index):
+		with self.lock:
+			return self.list[index]
+	def __len__(self):
+		with self.lock:
+			return len(self.list)
+	
+	# wrap to PersistentObject
+	def save(self):
+		with self.lock:
+			self.list.save()
+		
 class MainQueue:
 	def __init__(self):
-		self.lock = Lock()
+		self.lock = RLock()
 
 		self.generator = RandomSongs([
 			RandomFromSongDatabaseGen,
@@ -109,11 +152,13 @@ class MainQueue:
 
 	@UserAttrib(type=Traits.List, variableHeight=True)
 	@initBy
-	def queue(self): return PersistentObject(deque, "queue.dat", namespace=globals())
+	def queue(self):
+		list = PersistentObject(deque, "queue.dat", namespace=globals())
+		return ListWrapper(self, list)
 		
 	def getNextSong(self):
 		with self.lock:
-			if self.queue:
+			if len(self.queue) > 0:
 				return self.queue.popleft()
 		return getNextSong_auto()
 

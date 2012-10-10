@@ -7,8 +7,9 @@ class TraitType: pass
 # This is not really defined yet/strictly. It is used for now by the GUI.
 
 class List(TraitType):
-	def onInsert(self, index): pass
+	def onInsert(self, index, value): pass
 	def onRemove(self, index): pass
+	def onClear(self): pass
 	
 	@property
 	@contextmanager
@@ -16,6 +17,7 @@ class List(TraitType):
 	
 	def insert(self, index, value): pass
 	def remove(self, index): pass
+	def clear(self): pass
 	def __getitem__(self, index): pass
 	def __len__(self): pass
 	

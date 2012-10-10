@@ -5,35 +5,54 @@ import Traits
 from Song import Song
 
 from collections import deque
+from threading import RLock
 
 class RecentlyplayedList:
+	GuiLimit = 5
 	Limit = 500
 	def __init__(self, list=[], previous=None, index=0):
+		self.lock = RLock()
 		self.index = index
 		self.list = deque(list)
 		self.previous = None
 	def append(self, song):
 		if not song: return
-		self.list.append(song)
-		if len(self.list) >= self.Limit:			
-			newList = PersistentObject(RecentlyplayedList, "recentlyplayed-%i.dat" % self.index, persistentRepr=True)
-			newList.index = self.index
-			newList.list = self.list
-			newList.previous = self.previous
-			newList.save()			
-			self.index += 1
-			self.previous = newList
-			self.list = deque()
+		with self.lock:
+			self.list.append(song)
+			if len(self.list) >= self.Limit:			
+				newList = PersistentObject(RecentlyplayedList, "recentlyplayed-%i.dat" % self.index, persistentRepr=True)
+				newList.index = self.index
+				newList.list = self.list
+				newList.previous = self.previous
+				newList.save()			
+				self.index += 1
+				self.previous = newList
+				self.list = deque()
+				self.onClear()
+			else:
+				self.onInsert(min(len(self.list), self.GuiLimit), song)
+				if len(self.list) > self.GuiLimit: self.onRemove(0)
 	def getLastN(self, n):
 		#return list(self.list)[-n:] # not using this for now as a bit too heavy. I timeit'd it. this is 14 times slower for n=10, len(l)=10000
 		l = self.list # better for multithreading to keep the ref
 		return [l[-i] for i in range(1,min(len(l),n)+1)]
 	def __repr__(self):
 		return "RecentlyplayedList(list=%s, previous=%s, index=%i)" % (
-			betterRepr(self.list),
+			betterRepr(list(self.list)),
 			betterRepr(self.previous),
 			self.index)
-
+	
+	def onInsert(self, index, value): pass
+	def onRemove(self, index): pass
+	def onClear(self): pass
+	def __getitem__(self, index):
+		with self.lock:
+			if index >= 0 and len(self.list) > self.GuiLimit:
+				return self.list[len(self.list) - self.GuiLimit + index]
+			else:
+				return self.list[index]
+	def __len__(self):
+		return min(len(self.list), self.GuiLimit)
 
 
 class Actions:

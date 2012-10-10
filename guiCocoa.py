@@ -134,11 +134,64 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	return control
 
 def buildControlList(userAttr, inst):
+	list = userAttr.__get__(inst)
 	scrollview = NSScrollView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable|NSViewMinXMargin|NSViewMaxXMargin)
+	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable)
 
 	control = CocoaGuiObject()
 	control.nativeGuiObject = scrollview
+	control.guiObjectList = []
+	control.subjectObject = list
+	control.OuterSpace = (0,0)
+	
+	def doUpdate():
+		x,y = 0,0
+		for subCtr in control.guiObjectList:
+			w = control.innerSize[0]
+			h = subCtr.size[1]
+			subCtr.pos = (x,y)
+			subCtr.size = (w,h)
+			y += subCtr.size[1]
+		scrollview.contentView().setFrameSize_((control.innerSize[0], y))
+	def update(): do_in_mainthread(doUpdate, wait=False)
+	
+	class AttrWrapper:
+		def __init__(self, index):
+			self.index = index
+		def __get__(self, inst):
+			return inst[self.index]
+	def buildControlForIndex(index):
+		subCtr = buildControlObject(AttrWrapper(index), list)
+		subCtr.autoresize = (False,False,True,False)
+		scrollview.contentView().addSubview_(subCtr.nativeGuiObject)
+		subCtr.parent = control
+		return subCtr
+	
+	with list.lock:
+		control.guiObjectList = [buildControlForIndex(i) for i in range(len(list))]
+		doUpdate()
+		
+		def list_onInsert(index, value):
+			do_in_mainthread(lambda: control.guiObjectList.insert(index, buildControlForIndex(index)), wait=False)
+			update()
+		def list_onRemove(index):
+			def doRemove():
+				control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
+				del control.guiObjectList[index]
+			do_in_mainthread(doRemove, wait=False)			
+			update()
+		def list_onClear():
+			def removeAll():
+				for subCtr in control.guiObjectList:
+					control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
+				control.guiObjectList = []
+			do_in_mainthread(removeAll, wait=False)
+			update()
+		
+		for ev in ["onInsert","onRemove","onClear"]:
+			setattr(list, ev, locals()["list_" + ev])
+		
 	return control
 
 def buildControlObject(userAttr, inst):
