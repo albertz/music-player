@@ -118,6 +118,7 @@ class UserAttrib(object):
 				 autosizeWidth=False,
 				 highlight=False, lowlight=False,
 				 canHaveFocus=False,
+				 withBorder=False,
 				 ):
 		self.name = name
 		self.type = type
@@ -132,6 +133,7 @@ class UserAttrib(object):
 		self.highlight = highlight
 		self.lowlight = lowlight
 		self.canHaveFocus = canHaveFocus
+		self.withBorder = withBorder
 		self.__class__.staticCounter += 1
 		# Keep an index. This is so that we know the order of initialization later on.
 		# This is better for the GUI representation so we can order it the same way

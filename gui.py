@@ -22,6 +22,12 @@ class GuiObject:
 	def innerSize(self): return self.size
 	
 	def addChild(self, childGuiObject): pass
+	
+	def allParents(self):
+		obj = self
+		while obj:
+			yield obj
+			obj = obj.parent
 
 	def childIter(self): return self.childs.itervalues()
 	

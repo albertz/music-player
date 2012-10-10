@@ -79,14 +79,14 @@ class State(object):
 	def nextSong(self):
 		self.player.nextSong()
 
-	@UserAttrib(type=Traits.OneLineText, alignRight=True, variableWidth=True)
+	@UserAttrib(type=Traits.OneLineText, alignRight=True, variableWidth=True, withBorder=True)
 	@property
 	def curSongStr(self):
 		if not self.player.curSong: return ""
 		try: return self.player.curSong.userString
 		except: return "???"
 
-	@UserAttrib(type=Traits.OneLineText, alignRight=True, autosizeWidth=True)
+	@UserAttrib(type=Traits.OneLineText, alignRight=True, autosizeWidth=True, withBorder=True)
 	@property
 	def curSongPos(self):
 		if not self.player.curSong: return ""

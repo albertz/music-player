@@ -106,8 +106,9 @@ def buildControlAction(control):
 def buildControlOneLineTextLabel(control):
 	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 22.0)))
 	label.setBordered_(False)
-	#label.setBezeled_(True)
-	#label.setBezelStyle_(NSTextFieldRoundedBezel)
+	if control.attr.withBorder:
+		label.setBezeled_(True)
+		label.setBezelStyle_(NSTextFieldRoundedBezel)
 	label.setDrawsBackground_(True)
 	label.setBackgroundColor_(NSColor.whiteColor())
 	label.setEditable_(False)
@@ -125,10 +126,10 @@ def buildControlOneLineTextLabel(control):
 		except: pass
 		def do_update():
 			label.setStringValue_(s)
-			if control.attr.highlight:
-				label.setBackgroundColor_(NSColor.controlHighlightColor())
-			elif control.attr.lowlight:				
-				label.setBackgroundColor_(NSColor.controlShadowColor())
+			if any([(c.attr and c.attr.highlight) for c in control.allParents()]):
+				label.setBackgroundColor_(NSColor.blueColor())
+			if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
+				label.setTextColor_(NSColor.disabledControlTextColor())
 			if control.attr.autosizeWidth:
 				label.sizeToFit()
 				control.layoutLine()
