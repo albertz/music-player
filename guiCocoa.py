@@ -142,6 +142,7 @@ def buildControlList(userAttr, inst):
 	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
 	scrollview.setHasVerticalScroller_(True)
 	scrollview.setDrawsBackground_(False)
+	scrollview.setBorderType_(NSGrooveBorder)
 	
 	control = CocoaGuiObject()
 	control.nativeGuiObject = scrollview
