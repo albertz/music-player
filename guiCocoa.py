@@ -164,7 +164,6 @@ def buildControlList(control):
 			h = subCtr.size[1]
 			subCtr.pos = (x,y)
 			subCtr.size = (w,h)
-			print subCtr, subCtr.pos
 			y += subCtr.size[1]
 		scrollview.documentView().setFrameSize_((scrollview.contentView().bounds().size.width, y))
 	def update(): do_in_mainthread(doUpdate, wait=False)

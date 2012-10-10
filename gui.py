@@ -99,7 +99,10 @@ class GuiObject:
 		lastVertControls = list(self.childGuiObjectsInColumn())
 		if not lastVertControls: return
 		if not self.autoresize[3]:
-			# maybe set self.size here?
+			w,h = self.size
+			lastCtr = lastVertControls[-1]
+			h = lastCtr.pos[1] + lastCtr.size[1]
+			self.size = (w,h)
 			return
 		varHeightControl = None
 		for control in lastVertControls:
@@ -154,28 +157,28 @@ class GuiObject:
 			if attr.alignRight and lastControl: # align next right
 				x = lastControl.pos[0] + lastControl.size[0] + spaceX
 				# y from before
-				w,h = control.size # default
 				control.leftGuiObject = lastControl
 				if lastControl:
 					lastControl.rightGuiObject = control
 				
-			else: # align next below
+			elif lastControl: # align next below
 				x = self.OuterSpace[0]
 				y = maxY + spaceY
-				w,h = control.size # default
 				control.topGuiObject = lastControl
 				if lastControl:
 					lastControl.layoutLine()
 					lastControl.bottomGuiObject = control
-				
+			
+			else: # very first
+				pass
+			
 			control.pos = (x,y)
-			control.size = (w,h)
 
 			lastControl = control
-		
-			control.updateContent(None,None,None)
 			maxX = max(maxX, control.pos[0] + control.size[0])
 			maxY = max(maxY, control.pos[1] + control.size[1])
+		
+			control.updateContent(None,None,None)
 		
 		if lastControl:
 			lastControl.layoutLine()
