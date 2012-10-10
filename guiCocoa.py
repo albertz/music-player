@@ -137,11 +137,12 @@ def buildControlList(userAttr, inst):
 	list = userAttr.__get__(inst)
 	scrollview = NSScrollView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable|NSViewMinXMargin|NSViewMaxXMargin)
-	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable)
+	scrollview.setDocumentView_(NSFlippedView.alloc().init())
+	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
 
 	control = CocoaGuiObject()
 	control.nativeGuiObject = scrollview
-	control.guiObjectList = []
+	control.guiObjectList = [] # all access on this list is done in the main thread
 	control.subjectObject = list
 	control.OuterSpace = (0,0)
 	
@@ -153,27 +154,28 @@ def buildControlList(userAttr, inst):
 			subCtr.pos = (x,y)
 			subCtr.size = (w,h)
 			y += subCtr.size[1]
-		scrollview.contentView().setFrameSize_((control.innerSize[0], y))
+		scrollview.documentView().setFrameSize_((control.innerSize[0], y))
 	def update(): do_in_mainthread(doUpdate, wait=False)
 	
 	class AttrWrapper:
-		def __init__(self, index):
+		def __init__(self, index, value):
 			self.index = index
+			self.value = value
 		def __get__(self, inst):
-			return inst[self.index]
-	def buildControlForIndex(index):
-		subCtr = buildControlObject(AttrWrapper(index), list)
+			return self.value
+	def buildControlForIndex(index, value):
+		subCtr = buildControlObject(AttrWrapper(index, value), list)
 		subCtr.autoresize = (False,False,True,False)
-		scrollview.contentView().addSubview_(subCtr.nativeGuiObject)
+		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 		subCtr.parent = control
 		return subCtr
 	
 	with list.lock:
-		control.guiObjectList = [buildControlForIndex(i) for i in range(len(list))]
+		control.guiObjectList = [buildControlForIndex(i, list[i]) for i in range(len(list))]
 		doUpdate()
 		
 		def list_onInsert(index, value):
-			do_in_mainthread(lambda: control.guiObjectList.insert(index, buildControlForIndex(index)), wait=False)
+			do_in_mainthread(lambda: control.guiObjectList.insert(index, buildControlForIndex(index, value)), wait=False)
 			update()
 		def list_onRemove(index):
 			def doRemove():
