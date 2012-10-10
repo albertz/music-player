@@ -136,10 +136,13 @@ def buildControlOneLineTextLabel(userAttr, inst):
 def buildControlList(userAttr, inst):
 	list = userAttr.__get__(inst)
 	scrollview = NSScrollView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable|NSViewMinXMargin|NSViewMaxXMargin)
-	scrollview.setDocumentView_(NSFlippedView.alloc().init())
+	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	scrollview.setDocumentView_(NSFlippedView.alloc().initWithFrame_(scrollview.contentView().frame()))
 	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
-
+	scrollview.setHasVerticalScroller_(True)
+	scrollview.setDrawsBackground_(False)
+	
 	control = CocoaGuiObject()
 	control.nativeGuiObject = scrollview
 	control.guiObjectList = [] # all access on this list is done in the main thread
@@ -154,7 +157,7 @@ def buildControlList(userAttr, inst):
 			subCtr.pos = (x,y)
 			subCtr.size = (w,h)
 			y += subCtr.size[1]
-		scrollview.documentView().setFrameSize_((control.innerSize[0], y))
+		scrollview.documentView().setFrameSize_((scrollview.contentView().bounds().size.width, y))
 	def update(): do_in_mainthread(doUpdate, wait=False)
 	
 	class AttrWrapper:
