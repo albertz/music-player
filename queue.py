@@ -201,10 +201,25 @@ class MainQueue:
 		return song
 
 	@UserAttrib(type=Traits.Action)
+	def clear(self):
+		with self.lock:
+			self.queue.clear()
+			self.queue.save()
+			
+	@UserAttrib(type=Traits.Action)
 	def fillUpTo(self, n=10):
 		while True:
 			with self.lock:
 				if len(self.queue) >= n: break
+			nextSong = self.getNextSong_auto()
+			with self.lock:
+				self.queue.append(nextSong)
+		with self.lock:
+			self.queue.save()
+
+	@UserAttrib(type=Traits.Action)
+	def addSome(self, n=10):
+		for i in xrange(n):
 			nextSong = self.getNextSong_auto()
 			with self.lock:
 				self.queue.append(nextSong)
