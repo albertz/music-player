@@ -16,6 +16,8 @@ class GuiObject:
 	DefaultSpace = (8,8)
 	OuterSpace = (8,8)
 	
+	def __repr__(self): return "<%s %r %r>" % (self.__class__.__name__, self.subjectObject, self.attr)
+	
 	@property
 	def innerSize(self): return self.size
 	
@@ -84,7 +86,48 @@ class GuiObject:
 				control.size = (w,h)
 				control.autoresize = (True,False,False,False)
 				x -= self.parent.DefaultSpace[0]
+	
+	def childGuiObjectsInColumn(self):
+		obj = self.firstChildGuiObject
+		while obj:
+			yield obj
+			while getattr(obj, "rightGuiObject", None):
+				obj = obj.rightGuiObject
+			obj = getattr(obj, "bottomGuiObject", None)
 		
+	def layout(self):		
+		lastVertControls = list(self.childGuiObjectsInColumn())
+		if not lastVertControls: return
+		if not self.autoresize[3]:
+			# maybe set self.size here?
+			return
+		varHeightControl = None
+		for control in lastVertControls:
+			if control.attr.variableHeight:
+				varHeightControl = control
+				break
+		if not varHeightControl:
+			varHeightControl = lastVertControls[-1]
+		y = self.innerSize[1] - self.OuterSpace[1]
+		for control in reversed(lastVertControls):
+			w,h = control.size
+			x = control.pos[0]
+			
+			if control is varHeightControl:
+				h = y - control.pos[1]
+				y = control.pos[1]
+				control.pos = (x,y)
+				control.size = (w,h)
+				control.autoresize = control.autoresize[0:3] + (True,)
+				control.layout()
+				break
+			else:
+				y -= h
+				control.pos = (x,y)
+				control.size = (w,h)
+				control.autoresize = control.autoresize[0:1] + (True,) + control.autoresize[2:4]
+				control.layout()
+				y -= self.DefaultSpace[1]
 	
 	firstChildGuiObject = None
 	childs = {} # (attrName -> guiObject) map. this might change...
@@ -96,44 +139,9 @@ class GuiObject:
 		x, y = self.OuterSpace
 		maxX, maxY = 0, 0
 		lastControl = None
-		lastVertControls = []
-		
-		def finishLastHoriz():
-			if not lastControl: return
-			lastControl.layoutLine()
-
-		def finishLastVert():
-			if not lastControl: return
-			varHeightControl = None
-			for control in lastVertControls:
-				if control.attr.variableHeight:
-					varHeightControl = control
-					break
-			if not varHeightControl:
-				varHeightControl = lastControl
-			y = self.innerSize[1] - self.OuterSpace[1]
-			for control in reversed(lastVertControls):
-				w,h = control.size
-				x = control.pos[0]
-				
-				if control is varHeightControl:
-					h = y - control.pos[1]
-					y = control.pos[1]
-					control.pos = (x,y)
-					control.size = (w,h)
-					control.autoresize = control.autoresize[0:3] + (True,)
-					break
-				else:
-					y -= h
-					control.pos = (x,y)
-					control.size = (w,h)
-					control.autoresize = control.autoresize[0:1] + (True,) + control.autoresize[2:4]
-					y -= self.DefaultSpace[1]
 		
 		for attr in iterUserAttribs(self.subjectObject):
-			control = buildControl(attr, self.subjectObject)
-			control.parent = self
-			control.attr = attr
+			control = buildControl(attr, self)
 			if not self.firstChildGuiObject:
 				self.firstChildGuiObject = control
 			self.addChild(control)
@@ -152,27 +160,27 @@ class GuiObject:
 					lastControl.rightGuiObject = control
 				
 			else: # align next below
-				finishLastHoriz()
 				x = self.OuterSpace[0]
 				y = maxY + spaceY
 				w,h = control.size # default
 				control.topGuiObject = lastControl
 				if lastControl:
+					lastControl.layoutLine()
 					lastControl.bottomGuiObject = control
 				
 			control.pos = (x,y)
 			control.size = (w,h)
-		
+
 			lastControl = control
-			lastVertControls += [control]
+		
+			control.updateContent(None,None,None)
 			maxX = max(maxX, control.pos[0] + control.size[0])
 			maxY = max(maxY, control.pos[1] + control.size[1])
 		
-			control.updateContent(None,None,None)
-				
-		finishLastHoriz()
-		finishLastVert()
-		
+		if lastControl:
+			lastControl.layoutLine()
+			self.layout()
+					
 		# Handy for now. This return might change.
 		return (maxX + self.OuterSpace[0], maxY + self.OuterSpace[1])
 	

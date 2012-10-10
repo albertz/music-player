@@ -87,24 +87,23 @@ def setup():
 
 
 
-def buildControlAction(userAttr, inst):
+def buildControlAction(control):
 	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 25.0)))
 	button.setBezelStyle_(NSRoundedBezelStyle)
-	actionTarget = ButtonActionHandler.alloc().initWithArgs(userAttr, inst)
+	actionTarget = ButtonActionHandler.alloc().initWithArgs(control.attr, control.parent.subjectObject)
 	actionTarget.retain() # TODO: where would we release this? ...
 	button.setTarget_(actionTarget)
 	button.setAction_("click")
-	def do_update(): button.setTitle_(userAttr.name.decode("utf-8"))
+	def do_update(): button.setTitle_(control.attr.name.decode("utf-8"))
 	do_update()
 	button.sizeToFit() # to get height
 	button.setFrameSize_((50, button.frame().size.height))
 	def update(ev, args, kwargs): do_in_mainthread(do_update, wait=False)
-	control = CocoaGuiObject()
 	control.nativeGuiObject = button
 	control.updateContent = update
 	return control
 
-def buildControlOneLineTextLabel(userAttr, inst):
+def buildControlOneLineTextLabel(control):
 	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 22.0)))
 	label.setBordered_(False)
 	#label.setBezeled_(True)
@@ -114,11 +113,11 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	label.setEditable_(False)
 	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
-	control = CocoaGuiObject()
 	control.nativeGuiObject = label
 
 	def update(ev, args, kwargs):
-		labelContent = userAttr.__get__(inst)
+		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
+		labelContent = control.subjectObject
 		s = "???"
 		try:
 			s = str(labelContent)
@@ -126,11 +125,11 @@ def buildControlOneLineTextLabel(userAttr, inst):
 		except: pass
 		def do_update():
 			label.setStringValue_(s)
-			if userAttr.highlight:
+			if control.attr.highlight:
 				label.setBackgroundColor_(NSColor.controlHighlightColor())
-			elif userAttr.lowlight:				
+			elif control.attr.lowlight:				
 				label.setBackgroundColor_(NSColor.controlShadowColor())
-			if userAttr.autosizeWidth:
+			if control.attr.autosizeWidth:
 				label.sizeToFit()
 				control.layoutLine()
 		do_in_mainthread(do_update, wait=False)
@@ -138,8 +137,8 @@ def buildControlOneLineTextLabel(userAttr, inst):
 	control.updateContent = update
 	return control
 
-def buildControlList(userAttr, inst):
-	list = userAttr.__get__(inst)
+def buildControlList(control):
+	list = control.subjectObject
 	scrollview = NSScrollView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
@@ -149,12 +148,11 @@ def buildControlList(userAttr, inst):
 	scrollview.setDrawsBackground_(False)
 	scrollview.setBorderType_(NSGrooveBorder)
 	
-	control = CocoaGuiObject()
 	control.nativeGuiObject = scrollview
 	control.guiObjectList = [] # all access on this list is done in the main thread
-	control.subjectObject = list
 	control.OuterSpace = (0,0)
 	control.childIter = lambda: control.guiObjectList
+	control.childGuiObjectsInColumn = lambda: control.guiObjectList
 	
 	@property
 	def childIter(self): return self.childs.itervalues()
@@ -166,9 +164,11 @@ def buildControlList(userAttr, inst):
 			h = subCtr.size[1]
 			subCtr.pos = (x,y)
 			subCtr.size = (w,h)
+			print subCtr, subCtr.pos
 			y += subCtr.size[1]
 		scrollview.documentView().setFrameSize_((scrollview.contentView().bounds().size.width, y))
 	def update(): do_in_mainthread(doUpdate, wait=False)
+	control.layout = doUpdate
 	
 	class AttrWrapper:
 		def __init__(self, index, value):
@@ -177,10 +177,12 @@ def buildControlList(userAttr, inst):
 		def __get__(self, inst):
 			return self.value
 	def buildControlForIndex(index, value):
-		subCtr = buildControlObject(AttrWrapper(index, value), list)
+		subCtr = CocoaGuiObject()
+		subCtr.subjectObject = value
+		subCtr.parent = control
+		buildControlObject(subCtr)
 		subCtr.autoresize = (False,False,True,False)
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
-		subCtr.parent = control
 		return subCtr
 	
 	with list.lock:
@@ -209,11 +211,9 @@ def buildControlList(userAttr, inst):
 			
 	return control
 
-def buildControlObject(userAttr, inst):
+def buildControlObject(control):
 	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	control = CocoaGuiObject()
 	control.nativeGuiObject = subview
-	control.subjectObject = userAttr.__get__(inst)
 	control.OuterSpace = (0,0)
 	w,h = control.setupChilds()
 	control.size = (w,h)
@@ -227,7 +227,9 @@ def SongDisplayView_MouseClickCallback(x):
 	if song.duration < 0: return
 	state.player.seekAbs(x * song.duration)
 
-def buildControlSongDisplay(userAttr, inst):
+def buildControlSongDisplay(control):
+	userAttr = control.attr
+	inst = control.parent.subjectObject
 	try:
 		class SongDisplayView(NSView):
 			def mouseDown_(self, event):
@@ -251,7 +253,6 @@ def buildControlSongDisplay(userAttr, inst):
 
 	from threading import Lock
 	from State import state
-	control = CocoaGuiObject()
 
 	class SongDisplay:
 		def __init__(self):
@@ -383,22 +384,26 @@ def buildControlSongDisplay(userAttr, inst):
 	return control
 
 
-def buildControl(userAttr, inst):
+def buildControl(userAttr, parent):
+	control = CocoaGuiObject()
+	control.parent = parent
+	control.attr = userAttr
+	control.subjectObject = userAttr.__get__(parent.subjectObject)
 	if userAttr.isType(Traits.Action):
-		return buildControlAction(userAttr, inst)
+		return buildControlAction(control)
 	elif userAttr.isType(Traits.OneLineText):
 		if userAttr.writeable:
 			raise NotImplementedError
 		else:
-			return buildControlOneLineTextLabel(userAttr, inst)
+			return buildControlOneLineTextLabel(control)
 	elif userAttr.isType(Traits.Enum):
 		raise NotImplementedError
 	elif userAttr.isType(Traits.List):
-		return buildControlList(userAttr, inst)
+		return buildControlList(control)
 	elif userAttr.isType(Traits.Object):
-		return buildControlObject(userAttr, inst)
+		return buildControlObject(control)
 	elif userAttr.isType(Traits.SongDisplay):
-		return buildControlSongDisplay(userAttr, inst)
+		return buildControlSongDisplay(control)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 
@@ -408,7 +413,7 @@ class CocoaGuiObject(object):
 	def __init__(self):
 		# Do that late because we cannot import gui globally here. (circular dep)
 		import gui
-		self.__class__.__bases__ = (object, gui.GuiObject)
+		self.__class__.__bases__ = (gui.GuiObject, object)
 	
 	nativeGuiObject = None
 	
@@ -449,13 +454,14 @@ def setupWindow():
 
 	win = NSWindow.alloc()
 	win.initWithContentRect_styleMask_backing_defer_(
-		((200.0, 500.0), (500.0, 400.0)),
+		((200.0, 500.0), (400.0, 600.0)),
 		NSTitledWindowMask |
 		NSClosableWindowMask |
 		NSMiniaturizableWindowMask |
 		NSResizableWindowMask,
 		NSBackingStoreBuffered, False)
 	win.setContentView_(NSFlippedView.alloc().init())
+	win.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	
 	import appinfo
 	win.setTitle_(appinfo.progname)
