@@ -231,7 +231,7 @@ def buildControlSongDisplay(control):
 	userAttr = control.attr
 	inst = control.parent.subjectObject
 	try:
-		class SongDisplayView(NSView):
+		class SongDisplayView(NSBox):
 			def mouseDown_(self, event):
 				location = self.convertPoint_fromView_(event.locationInWindow(), None)
 				if NSPointInRect(location, self.bounds()):
@@ -242,12 +242,14 @@ def buildControlSongDisplay(control):
 		SongDisplayView = objc.lookUpClass("SongDisplayView") # already defined earlier
 
 	subview = SongDisplayView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	imgview = NSImageView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
+	subview.setTitlePosition_(NSNoTitle)
+	#subview.setContentViewMargins_((0,0))
+	imgview = NSImageView.alloc().initWithFrame_(subview.contentView().bounds())
 	imgview.setImageScaling_(NSScaleToFit)
-	imgview2 = NSImageView.alloc().initWithFrame_(((0.0, 0.0), (10.0, 80.0)))
+	imgview2 = NSImageView.alloc().initWithFrame_(((0,0), (10, subview.contentView().bounds().size.height)))
 	imgview2.setImageScaling_(NSScaleToFit)
-	subview.addSubview_(imgview)
-	subview.addSubview_(imgview2)
+	subview.contentView().addSubview_(imgview)
+	subview.contentView().addSubview_(imgview2)
 	imgview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	imgview2.setAutoresizingMask_(NSViewHeightSizable|NSViewMinXMargin|NSViewMaxXMargin)
 
