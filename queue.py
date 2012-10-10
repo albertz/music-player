@@ -150,7 +150,7 @@ class MainQueue:
 		self.checkLastNForContext = 10
 		self.checkLastInQueueNForContext = 2
 
-	@UserAttrib(type=Traits.List, variableHeight=True)
+	@UserAttrib(type=Traits.List, variableHeight=True, canHaveFocus=True)
 	@initBy
 	def queue(self):
 		list = PersistentObject(deque, "queue.dat", namespace=globals())

@@ -107,9 +107,10 @@ def buildControlAction(userAttr, inst):
 def buildControlOneLineTextLabel(userAttr, inst):
 	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 22.0)))
 	label.setBordered_(False)
-	label.setBezeled_(True)
-	label.setBezelStyle_(NSTextFieldRoundedBezel)
-	label.setDrawsBackground_(False)
+	#label.setBezeled_(True)
+	#label.setBezelStyle_(NSTextFieldRoundedBezel)
+	label.setDrawsBackground_(True)
+	label.setBackgroundColor_(NSColor.whiteColor())
 	label.setEditable_(False)
 	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
@@ -125,6 +126,10 @@ def buildControlOneLineTextLabel(userAttr, inst):
 		except: pass
 		def do_update():
 			label.setStringValue_(s)
+			if userAttr.highlight:
+				label.setBackgroundColor_(NSColor.controlHighlightColor())
+			elif userAttr.lowlight:				
+				label.setBackgroundColor_(NSColor.controlShadowColor())
 			if userAttr.autosizeWidth:
 				label.sizeToFit()
 				control.layoutLine()
@@ -149,6 +154,10 @@ def buildControlList(userAttr, inst):
 	control.guiObjectList = [] # all access on this list is done in the main thread
 	control.subjectObject = list
 	control.OuterSpace = (0,0)
+	control.childIter = lambda: control.guiObjectList
+	
+	@property
+	def childIter(self): return self.childs.itervalues()
 	
 	def doUpdate():
 		x,y = 0,0
@@ -190,14 +199,14 @@ def buildControlList(userAttr, inst):
 		def list_onClear():
 			def removeAll():
 				for subCtr in control.guiObjectList:
-					control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
-				control.guiObjectList = []
+					subCtr.nativeGuiObject.removeFromSuperview()
+				del control.guiObjectList[:]
 			do_in_mainthread(removeAll, wait=False)
 			update()
 		
 		for ev in ["onInsert","onRemove","onClear"]:
 			setattr(list, ev, locals()["list_" + ev])
-		
+			
 	return control
 
 def buildControlObject(userAttr, inst):

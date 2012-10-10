@@ -19,12 +19,13 @@ class GuiObject:
 	@property
 	def innerSize(self): return self.size
 	
-	def layoutSize(self): pass	
 	def addChild(self, childGuiObject): pass
 
+	def childIter(self): return self.childs.itervalues()
+	
 	def updateContent(self, ev, args, kwargs):
-		for control in self.childs.values():
-			if control.attr.updateHandler:
+		for control in self.childIter():
+			if control.attr and control.attr.updateHandler:
 				try:
 					control.attr.updateHandler(self.subjectObject, control.attr, ev, args, kwargs)
 				except:
