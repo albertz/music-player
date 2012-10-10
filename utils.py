@@ -533,3 +533,9 @@ def intersectFuzzySets(*fuzzySets):
 			resultSet[key] = value
 	return resultSet
 
+
+
+def killMeHard():
+	import sys, os, signal
+	os.kill(0, signal.SIGKILL)
+	
