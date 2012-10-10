@@ -344,7 +344,7 @@ def buildControlSongDisplay(control):
 					if state.player.curSong is not self.curSong: return
 					w = imgview2.frame().size.width
 					h = imgview2.frame().size.height
-					x = subview.bounds().size.width * state.player.curSongPos / self.curSong.duration - w / 2
+					x = subview.contentView().bounds().size.width * state.player.curSongPos / self.curSong.duration - w / 2
 					y = imgview2.frame().origin.y
 					imgview2.setFrame_(((x,y),(w,h)))
 
