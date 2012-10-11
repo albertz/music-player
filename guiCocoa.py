@@ -167,6 +167,13 @@ def buildControlList(control):
 			subCtr.size = (w,h)
 			y += subCtr.size[1]
 		scrollview.documentView().setFrameSize_((scrollview.contentView().bounds().size.width, y))
+		
+		if control.attr.autoScrolldown:
+			scrollview.verticalScroller().setFloatValue_(1)
+			scrollview.contentView().scrollToPoint_(
+				(0, scrollview.documentView().frame().size.height -
+					scrollview.contentSize().height))
+
 	def update(): do_in_mainthread(doUpdate, wait=False)
 	control.layout = doUpdate
 	
