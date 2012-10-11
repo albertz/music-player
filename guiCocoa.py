@@ -109,8 +109,7 @@ def buildControlOneLineTextLabel(control):
 	if control.attr.withBorder:
 		label.setBezeled_(True)
 		label.setBezelStyle_(NSTextFieldRoundedBezel)
-	label.setDrawsBackground_(True)
-	label.setBackgroundColor_(NSColor.whiteColor())
+	label.setDrawsBackground_(False)
 	label.setEditable_(False)
 	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
@@ -127,8 +126,10 @@ def buildControlOneLineTextLabel(control):
 		def do_update():
 			label.setStringValue_(s)
 			if any([(c.attr and c.attr.highlight) for c in control.allParents()]):
+				label.setDrawsBackground_(True)
 				label.setBackgroundColor_(NSColor.blueColor())
 			if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
+				label.setDrawsBackground_(True)
 				label.setTextColor_(NSColor.disabledControlTextColor())
 			if control.attr.autosizeWidth:
 				label.sizeToFit()
@@ -155,9 +156,6 @@ def buildControlList(control):
 	control.childIter = lambda: control.guiObjectList
 	control.childGuiObjectsInColumn = lambda: control.guiObjectList
 	
-	@property
-	def childIter(self): return self.childs.itervalues()
-	
 	def doUpdate():
 		x,y = 0,0
 		for subCtr in control.guiObjectList:
@@ -177,18 +175,21 @@ def buildControlList(control):
 	def update(): do_in_mainthread(doUpdate, wait=False)
 	control.layout = doUpdate
 	
-	class AttrWrapper:
-		def __init__(self, index, value):
+	class AttrWrapper(UserAttrib):
+		def __init__(self, index, value, parent):
+			UserAttrib.__init__(self)
 			self.index = index
 			self.value = value
+			self.canHaveFocus = parent.attr.canHaveFocus
 		def __get__(self, inst):
 			return self.value
 	def buildControlForIndex(index, value):
 		subCtr = CocoaGuiObject()
 		subCtr.subjectObject = value
 		subCtr.parent = control
+		subCtr.attr = AttrWrapper(index, value, control)
 		buildControlObject(subCtr)
-		subCtr.autoresize = (False,False,True,False)
+		subCtr.autoresize = (False,False,True,False)		
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 		return subCtr
 	
@@ -220,10 +221,17 @@ def buildControlList(control):
 
 def buildControlObject(control):
 	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	subview.control = control
 	control.nativeGuiObject = subview
 	control.OuterSpace = (0,0)
 	w,h = control.setupChilds()
 	control.size = (w,h)
+
+	if control.attr.canHaveFocus:
+		subview.setDrawsBackground_(True)
+		subview.onResignFirstResponder = lambda: subview.setBackgroundColor_(NSColor.textBackgroundColor())		
+		subview.onBecomeFirstResponder = lambda: subview.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
+
 	return control
 
 def SongDisplayView_MouseClickCallback(x):

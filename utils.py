@@ -262,6 +262,14 @@ def takeN(iterator, n):
 		i += 1
 	return l
 
+def attrChain(base, *attribs, **kwargs):
+	default = kwargs.get("default", None)
+	obj = base
+	for attr in attribs:
+		if obj is None: return default
+		obj = getattr(obj, attr, None)
+	if obj is None: return default
+	return obj
 
 def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	class Value: pass

@@ -96,11 +96,11 @@ class State(object):
 	@UserAttrib(type=Traits.SongDisplay)
 	def curSongDisplay(self): pass
 
-	@UserAttrib(type=Traits.List, canHaveFocus=True, lowlight=True, autoScrolldown=True)
+	@UserAttrib(type=Traits.List, lowlight=True, autoScrolldown=True)
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-	@UserAttrib(type=Traits.Object, spaceY=0, canHaveFocus=True, highlight=True)
+	@UserAttrib(type=Traits.Object, spaceY=0, highlight=True)
 	@initBy
 	def curSong(self): return PersistentObject(Song, "cursong.dat")
 
