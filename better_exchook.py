@@ -122,7 +122,7 @@ def simple_debug_shell(globals, locals):
 					print("Error printing return value of %r" % s)
 					better_exchook(*sys.exc_info(), autodebugshell=False)
 		
-def debug_shell(user_ns, user_global_ns):
+def debug_shell(user_ns, user_global_ns, execWrapper=None):
 	ipshell = None
 	if not ipshell:
 		# old? doesn't work anymore. but probably has earlier, so leave it
@@ -133,13 +133,18 @@ def debug_shell(user_ns, user_global_ns):
 		except: pass
 	if not ipshell:
 		try:
-			from IPython import embed
+			import IPython
 			class DummyMod(object): pass
 			module = DummyMod()
 			module.__dict__ = user_global_ns
 			module.__name__ = "DummyMod"
-			ipshell = lambda: embed(user_ns=user_ns, user_module=module)
+			ipshell = IPython.frontend.terminal.embed.InteractiveShellEmbed(
+				user_ns=user_ns, user_module=module)
 		except: pass
+		else:
+			if execWrapper:
+				old = ipshell.run_code
+				ipshell.run_code = lambda code: execWrapper(lambda: old(code))
 	if ipshell:
 		ipshell()
 	else:
