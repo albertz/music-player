@@ -83,7 +83,9 @@ def stdinconsoleMain():
 			"queue": queue,
 			}
 		shellGlobals.update(utils.__dict__)
-		debug_shell({}, shellGlobals)
+		debug_shell(
+			shellGlobals, shellGlobals,
+			execWrapper=utils.do_in_mainthread)
 		# The shell exited. Quit.
 		state.quit()
 		return
