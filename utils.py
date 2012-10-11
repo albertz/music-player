@@ -109,6 +109,8 @@ class UserAttrib(object):
 	 don't use this class), if it should be represented as a list, string, etc.
 	 (this is the type, right now all Traits.TraitTypes), some other GUI decoration stuff,
 	 etc.
+	Note that this lays in the utils module because it is completely decoupled
+	from the GUI. It only stores information which might be useful for a GUI.
 	"""
 	staticCounter = 0
 	def __init__(self, name=None, type=None, writeable=False, updateHandler=None,
@@ -119,6 +121,7 @@ class UserAttrib(object):
 				 highlight=False, lowlight=False,
 				 canHaveFocus=False,
 				 withBorder=False,
+				 autoScrolldown=False,
 				 ):
 		self.name = name
 		self.type = type
@@ -134,6 +137,7 @@ class UserAttrib(object):
 		self.lowlight = lowlight
 		self.canHaveFocus = canHaveFocus
 		self.withBorder = withBorder
+		self.autoScrolldown = autoScrolldown
 		self.__class__.staticCounter += 1
 		# Keep an index. This is so that we know the order of initialization later on.
 		# This is better for the GUI representation so we can order it the same way
