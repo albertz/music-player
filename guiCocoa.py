@@ -231,7 +231,8 @@ def buildControlList(control):
 					scrollview.contentView().scrollToPoint_((0, objFrame.origin.y + objFrame.size.height - scrollview.contentSize().height))
 				scrollview.reflectScrolledClipView_(scrollview.contentView())
 			def onFocus(self):
-				self.select()
+				if self.index is None:
+					self.select()
 			def onKeyDown(self, ev):
 				if ev.keyCode() == 125: # down
 					if self.index is None:
@@ -245,11 +246,19 @@ def buildControlList(control):
 					elif self.index > 0:
 						self.select(self.index - 1)
 					return True
-
+			def onMouseDown(self, ev):
+				self.deselect()
+				mouseLoc = scrollview.contentView().convertPoint_toView_(ev.locationInWindow(), None)
+				for index,obj in enumerate(control.guiObjectList):
+					if NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
+						self.select(index)
+						return True
+			
 		control.select = SelectionHandling()
 		view.onBecomeFirstResponder = control.select.onFocus
 		view.onKeyDown = control.select.onKeyDown
-	
+		view.onMouseDown = control.select.onMouseDown
+		
 	with list.lock:
 		control.guiObjectList = [buildControlForIndex(i, list[i]) for i in range(len(list))]
 		doUpdate()
