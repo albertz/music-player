@@ -16,6 +16,8 @@ try:
 		control = None
 		onBecomeFirstResponder = None
 		onResignFirstResponder = None
+		onKeyDown = None
+		onKeyUp = None
 		_drawsBackground = False
 		_backgroundColor = None
 		def isFlipped(self): return True
@@ -48,7 +50,13 @@ try:
 				return True
 			else:
 				return False
-		
+		def keyDown_(self, ev):
+			if not self.onKeyDown or not self.onKeyDown(ev):
+				NSView.keyDown_(self, ev)
+		def keyUp_(self, ev):
+			if not self.onKeyUp or not self.onKeyUp(ev):
+				NSView.keyUp_(self, ev)
+
 except:
 	NSFlippedView = objc.lookUpClass("NSFlippedView")
 

@@ -141,16 +141,20 @@ def buildControlOneLineTextLabel(control):
 
 def buildControlList(control):
 	list = control.subjectObject
-	scrollview = NSScrollView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	scrollview = NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
 	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
-	scrollview.setDocumentView_(NSFlippedView.alloc().initWithFrame_(scrollview.contentView().frame()))
+	scrollview.setDocumentView_(NSFlippedView.alloc().initWithFrame_(((0,0),scrollview.contentSize())))
 	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
 	scrollview.setHasVerticalScroller_(True)
 	scrollview.setDrawsBackground_(False)
 	scrollview.setBorderType_(NSGrooveBorder)
+	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
+	view.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	view.addSubview_(scrollview)
+	view.control = control
 	
-	control.nativeGuiObject = scrollview
+	control.nativeGuiObject = view
 	control.guiObjectList = [] # all access on this list is done in the main thread
 	control.OuterSpace = (0,0)
 	control.childIter = lambda: control.guiObjectList
@@ -159,12 +163,12 @@ def buildControlList(control):
 	def doUpdate():
 		x,y = 0,0
 		for subCtr in control.guiObjectList:
-			w = control.innerSize[0]
+			w = scrollview.contentSize().width
 			h = subCtr.size[1]
 			subCtr.pos = (x,y)
 			subCtr.size = (w,h)
 			y += subCtr.size[1]
-		scrollview.documentView().setFrameSize_((scrollview.contentView().bounds().size.width, y))
+		scrollview.documentView().setFrameSize_((scrollview.contentSize().width, y))
 		
 		if control.attr.autoScrolldown:
 			scrollview.verticalScroller().setFloatValue_(1)
@@ -180,7 +184,6 @@ def buildControlList(control):
 			UserAttrib.__init__(self)
 			self.index = index
 			self.value = value
-			self.canHaveFocus = parent.attr.canHaveFocus
 		def __get__(self, inst):
 			return self.value
 	def buildControlForIndex(index, value):
@@ -191,32 +194,89 @@ def buildControlList(control):
 		buildControlObject(subCtr)
 		subCtr.autoresize = (False,False,True,False)		
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
+		
+		if control.attr.canHaveFocus:		
+			subCtr.nativeGuiObject.setDrawsBackground_(True)
+
 		return subCtr
+	
+	control.select = None
+	if control.attr.canHaveFocus:
+		class SelectionHandling:
+			# for now, a single index. later maybe a range
+			index = None
+			def onInsert(self, index, value):
+				if index < self.index: self.index += 1
+			def onRemove(self, index):
+				if index < self.index: self.index -= 1
+			def onClear(self):
+				self.index = None
+			def deselect(self):
+				if self.index is not None:
+					control.guiObjectList[self.index].nativeGuiObject.setBackgroundColor_(NSColor.textBackgroundColor())
+					self.index = None
+			def select(self, index=None):
+				self.deselect()
+				if index is None:
+					if len(control.guiObjectList) == 0: return
+					index = 0
+				self.index = index
+				control.guiObjectList[index].nativeGuiObject.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
+				
+				objFrame = control.guiObjectList[index].nativeGuiObject.frame()
+				visibleFrame = scrollview.contentView().documentVisibleRect()
+				if objFrame.origin.y < visibleFrame.origin.y:				
+					scrollview.contentView().scrollToPoint_((0, objFrame.origin.y))
+				elif objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height:
+					scrollview.contentView().scrollToPoint_((0, objFrame.origin.y + objFrame.size.height - scrollview.contentSize().height))
+				scrollview.reflectScrolledClipView_(scrollview.contentView())
+			def onFocus(self):
+				self.select()
+			def onKeyDown(self, ev):
+				if ev.keyCode() == 125: # down
+					if self.index is None:
+						self.select()
+					elif self.index < len(control.guiObjectList) - 1:
+						self.select(self.index + 1)
+					return True
+				elif ev.keyCode() == 126: # up
+					if self.index is None:
+						self.select()
+					elif self.index > 0:
+						self.select(self.index - 1)
+					return True
+
+		control.select = SelectionHandling()
+		view.onBecomeFirstResponder = control.select.onFocus
+		view.onKeyDown = control.select.onKeyDown
 	
 	with list.lock:
 		control.guiObjectList = [buildControlForIndex(i, list[i]) for i in range(len(list))]
 		doUpdate()
 		
 		def list_onInsert(index, value):
-			do_in_mainthread(lambda: control.guiObjectList.insert(index, buildControlForIndex(index, value)), wait=False)
-			update()
+			control.guiObjectList.insert(index, buildControlForIndex(index, value))
+			doUpdate()
 		def list_onRemove(index):
-			def doRemove():
-				control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
-				del control.guiObjectList[index]
-			do_in_mainthread(doRemove, wait=False)			
-			update()
+			control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
+			del control.guiObjectList[index]
+			doUpdate()
 		def list_onClear():
-			def removeAll():
-				for subCtr in control.guiObjectList:
-					subCtr.nativeGuiObject.removeFromSuperview()
-				del control.guiObjectList[:]
-			do_in_mainthread(removeAll, wait=False)
-			update()
+			for subCtr in control.guiObjectList:
+				subCtr.nativeGuiObject.removeFromSuperview()
+			del control.guiObjectList[:]
+			doUpdate()
 		
 		for ev in ["onInsert","onRemove","onClear"]:
-			setattr(list, ev, locals()["list_" + ev])
-			
+			f = locals()["list_" + ev]
+			def wrap(f=f, ev=ev):
+				def handler(*args):
+					if control.select: getattr(control.select, ev)(*args)
+					f(*args)
+				return lambda *args: do_in_mainthread(lambda: handler(*args), wait=False)
+			setattr(list, ev, wrap())
+	
+	
 	return control
 
 def buildControlObject(control):
