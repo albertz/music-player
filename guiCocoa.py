@@ -247,7 +247,7 @@ def buildControlList(control):
 						self.select(self.index - 1)
 					return True
 			def onMouseDown(self, ev):
-				self.deselect()
+				view.window().makeFirstResponder_(view)
 				mouseLoc = scrollview.contentView().convertPoint_toView_(ev.locationInWindow(), None)
 				for index,obj in enumerate(control.guiObjectList):
 					if NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
