@@ -108,35 +108,35 @@ class ListWrapper: # implements the List trait
 		with self.lock:
 			self.list.insert(index, value)
 			self.onInsert(index, value)
+			self.list.save()
 	def remove(self, index):
 		with self.lock:
-			self.list.remove(index)
+			del self.list[index]
 			self.onRemove(index)
+			self.list.save()
 	def popleft(self):
 		with self.lock:
 			obj = self.list.popleft()
 			self.onRemove(0)
+			self.list.save()
 			return obj
 	def append(self, value):
 		with self.lock:
 			self.list.append(value)
 			self.onInsert(len(self.list)-1, value)
+			self.list.save()
 	def clear(self):
 		with self.lock:
 			self.list.clear()
 			self.onClear()
+			self.list.save()
 	def __getitem__(self, index):
 		with self.lock:
 			return self.list[index]
 	def __len__(self):
 		with self.lock:
 			return len(self.list)
-	
-	# wrap to PersistentObject
-	def save(self):
-		with self.lock:
-			self.list.save()
-		
+			
 class MainQueue:
 	def __init__(self):
 		self.lock = RLock()
@@ -202,9 +202,7 @@ class MainQueue:
 
 	@UserAttrib(type=Traits.Action)
 	def clear(self):
-		with self.lock:
-			self.queue.clear()
-			self.queue.save()
+		self.queue.clear()
 			
 	@UserAttrib(type=Traits.Action)
 	def fillUpTo(self, n=10):
@@ -212,19 +210,13 @@ class MainQueue:
 			with self.lock:
 				if len(self.queue) >= n: break
 			nextSong = self.getNextSong_auto()
-			with self.lock:
-				self.queue.append(nextSong)
-		with self.lock:
-			self.queue.save()
+			self.queue.append(nextSong)
 
 	@UserAttrib(type=Traits.Action)
 	def addSome(self, n=10):
 		for i in xrange(n):
 			nextSong = self.getNextSong_auto()
-			with self.lock:
-				self.queue.append(nextSong)
-		with self.lock:
-			self.queue.save()
+			self.queue.append(nextSong)
 
 queue = MainQueue()
 

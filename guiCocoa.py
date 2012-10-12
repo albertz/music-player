@@ -209,6 +209,7 @@ def buildControlList(control):
 				if index < self.index: self.index += 1
 			def onRemove(self, index):
 				if index < self.index: self.index -= 1
+				elif index == self.index: self.deselect()
 			def onClear(self):
 				self.index = None
 			def deselect(self):
@@ -234,6 +235,7 @@ def buildControlList(control):
 				if self.index is None:
 					self.select()
 			def onKeyDown(self, ev):
+				# see HIToolbox/Events.h for keycodes
 				if ev.keyCode() == 125: # down
 					if self.index is None:
 						self.select()
@@ -246,6 +248,20 @@ def buildControlList(control):
 					elif self.index > 0:
 						self.select(self.index - 1)
 					return True
+				elif ev.keyCode() == 0x33: # delete
+					if self.index is not None:
+						index = self.index
+						if self.index > 0:
+							self.select(self.index - 1)
+						list.remove(index)
+						return True
+				elif ev.keyCode() == 0x75: # forward delete
+					if self.index is not None:
+						index = self.index
+						if self.index < len(control.guiObjectList) - 1:
+							self.select(self.index + 1)
+						list.remove(index)
+						return True
 			def onMouseDown(self, ev):
 				view.window().makeFirstResponder_(view)
 				mouseLoc = scrollview.contentView().convertPoint_toView_(ev.locationInWindow(), None)
