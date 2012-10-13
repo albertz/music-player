@@ -17,6 +17,9 @@ Features of this player:
 * support of most important sound formats
 * advanced intelligent DJ mode
 * simple music database
+* ReplayGain / audio volume normalization
+* Last.fm
+* AcoustID fingerprint
 
 About the DJ mode, what I want (maybe some of these somewhat configurable):
 
@@ -38,9 +41,8 @@ About the database:
 
 TODO / possible additional missing features:
 
-* [Volume normalization](http://en.wikipedia.org/wiki/Audio_normalization). I guess just [ReplayGain](http://en.wikipedia.org/wiki/ReplayGain) support.
 * [Gapless playback](http://en.wikipedia.org/wiki/Gapless_playback). I think ffmpeg provides some way to get the exact specified start/end of a song. Otherwise this is just a question of buffering.
-* beat frequency determination and clever DJ-like fading
+* BPM determination and clever DJ-like fading
 * echoprint.me or similar song determination (mostly for metadata, esp. if missing)
 * use tags given by Last.fm (mostly more tags)
 * integrate iTunes database (rating, volume normalization, metatags)
