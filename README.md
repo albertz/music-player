@@ -21,6 +21,8 @@ Features of this player:
 * Last.fm
 * AcoustID fingerprint
 
+![MusicPlayer screenshot](https://github.com/albertz/music-player/raw/master/screenshot.png)
+
 About the DJ mode, what I want (maybe some of these somewhat configurable):
 
 * continuously always add songs
