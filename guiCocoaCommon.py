@@ -20,6 +20,10 @@ try:
 		onKeyUp = None
 		onMouseDown = None
 		onMouseUp = None
+		onDraggingEntered = None
+		onDraggingUpdated = None
+		onDraggingExited = None
+		onPerformDragOperation = None
 		_drawsBackground = False
 		_backgroundColor = None
 		def isFlipped(self): return True
@@ -64,6 +68,21 @@ try:
 		def mouseUp_(self, ev):
 			if not self.onMouseUp or not self.onMouseUp(ev):
 				NSView.mouseUp_(self, ev)
+		def draggingEntered_(self, sender):
+			if self.onDraggingEntered: self.onDraggingEntered(sender)
+			return self.draggingUpdated_(sender)
+		def draggingUpdated_(self, sender):
+			if self.onDraggingUpdated: self.onDraggingUpdated(sender)
+			return NSDragOperationGeneric
+		def draggingExited_(self, sender):
+			if self.onDraggingExited: self.onDraggingExited(sender)
+		def prepareForDragOperation_(self, sender):
+			return True
+		def performDragOperation_(self, sender):
+			if self.onPerformDragOperation and self.onPerformDragOperation(sender):
+				return True
+			return False
+
 
 except:
 	NSFlippedView = objc.lookUpClass("NSFlippedView")

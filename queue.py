@@ -116,7 +116,7 @@ class ListWrapper: # implements the List trait
 			self.list.save()
 	def popleft(self):
 		with self.lock:
-			obj = self.list.popleft()
+			obj = self.list.pop(0)
 			self.onRemove(0)
 			self.list.save()
 			return obj
@@ -150,11 +150,17 @@ class MainQueue:
 		self.checkLastNForContext = 10
 		self.checkLastInQueueNForContext = 2
 
-	@UserAttrib(type=Traits.List, variableHeight=True, canHaveFocus=True)
+	def queueDragHandler(self, index, files):
+		for fn in files:
+			self.queue.insert(index, Song(fn))
+			index += 1
+		return True
+
+	@UserAttrib(type=Traits.List, variableHeight=True, canHaveFocus=True, dragHandler=queueDragHandler)
 	@initBy
 	def queue(self):
-		list = PersistentObject(deque, "queue.dat", namespace=globals())
-		return ListWrapper(self, list)
+		l = PersistentObject(list, "queue.dat", namespace=globals())
+		return ListWrapper(self, l)
 		
 	def getNextSong(self):
 		with self.lock:

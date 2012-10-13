@@ -122,6 +122,7 @@ class UserAttrib(object):
 				 canHaveFocus=False,
 				 withBorder=False,
 				 autoScrolldown=False,
+				 dragHandler=None,
 				 ):
 		self.name = name
 		self.type = type
@@ -138,6 +139,7 @@ class UserAttrib(object):
 		self.canHaveFocus = canHaveFocus
 		self.withBorder = withBorder
 		self.autoScrolldown = autoScrolldown
+		self.dragHandler = dragHandler
 		self.__class__.staticCounter += 1
 		# Keep an index. This is so that we know the order of initialization later on.
 		# This is better for the GUI representation so we can order it the same way
@@ -338,7 +340,9 @@ def PersistentObject(baseType, filename, persistentRepr = False, namespace = Non
 		else:
 			g.update(namespace)
 		obj = eval(f.read(), g)
-		assert isinstance(obj, baseType)
+		# Try to convert.
+		if not isinstance(obj, baseType):
+			obj = baseType(obj)
 		return obj
 	def save(obj):
 		s = betterRepr(obj.__get__(None))

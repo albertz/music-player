@@ -264,7 +264,7 @@ def buildControlList(control):
 						return True
 			def onMouseDown(self, ev):
 				view.window().makeFirstResponder_(view)
-				mouseLoc = scrollview.contentView().convertPoint_toView_(ev.locationInWindow(), None)
+				mouseLoc = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
 				for index,obj in enumerate(control.guiObjectList):
 					if NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
 						self.select(index)
@@ -274,6 +274,50 @@ def buildControlList(control):
 		view.onBecomeFirstResponder = control.select.onFocus
 		view.onKeyDown = control.select.onKeyDown
 		view.onMouseDown = control.select.onMouseDown
+	
+	control.dragHandler = None
+	if control.attr.dragHandler:
+		view.registerForDraggedTypes_([NSFilenamesPboardType])
+		class DragHandler:
+			index = None
+			def __init__(self):
+				view = NSFlippedView.alloc().initWithFrame_(((0,0),(scrollview.contentSize().width,2)))
+				view.setAutoresizingMask_(NSViewWidthSizable)
+				view.setBackgroundColor_(NSColor.blackColor())
+				self.guiCursor = view
+				scrollview.documentView().addSubview_(view)
+			def onDraggingUpdated(self, sender):
+				self.guiCursor.setDrawsBackground_(True)
+				scrollview.documentView().addSubview_positioned_relativeTo_(self.guiCursor, NSWindowAbove, None)
+				dragLoc = scrollview.documentView().convertPoint_toView_(sender.draggingLocation(), None)
+				self.index = 0
+				y = 0
+				for index,obj in enumerate(control.guiObjectList):
+					frame = obj.nativeGuiObject.frame()
+					if dragLoc.y > frame.origin.y + frame.size.height / 2:
+						self.index = index + 1
+						y = frame.origin.y + frame.size.height
+					else:
+						break
+				self.guiCursor.setFrameOrigin_((0,y - 1))
+			def onDraggingExited(self, sender):
+				self.guiCursor.setDrawsBackground_(False)
+				self.index = None
+			def onPerformDragOperation(self, sender):
+				self.guiCursor.setDrawsBackground_(False)
+				import __builtin__
+				try:
+					return control.attr.dragHandler(
+						control.parent.subjectObject,
+						self.index,
+						__builtin__.list(sender.draggingPasteboard().propertyListForType_(NSFilenamesPboardType)))
+				except:
+					sys.excepthook(*sys.exc_info())
+					return False
+		control.dragHandler = DragHandler()
+		view.onDraggingUpdated = control.dragHandler.onDraggingUpdated
+		view.onDraggingExited = control.dragHandler.onDraggingExited
+		view.onPerformDragOperation = control.dragHandler.onPerformDragOperation	
 		
 	with list.lock:
 		control.guiObjectList = [buildControlForIndex(i, list[i]) for i in range(len(list))]
