@@ -416,7 +416,11 @@ class Module:
 		self.thread.cancel = True
 		if waitQueue: waitQueue.setCancel()
 		if join:
-			self.thread.join()
+			while True:
+				self.thread.join(timeout=1)
+				if not self.thread.isAlive(): break
+				sys.stdout.write("Warning: module %s thread is hanging at stop\n" % self.name)
+				dumpThread(self.thread.ident)
 	def reload(self):
 		if self.thread and self.thread.isAlive():
 			self.thread.reload = True
@@ -568,3 +572,18 @@ def dumpAllThreads():
 			if line:
 				code.append("  %s" % (line.strip()))
 	print "\n".join(code)
+
+def dumpThread(threadId):
+	import threading, sys, traceback
+	if threadId not in sys._current_frames():
+		print "Thread", threadId, "not found"
+		return
+	
+	code = []
+	stack = sys._current_frames()[threadId]
+	for filename, lineno, name, line in traceback.extract_stack(stack):
+		code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
+		if line:
+			code.append("  %s" % (line.strip()))
+	print "\n".join(code)
+	
