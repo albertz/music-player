@@ -519,8 +519,9 @@ static void closeInputStream(AVFormatContext* formatCtx) {
 			av_free(formatCtx->pb->buffer);
 			formatCtx->pb->buffer = NULL;
 		}
-		av_free(formatCtx->pb);
-		formatCtx->pb = NULL;
+		// avformat_close_input freeing this indirectly? I got a crash here in avio_close
+		//av_free(formatCtx->pb);
+		//formatCtx->pb = NULL;
 	}
 	for(int i = 0; i < formatCtx->nb_streams; ++i) {
 		avcodec_close(formatCtx->streams[i]->codec);
