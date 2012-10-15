@@ -98,6 +98,7 @@ typedef struct {
 	PaStream* outStream;
 	PyObject* dict;
 	int nextSongOnEof;
+	int skipPyExceptions; // for all callbacks, mainly song.readPacket
 	
 	/* Important note about the lock:
 	To avoid deadlocks with on thread waiting on the Python GIL and another on this lock,
@@ -218,7 +219,7 @@ final:
 	Py_XDECREF(args);
 	Py_XDECREF(readPacketFunc);
 	
-	if(PyErr_Occurred())
+	if(player->skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
 	PyGILState_Release(gstate);
@@ -260,7 +261,7 @@ final:
 	Py_XDECREF(args);
 	Py_XDECREF(seekRawFunc);
 	
-	if(PyErr_Occurred())
+	if(player->skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
 	PyGILState_Release(gstate);
@@ -1109,6 +1110,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 
 	player->curSongGainFactor = 1;
 	player->nextSongOnEof = 1;
+	player->skipPyExceptions = 1;
 	player->volume = 0.9f;
 	smoothClip_setX(&player->volumeSmoothClip, 0.95f, 10.0f);
 	
@@ -1485,15 +1487,16 @@ pyGetMetadata(PyObject* self, PyObject* args) {
 	PlayerObject* player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
+	player->skipPyExceptions = 0;
 	Py_INCREF(songObj);
 	player->curSong = songObj;
 	player_openInputStream(player);
+	if(PyErr_Occurred()) goto final;
 	
 	returnObj = player->curSongMetadata;
 	
 final:
-	if(!returnObj) returnObj = Py_None;
-	Py_INCREF(returnObj);
+	Py_XINCREF(returnObj);
 	Py_XDECREF(player);
 	return returnObj;
 }
@@ -1512,11 +1515,13 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
+	player->skipPyExceptions = 0;
 	player->playing = 1; // otherwise audio_decode_frame() wont read
 	player->volume = 1; smoothClip_setX(&player->volumeSmoothClip, 1, 1); // avoid volume adjustments
 	Py_INCREF(songObj);
 	player->curSong = songObj;
 	if(player_openInputStream(player) != 0) goto final;
+	if(PyErr_Occurred()) goto final;
 	if(player->inStream == NULL) goto final;
 	
 	// fpcalc source for reference:
@@ -1555,6 +1560,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
 			goto final;
 		}
+		if(PyErr_Occurred()) goto final;
 	}
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
 	
@@ -1731,6 +1737,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
+	player->skipPyExceptions = 0;
 	player->volume = volume;
 	smoothClip_setX(&player->volumeSmoothClip, volumeSmoothClipX1, volumeSmoothClipX2);
 	player->playing = 1; // otherwise audio_decode_frame() wont read
@@ -1752,11 +1759,13 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 		// (uint8_t *)player->audio_buf, audio_size / 2
 		
 		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
+		if(PyErr_Occurred()) goto final;
 	}
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
 
 	// Seek back.
 	stream_seekAbs(player, 0.0);
+	if(PyErr_Occurred()) goto final;
 	
 	// init the processor
 #define fftSizeLog2 (11)
@@ -1836,6 +1845,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 				break; // probably EOF or so
 			else
 				player->audio_buf_size = audio_size;
+			if(PyErr_Occurred()) goto final;
 			
 			for(size_t i = 0; i < audio_size / 2; ++i) {
 				int16_t* sampleAddr = (int16_t*) player->audio_buf + i;
@@ -2032,6 +2042,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->nextSongOnEof = 0;
+	player->skipPyExceptions = 0;
 	player->playing = 1; // otherwise audio_decode_frame() wont read
 	player->volume = 1; smoothClip_setX(&player->volumeSmoothClip, 1, 1); // avoid volume adjustments
 	assert(!volumeAdjustNeeded(player));
@@ -2040,6 +2051,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	if(PyObject_HasAttrString(songObj, "gain"))
 		printf("pyCalcReplayGain: warning: song has gain already - this will lead to wrong gain calculation\n");
 	if(player_openInputStream(player) != 0) goto final;
+	if(PyErr_Occurred()) goto final;
 	if(player->inStream == NULL) goto final;
 	
 	buffer = malloc(sizeof(ReplayGainBuffer));
@@ -2057,7 +2069,8 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 			break; // probably EOF or so
 		else
 			player->audio_buf_size = audio_size;
-
+		if(PyErr_Occurred()) goto final;
+		
 		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
 				
 		short channel = 0;
@@ -2150,9 +2163,7 @@ static void init() {
 	if(ret != paNoError)
 		Py_FatalError("PortAudio init failed");
 	
-	//#ifndef DEBUG
 	av_log_set_level(0);
-	//#endif
 	avcodec_register_all();
 	av_register_all();
 	
@@ -2188,6 +2199,4 @@ initffmpeg(void)
 		Py_INCREF(EventClass);
 		PyModule_AddObject(m, "Event", EventClass); // takes the ref
 	}
-	
-	
 }
