@@ -26,14 +26,23 @@ def songs(state):
 		song.openFile()
 		yield song
 
+# This is an special extra callback.
+# This is called very first. We do this so that
+# we always have state.curSong right.
+def onSongChange(**kwargs):
+	from State import state
+	state.curSong = kwargs["newSong"]
+
 def loadPlayer(state):
 	import ffmpeg
 	player = ffmpeg.createPlayer()
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
 		cb = EventCallback(targetQueue=state.updates, name=e)
+		if e == "onSongChange":
+			cb.extraCall = onSongChange
 		setattr(PlayerEventCallbacks, e, cb)
 		setattr(player, e, cb)
-	player.queue = songs(state)
+	player.queue = songs(state)	
 	return player
 
 def playerMain():
@@ -41,7 +50,6 @@ def playerMain():
 	#state.player.playing = True
 	for ev,args,kwargs in state.updates.read():
 		if ev is PlayerEventCallbacks.onSongChange:
-			state.curSong = kwargs["newSong"]
 			state.curSong.save()
 			oldSong = kwargs["oldSong"]
 			if oldSong:

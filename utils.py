@@ -61,10 +61,13 @@ class OnRequestQueue:
 		self.queues.remove(q)
 
 class EventCallback:
-	def __init__(self, targetQueue, name=None):
+	def __init__(self, targetQueue, name=None, extraCall=None):
 		self.targetQueue = targetQueue
 		self.name = name
+		self.extraCall = extraCall
 	def __call__(self, *args, **kwargs):
+		if self.extraCall:
+			self.extraCall(*args, **kwargs)
 		self.targetQueue.put((self, args, kwargs))
 	def __repr__(self):
 		return "<EventCallback %s>" % self.name
