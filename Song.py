@@ -112,7 +112,7 @@ class Song:
 		return m
 
 	def fixupMetadata(self, metadata=None):
-		if not metadata: metadata = self.metadata
+		if metadata is None: metadata = self.metadata
 		def fixString(key):
 			if key in metadata:
 				metadata[key] = metadata[key].strip()
@@ -132,7 +132,7 @@ class Song:
 
 	def guessMetadata(self, metadata=None):
 		""" guesses metadata from filename. the current metadata is expected to be fixed (fixupMetadata). """
-		if not metadata: metadata = self.metadata
+		if metadata is None: metadata = self.metadata
 		if "artist" in metadata and "title" in metadata: return # that's enough for most usage, no need to guess
 		import re, os
 		fn = os.path.splitext(self.url)[0]
