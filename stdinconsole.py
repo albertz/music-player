@@ -107,6 +107,9 @@ def stdinconsoleMain():
 			handleInput(ch)
 
 	else:
+		# No stdin handling when we have a GUI
+		return
+	
 		# the GUI is handling the main thread.
 		# it means we dont get stdinQueue updates here.
 		# as we need a way to be able to cancel this,
