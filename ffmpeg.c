@@ -1553,6 +1553,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 			break; // probably EOF or so
 		else
 			player->audio_buf_size = audio_size;
+		if(PyErr_Occurred()) goto final;
 
 		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
 		
@@ -1560,7 +1561,6 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
 			goto final;
 		}
-		if(PyErr_Occurred()) goto final;
 	}
 	double songDuration = (double)totalFrameCount / SAMPLERATE;
 	
@@ -1584,7 +1584,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 final:
 	if(chromaprint_ctx)
 		chromaprint_free(chromaprint_ctx);
-	if(!returnObj) {
+	if(!PyErr_Occurred() && !returnObj) {
 		returnObj = Py_None;
 		Py_INCREF(returnObj);
 	}
@@ -1940,7 +1940,7 @@ final:
 		av_rdft_end(fftCtx);
 	if(samplesBuf)
 		av_free(samplesBuf);
-	if(!returnObj) {
+	if(!PyErr_Occurred() && !returnObj) {
 		returnObj = Py_None;
 		Py_INCREF(returnObj);
 	}
@@ -2122,7 +2122,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	
 final:
 	if(buffer) free(buffer);
-	if(!returnObj) {
+	if(!PyErr_Occurred() && !returnObj) {
 		returnObj = Py_None;
 		Py_INCREF(returnObj);
 	}
