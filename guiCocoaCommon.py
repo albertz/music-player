@@ -114,7 +114,7 @@ try:
 		onInternalDrag = None
 		@objc.typedSelector('i@:@i')
 		def draggingSession_sourceOperationMaskForDraggingContext_(self, session, context):
-			return NSDragOperationGeneric
+			return NSDragOperationAll
 		@objc.typedSelector('v@:@{CGPoint=dd}i')
 		def draggingSession_endedAtPoint_operation_(self, session, screenPoint, operation):
 			if self.onDragEnded: self.onDragEnded(operation)
