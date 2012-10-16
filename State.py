@@ -119,11 +119,14 @@ class State(object):
 		return loadPlayer(self)
 
 	def quit(self):
-		""" This works in all threads except the main thread. It will quit the whole app.
-		For more information about why we do it this way, read the comment in main.py.
-		"""
-		import sys, os, signal
-		os.kill(0, signal.SIGINT)
+		def doQuit():
+			""" This works in all threads except the main thread. It will quit the whole app.
+			For more information about why we do it this way, read the comment in main.py.
+			"""
+			import sys, os, signal
+			os.kill(0, signal.SIGINT)
+		import thread
+		thread.start_new_thread(doQuit, ())
 
 # Only init new state if it is new, not at module reload.
 try:
