@@ -416,11 +416,14 @@ class Module:
 		self.thread.cancel = True
 		if waitQueue: waitQueue.setCancel()
 		if join:
+			timeout = 1
 			while True:
-				self.thread.join(timeout=1)
+				self.thread.join(timeout=timeout)
 				if not self.thread.isAlive(): break
-				sys.stdout.write("Warning: module %s thread is hanging at stop\n" % self.name)
+				sys.stdout.write("\n\nWARNING: module %s thread is hanging at stop\n" % self.name)
 				dumpThread(self.thread.ident)
+				timeout *= 2
+				if timeout > 60: timeout = 60
 	def reload(self):
 		if self.thread and self.thread.isAlive():
 			self.thread.reload = True
