@@ -125,6 +125,9 @@ class State(object):
 			"""
 			import sys, os, signal
 			os.kill(0, signal.SIGINT)
+			sys.stdin.close() # so that the terminal closes, if it is used
+			import gui
+			gui.quit() # might do some additional stuff
 		import thread
 		thread.start_new_thread(doQuit, ())
 

@@ -489,10 +489,13 @@ def do_in_mainthread(f, wait=True):
 			def initWithArgs_(self, f):
 				self.f = f
 				self.ret = None
+				self.exc = None
 				return self
 			def call_(self, o):
 				try:
 					self.ret = self.f()
+				except (KeyboardInterrupt,SystemExit) as exc:
+					self.exc = exc
 				except:
 					print "Exception in PyAsyncCallHelper call"
 					sys.excepthook(*sys.exc_info())					
@@ -501,6 +504,8 @@ def do_in_mainthread(f, wait=True):
 
 	helper = PyAsyncCallHelper.alloc().initWithArgs_(f)
 	helper.performSelectorOnMainThread_withObject_waitUntilDone_(helper.call_, None, wait)
+	if wait and helper.exc:
+		raise helper.exc
 	return helper.ret
 
 def ObjCClassAutorenamer(name, bases, dict):
