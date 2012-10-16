@@ -39,11 +39,13 @@ def update(song):
 				queue.put(("duration", duration))
 				queue.put(("fingerprint_AcoustID", fingerprint))
 
+		except (KeyboardInterrupt,SystemExit):
+			pass
 		except:
 			sys.excepthook(*sys.exc_info())
-			
+		
 		queue.put((None,None))
-
+		
 	from multiprocessing import Process, Queue
 	queue = Queue()
 	Process(target=doCalc, args=(queue,)).start()
@@ -60,8 +62,12 @@ def checkUpdate():
 	songs = [state.curSong]
 	songs += queue.peekNextN(PreloadNextN)
 	
+	import threading
+	curThread = threading.currentThread()
+	
 	for song in songs:
 		if song is None: continue
+		if curThread.cancel: return
 		if needUpdate(song):
 			update(song)
 		
@@ -81,4 +87,3 @@ def preloaderMain():
 		except:
 			sys.excepthook(*sys.exc_info())
 	
-
