@@ -207,7 +207,16 @@ if __name__ == "__main__":
 	sys.exit()
 
 def loadRatings():
-	for fn, rating in ratingsIter():
+	def doCalc(queue):
+		for fn, rating in ratingsIter():
+			queue.put((fn,rating))
+	
+	from multiprocessing import Process, Queue
+	queue = Queue()
+	Process(target=doCalc, args=(queue,)).start()
+	
+	while True:
+		fn, rating = queue.get()
 		ratings[fn] = rating
 
 # do some extra check in case we are reloading this module. don't reload the ratings. takes too long
