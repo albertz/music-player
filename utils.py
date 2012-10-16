@@ -16,6 +16,15 @@ import sys
 import better_exchook
 
 
+class Id:
+	"When you need some unique object with maybe some name, use this"
+	name = None
+	def __init__(self, name=None):
+		self.name = name
+	def __repr__(self):
+		if self.name: return "<Id %s>" % self.name
+		return "<Id %i>" % id(self)
+
 class OnRequestQueue:
 	class QueueEnd:
 		def __init__(self):

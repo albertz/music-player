@@ -6,6 +6,18 @@ import Traits
 import math, random
 import appinfo
 
+
+try:
+	QueueCallbacks
+except NameError:
+	# This is fixed. In case we add some, we have to restart.
+	class QueueCallbacks:
+		onModify = Id("onModify")
+
+
+def putOnModify(*args, **kwargs):
+	state.updates.put((QueueCallbacks.onModify, args, kwargs))
+
 class RandomFileQueueGen:
 	randomQuality = 0.5
 
@@ -109,27 +121,32 @@ class ListWrapper: # implements the List trait
 			self.list.insert(index, value)
 			self.onInsert(index, value)
 			self.list.save()
+		putOnModify()
 	def remove(self, index):
 		with self.lock:
 			del self.list[index]
 			self.onRemove(index)
 			self.list.save()
+		putOnModify()
 	def popleft(self):
 		with self.lock:
 			obj = self.list.pop(0)
 			self.onRemove(0)
 			self.list.save()
 			return obj
+		putOnModify()
 	def append(self, value):
 		with self.lock:
 			self.list.append(value)
 			self.onInsert(len(self.list)-1, value)
 			self.list.save()
+		putOnModify()
 	def clear(self):
 		with self.lock:
 			self.list.clear()
 			self.onClear()
 			self.list.save()
+		putOnModify()
 	def __getitem__(self, index):
 		with self.lock:
 			return self.list[index]

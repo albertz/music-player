@@ -8,8 +8,6 @@ except NameError:
 		onSongChange = None
 		onSongFinished = None
 		onPlayingStateChange = None
-
-	print "load queue"
 	
 def songs(state):
 	if state.curSong:
