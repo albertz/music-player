@@ -53,6 +53,11 @@ class PyAppDelegate(NSObject):
 
 	def applicationShouldTerminate_(self, app):
 		print "AppDelegate quit"
+		try:
+			# in case there are any subprocesses, interrupt them
+			import sys, os, signal
+			os.kill(0, signal.SIGINT)
+		except: pass
 		from State import modules
 		for m in modules: m.stop()
 		return NSTerminateNow
