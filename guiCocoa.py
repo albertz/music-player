@@ -31,8 +31,6 @@ def setupAppleMenu():
 	return m
 
 def setupAfterAppFinishedLaunching(delegate):
-	from State import state
-	state.quit = quit
 	setupAppleMenu()
 	setupWindow()
 	app.updateWindows()
@@ -269,11 +267,42 @@ def buildControlList(control):
 					if NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
 						self.select(index)
 						return True
-			
+			def onInternalDrag(self, receiver, index, filenames):
+				if receiver is control.subjectObject:
+					# internal drag to myself
+					oldIndex = self.index
+					list.remove(oldIndex)
+					if index > oldIndex: index -= 1
+					self.select(index)
+			def onMouseDragged(self, ev):
+				if self.index is not None:
+					guiObj = control.guiObjectList[self.index]
+					songObj = guiObj.subjectObject					
+					pboard = NSPasteboard.pasteboardWithName_(NSDragPboard)
+					pboard.declareTypes_owner_([NSFilenamesPboardType], None)
+					pboard.setPropertyList_forType_([songObj.url], NSFilenamesPboardType)
+					dragImage = NSWorkspace.sharedWorkspace().iconForFile_(songObj.url)
+					dragPosition = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
+					dragPosition.x -= 16
+					dragPosition.y += 32
+					dragSource = DragSource.alloc().init()
+					dragSource.onInternalDrag = self.onInternalDrag
+					scrollview.documentView().dragImage_at_offset_event_pasteboard_source_slideBack_(
+						dragImage,
+						dragPosition,
+						NSZeroSize,
+						ev,
+						pboard,
+						dragSource,
+						False
+					)
+					return True
+				
 		control.select = SelectionHandling()
 		view.onBecomeFirstResponder = control.select.onFocus
 		view.onKeyDown = control.select.onKeyDown
 		view.onMouseDown = control.select.onMouseDown
+		view.onMouseDragged = control.select.onMouseDragged
 	
 	control.dragHandler = None
 	if control.attr.dragHandler:
@@ -307,10 +336,19 @@ def buildControlList(control):
 				self.guiCursor.setDrawsBackground_(False)
 				import __builtin__
 				try:
-					return control.attr.dragHandler(
+					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(NSFilenamesPboardType))
+					ret = control.attr.dragHandler(
 						control.parent.subjectObject,
+						control.subjectObject,
 						self.index,
-						__builtin__.list(sender.draggingPasteboard().propertyListForType_(NSFilenamesPboardType)))
+						filenames)
+					if ret and sender.draggingSource() \
+					and getattr(sender.draggingSource(), "onInternalDrag", None):
+						sender.draggingSource().onInternalDrag(
+							control.subjectObject,
+							self.index,
+							filenames)
+					return ret
 				except:
 					sys.excepthook(*sys.exc_info())
 					return False

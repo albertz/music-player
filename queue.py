@@ -150,9 +150,9 @@ class MainQueue:
 		self.checkLastNForContext = 10
 		self.checkLastInQueueNForContext = 2
 
-	def queueDragHandler(self, index, files):
+	def queueDragHandler(self, queue, index, files):
 		for fn in files:
-			self.queue.insert(index, Song(fn))
+			queue.insert(index, Song(fn))
 			index += 1
 		return True
 

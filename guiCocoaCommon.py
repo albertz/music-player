@@ -19,6 +19,7 @@ try:
 		onKeyDown = None
 		onKeyUp = None
 		onMouseDown = None
+		onMouseDragged = None
 		onMouseUp = None
 		onDraggingEntered = None
 		onDraggingUpdated = None
@@ -65,6 +66,9 @@ try:
 		def mouseDown_(self, ev):
 			if not self.onMouseDown or not self.onMouseDown(ev):
 				NSView.mouseDown_(self, ev)
+		def mouseDragged_(self, ev):
+			if not self.onMouseDragged or not self.onMouseDragged(ev):
+				NSView.mouseDragged_(self, ev)
 		def mouseUp_(self, ev):
 			if not self.onMouseUp or not self.onMouseUp(ev):
 				NSView.mouseUp_(self, ev)
@@ -103,5 +107,22 @@ except:
 	ButtonActionHandler = objc.lookUpClass("ButtonActionHandler") # already defined earlier
 
 
+
+try:
+	class DragSource(NSObject):
+		onDragEnded = None
+		onInternalDrag = None
+		@objc.typedSelector('i@:@i')
+		def draggingSession_sourceOperationMaskForDraggingContext_(self, session, context):
+			return NSDragOperationGeneric
+		@objc.typedSelector('v@:@{CGPoint=dd}i')
+		def draggingSession_endedAtPoint_operation_(self, session, screenPoint, operation):
+			if self.onDragEnded: self.onDragEnded(operation)
+		@objc.typedSelector('v@:@{CGPoint=dd}i')
+		def draggedImage_endedAt_operation_(self, img, pt, operation):
+			if self.onDragEnded: self.onDragEnded(operation)
+		
+except:
+	DragSource = objc.lookUpClass("DragSource")
 
 # keep old pools. there is no real safe way to know whether we still have some refs to objects
