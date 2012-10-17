@@ -156,6 +156,7 @@ for modname in [
 	"stdinconsole",
 	"notifications",
 	"preloader",
+	"songdb",
 ]:
 	if not getModule(modname):
 		modules.append(Module(modname))

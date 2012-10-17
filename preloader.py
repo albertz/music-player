@@ -36,6 +36,8 @@ def update(song):
 				song.openFile()
 				song.gain = 0 # just use original
 				duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
+				from base64 import b64decode
+				fingerprint = b64decode(fingerprint)
 				queue.put(("duration", duration))
 				queue.put(("fingerprint_AcoustID", fingerprint))
 
