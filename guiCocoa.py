@@ -127,8 +127,7 @@ def buildControlOneLineTextLabel(control):
 		labelContent = control.subjectObject
 		s = "???"
 		try:
-			s = str(labelContent)
-			s = s.decode("utf-8")
+			s = convertToUnicode(labelContent)
 		except: pass
 		def do_update():
 			label.setStringValue_(s)
@@ -286,11 +285,12 @@ def buildControlList(control):
 			def onMouseDragged(self, ev):
 				if self.index is not None:
 					guiObj = control.guiObjectList[self.index]
-					songObj = guiObj.subjectObject					
+					songObj = guiObj.subjectObject
+					filename = convertToUnicode(songObj.url)
 					pboard = NSPasteboard.pasteboardWithName_(NSDragPboard)
 					pboard.declareTypes_owner_([NSFilenamesPboardType], None)
-					pboard.setPropertyList_forType_([songObj.url], NSFilenamesPboardType)
-					dragImage = NSWorkspace.sharedWorkspace().iconForFile_(songObj.url)
+					pboard.setPropertyList_forType_([filename], NSFilenamesPboardType)
+					dragImage = NSWorkspace.sharedWorkspace().iconForFile_(filename)
 					dragPosition = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
 					dragPosition.x -= 16
 					dragPosition.y += 32
@@ -346,6 +346,7 @@ def buildControlList(control):
 				import __builtin__
 				try:
 					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(NSFilenamesPboardType))
+					filenames = map(convertToUnicode, filenames)
 					ret = control.attr.dragHandler(
 						control.parent.subjectObject,
 						control.subjectObject,

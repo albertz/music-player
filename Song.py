@@ -109,6 +109,7 @@ class Song:
 		if hasattr(self, "rating"): m["rating"] = self.rating
 		self.fixupMetadata(m)
 		self.guessMetadata(m)
+		self.makeMetadataUnicode(m)
 		return m
 
 	def fixupMetadata(self, metadata=None):
@@ -122,7 +123,14 @@ class Song:
 				del metadata[key]
 		fixString("artist")
 		fixString("title")
-
+		
+	def makeMetadataUnicode(self, metadata=None):
+		import utils
+		if metadata is None: metadata = self.metadata
+		for key, value in metadata.items():
+			if not isinstance(value, str): continue
+			metadata[key] = utils.convertToUnicode(value)
+	
 	_guessRegexps = [
 		"^(.*/)*(?P<artist>.+?)/(?P<album>.+?)/(?P<track>\d+)(\s*-)?\s*(?P<title>.+)$",
 		"^(.*/)*(?P<artist>.+?)\s-\s(?P<title>.+)$",

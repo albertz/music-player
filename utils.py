@@ -576,6 +576,23 @@ def intersectFuzzySets(*fuzzySets):
 	return resultSet
 
 
+def convertToUnicode(value):
+	if isinstance(value, unicode): return value
+	assert isinstance(value, str)
+	try:
+		value = value.decode("utf-8")
+	except UnicodeError:
+		try:
+			value = value.decode() # default
+		except UnicodeError:
+			try:
+				value = value.decode("iso-8859-1")
+			except UnicodeError:
+				value = value.decode("utf-8", "replace")
+				#value = value.replace(u"\ufffd", "?")
+	assert isinstance(value, unicode)
+	return value
+
 
 def killMeHard():
 	import sys, os, signal
