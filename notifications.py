@@ -2,7 +2,8 @@ def notificationsMain():
 	from State import state
 	from player import PlayerEventCallbacks
 	import AppKit
-
+	import utils
+	
 	pool = AppKit.NSAutoreleasePool.alloc().init()
 
 	appDelegate = AppKit.NSApplication.sharedApplication().delegate()
@@ -12,13 +13,11 @@ def notificationsMain():
 	def notifyCurSong():
 		notif = AppKit.NSUserNotification.alloc().init()
 		notif.setTitle_("MusicPlayer")
-		song = state.player.curSong
+		song = state.curSong
+		s = None
 		try:
-			s = None
-			s = song.userString
-			s = s.decode("utf-8")
-		except:
-			s = str(s)
+			s = utils.convertToUnicode(song.userString)
+		except: pass
 		notif.setInformativeText_(s)
 		notifCenter.deliverNotification_(notif)
 		#print "notification:", notif
