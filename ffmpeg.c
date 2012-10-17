@@ -459,12 +459,37 @@ static int stream_component_open(PlayerObject *is, AVFormatContext* ic, int stre
 	return 0;
 }
 
+// this is mostly safe to call
 static char* objStrDup(PyObject* obj) {
 	PyGILState_STATE gstate = PyGILState_Ensure();
-	PyObject* strObj = obj ? PyObject_Str(obj) : NULL;
-	char* str = strObj ? PyString_AsString(strObj) : "<None>";
+	char* str = NULL;
+	PyObject* earlierError = PyErr_Occurred();
+	if(!obj)
+		str = "<None>";
+	else if(PyString_Check(obj))
+		str = PyString_AsString(obj);
+	else {
+		PyObject* strObj = NULL;
+		if(PyUnicode_Check(obj))
+			strObj = PyUnicode_AsUTF8String(obj);
+		else {
+			PyObject* unicodeObj = PyObject_Unicode(obj);
+			if(unicodeObj) {
+				strObj = PyUnicode_AsUTF8String(unicodeObj);
+				Py_DECREF(unicodeObj);
+			}
+		}
+		if(strObj) {
+			str = PyString_AsString(strObj);
+			Py_DECREF(strObj);
+		}
+		else
+			str = "<CantConvertToString>";
+	}
+	if(!earlierError && PyErr_Occurred())
+		PyErr_Print();
+	assert(str);
 	str = strdup(str);
-	Py_XDECREF(strObj);
 	PyGILState_Release(gstate);
 	return str;
 }
