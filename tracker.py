@@ -23,7 +23,7 @@ def track(event, args, kwargs):
 		if "artist" not in newSong.metadata:
 			print "new song metadata is incomplete:", newSong.metadata
 		else:
-			print "new song:", newSong.fileext, ",", newSong.artist, "-", newSong.title, ",", formatTime(newSong.duration)
+			print "new song:", newSong.userLongString.encode("utf-8")
 			pprint(newSong.metadata)
 		lastfm.onSongChange(newSong)
 	if event is PlayerEventCallbacks.onSongFinished:
