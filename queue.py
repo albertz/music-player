@@ -159,7 +159,7 @@ class MainQueue:
 		self.lock = RLock()
 
 		self.generator = RandomSongs([
-			RandomFromSongDatabaseGen,
+			#RandomFromSongDatabaseGen, # no good way right now ...
 			lambda: RandomSongs([
 			(lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
 		])
@@ -168,7 +168,7 @@ class MainQueue:
 		self.checkLastInQueueNForContext = 2
 
 	def queueDragHandler(self, queue, index, files):
-		def doInsert():
+		def doInsert(index=index):
 			for fn in files:
 				queue.insert(index, Song(fn))
 				index += 1
