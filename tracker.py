@@ -5,7 +5,6 @@ Note that later, it might make more sense to have separate
 modules for each online service. Right now, it is just Last.fm. """
 
 from utils import *
-from pprint import pprint
 import sys
 
 from State import state
@@ -24,7 +23,6 @@ def track(event, args, kwargs):
 			print "new song metadata is incomplete:", newSong.metadata
 		else:
 			print "new song:", newSong.userLongString.encode("utf-8")
-			pprint(newSong.metadata)
 		lastfm.onSongChange(newSong)
 	if event is PlayerEventCallbacks.onSongFinished:
 		song = kwargs["song"]
