@@ -219,7 +219,7 @@ class Song(object):
 	# The _estimate_<attrib> functions are expected to be fast.
 	# They return (value,accuracy). They are optional.
 	
-	def _calc_fingerprint_AcoustID(self):
+	def _calc_fingerprint_AcoustId(self):
 		song = Song(url=self.url)
 		song.openFile()
 		song.gain = 0 # just use original
@@ -229,7 +229,7 @@ class Song(object):
 		fingerprint += "==="
 		import base64
 		fingerprint = base64.urlsafe_b64decode(fingerprint)
-		return {"duration": duration, "fingerprint_AcoustID": fingerprint}
+		return {"duration": duration, "fingerprint_AcoustId": fingerprint}
 	
 	def _calc_bmpThumbnail(self):
 		song = Song(url=self.url)

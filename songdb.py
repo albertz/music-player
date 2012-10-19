@@ -44,8 +44,7 @@ class DB:
 		self.db.Put(dbRepr(key), dbRepr(value))
 
 	def __delitem__(self, key):
-		with self.lock:
-			self.db.Delete(dbRepr(key))
+		self.db.Delete(dbRepr(key))
 
 	def setdefault(self, key, value):
 		if key in self:
@@ -53,16 +52,15 @@ class DB:
 		else:
 			self[key] = value
 			return self[key]
-
-	def write(self, key, modifyFunc):
-		with self.writelock:
-			pass
 		
 	def rangeIter(self, key_from = None, key_to = None, include_value = True):
+		def saveDbUnRepr(v):
+			try: return dbUnRepr(v)
+			except: return None # not/broken binstruct data			
 		if include_value:
-			mapFunc = lambda key,value: (dbUnRepr(key), dbUnRepr(value))
+			mapFunc = lambda value: (saveDbUnRepr(value[0]), saveDbUnRepr(value[1]))
 		else:
-			mapFunc = dbUnRepr
+			mapFunc = saveDbUnRepr
 		return map(mapFunc, self.db.RangeIter(key_from, key_to, include_value))
 		
 def init():
@@ -105,21 +103,25 @@ def hashFile(f):
 # The function should either return some False value or some non-empty string.
 # If an attrib is specified and no func, we just use getattr(song, attrib, None).
 SongHashSources = [
-	("a", "fingerprint_AcoustID", None),
+	("a", "fingerprint_AcoustId", None),
 	("h", "sha1", None),
 	("p", None, lambda song: normalizedFilename(song.url)),
 ]
+
+def mapHash(value):
+	if len(value) > 32: value = hash(value)
+	return value
 
 def getSongHashSources(song):
 	for prefix,attrib,func in SongHashSources:
 		if not func: func = lambda song: getattr(song, attrib, None)
 		value = func(song)
-		if value: yield prefix + value	
+		if value: yield prefix + mapHash(value)
 	
 def maybeUpdateHashAfterAttribUpdate(song, attrib, value):
 	for prefix,attr,func in SongHashSources:
 		if attr == attrib:
-			songHashDb[prefix + value] = song.id
+			songHashDb[prefix + mapHash(value)] = song.id
 			return
 
 def getSongId(song):
@@ -140,7 +142,7 @@ def calcNewSongId(song):
 	# allow some fallbacks.
 	# Just use any available from SongHashSources.
 	for value in getSongHashSources(song):
-		if len(value) > 32: value = hash(value)
+		value = mapHash(value)
 		updateHashDb(song, value)
 		return value
 	assert False # should not happen. if there are such cases later, extend SongHashSources!
@@ -264,13 +266,14 @@ def songdbMain():
 # For debugging
 def dumpDatabases():
 	global songDb, songHashDb
+	import sys
 	from pprint import pprint
 	print "Main DB:"
 	for key,value in songDb.rangeIter():
-		sys.stdout.write("%r: " % key)
-		pprint(value)
+		sys.stdout.write("%r: \n" % key)
+		pprint(value, indent=2)
 	print "\nHashes:"
 	for key,value in songHashDb.rangeIter():
 		sys.stdout.write("%r: " % key)
-		pprint(value)
+		pprint(value, indent=2)
 
