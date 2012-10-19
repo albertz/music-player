@@ -152,18 +152,18 @@ class SongFileEntry(object):
 		
 	@property
 	def _dbDict(self):
-		return self.songEntry.files[self.url].filesDict
+		return self.songEntry.files.filesDict.get(self.url, {})
 
 	def __getattr__(self, attr):
 		try: return self._dbDict[attr]
 		except KeyError: raise AttributeError, "no attrib " + attr
-	
+		
 	def __setattr__(self, attr, value):
 		global songDb
 		with songDb.writelock:
-			d = self._dbDict
-			d["files"][self.url][attr] = value
-			songDb[attr] = d
+			d = self.songEntry._dbDict
+			d.setdefault("files",{}).setdefault(self.url,{})[attr] = value
+			songDb[self.songEntry.id] = d
 
 class SongFilesDict:
 	def __init__(self, songEntry):
@@ -178,6 +178,10 @@ class SongFilesDict:
 		try: self.filesDict[url]
 		except: raise
 		else: return SongFileEntry(self.songEntry, url)
+	
+	def get(self, url):
+		url = normalizedFilename(url)
+		return SongFileEntry(self.songEntry, url)
 	
 class SongEntry(object):
 	def __init__(self, song):
@@ -206,7 +210,7 @@ class SongEntry(object):
 		with songDb.writelock:
 			d = self._dbDict
 			d[attr] = value
-			songDb[attr] = d
+			songDb[self.id] = d
 	
 def getSong(song):
 	return SongEntry(song)
@@ -216,7 +220,7 @@ class Attrib:
 		self.fileSpecific = fileSpecific
 	def getObject(self, song):
 		if self.fileSpecific:
-			return getSong(song).files[song.url]
+			return getSong(song).files.get(song.url)
 		else:
 			return getSong(song)
 
