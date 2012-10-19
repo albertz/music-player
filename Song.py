@@ -11,6 +11,10 @@ class Song:
 	are different internally:
 	- self.f: the open file handle (and its state)
 	- self.skipped: the song was skipped on last play
+	
+	In the database (songdb), songs are a bit more generic. Songs with the
+	same fingerprint (AcoustID right now) are considered the same. They each
+	have a dict about each file/url.
 	"""
 	
 	# This should be the list of all attribs in __repr__.
@@ -106,10 +110,13 @@ class Song:
 			self._metadata = m # only save attrib if this is from player. otherwise we might get later some better results
 		else:
 			m = {}
-		if hasattr(self, "rating"): m["rating"] = self.rating
 		self.fixupMetadata(m)
 		self.guessMetadata(m)
 		self.makeMetadataUnicode(m)
+		if "duration" in m: # should always be the case
+			self.duration = m["duration"]
+			self._duration_accurary = 0.5 # this metatag info might be inaccurate
+			assert isinstance(self.duration, float) # i except that. so just assert it
 		return m
 
 	def fixupMetadata(self, metadata=None):
@@ -183,10 +190,6 @@ class Song:
 		return self.metadata.get("composer", "Unknown composer").strip()
 		
 	@property
-	def duration(self):
-		return self.metadata.get("duration", -1)
-
-	@property
 	def genre(self):
 		return self.metadata.get("genre", "")
 
@@ -239,8 +242,97 @@ class Song:
 			data[key] = data.get(key, "").strip()
 		# TODO ...
 		data = sorted()
+	
+	@property
+	def dbDict(self):
+		import songdb
+		return songdb.getSongDict(self) or {}
+		
+	# These _calc_<attrib> functions specify how to calculate
+	# song.<attrib>. In the DB, this is all file-specific, i.e.
+	# song.files[song.url].<attrib>.
+
+	def _calc_fingerprint_AcoustID(self):
+		song = Song(url=self.url)
+		song.openFile()
+		song.gain = 0 # just use original
+		import ffmpeg
+		duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
+		# fingerprint is URL-safe base64 with missing padding
+		fingerprint += "==="
+		import base64
+		fingerprint = base64.urlsafe_b64decode(fingerprint)
+		return {"duration": duration, "fingerprint_AcoustID": fingerprint}
+	
+	def _calc_bmpThumbnail(self):
+		song = Song(url=self.url)
+		song.gain = self.gain # useful for the adopted BMP
+		song.openFile() # this is another process, so safe
+		# We have song.gain which mostly lowers the volume. So increase here for nicer display.
+		import ffmpeg
+		duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, volume = 1.5)
+		return {"duration": duration, "bmpThumbnail": bmpData}
+	
+	def _calc_gain(self):
+		song = Song(url=self.url)
+		song.openFile() # this is another process, so safe
+		import ffmpeg
+		duration, gain = ffmpeg.calcReplayGain(song)
+		return {"duration": duration, "gain": gain}
+
+	def _calc_sha1(self):
+		import songdb
+		return {"sha1": songdb.hashFile(self.url)}
+
+	def calcAndSet(self, attrib):
+		from multiprocessing import Pool
+		pool = Pool(processes=1)
+		res = pool.apply(getattr(self, "_calc_" + attrib))
+		import songdb
+		for attr,value in res.items():
+			setattr(self, attr, value)
+			setattr(self, "_" + attr + "_accuracy", 1)
+			songdb.updateSongFileAttribValue(self, attr, value)
+		value = getattr(self, attrib)
+		return value
+
+	def getFast(self, attrib, accuracy=1):
+		if hasattr(self, attrib):
+			localaccuracy = getattr(self, "_" + attrib + "_accuracy", 1)
+			if localaccuracy >= accuracy:
+				return getattr(self, attrib), localaccuracy
+		try:
+			import songdb
+			# We expect perfect accuracy if we have it in the DB.
+			return songdb.getSongFileAttrib(attrib), 1
+		except AttributeError: pass
+		return None, 0
+	
+	def get(self, attrib, timeout=0, accuracy=1, callback=None):
+		fastValue, fastAccuracy = self.getFast(attrib, accuracy)
+		if fastAccuracy == 1: return fastValue, 1
+		
+		import threading
+		afterJoinEvent = threading.Event()
+		gotNewValueEvent = threading.Event()
+		def doCalc():
+			value = self.calcAndSet(attrib)
+			afterJoinEvent.wait()
+			if not gotNewValueEvent.isSet():
+				if callback: callback(self, attrib, value)
+		t = threading.Thread(target=doCalc, name = "song " + attrib + " calc")
+		t.daemon = True
+		t.start()
+		t.join(timeout=timeout)
+			
+		fastValue, fastAccuracy = self.getFast(attrib, accuracy)
+		if fastAccuracy == 1: gotNewValueEvent.set()
+		afterJoinEvent.set()
+
+		return fastValue, fastAccuracy
 
 def test():
+	# These are testing guessMetadata.
 	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac")
 	assert s.metadata["artist"] == "Tool"
 	assert s.metadata["album"] == "Lateralus"

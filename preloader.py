@@ -4,60 +4,20 @@ PreloadNextN = 5
 
 import sys
 
+Attribs = ["gain", "bmpThumbnail", "fingerprint_AcoustID"]
+
 def needUpdate(song):
-	if getattr(song, "bmpThumbnail", None) is None: return True
-	if getattr(song, "fingerprint_AcoustID", None) is None: return True
-	if getattr(song, "gain", None) is None: return True
+	for attr in Attribs:		
+		if getattr(song, attr, None) is None: return True
 	return False
 
 def update(song):
-	def doCalc(queue):
-		try:
-			import ffmpeg
-
-			if getattr(song, "gain", None) is None:
-				song.close()
-				song.openFile() # this is another process, so safe
-				duration, gain = ffmpeg.calcReplayGain(song)
-				queue.put(("duration", duration))
-				queue.put(("gain", gain))
-				song.gain = gain # useful for bmpThumbnail
-				
-			if getattr(song, "bmpThumbnail", None) is None:
-				song.close()
-				song.openFile() # this is another process, so safe
-				# We have song.gain which mostly lowers the volume. So increase here for nicer display.
-				duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, volume = 1.5)
-				queue.put(("duration", duration))
-				queue.put(("bmpThumbnail", bmpData))
-
-			if getattr(song, "fingerprint_AcoustID", None) is None:
-				song.close()
-				song.openFile()
-				song.gain = 0 # just use original
-				duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
-				# fingerprint is URL-safe base64 with missing padding
-				fingerprint += "==="
-				import base64
-				fingerprint = base64.urlsafe_b64decode(fingerprint)
-				queue.put(("duration", duration))
-				queue.put(("fingerprint_AcoustID", fingerprint))
-
-		except (KeyboardInterrupt,SystemExit):
-			pass
-		except:
-			sys.excepthook(*sys.exc_info())
-		
-		queue.put((None,None))
-		
-	from multiprocessing import Process, Queue
-	queue = Queue()
-	Process(target=doCalc, args=(queue,)).start()
-	
-	while True:
-		attr, value = queue.get()
-		if attr is None: break
-		setattr(song, attr, value)
+	import threading
+	curThread = threading.currentThread()
+	for attr in Attribs:		
+		if curThread.cancel: return
+		if getattr(song, attr, None) is None:
+			song.calcAndSet(attr)
 
 def checkUpdate():
 	from queue import queue

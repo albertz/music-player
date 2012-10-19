@@ -14,8 +14,27 @@ def dbRepr(o): return binstruct.varEncode(o).tostring()
 def dbUnRepr(s): return binstruct.varDecode(s)
 
 
+# Structure of the database:
+#	There is the main song db songs.db:
+#		songId -> song dict
+#	songId is any random string, not too long but long enough to avoid >99.999% collisions.
+#	song dict can contains:
+#		artist: str
+#		title: str
+#		album: str
+#		tags: weighted tagmap, dict tag->[0,1]
+#		rating: float in [0,1]
+#		files: dict filename -> dict with entries:
+#			sha1: str
+#			metadata: dict
+#			fingerprint_AcoustId: str
+#			gain: float
+#   values should only be stored if they are certain with best accurary
+
 class DB:
 	def __init__(self, dir):
+		import threading
+		self.writelock = threading.Lock()
 		self.db = leveldb.LevelDB(appinfo.userdir + "/" + dir, max_open_files=200)
 
 	def __getitem__(self, item):
@@ -25,7 +44,8 @@ class DB:
 		self.db.Put(dbRepr(key), dbRepr(value))
 
 	def __delitem__(self, key):
-		self.db.Delete(dbRepr(key))
+		with self.lock:
+			self.db.Delete(dbRepr(key))
 
 	def setdefault(self, key, value):
 		if key in self:
@@ -34,6 +54,10 @@ class DB:
 			self[key] = value
 			return self[key]
 
+	def write(self, key, modifyFunc):
+		with self.writelock:
+			pass
+		
 	def rangeIter(self, key_from = None, key_to = None, include_value = True):
 		if include_value:
 			mapFunc = lambda key,value: (dbUnRepr(key), dbUnRepr(value))
@@ -65,6 +89,18 @@ def hash(s):
 	import hashlib
 	return hashlib.sha1(s).digest()
 
+HashFileBufferSize = 1024 * 10
+
+def hashFile(f):
+	if isinstance(f, (str,unicode)): f = open(f)
+	import hashlib
+	h = hashlib.sha1()
+	while True:
+		s = f.read(HashFileBufferSize)
+		if not s: break
+		h.update(s)
+	return h.digest()
+	
 # These functions should either return some False value or some non-empty string.
 SongHashSources = [
 	("a", lambda song: getattr(song, "fingerprint_AcoustID", None)),
@@ -90,10 +126,90 @@ def calcNewSongId(song):
 	# allow some fallbacks.
 	# Just use any available from SongHashSources.
 	for value in getSongHashSources(song):
-		return value
+		if len(value) <= 32: return value
+		return hash(value)
 	assert False # should not happen. if there are such cases later, extend SongHashSources!
 
-def get(songId, attrib, timeout, accuracy, callback):
+class SongFileEntry:
+	def __init__(self, songEntry, url):
+		self.songEntry = songEntry
+		self.url = url
+		
+	@property
+	def _dbDict(self):
+		return self.songEntry.files[self.url].filesDict
+
+	def __getattr__(self, attr):
+		try: return self._dbDict[attr]
+		except KeyError: raise AttributeError, "no attrib " + attr
+	
+	def __setattr__(self, attr, value):
+		global songDb
+		with songDb.writelock:
+			d = self._dbDict
+			d["files"][self.url][attr] = value
+			songDb[attr] = d
+
+class SongFilesDict:
+	def __init__(self, songEntry):
+		self.songEntry = songEntry
+		
+	@property
+	def filesDict(self):
+		return self.songEntry._dbDict.get("files", {})
+
+	def __getitem__(self, url):
+		url = normalizedFilename(url)
+		try: self.filesDict[url]
+		except: raise
+		else: return SongFileEntry(self.songEntry, url)
+	
+class SongEntry:
+	def __init__(self, song):
+		self.songObj = song
+		self._id = getSongId(song)
+	
+	@property
+	def id(self):
+		if not self._id:
+			self._id = calcNewSongId(self.songObj)
+		return self._id
+
+	@property
+	def files(self):
+		return SongFileDict(self)
+
+	@property
+	def _dbDict(self):
+		global songDb
+		try: return songDb[self.id]
+		except KeyError: return {}
+		
+	def __getattr__(self, attr):
+		try: return self._dbDict[attr]
+		except KeyError: raise AttributeError, "no attrib " + attr
+
+	def __setattr__(self, attr, value):
+		global songDb
+		with songDb.writelock:
+			d = self._dbDict
+			d[attr] = value
+			songDb[attr] = d
+	
+def getSong(song):
+	return SongEntry(song)
+
+def updateSongFileAttribValue(song, attrib, value):
+	setattr(getSong(song).files[song.url], attrib, value)	
+
+def getSongFileAttrib(song, attrib):
+	return getattr(getSong(song).files[song.url], attrib)
+	
+
+# Do that right on first import so that all functions here work.
+init()
+
+def songdbMain():
+	# Later, me might scan through the disc and fill the DB and do updates here.
+	# Right now, we don't.
 	pass
-
-
