@@ -152,6 +152,9 @@ class SongFileEntry(object):
 		
 	@property
 	def _dbDict(self):
+		# Note: If this raises an AttributeError for some reason,
+		# you will get a *very* strange inf recursion loop in
+		# getattr(self, "_dbDict").
 		return self.songEntry.files.filesDict.get(self.url, {})
 
 	def __getattr__(self, attr):
