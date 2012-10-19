@@ -179,7 +179,7 @@ class Song(object):
 	def userLongString(self):
 		import utils
 		s = self.userString
-		duration = self.duration
+		duration = getattr(self, "duration", -1)
 		if duration >= 0:
 			s += ", " + utils.formatTime(duration)
 		try:
@@ -209,7 +209,6 @@ class Song(object):
 			import songdb
 			self._id = songdb.calcNewSongId(self.songObj)
 		return self._id
-		
 		
 	# These _calc_<attrib> functions specify how to calculate
 	# song.<attrib>. In the DB, this is all file-specific, i.e.

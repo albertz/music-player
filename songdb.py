@@ -145,10 +145,10 @@ def calcNewSongId(song):
 		return value
 	assert False # should not happen. if there are such cases later, extend SongHashSources!
 
-class SongFileEntry:
+class SongFileEntry(object):
 	def __init__(self, songEntry, url):
-		self.songEntry = songEntry
-		self.url = url
+		object.__setattr__(self, "songEntry", songEntry)
+		object.__setattr__(self, "url", url)
 		
 	@property
 	def _dbDict(self):
@@ -179,10 +179,9 @@ class SongFilesDict:
 		except: raise
 		else: return SongFileEntry(self.songEntry, url)
 	
-class SongEntry:
+class SongEntry(object):
 	def __init__(self, song):
-		self.songObj = song
-		self._id = getSongId(song)
+		object.__setattr__(self, "songObj", song)
 	
 	@property
 	def id(self):
@@ -190,7 +189,7 @@ class SongEntry:
 
 	@property
 	def files(self):
-		return SongFileDict(self)
+		return SongFilesDict(self)
 
 	@property
 	def _dbDict(self):
