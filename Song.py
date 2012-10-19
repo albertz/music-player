@@ -263,7 +263,7 @@ class Song(object):
 
 	def _estimate_artist(self):
 		s = self.metadata.get("artist", "").strip()
-		if not s: return None, 0
+		#if not s: return None, 0
 		# We don't know wether correct or not. But we want to have it
 		# saved in the DB, so use accuracy=1.
 		return s, 1
@@ -274,7 +274,7 @@ class Song(object):
 
 	def _estimate_title(self):
 		s = self.metadata.get("title", "").strip()
-		if not s: return None, 0
+		#if not s: return None, 0
 		# We don't know wether correct or not. But we want to have it
 		# saved in the DB, so use accuracy=1.
 		return s, 1
@@ -284,7 +284,7 @@ class Song(object):
 		import re
 		taglist = re.split("\s*(?:,|/|;)?\s*", self.metadata.get("genre", ""))
 		taglist = filter(None, taglist)
-		if not taglist: return None, 0
+		#if not taglist: return None, 0
 		# We want to have it saved in the DB, so use accuracy=1.
 		return dict([(tag,1.0) for tag in taglist]), 1
 
