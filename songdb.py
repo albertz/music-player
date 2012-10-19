@@ -254,3 +254,17 @@ def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
 	pass
+
+# For debugging
+def dumpDatabases():
+	global songDb, songHashDb
+	from pprint import pprint
+	print "Main DB:"
+	for key,value in songDb.rangeIter():
+		sys.stdout.write("%r: " % key)
+		pprint(value)
+	print "\nHashes:"
+	for key,value in songHashDb.rangeIter():
+		sys.stdout.write("%r: " % key)
+		pprint(value)
+
