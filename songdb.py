@@ -18,7 +18,7 @@ def dbUnRepr(s): return binstruct.varDecode(s)
 #	There is the main song db songs.db:
 #		songId -> song dict
 #	songId is any random string, not too long but long enough to avoid >99.999% collisions.
-#	song dict can contains:
+#	song dict can contains (specified in code by global Attribs dict later):
 #		artist: str
 #		title: str
 #		album: str
@@ -101,22 +101,36 @@ def hashFile(f):
 		h.update(s)
 	return h.digest()
 	
-# These functions should either return some False value or some non-empty string.
+# Entries (hash-prefix, attrib, func).
+# The function should either return some False value or some non-empty string.
+# If an attrib is specified and no func, we just use getattr(song, attrib, None).
 SongHashSources = [
-	("a", lambda song: getattr(song, "fingerprint_AcoustID", None)),
-	("p", lambda song: normalizedFilename(song.url)),
+	("a", "fingerprint_AcoustID", None),
+	("h", "sha1", None),
+	("p", None, lambda song: normalizedFilename(song.url)),
 ]
 
 def getSongHashSources(song):
-	for key,func in SongHashSources:
+	for prefix,attrib,func in SongHashSources:
+		if not func: func = lambda song: getattr(song, attrib, None)
 		value = func(song)
-		if value: yield key + value
+		if value: yield prefix + value	
 	
+def maybeUpdateHashAfterAttribUpdate(song, attrib, value):
+	for prefix,attr,func in SongHashSources:
+		if attr == attrib:
+			songHashDb[prefix + value] = song.id
+			return
+
 def getSongId(song):
 	for value in getSongHashSources(song):
-		try: return songHashDb[normalizedFilename(song.url)]
+		try: return songHashDb[value]
 		except KeyError: pass
 	return None
+
+def updateHashDb(song, songId):
+	for value in getSongHashSources(song):
+		songHashDb[value] = songId
 
 def calcNewSongId(song):
 	"Returns a new unique (in hopefully almost all cases) id for a song."
@@ -126,8 +140,9 @@ def calcNewSongId(song):
 	# allow some fallbacks.
 	# Just use any available from SongHashSources.
 	for value in getSongHashSources(song):
-		if len(value) <= 32: return value
-		return hash(value)
+		if len(value) > 32: value = hash(value)
+		updateHashDb(song, value)
+		return value
 	assert False # should not happen. if there are such cases later, extend SongHashSources!
 
 class SongFileEntry:
@@ -171,9 +186,7 @@ class SongEntry:
 	
 	@property
 	def id(self):
-		if not self._id:
-			self._id = calcNewSongId(self.songObj)
-		return self._id
+		return self.songObj.id
 
 	@property
 	def files(self):
@@ -199,13 +212,41 @@ class SongEntry:
 def getSong(song):
 	return SongEntry(song)
 
-def updateSongFileAttribValue(song, attrib, value):
-	setattr(getSong(song).files[song.url], attrib, value)	
+class Attrib:
+	def __init__(self, fileSpecific=False):
+		self.fileSpecific = fileSpecific
+	def getObject(self, song):
+		if self.fileSpecific:
+			return getSong(song).files[song.url]
+		else:
+			return getSong(song)
 
-def getSongFileAttrib(song, attrib):
-	return getattr(getSong(song).files[song.url], attrib)
+Attribs = {
+	"id": Attrib(), # This is the SongId used here by the DB.
+	"artist": Attrib(),
+	"title": Attrib(),
+	"album": Attrib(),
+	"tags": Attrib(),
+	"rating": Attrib(),
+	"sha1": Attrib(fileSpecific=True),
+	"metadata": Attrib(fileSpecific=True),
+	"fingerprint_AcoustId": Attrib(fileSpecific=True),
+	"gain": Attrib(fileSpecific=True),
+# Note that bmpThumbnail is not here. I think it's to heavy
+# to be stored for each song in the DB. Let's just calculate it
+# on the fly when needed...
+# The Song handling code should not assume that all attribs are
+# defined here by the DB.
+}
+
+
+def updateSongAttribValue(song, attrib, value):
+	setattr(Attribs[attrib].getObject(song), attrib, value)
+	maybeUpdateHashAfterAttribUpdate(song, attrib, value)
+
+def getSongAttrib(song, attrib):
+	return getattr(Attribs[attrib].getObject(song), attrib)
 	
-
 # Do that right on first import so that all functions here work.
 init()
 

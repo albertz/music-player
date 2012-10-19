@@ -2,7 +2,7 @@
 import Traits
 from utils import UserAttrib
 
-class Song:
+class Song(object):
 	"""
 	The Song object. It represents a Song. It is also compatible to the ffmpeg.player.
 	It also stores information about the song.
@@ -113,10 +113,6 @@ class Song:
 		self.fixupMetadata(m)
 		self.guessMetadata(m)
 		self.makeMetadataUnicode(m)
-		if "duration" in m: # should always be the case
-			self.duration = m["duration"]
-			self._duration_accurary = 0.5 # this metatag info might be inaccurate
-			assert isinstance(self.duration, float) # i except that. so just assert it
 		return m
 
 	def fixupMetadata(self, metadata=None):
@@ -166,42 +162,6 @@ class Song:
 			return
 
 	@property
-	def artist(self):
-		return self.metadata.get("artist", "Unknown artist").strip()
-
-	@property
-	def album(self):
-		return self.metadata.get("album", "Unknown album").strip()
-		
-	@property
-	def title(self):
-		return self.metadata.get("title", "Unknown title").strip()
-
-	@property
-	def track(self):
-		return self.metadata.get("track", 0)
-
-	@property
-	def date(self):
-		return self.metadata.get("date", "").strip()
-
-	@property
-	def composer(self):
-		return self.metadata.get("composer", "Unknown composer").strip()
-		
-	@property
-	def genre(self):
-		return self.metadata.get("genre", "")
-
-	# dict from tag to value [0,1] (weighted tagmap, tag fuzzy set)
-	@property
-	def tags(self):
-		import re
-		taglist = re.split("\s*(?:,|/|;)?\s*", self.metadata.get("genre", ""))
-		taglist = filter(None, taglist)
-		return dict([(tag,1.0) for tag in taglist])
-
-	@property
 	def fileext(self):
 		import os
 		return os.path.splitext(self.url)[1][1:]
@@ -244,14 +204,22 @@ class Song:
 		data = sorted()
 	
 	@property
-	def dbDict(self):
-		import songdb
-		return songdb.getSongDict(self) or {}
+	def id(self):
+		if not getattr(self, "_id", None):
+			import songdb
+			self._id = songdb.calcNewSongId(self.songObj)
+		return self._id
+		
 		
 	# These _calc_<attrib> functions specify how to calculate
 	# song.<attrib>. In the DB, this is all file-specific, i.e.
 	# song.files[song.url].<attrib>.
-
+	# The _calc_<attrib> functions return a dict with the attribs we got.
+	# This is expected to be with accuracy=1. It might also be stored
+	# in the DB, where everything is expected to have accuracy=1.
+	# The _estimate_<attrib> functions are expected to be fast.
+	# They return (value,accuracy). They are optional.
+	
 	def _calc_fingerprint_AcoustID(self):
 		song = Song(url=self.url)
 		song.openFile()
@@ -280,37 +248,93 @@ class Song:
 		duration, gain = ffmpeg.calcReplayGain(song)
 		return {"duration": duration, "gain": gain}
 
+	_calc_duration = _calc_gain # if that is needed
+	
+	def _estimate_duration(self):
+		# this metatag info might be inaccurate
+		d = self.metadata.get("duration", None)
+		if d is None: return None, 0
+		if d <= 0: return None, 0
+		assert isinstance(d, float)
+		return d, 0.8
+
 	def _calc_sha1(self):
 		import songdb
 		return {"sha1": songdb.hashFile(self.url)}
 
+	def _estimate_artist(self):
+		s = self.metadata.get("artist", "").strip()
+		if not s: return None, 0
+		# We don't know wether correct or not. But we want to have it
+		# saved in the DB, so use accuracy=1.
+		return s, 1
+	
+	def _estimate_album(self):
+		s = self.metadata.get("album", "").strip()
+		return s, 1
+
+	def _estimate_title(self):
+		s = self.metadata.get("title", "").strip()
+		if not s: return None, 0
+		# We don't know wether correct or not. But we want to have it
+		# saved in the DB, so use accuracy=1.
+		return s, 1
+
+	# dict from tag to value [0,1] (weighted tagmap, tag fuzzy set)
+	def _estimate_tags(self):
+		import re
+		taglist = re.split("\s*(?:,|/|;)?\s*", self.metadata.get("genre", ""))
+		taglist = filter(None, taglist)
+		if not taglist: return None, 0
+		# We want to have it saved in the DB, so use accuracy=1.
+		return dict([(tag,1.0) for tag in taglist]), 1
+
+	def __setattr__(self, attr, value):
+		import songdb
+		if attr in songdb.Attribs:
+			songdb.updateSongAttribValue(self, attr, value)
+		# Note that locally stored attribs might get outdated.
+		# Thus, in getFast(), those will not be returned for accuracy=1.
+		object.__setattr__(self, attr, value)
+		
 	def calcAndSet(self, attrib):
 		from multiprocessing import Pool
 		pool = Pool(processes=1)
 		res = pool.apply(getattr(self, "_calc_" + attrib))
-		import songdb
 		for attr,value in res.items():
 			setattr(self, attr, value)
-			setattr(self, "_" + attr + "_accuracy", 1)
-			songdb.updateSongFileAttribValue(self, attr, value)
 		value = getattr(self, attrib)
 		return value
 
+	LocalAttribAccuracy = 0.9
+	
 	def getFast(self, attrib, accuracy=1):
-		if hasattr(self, attrib):
-			localaccuracy = getattr(self, "_" + attrib + "_accuracy", 1)
-			if localaccuracy >= accuracy:
-				return getattr(self, attrib), localaccuracy
-		try:
-			import songdb
-			# We expect perfect accuracy if we have it in the DB.
-			return songdb.getSongFileAttrib(attrib), 1
-		except AttributeError: pass
+		# self.__getattr__ is wrapped and calls getFast().
+		# Thus, access self.__dict__ directly.
+		# First, check local self.__dict__ cache.
+		if accuracy <= self.LocalAttribAccuracy and attrib in self.__dict__:
+			return self.__dict__[attrib], self.LocalAttribAccuracy
+		# Now try the DB.
+		import songdb
+		if attrib in songdb.Attribs:
+			try:
+				value = songdb.getSongAttrib(self, attrib)
+			except AttributeError: pass
+			else:
+				# Cache it locally.
+				object.__setattr__(self, attrib, value)
+				# We expect perfect accuracy if we have it in the DB.
+				return value, 1
+		# All has failed so far. Try the estimate function.
+		estimateFunc = getattr(self, "_estimate_" + attrib, None)
+		if estimateFunc:
+			value, estAccuracy = estimateFunc()
+			if estAccuracy >= accuracy: return value, estAccuracy
 		return None, 0
 	
-	def get(self, attrib, timeout=0, accuracy=1, callback=None):
+	def get(self, attrib, timeout=0, accuracy=1, callback=None, fastOnly=False):
 		fastValue, fastAccuracy = self.getFast(attrib, accuracy)
-		if fastAccuracy == 1: return fastValue, 1
+		if fastAccuracy == 1 or fastOnly: return fastValue, fastAccuracy
 		
 		import threading
 		afterJoinEvent = threading.Event()
@@ -327,10 +351,26 @@ class Song:
 			
 		fastValue, fastAccuracy = self.getFast(attrib, accuracy)
 		if fastAccuracy == 1: gotNewValueEvent.set()
-		afterJoinEvent.set()
+		afterJoinEvent.set()	
 
 		return fastValue, fastAccuracy
 
+	GetAttrAccuracy = 0.7
+	
+	def __getattr__(self, attrib):
+		# This is only called when it is not found in self.__dict__ or the class.
+		# First, filter some stuff which we will never have. We also need
+		# that to avoid infinite loops in some simplified code.
+		if attrib == "" or attrib.startswith("_"):
+			raise AttributeError, "no attrib " + attrib
+		value,accuracy = self.get(
+			attrib,
+			accuracy=self.GetAttrAccuracy,
+			fastOnly=True)
+		if accuracy < self.GetAttrAccuracy:
+			raise AttributeError, "attrib " + attrib + " is not yet available"		
+		return value
+		
 def test():
 	# These are testing guessMetadata.
 	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac")
