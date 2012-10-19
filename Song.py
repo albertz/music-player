@@ -207,7 +207,7 @@ class Song(object):
 	def id(self):
 		if not getattr(self, "_id", None):
 			import songdb
-			self._id = songdb.calcNewSongId(self.songObj)
+			self._id = songdb.calcNewSongId(self)
 		return self._id
 		
 	# These _calc_<attrib> functions specify how to calculate
@@ -298,8 +298,9 @@ class Song(object):
 		
 	def calcAndSet(self, attrib):
 		from multiprocessing import Pool
+		from utils import funcCall
 		pool = Pool(processes=1)
-		res = pool.apply(getattr(self, "_calc_" + attrib))
+		res = pool.apply(funcCall, args=((self, "_calc_" + attrib),))
 		for attr,value in res.items():
 			setattr(self, attr, value)
 		value = getattr(self, attrib)
@@ -315,7 +316,7 @@ class Song(object):
 			return self.__dict__[attrib], self.LocalAttribAccuracy
 		# Now try the DB.
 		import songdb
-		if attrib in songdb.Attribs:
+		if attrib in songdb.Attribs and hasattr(self, "_id"):
 			try:
 				value = songdb.getSongAttrib(self, attrib)
 			except AttributeError: pass

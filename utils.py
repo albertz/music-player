@@ -594,6 +594,11 @@ def convertToUnicode(value):
 	return value
 
 
+def funcCall(attrChainArgs, args=()):
+	f = attrChain(*attrChainArgs)
+	return f(*args)
+
+
 def killMeHard():
 	import sys, os, signal
 	os.kill(0, signal.SIGKILL)
