@@ -356,10 +356,12 @@ def buildControlList(control):
 							index,
 							filenames)
 						if internalDragCallback:
-							internalDragCallback(
-								control.subjectObject,
-								index,
-								filenames)
+							do_in_mainthread(lambda:
+								internalDragCallback(
+									control.subjectObject,
+									index,
+									filenames),
+								wait=False)
 					from threading import Thread
 					t = Thread(target=doDragHandler, name="DragHandler")
 					t.daemon = True
