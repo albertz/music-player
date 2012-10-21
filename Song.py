@@ -270,6 +270,7 @@ class Song(object):
 	
 	def _estimate_album(self):
 		s = self.metadata.get("album", "").strip()
+		# Take empty string as valid. There might be songs without an album.
 		return s, 1
 
 	def _estimate_title(self):
