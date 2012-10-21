@@ -347,18 +347,24 @@ def buildControlList(control):
 				try:
 					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(NSFilenamesPboardType))
 					filenames = map(convertToUnicode, filenames)
-					ret = control.attr.dragHandler(
-						control.parent.subjectObject,
-						control.subjectObject,
-						self.index,
-						filenames)
-					if ret and sender.draggingSource() \
-					and getattr(sender.draggingSource(), "onInternalDrag", None):
-						sender.draggingSource().onInternalDrag(
+					index = self.index
+					internalDragCallback = getattr(sender.draggingSource(), "onInternalDrag", None)
+					def doDragHandler():
+						control.attr.dragHandler(
+							control.parent.subjectObject,
 							control.subjectObject,
-							self.index,
+							index,
 							filenames)
-					return ret
+						if internalDragCallback:
+							internalDragCallback(
+								control.subjectObject,
+								index,
+								filenames)
+					from threading import Thread
+					t = Thread(target=doDragHandler, name="DragHandler")
+					t.daemon = True
+					t.start()
+					return True
 				except:
 					sys.excepthook(*sys.exc_info())
 					return False

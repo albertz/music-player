@@ -168,15 +168,9 @@ class MainQueue:
 		self.checkLastInQueueNForContext = 2
 
 	def queueDragHandler(self, queue, index, files):
-		def doInsert(index=index):
-			for fn in files:
-				queue.insert(index, Song(fn))
-				index += 1
-		from threading import Thread
-		t = Thread(target=doInsert, name="queueDragHandler")
-		t.daemon = True
-		t.start()
-		return True
+		for fn in files:
+			queue.insert(index, Song(fn))
+			index += 1
 
 	@UserAttrib(type=Traits.List, variableHeight=True, canHaveFocus=True, dragHandler=queueDragHandler)
 	@initBy
