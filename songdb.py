@@ -75,6 +75,7 @@ def normalizedFilename(fn):
 	userDir = os.path.expanduser("~")
 	if fn.startswith(userDir):
 		fn = "~" + fn[len(userDir):]
+	if isinstance(fn, unicode): fn = fn.encode("utf-8")
 	return fn
 
 def hash(s):
