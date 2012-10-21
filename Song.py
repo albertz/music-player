@@ -300,6 +300,7 @@ class Song(object):
 			# this func (see getFast() for reference).
 			# Thus, return it as accuracy=1 to save it as initial value in our DB.
 			return itunes_rating, 1
+		# Return 0. This is a good estimation.
 		return 0, 0.7
 
 	def __setattr__(self, attr, value):
