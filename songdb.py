@@ -109,6 +109,7 @@ SongHashSources = [
 ]
 
 def mapHash(value):
+	if isinstance(value, unicode): value = value.encode("utf-8")
 	if len(value) > 32: value = hash(value)
 	return value
 
