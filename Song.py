@@ -1,6 +1,7 @@
 
 import Traits
 from utils import UserAttrib
+import utils
 
 class Song(object):
 	"""
@@ -31,6 +32,9 @@ class Song(object):
 		if len(args) == 1: # guess this is the url
 			assert "url" not in kwargs
 			self.url = args[0]
+		if self.url:
+			self.url = utils.convertToUnicode(self.url)
+
 	def __nonzero__(self): # this is mostly for noninited Song objects
 		return bool(self.url)
 	def __eq__(self, other):

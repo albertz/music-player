@@ -191,6 +191,7 @@ librarySongsIter = songsIter(libraryPlistIter)
 def ratingsIter():
 	import urllib
 	import re
+	import utils
 	for song in librarySongsIter:
 		rating = song["Rating"]
 		if rating is None: continue # print only songs with any rating set
@@ -198,6 +199,7 @@ def ratingsIter():
 		fn = song["Location"]
 		fn = urllib.unquote(fn)
 		fn = re.sub("^file://(localhost)?", "", fn)
+		fn = utils.convertToUnicode(fn)
 		yield (fn, rating)
 
 
