@@ -75,10 +75,11 @@ class MacMediaKeyEventsTap:
 			break
 
 		del pool
-        
+
 	def start(self):
 		from threading import Thread
-		self.thread = Thread(target = self.runEventsCapture)
+		self.thread = Thread(target = self.runEventsCapture, name = "mediakeys runEventsCapture")
+		self.thread.daemon = True
 		self.thread.start()
 
 	def stop(self):
