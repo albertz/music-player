@@ -294,7 +294,7 @@ class Song(object):
 		# Check if we have iTunes ratings.
 		# If we have, 
 		import itunes
-		itunes_rating = itunes.ratings.get(filename, default=None)
+		itunes_rating = itunes.ratings.get(self.url, None)
 		if itunes_rating is not None:
 			# It is not yet in our DB, otherwise we would not have called
 			# this func (see getFast() for reference).
