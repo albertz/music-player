@@ -55,14 +55,6 @@ class RecentlyplayedList:
 		return min(len(self.list), self.GuiLimit)
 
 
-class Actions:
-	def play(self): state.player.playing = True
-	def pause(self): state.player.playing = False
-	def next(self): state.player.nextSong()
-	def forward10s(self): state.player.seekRel(10)
-
-actions = Actions()
-
 
 class State(object):
 	def playPauseUpdate(self, attrib, *args):
