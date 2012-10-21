@@ -40,6 +40,13 @@ def checkUpdate():
 		
 def preloaderMain():
 	try:
+		# Import itunes module. This might start some background processes
+		# which load the iTunes DB, etc.
+		import itunes
+	except:
+		sys.excepthook(*sys.exc_info())
+	
+	try:
 		checkUpdate()
 	except:
 		sys.excepthook(*sys.exc_info())
