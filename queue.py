@@ -202,15 +202,9 @@ class MainQueue:
 		# We likely get small values here. Boost a bit but keep in [0,1] range. sqrt is a good fit.
 		return math.sqrt(s)
 
-	def calcRating(self, song):
-		import rating
-
-		song.rating = rating.getRating(song.url, default=0.0)
-		return song.rating
-
 	def calcScore(self, song):
 		scores = []
-		scores += [self.calcRating(song) * random.gauss(1, 0.5)]
+		scores += [song.rating * random.gauss(1, 0.5)]
 		scores += [self.calcContextMatchScore(song) * random.gauss(1, 0.5)]
 		return sum(scores) + random.gauss(1, 0.5)
 
