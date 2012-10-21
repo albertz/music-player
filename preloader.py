@@ -16,8 +16,11 @@ def update(song):
 	curThread = threading.currentThread()
 	for attr in Attribs:		
 		if curThread.cancel: return
-		if getattr(song, attr, None) is None:
-			song.calcAndSet(attr)
+		# This will calculate it and save it.
+		song.get(
+			attr,
+			timeout=None, # wait for it. dont spawn too much tasks async
+			)
 
 def checkUpdate():
 	from queue import queue

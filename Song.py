@@ -297,10 +297,10 @@ class Song(object):
 		object.__setattr__(self, attr, value)
 		
 	def calcAndSet(self, attrib):
-		from multiprocessing import Pool
-		from utils import funcCall
-		pool = Pool(processes=1)
-		res = pool.apply(funcCall, args=((self, "_calc_" + attrib),))
+		from utils import asyncCall
+		res = asyncCall(
+			func = getattr(self, "_calc_" + attrib),
+			name = "calc Song(%s) %s" % (self.userString, attrib))
 		for attr,value in res.items():
 			setattr(self, attr, value)
 		value = getattr(self, attrib)
@@ -329,10 +329,17 @@ class Song(object):
 		estimateFunc = getattr(self, "_estimate_" + attrib, None)
 		if estimateFunc:
 			value, estAccuracy = estimateFunc()
-			if estAccuracy >= accuracy: return value, estAccuracy
+			if estAccuracy == 1:
+				# save locally and in DB
+				setattr(self, attrib, value)
+			if estAccuracy >= accuracy:
+				return value, estAccuracy
 		return None, 0
 	
 	def get(self, attrib, timeout=0, accuracy=1, callback=None, fastOnly=False):
+		if fastOnly:
+			assert callback is None, "we aren't going to use callback as we are not doing the calculation"
+		
 		fastValue, fastAccuracy = self.getFast(attrib, accuracy)
 		if fastAccuracy == 1 or fastOnly: return fastValue, fastAccuracy
 		

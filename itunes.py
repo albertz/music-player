@@ -210,13 +210,14 @@ def loadRatings():
 	def doCalc(queue):
 		for fn, rating in ratingsIter():
 			queue.put((fn,rating))
-	
-	from multiprocessing import Process, Queue
-	queue = Queue()
-	Process(target=doCalc, args=(queue,)).start()
+		queue.put((None,None))
+		
+	from utils import AsyncTask
+	queue = AsyncTask(func=doCalc, name="iTunes load ratings")
 	
 	while True:
 		fn, rating = queue.get()
+		if fn is None: return
 		ratings[fn] = rating
 
 # do some extra check in case we are reloading this module. don't reload the ratings. takes too long

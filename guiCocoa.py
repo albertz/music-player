@@ -509,9 +509,7 @@ def buildControlSongDisplay(control):
 					print "doBmpCalc raised exception"
 					sys.excepthook(*sys.exc_info())
 				queue.put(None)
-			from multiprocessing import Process, Queue
-			queue = Queue()
-			Process(target=doBmpCalc, args=(queue,)).start()
+			queue = AsyncTask(func=doBmpCalc, name="doBmpCalc for Cocoa")
 
 			while True:
 				bmpThumbRet = queue.get()

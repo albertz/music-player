@@ -11,7 +11,7 @@ except ImportError:
 
 from collections import deque
 from threading import Condition, Thread, currentThread
-import sys
+import sys, os
 
 import better_exchook
 
@@ -594,11 +594,85 @@ def convertToUnicode(value):
 	return value
 
 
+# This is needed in some cases to avoid pickling problems with bounded funcs.
 def funcCall(attrChainArgs, args=()):
 	f = attrChain(*attrChainArgs)
 	return f(*args)
 
 
+class AsyncTask:
+	def __init__(self, func, name=None):
+		from multiprocessing import Process, Pipe, Queue
+		self.name = name or "unnamed"
+		self.func = func
+		self.parent_conn, self.child_conn = Pipe()
+		self.parent_pid = os.getpid()
+		self.proc = Process(
+			target = self._asyncCall,
+			args = (self,),
+			name = self.name + " worker process")
+		self.proc.daemon = True		
+		self.proc.start()
+		self.child_conn.close()
+		self.child_pid = self.proc.pid
+		assert self.child_pid
+		self.conn = self.parent_conn
+		
+	@staticmethod
+	def _asyncCall(self):
+		assert self.isChild
+		self.parent_conn.close()
+		self.conn = self.child_conn # we are the child
+		try:
+			self.func(self)
+		except:
+			sys.excepthook(*sys.exc_info())			
+		self.conn.close()
+	
+	def put(self, value):
+		self.conn.send(value)
+		
+	def get(self):
+		thread = currentThread()
+		thread.waitQueue = self
+		res = self.conn.recv()
+		thread.waitQueue = None
+		return res
+	
+	@property
+	def isParent(self):
+		return self.parent_pid == os.getpid()
+
+	@property
+	def isChild(self):
+		if self.isParent: return False
+		assert self.parent_pid == os.getppid()		
+		return True
+	
+	# This might be called from the module code.
+	# See OnRequestQueue which implements the same interface.
+	def setCancel(self):
+		self.conn.close()
+		if self.isParent and self.child_pid:
+			import signal
+			os.kill(self.child_pid, signal.SIGINT)
+			self.child_pid = None
+			
+	@classmethod
+	def test(cls):
+		pass
+
+def asyncCall(func, name=None):
+	def doCall(queue):
+		try:
+			res = func()
+			queue.put(res)
+		except:
+			sys.excepthook(*sys.exc_info())
+	task = AsyncTask(func=doCall, name=name)
+	# If there is an exception in doCall, this will raise an EOFError here.
+	return task.get()
+	
 def killMeHard():
 	import sys, os, signal
 	os.kill(0, signal.SIGKILL)
@@ -628,4 +702,8 @@ def dumpThread(threadId):
 		if line:
 			code.append("  %s" % (line.strip()))
 	print "\n".join(code)
+	
+
+def test():
+	AsyncTask.test()
 	
