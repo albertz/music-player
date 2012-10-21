@@ -288,6 +288,19 @@ class Song(object):
 		# We want to have it saved in the DB, so use accuracy=1.
 		return dict([(tag,1.0) for tag in taglist]), 1
 
+	# returns None or realnum in [0,1]
+	def _estimate_rating(self):
+		# Check if we have iTunes ratings.
+		# If we have, 
+		import itunes
+		itunes_rating = itunes.ratings.get(filename, default=None)
+		if itunes_rating is not None:
+			# It is not yet in our DB, otherwise we would not have called
+			# this func (see getFast() for reference).
+			# Thus, return it as accuracy=1 to save it as initial value in our DB.
+			return itunes_rating, 1
+		return 0, 0.7
+
 	def __setattr__(self, attr, value):
 		import songdb
 		if attr in songdb.Attribs:
