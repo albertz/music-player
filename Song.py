@@ -300,7 +300,7 @@ class Song(object):
 		from utils import asyncCall
 		res = asyncCall(
 			func = getattr(self, "_calc_" + attrib),
-			name = "calc Song(%s) %s" % (self.userString, attrib))
+			name = "calc Song(%s) %s" % (self.userString.encode("utf-8"), attrib))
 		for attr,value in res.items():
 			setattr(self, attr, value)
 		value = getattr(self, attrib)
@@ -344,21 +344,26 @@ class Song(object):
 		if fastAccuracy == 1 or fastOnly: return fastValue, fastAccuracy
 		
 		import threading
+		lock = threading.Lock()
 		afterJoinEvent = threading.Event()
 		gotNewValueEvent = threading.Event()
 		def doCalc():
 			value = self.calcAndSet(attrib)
-			afterJoinEvent.wait()
-			if not gotNewValueEvent.isSet():
-				if callback: callback(self, attrib, value)
-		t = threading.Thread(target=doCalc, name = "song " + attrib + " calc")
+			with lock:
+				if not afterJoinEvent.isSet():
+					return
+				if gotNewValueEvent.isSet():
+					return
+			if callback: callback(self, attrib, value)
+		t = threading.Thread(target=doCalc, name = "Song(%s) attrib %s calc" % (self.userString.encode("utf-8"), attrib))
 		t.daemon = True
 		t.start()
 		t.join(timeout=timeout)
-			
-		fastValue, fastAccuracy = self.getFast(attrib, accuracy)
-		if fastAccuracy == 1: gotNewValueEvent.set()
-		afterJoinEvent.set()	
+		
+		with lock:
+			afterJoinEvent.set()
+			fastValue, fastAccuracy = self.getFast(attrib, accuracy)
+			if fastAccuracy == 1: gotNewValueEvent.set()
 
 		return fastValue, fastAccuracy
 
