@@ -27,6 +27,7 @@ class Song(object):
 		self.f = None
 		self._fileMetadata = None
 		self._metadata = None
+		self._useDb = True
 		for key,value in kwargs.items():
 			setattr(self, key, value)
 		if len(args) == 1: # guess this is the url
@@ -209,6 +210,7 @@ class Song(object):
 	
 	@property
 	def id(self):
+		if not self._useDb: return None
 		if not getattr(self, "_id", None):
 			import songdb
 			self._id = songdb.calcNewSongId(self)
@@ -224,7 +226,7 @@ class Song(object):
 	# They return (value,accuracy). They are optional.
 	
 	def _calc_fingerprint_AcoustId(self):
-		song = Song(url=self.url)
+		song = Song(url = self.url, _useDb = False)
 		song.openFile()
 		song.gain = 0 # just use original
 		import ffmpeg
@@ -236,7 +238,7 @@ class Song(object):
 		return {"duration": duration, "fingerprint_AcoustId": fingerprint}
 	
 	def _calc_bmpThumbnail(self):
-		song = Song(url=self.url)
+		song = Song(url = self.url, _useDb = False)
 		song.gain = self.gain # useful for the adopted BMP
 		song.openFile() # this is another process, so safe
 		# We have song.gain which mostly lowers the volume. So increase here for nicer display.
@@ -245,7 +247,7 @@ class Song(object):
 		return {"duration": duration, "bmpThumbnail": bmpData}
 	
 	def _calc_gain(self):
-		song = Song(url=self.url)
+		song = Song(url = self.url, _useDb = False)
 		song.openFile() # this is another process, so safe
 		import ffmpeg
 		duration, gain = ffmpeg.calcReplayGain(song)
@@ -308,9 +310,10 @@ class Song(object):
 		return 0, 0.7
 
 	def __setattr__(self, attr, value):
-		import songdb
-		if attr in songdb.Attribs:
-			songdb.updateSongAttribValue(self, attr, value)
+		if getattr(self, "_useDb", False):
+			import songdb
+			if attr in songdb.Attribs:
+				songdb.updateSongAttribValue(self, attr, value)
 		# Note that locally stored attribs might get outdated.
 		# Thus, in getFast(), those will not be returned for accuracy=1.
 		object.__setattr__(self, attr, value)
@@ -335,7 +338,7 @@ class Song(object):
 			return self.__dict__[attrib], self.LocalAttribAccuracy
 		# Now try the DB.
 		import songdb
-		if attrib in songdb.Attribs and hasattr(self, "_id"):
+		if attrib in songdb.Attribs and hasattr(self, "_id") and self._useDb:
 			try:
 				value = songdb.getSongAttrib(self, attrib)
 			except AttributeError: pass
