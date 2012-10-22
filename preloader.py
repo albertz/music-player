@@ -1,6 +1,6 @@
 
 
-PreloadNextN = 5
+PreloadNextN = 10
 
 import sys
 
