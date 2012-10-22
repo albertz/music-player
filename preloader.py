@@ -26,17 +26,22 @@ def checkUpdate():
 	from queue import queue
 	from State import state
 	
-	songs = [state.curSong]
-	songs += queue.peekNextN(PreloadNextN)
-	
 	import threading
 	curThread = threading.currentThread()
 	
-	for song in songs:
-		if song is None: continue
-		if curThread.cancel: return
-		if needUpdate(song):
-			update(song)
+	checkAgain = True
+	while checkAgain:
+		checkAgain = False
+		songs = [state.curSong]
+		songs += queue.peekNextN(PreloadNextN)
+				
+		for song in songs:
+			if song is None: continue
+			if curThread.cancel: return
+			if needUpdate(song):
+				update(song)
+				checkAgain = True
+				break
 		
 def preloaderMain():
 	try:
