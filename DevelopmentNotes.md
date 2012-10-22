@@ -3,7 +3,7 @@ Development notes
 
 In here are a few notes about how the code is organized, used concepts, etc.
 
-The main code is all pure Python. It is highly modular. The main playing engine is implemented in C as a Python module (`ffmpeg.c`). It uses FFmpeg for encoding and PortAudio for output.
+The main code is all pure Python. It is highly modular. The main playing engine is implemented in C as a Python module (`ffmpeg.c`). It uses FFmpeg for decoding and PortAudio for output.
 
 A basic principle is to keep the code as simple as possible so that it works. I really want to avoid to overcomplicate things.
 
