@@ -10,7 +10,7 @@ A basic principle is to keep the code as simple as possible so that it works. I 
 The main entry point is `main`. It initializes all the modules. The list of modules is defined in `State.modules`. It contains for example `queue`, `tracker`, `mediakeys`, `gui`, etc.
 
 
-# Module
+## Module
 
 A module is controlled by the `utils.Module` class. It refers to a Python module (for example `queue`).
 
@@ -19,12 +19,12 @@ When you start a module (`Module.start`), it starts a new thread and executes th
 A module is supposed to be reloadable. There is the function `Module.reload` and `State.reloadModules` is supposed to reload all modules. This is mostly only used for/while debugging, though and is probably not stable and not well tested.
 
 
-# Multithreading and multiprocessing
+## Multithreading and multiprocessing
 
 The whole code makes heavy use of multithreading and multiprocessing. Every module already runs in its own thread. But some modules itself spawn also other threads. The GUI module spawns a new thread for most actions. Heavy calculations should be done in a seperate process so that the GUI and the playing engine (which run both in the main process) are always responsive. There is `utils.AsyncTask` and `utils.asyncCall` for an easy and stable way to do something in a seperate process.
 
 
-# Playing engine
+## Playing engine
 
 This is all the Python native-C module `ffmpeg`. It provides a player object which represents the player. It needs a generator `player.queue` which yields `Song` objects which provide a way to read file data and seek in the file. See the source code for further detailed reference.
 
@@ -36,19 +36,21 @@ It has the following functionality:
 * Can calculate the [ReplayGain](http://www.replaygain.org/) value for a song (see `pyCalcReplayGain`). This is as far as I know the only other implementation of ReplayGain despite the original from [mp3gain](http://mp3gain.sourceforge.net/) ([gain_analysis.c](http://mp3gain.cvs.sourceforge.net/viewvc/mp3gain/mp3gain/gain_analysis.c?view=markup)).
 * Can calculate the [AcoustId](http://acoustid.org/) audio fingerprint (see `pyCalcAcoustIdFingerprint`). This one is also used by [MusicBrainz](http://musicbrainz.org/). It uses the [Chromaprint](http://acoustid.org/chromaprint) lib for implementation.
 * Provides a simple way to access the song metadata.
-* Provides a way to calculate a visual thumbnail for a song which shows the amplitude and the spectral centroid of the frequencies per time (see `pyCalcBitmapThumbnail`). Inspired by [this code](https://github.com/endolith/freesound-thumbnailer/blob/master/processing.py).
+* Provides a way to calculate a visual thumbnail for a song which shows the amplitude and the spectral centroid of the frequencies per time (see `pyCalcBitmapThumbnail`). Inspired by [this project](https://github.com/endolith/freesound-thumbnailer/).
 
 The `player` module creates the player object as `State.state.player`. It setups the queue as `queue.queue`. `State.state` provides also some functions to control the player state (`playPause`, `nextSong`).
 
 
-# GUI
+## GUI
 
 The basic idea is that Python objects are directly represented in the GUI. The main window corresponds to the `State.state` object. Attributes of an object which should be shown in the GUI are marked via the `utils.UserAttrib` decorator. There, you can specify some further information to specify more concretely how an attribute should be displayed.
 
 The GUI has its own module `gui`. At the moment, only an OSX Cocoa interface (`guiCocoa`) is implemented but a PyQt implementation is planned. There is some special handling for this module as it needs to be run in the main thread in most cases. See `main` for further reference.
 
 
-# Database
+## Database
+
+This is the module `songdb`.
 
 The database is intended to be an optional system which stores some extra data/statistics about a song and also cachessome data which is heavy to calculate (e.g. the fingerprint).
 
@@ -63,7 +65,7 @@ This is so that the database stays robust in case the user moves a song file aro
 It uses [LevelDB](http://code.google.com/p/leveldb/) as its backend via [py-leveldb](http://code.google.com/p/py-leveldb/).
 
 
-# Song attribute knowledge system
+## Song attribute knowledge system
 
 Some of the initial ideas are presented `attribs.txt`. This is implemented now mostly for the `Song` class.
 
@@ -87,7 +89,7 @@ For each attrib, there might be functions:
 See `Song` for further reference.
 
 
-# Playlist queue
+## Playlist queue
 
 The playlist queue is managed by the `queue` module. It has the logic to autofill the queue if there are too less songs in it. The algorithm to automatically select a new song uses the random file queue generator. This is a lazy directory unfolder and random picker, implemented in `RandomFileQueue`. Every time, it looks at a few songs and selects some song based on
 
