@@ -52,7 +52,7 @@ The GUI has its own module `gui`. At the moment, only an OSX Cocoa interface (`g
 
 This is the module `songdb`.
 
-The database is intended to be an optional system which stores some extra data/statistics about a song and also cachessome data which is heavy to calculate (e.g. the fingerprint).
+The database is intended to be an optional system which stores some extra data/statistics about a song and also caches some data which is heavy to calculate (e.g. the fingerprint).
 
 It provides several ways to identify a song:
 
@@ -63,6 +63,8 @@ It provides several ways to identify a song:
 This is so that the database stays robust in case the user moves a song file around or changes its metadata.
 
 It uses [LevelDB](http://code.google.com/p/leveldb/) as its backend via [py-leveldb](http://code.google.com/p/py-leveldb/).
+
+It uses [binstruct](https://github.com/albertz/binstruct) for the serialization.
 
 
 ## Song attribute knowledge system
