@@ -225,6 +225,7 @@ def iterUserAttribs(obj):
 
 def formatTime(t):
 	if t is None: return "?"
+	t = round(t)
 	mins = long(t // 60)
 	t -= mins * 60
 	hours = mins // 60
