@@ -1,6 +1,6 @@
 
 import Traits
-from utils import UserAttrib
+from utils import UserAttrib, safe_property
 import utils
 
 class Song(object):
@@ -59,6 +59,7 @@ class Song(object):
 		self.f = None
 
 	# returns list of all root attrib names
+	@safe_property
 	@property
 	def rootAttribNames(self):
 		# TODO: maybe cache this?
@@ -73,6 +74,7 @@ class Song(object):
 		return l
 
 	# returns custom/changed root attrib dict
+	@safe_property
 	@property
 	def rootAttribDict(self):
 		d = {}
@@ -93,6 +95,7 @@ class Song(object):
 		import os
 		return "Song(%s)" % os.path.basename(self.url)
 
+	@safe_property
 	@property
 	def metadata(self):
 		if self._metadata is not None: return self._metadata
@@ -171,15 +174,17 @@ class Song(object):
 		import os
 		return os.path.splitext(self.url)[1][1:]
 
+	@safe_property
 	@property
 	def userString(self):
 		artist = self.metadata.get("artist", "").strip()
 		title = self.metadata.get("title", "").strip()
 		if artist and title: return artist + " - " + title
 		import os
-		return os.path.basename(self.url)
+		return os.path.basename(self.url)			
 
 	@UserAttrib(type=Traits.OneLineText)
+	@safe_property
 	@property
 	def userLongString(self):
 		import utils
@@ -199,6 +204,7 @@ class Song(object):
 			s += ", " + utils.formatFilesize(size)
 		return s
 	
+	@safe_property
 	@property
 	def userLongDescription(self):
 		data = dict(self.metadata)
@@ -208,6 +214,7 @@ class Song(object):
 		# TODO ...
 		data = sorted()
 	
+	@safe_property
 	@property
 	def id(self):
 		if not self._useDb: return None

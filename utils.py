@@ -223,6 +223,17 @@ def iterUserAttribs(obj):
 	attribs.sort(key = lambda attr: attr.index)
 	return attribs
 
+class safe_property(object):
+	def __init__(self, prop):
+		self.prop = prop
+	def __get__(self, instance, owner):
+		try:
+			return self.prop.__get__(instance, owner)
+		except AttributeError:
+			# We should never reraise this particular exception. Thus catch it here.
+			sys.excepthook(*sys.exc_info())
+			return None # The best we can do.
+
 def formatTime(t):
 	if t is None: return "?"
 	t = round(t)
