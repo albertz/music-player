@@ -30,12 +30,14 @@
 //	and other functions, see their embedded doc ...
 
 
+// Import Python first. This will define _GNU_SOURCE. This is needed to get strdup (and maybe others). We could also define _GNU_SOURCE ourself, but pyconfig.h from Python has troubles then and redeclares some other stuff. So, to just import Python first is the simplest way.
+#include <Python.h>
+#include <pythread.h>
+
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
 #include <libavcodec/avfft.h>
 #include <portaudio.h>
-#include <Python.h>
-#include <pythread.h>
 #include <chromaprint.h>
 
 #include <stdio.h>
