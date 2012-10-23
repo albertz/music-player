@@ -16,11 +16,13 @@ def songs(state):
 		# Yield the Song object itself, though, not the ObjectProxy. The ObjectProxy
 		# would result in very strange behavior later for onSongChange events.
 		song = state.curSong.__get__(None)
+		assert song
 		song.openFile()
 		yield song
 	import queue
 	while True:
 		song = queue.getNextSong()
+		assert song
 		song.openFile()
 		yield song
 

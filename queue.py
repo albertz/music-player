@@ -181,7 +181,9 @@ class MainQueue:
 	def getNextSong(self):
 		with self.lock:
 			if len(self.queue) > 0:
-				return self.queue.popleft()
+				song = self.queue.popleft()
+				assert bool(song)
+				return song
 		return getNextSong_auto()
 
 	def peekNextN(self, n): # only from self.queue, no adding! might return less
@@ -214,6 +216,7 @@ class MainQueue:
 		scores = map(lambda song: (self.calcScore(song), song), songs)
 		best = max(scores)
 		song = best[1]
+		assert bool(song)
 		return song
 
 	@UserAttrib(type=Traits.Action)
