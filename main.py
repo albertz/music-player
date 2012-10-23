@@ -15,20 +15,16 @@ import sys
 if __name__ == '__main__':	
 
 	import stdinconsole
+	import gui
 
 	try:
-		import gui
 		# This will overtake the main loop and raise SystemExit at its end.
 		gui.main()
-
+	except NotImplementedError:
+		print "GUI not implemented"
 	except SystemExit:
 		raise
 	
-	except:
-		print "error in GUI"
-		sys.excepthook(*sys.exc_info())
-		# continue will stdinconsole
-
 	for m in modules: m.start()
 
 	# Note on quit behavior: Simply iterating state.updates
