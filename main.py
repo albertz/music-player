@@ -18,15 +18,16 @@ if __name__ == '__main__':
 
 	try:
 		import gui
+		# This will overtake the main loop and raise SystemExit at its end.
+		gui.main()
 
+	except SystemExit:
+		raise
+	
 	except:
 		print "error in GUI"
 		sys.excepthook(*sys.exc_info())
 		# continue will stdinconsole
-
-	else:
-		# This will overtake the main loop and raise SystemExit at its end.
-		gui.main()
 
 	for m in modules: m.start()
 

@@ -1,8 +1,15 @@
 
 import sys
 
-from guiCocoa import *
-
+try:
+	from guiCocoa import *
+except:
+	print "error in loading Cocoa GUI"
+	sys.excepthook(*sys.exc_info())
+	
+	# define fallback
+	def main(): raise NotImplementedError
+	
 class GuiObject:
 	"This defines the protocol we must support"
 	
