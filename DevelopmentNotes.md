@@ -3,11 +3,11 @@ Development notes
 
 In here are a few notes about how the code is organized, used concepts, etc.
 
-The main code is all pure Python. It is highly modular. The main playing engine is implemented in C as a Python module (`ffmpeg.c`). It uses FFmpeg for decoding and PortAudio for output.
+The main code is all pure Python. It is highly modular. The main playing engine is implemented in C as a Python module ([`ffmpeg.c`](ffmpeg.c)). It uses FFmpeg for decoding and PortAudio for output.
 
 A basic principle is to keep the code as simple as possible so that it works. I really want to avoid to overcomplicate things.
 
-The main entry point is `main`. It initializes all the modules. The list of modules is defined in `State.modules`. It contains for example `queue`, `tracker`, `mediakeys`, `gui`, etc.
+The main entry point is [`main`](main.py). It initializes all the modules. The list of modules is defined in [`State.modules`](State.py). It contains for example `queue`, `tracker`, `mediakeys`, `gui`, etc.
 
 
 ## Module
@@ -26,7 +26,7 @@ The whole code makes heavy use of multithreading and multiprocessing. Every modu
 
 ## Playing engine
 
-This is all the Python native-C module `ffmpeg`. It provides a player object which represents the player. It needs a generator `player.queue` which yields `Song` objects which provide a way to read file data and seek in the file. See the source code for further detailed reference.
+This is all the [Python native-C module `ffmpeg`](ffmpeg.c). It provides a player object which represents the player. It needs a generator `player.queue` which yields `Song` objects which provide a way to read file data and seek in the file. See the source code for further detailed reference.
 
 It has the following functionality:
 
@@ -45,12 +45,12 @@ The `player` module creates the player object as `State.state.player`. It setups
 
 The basic idea is that Python objects are directly represented in the GUI. The main window corresponds to the `State.state` object. Attributes of an object which should be shown in the GUI are marked via the `utils.UserAttrib` decorator. There, you can specify some further information to specify more concretely how an attribute should be displayed.
 
-The GUI has its own module `gui`. At the moment, only an OSX Cocoa interface (`guiCocoa`) is implemented but a PyQt implementation is planned. There is some special handling for this module as it needs to be run in the main thread in most cases. See `main` for further reference.
+The GUI has its own module [`gui`](gui.py). At the moment, only an OSX Cocoa interface ([`guiCocoa`](guiCocoa.py)) is implemented but a PyQt implementation is planned. There is some special handling for this module as it needs to be run in the main thread in most cases. See `main` for further reference.
 
 
 ## Database
 
-This is the module `songdb`.
+This is the module [`songdb`](songdb.py).
 
 The database is intended to be an optional system which stores some extra data/statistics about a song and also caches some data which is heavy to calculate (e.g. the fingerprint).
 
@@ -69,7 +69,7 @@ It uses [binstruct](https://github.com/albertz/binstruct) for the serialization.
 
 ## Song attribute knowledge system
 
-Some of the initial ideas are presented `attribs.txt`. This is implemented now mostly for the `Song` class.
+Some of the initial ideas are presented `attribs.txt`. This is implemented now mostly for the [`Song` class](Song.py).
 
 There are several sources where we can get some song attribute from:
 
@@ -88,14 +88,17 @@ For each attrib, there might be functions:
 - `Song._estimate_<attrib>`, which is supposed to be fast. This is called no matter what the `timeout` is, in case we did not get it from the database.
 - `Song._calc_<attrib>`, which is supposed to return the exact value but is heavy to call. If this is needed, it will be executed in a seperate process.
 
-See `Song` for further reference.
+See [`Song`](Song.py) for further reference.
 
 
 ## Playlist queue
 
-The playlist queue is managed by the `queue` module. It has the logic to autofill the queue if there are too less songs in it. The algorithm to automatically select a new song uses the random file queue generator. This is a lazy directory unfolder and random picker, implemented in `RandomFileQueue`. Every time, it looks at a few songs and selects some song based on
+The playlist queue is managed by the [`queue`](queue.py) module. It has the logic to autofill the queue if there are too less songs in it. The algorithm to automatically select a new song uses the random file queue generator. This is a lazy directory unfolder and random picker, implemented in [`RandomFileQueue`](RandomFileQueue.py). Every time, it looks at a few songs and selects some song based on
 
 - the song rating,
 - the current recently played context (mostly the song genre / tag map).
 
 
+## Debugging
+
+The module [`stdinconsole`](stdinconsole.py), when started with `--shell`, provides a handy IPython shell to the running application (in addition to the GUI which is still loaded). This is quite helpful to play around. In addition, as said earlier, all the modules are reloadable. I made this so I don't need to interrupt my music playing when playing with the code.
