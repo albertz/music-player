@@ -60,7 +60,7 @@ So far, there is a prebuild MacOSX app bundle in the download section which shou
 * leveldb
 * chromaprint
 
-(Debian/Ubuntu: `sudo apt-get install python-dev libleveldb-dev libsnappy-dev libtool yasm`. libswresample does not exist, so install ffmpeg from source. PortAudio is way too old, thus also install it from source. [Chromaprint](http://acoustid.org/chromaprint) depends on FFmpeg, so also install that from source to have it linked against your custom FFmpeg. `./configure && make && sudo make install` should work for FFmpeg and PortAudio. You might also want to use `--enable-shared` for FFmpeg. `cmake . && sudo make install` for Chromaprint.)
+(Debian/Ubuntu: `apt-get install python-dev libleveldb-dev libsnappy-dev libtool yasm`. FFmpeg in Debian/Ubuntu is too old (lacks libswresample), so either do `add-apt-repository ppa:jon-severinsson/ffmpeg && apt-get update && apt-get install libavformat-dev libswresample-dev` or install it from source. PortAudio is way too old, thus also install it from source. [Chromaprint](http://acoustid.org/chromaprint) depends on FFmpeg, so also install that from source to have it linked against your custom FFmpeg. `./configure && make && sudo make install` should work for FFmpeg and PortAudio. You might also want to use `--enable-shared` for FFmpeg. `cmake . && sudo make install` for Chromaprint.)
 
 Then call `./compile.py` to build the Python modules (it will build the Python modules `ffmpeg.so` and `leveldb.so`).
 
