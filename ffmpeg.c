@@ -36,10 +36,12 @@
 #include <portaudio.h>
 #include <Python.h>
 #include <pythread.h>
+#include <chromaprint.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <chromaprint.h>
+#include <stddef.h>
 
 //#define DEBUG 1
 
