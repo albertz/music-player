@@ -4,6 +4,7 @@
 *.so
 *.o
 *.db
+*~
 xcuserdata
 build
 
