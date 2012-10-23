@@ -369,6 +369,7 @@ class Song(object):
 		return None, 0
 	
 	def get(self, attrib, timeout=0, accuracy=1, callback=None, fastOnly=False):
+		assert bool(self)
 		if fastOnly:
 			assert callback is None, "we aren't going to use callback as we are not doing the calculation"
 		
