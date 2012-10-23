@@ -151,6 +151,7 @@ class Song(object):
 
 	def guessMetadata(self, metadata=None):
 		""" guesses metadata from filename. the current metadata is expected to be fixed (fixupMetadata). """
+		if self.url is None: return # nothing we can do here
 		if metadata is None: metadata = self.metadata
 		if "artist" in metadata and "title" in metadata: return # that's enough for most usage, no need to guess
 		import re, os
@@ -171,6 +172,7 @@ class Song(object):
 
 	@property
 	def fileext(self):
+		if self.url is None: return ""
 		import os
 		return os.path.splitext(self.url)[1][1:]
 
@@ -180,6 +182,7 @@ class Song(object):
 		artist = self.metadata.get("artist", "").strip()
 		title = self.metadata.get("title", "").strip()
 		if artist and title: return artist + " - " + title
+		if self.url is None: return "No song"
 		import os
 		return os.path.basename(self.url)			
 
