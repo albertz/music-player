@@ -638,6 +638,7 @@ class AsyncTask:
 		try:
 			self.func(self)
 		except:
+			print "Exception in AsyncTask", self.name
 			sys.excepthook(*sys.exc_info())			
 		self.conn.close()
 	
@@ -676,15 +677,23 @@ class AsyncTask:
 
 def asyncCall(func, name=None):
 	def doCall(queue):
+		res = None
 		try:
 			res = func()
-			queue.put(res)
-		except:
+			queue.put((None,res))
+		except BaseException as exc:
+			print "Exception in asyncCall", name
 			sys.excepthook(*sys.exc_info())
+			queue.put((exc,None))
 	task = AsyncTask(func=doCall, name=name)
-	# If there is an exception in doCall, this will raise an EOFError here.
-	return task.get()
-	
+	# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
+	# this will raise an EOFError here.
+	# However, normally, we should catch all exceptions and just reraise them here.
+	exc,res = task.get()
+	if exc is not None:
+		raise exc
+	return res
+
 def killMeHard():
 	import sys, os, signal
 	os.kill(0, signal.SIGKILL)
