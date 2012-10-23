@@ -9,6 +9,7 @@ except:
 	
 	# define fallback
 	def main(): raise NotImplementedError
+	def guiMain(): pass
 	
 class GuiObject:
 	"This defines the protocol we must support"
