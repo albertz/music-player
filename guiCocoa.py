@@ -110,18 +110,35 @@ def buildControlAction(control):
 	control.updateContent = update
 	return control
 
+
+def backgroundColor(control):
+	if any([(c.attr and c.attr.highlight) for c in control.allParents()]):
+		return NSColor.blueColor()
+	return None
+
+def foregroundColor(control):
+	if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
+		return NSColor.disabledControlTextColor()
+	return NSColor.blackColor()		
+	
+
 def buildControlOneLineTextLabel(control):
-	label = NSExtendedTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 22.0)))
+	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (100.0, 22.0)))
 	label.setBordered_(False)
 	if control.attr.withBorder:
 		label.setBezeled_(True)
 		label.setBezelStyle_(NSTextFieldRoundedBezel)
-	label.setDrawsBackground_(False)
+	label.setDrawsBackground_(True)
 	label.setEditable_(False)
 	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
 	control.nativeGuiObject = label
 	control.getTextObj = lambda: control.subjectObject
+	def getTextColor():
+		if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
+			return NSColor.disabledControlTextColor()
+		return NSColor.blackColor()		
+	control.getTextColor = getTextColor
 	
 	def update(ev, args, kwargs):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
@@ -132,12 +149,11 @@ def buildControlOneLineTextLabel(control):
 		except: pass
 		def do_update():
 			label.setStringValue_(s)
-			if any([(c.attr and c.attr.highlight) for c in control.allParents()]):
-				label.setDrawsBackground_(True)
-				label.setBackgroundColor_(NSColor.blueColor())
-			if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
-				label.setDrawsBackground_(True)
-				label.setTextColor_(NSColor.disabledControlTextColor())
+			
+			if backgroundColor(control):
+				label.setBackgroundColor_(backgroundColor(control))
+			label.setTextColor_(foregroundColor(control))
+			
 			if control.attr.autosizeWidth:
 				label.sizeToFit()
 				control.layoutLine()
@@ -163,7 +179,7 @@ def buildControlClickableLabel(control):
 		else:
 			label.setTextColor_(NSColor.blueColor())
 	label.onMouseEntered = onMouseEntered
-	label.onMouseExited = lambda ev: label.setTextColor_(NSColor.blackColor())
+	label.onMouseExited = lambda ev: label.setTextColor_(foregroundColor(control))
 	label.onMouseDown = lambda ev: (
 		control.subjectObject(handleClick=True),
 		control.updateContent(None,None,None)
@@ -228,8 +244,7 @@ def buildControlList(control):
 		subCtr.autoresize = (False,False,True,False)		
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 		
-		if control.attr.canHaveFocus:		
-			subCtr.nativeGuiObject.setDrawsBackground_(True)
+		subCtr.nativeGuiObject.setDrawsBackground_(True)
 
 		return subCtr
 	
@@ -443,7 +458,11 @@ def buildControlObject(control):
 		subview.setDrawsBackground_(True)
 		subview.onResignFirstResponder = lambda: subview.setBackgroundColor_(NSColor.textBackgroundColor())		
 		subview.onBecomeFirstResponder = lambda: subview.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
-
+		
+	if backgroundColor(control):
+		subview.setDrawsBackground_(True)
+		subview.setBackgroundColor_(backgroundColor(control))
+	
 	return control
 
 def SongDisplayView_MouseClickCallback(x):
