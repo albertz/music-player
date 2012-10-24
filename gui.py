@@ -100,7 +100,10 @@ class GuiObject:
 				control.pos = (x,y)
 				control.size = (w,h)
 				control.autoresize = (True,False,False,False)
-				x -= self.parent.DefaultSpace[0]
+
+				spaceX = self.parent.DefaultSpace[0]
+				if control.attr.spaceX is not None: spaceX = control.attr.spaceX
+				x -= spaceX
 	
 	def childGuiObjectsInColumn(self):
 		obj = self.firstChildGuiObject
