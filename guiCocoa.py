@@ -141,6 +141,12 @@ def buildControlOneLineTextLabel(control):
 			if control.attr.autosizeWidth:
 				label.sizeToFit()
 				control.layoutLine()
+			
+			if label.onMouseEntered or label.onMouseExited:
+				if getattr(label, "trackingRect", None):
+					label.removeTrackingRect_(label.trackingRect)	
+				label.trackingRect = label.addTrackingRect_owner_userData_assumeInside_(label.bounds(), label, None, False)
+
 		do_in_mainthread(do_update, wait=False)
 
 	control.updateContent = update
@@ -151,9 +157,13 @@ def buildControlClickableLabel(control):
 	control.getTextObj = lambda: control.subjectObject(handleClick=False)
 
 	label = control.nativeGuiObject
-	
-	label.onMouseEntered = lambda ev: label.cell().setFont_(NSFont.boldSystemFontOfSize_(0))
-	label.onMouseExited = lambda ev: label.cell().setFont_(NSFont.labelFontOfSize_(0))	
+	def onMouseEntered(ev):
+		if label.backgroundColor() == NSColor.blueColor():
+			label.setTextColor_(NSColor.grayColor())			
+		else:
+			label.setTextColor_(NSColor.blueColor())
+	label.onMouseEntered = onMouseEntered
+	label.onMouseExited = lambda ev: label.setTextColor_(NSColor.blackColor())
 	label.onMouseDown = lambda ev: (
 		control.subjectObject(handleClick=True),
 		control.updateContent(None,None,None)
