@@ -128,7 +128,7 @@ def buildControlOneLineTextLabel(control):
 	if control.attr.withBorder:
 		label.setBezeled_(True)
 		label.setBezelStyle_(NSTextFieldRoundedBezel)
-	label.setDrawsBackground_(True)
+	label.setDrawsBackground_(False)
 	label.setEditable_(False)
 	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
@@ -151,6 +151,7 @@ def buildControlOneLineTextLabel(control):
 			label.setStringValue_(s)
 			
 			if backgroundColor(control):
+				label.setDrawsBackground_(True)
 				label.setBackgroundColor_(backgroundColor(control))
 			label.setTextColor_(foregroundColor(control))
 			
