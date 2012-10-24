@@ -346,12 +346,13 @@ class Song(object):
 		# Thus, access self.__dict__ directly.
 		# First, check local self.__dict__ cache.
 		if accuracy <= self.LocalAttribAccuracy and attrib in self.__dict__:
-			return self.__dict__[attrib], self.LocalAttribAccuracy
+			return fixValue(self.__dict__[attrib]), self.LocalAttribAccuracy
 		# Now try the DB.
 		import songdb
 		if attrib in songdb.Attribs and hasattr(self, "_id") and self._useDb:
 			try:
 				value = songdb.getSongAttrib(self, attrib)
+				value = utils.fixValue(value)
 			except AttributeError: pass
 			else:
 				# Cache it locally.
@@ -362,6 +363,7 @@ class Song(object):
 		estimateFunc = getattr(self, "_estimate_" + attrib, None)
 		if estimateFunc:
 			value, estAccuracy = estimateFunc()
+			value = utils.fixValue(value)
 			if estAccuracy == 1:
 				# save locally and in DB
 				setattr(self, attrib, value)

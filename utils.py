@@ -605,6 +605,10 @@ def convertToUnicode(value):
 	assert isinstance(value, unicode)
 	return value
 
+def fixValue(value):
+	if isinstance(value, str): return convertToUnicode(value)
+	return value
+
 
 # This is needed in some cases to avoid pickling problems with bounded funcs.
 def funcCall(attrChainArgs, args=()):
