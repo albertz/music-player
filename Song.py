@@ -421,9 +421,13 @@ class Song(object):
 	NumStars = 5
 	def _starHandler(self, starIndex, handleClick):
 		starRating = float(starIndex) / self.NumStars
+		limit = 0.5 / self.NumStars
 		if handleClick:
-			self.rating = starRating
-		if self.rating < starRating:
+			if abs(self.rating - starRating) < limit:
+				self.rating = starRating - 1.0 / self.NumStars
+			else:
+				self.rating = starRating
+		if self.rating - starRating < -limit:
 			return "☆"
 		else:
 			return "★"
