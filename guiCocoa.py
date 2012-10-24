@@ -182,7 +182,7 @@ def buildControlClickableLabel(control):
 	label.onMouseExited = lambda ev: label.setTextColor_(foregroundColor(control))
 	label.onMouseDown = lambda ev: (
 		control.subjectObject(handleClick=True),
-		control.updateContent(None,None,None)
+		control.parent.updateContent(None,None,None)
 		)
 
 	return control
@@ -242,10 +242,9 @@ def buildControlList(control):
 		subCtr.attr = AttrWrapper(index, value, control)
 		buildControlObject(subCtr)
 		subCtr.autoresize = (False,False,True,False)		
+		subCtr.nativeGuiObject.setDrawsBackground_(True)
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 		
-		subCtr.nativeGuiObject.setDrawsBackground_(True)
-
 		return subCtr
 	
 	control.select = None
