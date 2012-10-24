@@ -22,6 +22,7 @@ class List(TraitType):
 	def __len__(self): pass
 	
 class OneLineText(TraitType): pass
+class ClickableLabel(TraitType): pass
 class Enum(TraitType):
 	def __init__(self, enums):
 		self.enums = enums

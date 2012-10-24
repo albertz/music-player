@@ -111,7 +111,7 @@ def buildControlAction(control):
 	return control
 
 def buildControlOneLineTextLabel(control):
-	label = NSTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 22.0)))
+	label = NSExtendedTextField.alloc().initWithFrame_(((10.0, 10.0), (100.0, 22.0)))
 	label.setBordered_(False)
 	if control.attr.withBorder:
 		label.setBezeled_(True)
@@ -121,10 +121,11 @@ def buildControlOneLineTextLabel(control):
 	label.cell().setUsesSingleLineMode_(True)
 	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
 	control.nativeGuiObject = label
-
+	control.getTextObj = lambda: control.subjectObject
+	
 	def update(ev, args, kwargs):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
-		labelContent = control.subjectObject
+		labelContent = control.getTextObj()
 		s = "???"
 		try:
 			s = convertToUnicode(labelContent)
@@ -144,6 +145,22 @@ def buildControlOneLineTextLabel(control):
 
 	control.updateContent = update
 	return control
+
+def buildControlClickableLabel(control):
+	buildControlOneLineTextLabel(control)
+	control.getTextObj = lambda: control.subjectObject(handleClick=False)
+
+	label = control.nativeGuiObject
+	
+	label.onMouseEntered = lambda ev: label.cell().setFont_(NSFont.boldSystemFontOfSize_(0))
+	label.onMouseExited = lambda ev: label.cell().setFont_(NSFont.labelFontOfSize_(0))	
+	label.onMouseDown = lambda ev: (
+		control.subjectObject(handleClick=True),
+		control.updateContent(None,None,None)
+		)
+
+	return control
+
 
 def buildControlList(control):
 	list = control.subjectObject
@@ -592,10 +609,9 @@ def buildControl(userAttr, parent):
 	if userAttr.isType(Traits.Action):
 		return buildControlAction(control)
 	elif userAttr.isType(Traits.OneLineText):
-		if userAttr.writeable:
-			raise NotImplementedError
-		else:
-			return buildControlOneLineTextLabel(control)
+		return buildControlOneLineTextLabel(control)
+	elif userAttr.isType(Traits.ClickableLabel):
+		return buildControlClickableLabel(control)
 	elif userAttr.isType(Traits.Enum):
 		raise NotImplementedError
 	elif userAttr.isType(Traits.List):
@@ -686,7 +702,9 @@ def setupWindow():
 	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
 	win.retain()
 
-
+def locateFile(filename):
+	ws = NSWorkspace.sharedWorkspace()
+	ws.selectFile_inFileViewerRootedAtPath_(filename, None)
 
 
 

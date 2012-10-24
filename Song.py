@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import Traits
 from utils import UserAttrib, safe_property
@@ -186,7 +187,7 @@ class Song(object):
 		import os
 		return os.path.basename(self.url)			
 
-	@UserAttrib(type=Traits.OneLineText)
+	@UserAttrib(type=Traits.OneLineText, variableWidth=True)
 	@safe_property
 	@property
 	def userLongString(self):
@@ -415,6 +416,35 @@ class Song(object):
 		if accuracy < self.GetAttrAccuracy:
 			raise AttributeError, "attrib " + attrib + " is not yet available"		
 		return value
+	
+
+	NumStars = 5
+	def _starHandler(self, starIndex, handleClick):
+		starRating = float(starIndex) / self.NumStars
+		if handleClick:
+			self.rating = starRating
+		if self.rating < starRating:
+			return "☆"
+		else:
+			return "★"
+
+	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
+	def locateFile(self, handleClick=False):
+		if handleClick:
+			import gui
+			gui.locateFile(self.url)
+		return "⬆"
+		
+	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
+	def star1(self, handleClick=False): return self._starHandler(1, handleClick)
+	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
+	def star2(self, handleClick=False): return self._starHandler(2, handleClick)
+	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
+	def star3(self, handleClick=False): return self._starHandler(3, handleClick)
+	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
+	def star4(self, handleClick=False): return self._starHandler(4, handleClick)
+	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
+	def star5(self, handleClick=False): return self._starHandler(5, handleClick)
 		
 def test():
 	# These are testing guessMetadata.

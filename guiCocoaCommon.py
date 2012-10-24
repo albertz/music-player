@@ -87,9 +87,35 @@ try:
 				return True
 			return False
 
-
 except:
 	NSFlippedView = objc.lookUpClass("NSFlippedView")
+
+try:
+	class NSExtendedTextField(NSTextField):
+		onMouseEntered = None
+		onMouseExited = None
+		onMouseDown = None
+		onMouseDragged = None
+		onMouseUp = None
+		def mouseEntered_(self, ev):
+			if self.onMouseEntered: self.onMouseEntered(ev)
+			else: NSTextField.mouseEntered_(self, ev)
+		def mouseExited_(self, ev):
+			if self.onMouseExited: self.onMouseExited(ev)
+			else: NSTextField.mouseExited_(self, ev)
+		def mouseDown_(self, ev):
+			if not self.onMouseDown or not self.onMouseDown(ev):
+				NSView.mouseDown_(self, ev)
+		def mouseDragged_(self, ev):
+			if not self.onMouseDragged or not self.onMouseDragged(ev):
+				NSView.mouseDragged_(self, ev)
+		def mouseUp_(self, ev):
+			if not self.onMouseUp or not self.onMouseUp(ev):
+				NSView.mouseUp_(self, ev)
+
+except:
+	NSExtendedTextField = objc.lookUpClass("NSExtendedTextField")
+
 
 try:
 	class ButtonActionHandler(NSObject):

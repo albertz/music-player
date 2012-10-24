@@ -10,6 +10,7 @@ except:
 	# define fallback
 	def main(): raise NotImplementedError
 	def guiMain(): pass
+	def locateFile(filename): pass
 	
 class GuiObject:
 	"This defines the protocol we must support"
