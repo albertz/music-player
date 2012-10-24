@@ -34,7 +34,7 @@ def checkUpdate():
 		checkAgain = False
 		songs = []
 		if state.curSong:
-			songs += []
+			songs += [state.curSong]
 		songs += queue.peekNextN(PreloadNextN)
 				
 		for song in songs:
