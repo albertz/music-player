@@ -123,7 +123,18 @@ def getSongHashSources(song):
 def maybeUpdateHashAfterAttribUpdate(song, attrib, value):
 	for prefix,attr,func in SongHashSources:
 		if attr == attrib:
-			songHashDb[prefix + mapHash(value)] = song.id
+			hashDbKey = prefix + mapHash(value)
+			try:
+				oldId = songHashDb[hashDbKey]
+				if oldId != song.id:
+					# whoops, we had a wrong song.id before...
+					# update it.
+					# we might loose some data which was set in the meantime,
+					# but i don't really know a good way to solve this...
+					song.id = oldId
+					updateHashDb(song, song.id)
+			except KeyError:
+				songHashDb[hashDbKey] = song.id
 			return
 
 def getSongId(song):

@@ -4,7 +4,7 @@ PreloadNextN = 10
 
 import sys
 
-Attribs = ["gain", "bmpThumbnail", "fingerprint_AcoustId", "sha1"]
+Attribs = ["sha1", "gain", "fingerprint_AcoustId", "bmpThumbnail"]
 
 def needUpdate(song):
 	for attr in Attribs:		

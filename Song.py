@@ -221,12 +221,26 @@ class Song(object):
 	@safe_property
 	@property
 	def id(self):
+		if getattr(self, "_id", None): return self._id
 		if not self._useDb: return None
-		if not getattr(self, "_id", None):
-			import songdb
-			self._id = songdb.calcNewSongId(self)
-		return self._id
 		
+		# avoid recursive calls. those might happen because
+		# calcNewSongId or getSongId will again access Song attribs.
+		if getattr(self, "_recursive_id_call", False): return None
+		self._recursive_id_call = True
+		
+		import songdb
+		self._id = songdb.getSongId(self)
+		if not self._id:
+			self._id = songdb.calcNewSongId(self)
+		
+		self._recursive_id_call = False
+		return self._id
+	
+	@id.setter
+	def id(self, value):
+		self._id = value
+	
 	# These _calc_<attrib> functions specify how to calculate
 	# song.<attrib>. In the DB, this is all file-specific, i.e.
 	# song.files[song.url].<attrib>.
@@ -349,7 +363,7 @@ class Song(object):
 			return fixValue(self.__dict__[attrib]), self.LocalAttribAccuracy
 		# Now try the DB.
 		import songdb
-		if attrib in songdb.Attribs and hasattr(self, "_id") and self._useDb:
+		if attrib in songdb.Attribs and self._useDb and self.id:
 			try:
 				value = songdb.getSongAttrib(self, attrib)
 				value = utils.fixValue(value)

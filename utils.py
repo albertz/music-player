@@ -233,6 +233,15 @@ class safe_property(object):
 			# We should never reraise this particular exception. Thus catch it here.
 			sys.excepthook(*sys.exc_info())
 			return None # The best we can do.
+	def __set__(self, inst, value):
+		try:
+			self.prop.__set__(inst, value)
+		except AttributeError:
+			# We should never reraise this particular exception. Thus catch it here.
+			sys.excepthook(*sys.exc_info())
+	def __getattr__(self, attr):
+		# forward prop.setter, prop.deleter, etc.
+		return getattr(self.prop, attr)
 
 def formatTime(t):
 	if t is None: return "?"
