@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="MusicPlayer : Music player - endlessly plays your music" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>MusicPlayer</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/albertz/music-player">View on GitHub</a>
+
+          <h1 id="project_title">MusicPlayer</h1>
+          <h2 id="project_tagline">Music player - endlessly plays your music</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/albertz/music-player/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/albertz/music-player/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Music player</h1>
+
+<p><img src="https://github.com/albertz/music-player/raw/master/screenshot.png" alt="MusicPlayer screenshot"></p>
+
+<p><a href="https://github.com/downloads/albertz/music-player/MusicPlayer-0.6.zip">Download MusicPlayer 0.6 for MacOSX</a></p>
+
+<p>This music player is all centered around an intelligent queue. You can manually add songs to it - but if you don't or the queue gets too short, it will automatically intelligently fill it with further songs.</p>
+
+<p>The decision currently is based on:</p>
+
+<ul>
+<li>song ratings</li>
+<li>context-based choices, e.g. related songs more likely</li>
+</ul><p>Other features of this player:</p>
+
+<ul>
+<li>open source (license not really decided yet - probably BSD)</li>
+<li>simple</li>
+<li>support of most important sound formats. just uses FFmpeg</li>
+<li>simple music database</li>
+<li>audio volume normalization. own ReplayGain implementation</li>
+<li>Last.fm scrobbling</li>
+<li>AcoustID fingerprint</li>
+<li>imports iTunes song ratings</li>
+</ul><p>Annoyed by all existing players because some subset of:</p>
+
+<ul>
+<li>not open source</li>
+<li>missing sound format (<a href="http://flac.sourceforge.net/itunes.html">FLAC</a>, Ogg, ...)</li>
+<li>bugs (<a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=23640">1</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25023">2</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25042">3</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18503">4</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18505">5</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18480">6</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18478">7</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25073">8</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25024">9</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=5975">10</a>, ...)</li>
+<li>missing output possibility (RAOP, PulseAudio, ...)</li>
+<li>no or too limited DJ mode</li>
+<li>no library / database</li>
+<li>not running well on my platform of choice</li>
+</ul><p>TODO / possible additional missing features:</p>
+
+<ul>
+<li>
+<a href="http://en.wikipedia.org/wiki/Gapless_playback">Gapless playback</a>. I think ffmpeg provides some way to get the exact specified start/end of a song. Otherwise this is just a question of buffering.</li>
+<li>BPM determination and clever DJ-like fading</li>
+<li>echoprint.me or similar song determination (mostly for metadata, esp. if missing)</li>
+<li>use tags given by Last.fm (mostly more tags)</li>
+<li>integrate iTunes database (rating, volume normalization, metatags)</li>
+<li>Last.fm streaming support</li>
+<li>watch music directory for changes (e.g. new files added)</li>
+<li>PyQt GUI interface</li>
+</ul><p>The current GUI is Cocoa only. Additional Qt support is planned. The music player also works without any GUI.</p>
+
+<p>Read more about technical internals: <a href="https://github.com/albertz/music-player/blob/master/DevelopmentNotes.md">DevelopmentNotes</a></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">MusicPlayer maintained by <a href="https://github.com/albertz">albertz</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
