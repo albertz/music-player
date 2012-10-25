@@ -24,7 +24,10 @@ def setupAppleMenu():
 	# strange hack
 	app.setAppleMenu_(m)
 	mainMenu.setSubmenu_forItem_(m, mi)
-	mi = m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
+	
+	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
+	m.addItemWithTitle_action_keyEquivalent_('Close window', 'closeWindow:', 'w')
+	m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
 
 	app.setMainMenu_(mainMenu)
 
@@ -76,6 +79,14 @@ class PyAppDelegate(NSObject):
 	def userNotificationCenter_shouldPresentNotification_(self, notifCenter, notif):
 		return True
 
+	def closeWindow_(self, app):
+		if mainWindow():
+			mainWindow().close()
+	
+	def about_(self, app):
+		import webbrowser
+		webbrowser.open("http://albertz.github.com/music-player/")
+		
 def mainWindow():
 	global window
 	if window: return window.nativeGuiObject.window()
