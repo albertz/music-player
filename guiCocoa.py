@@ -381,6 +381,24 @@ def buildControlList(control):
 					else:
 						break
 				self.guiCursor.setFrameOrigin_((0,y - 1))
+
+				visibleFrame = scrollview.contentView().documentVisibleRect()
+				mouseLoc = NSPoint(dragLoc.x - visibleFrame.origin.x, dragLoc.y - visibleFrame.origin.y)
+				ScrollLimit = 30
+				Limit = 15
+				y = None
+				if mouseLoc.y < Limit:
+					scrollBy = Limit - mouseLoc.y
+					y = visibleFrame.origin.y - scrollBy
+					y = max(y, -ScrollLimit)
+				elif mouseLoc.y > visibleFrame.size.height - Limit:
+					scrollBy = mouseLoc.y - visibleFrame.size.height + Limit
+					y = visibleFrame.origin.y + scrollBy
+					y = min(y, scrollview.documentView().frame().size.height - visibleFrame.size.height + ScrollLimit)
+				if y is not None:
+					scrollview.contentView().scrollToPoint_((0, y))
+					scrollview.reflectScrolledClipView_(scrollview.contentView())
+
 			def onDraggingExited(self, sender):
 				self.guiCursor.setDrawsBackground_(False)
 				self.index = None
