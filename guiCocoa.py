@@ -67,11 +67,19 @@ class PyAppDelegate(NSObject):
 		return NSTerminateNow
 
 	def applicationOpenUntitledFile_(self, app):
-		setupWindow()
+		if not mainWindow():
+			setupWindow()
+		else:
+			app.activateIgnoringOtherApps_(True)
 		return True
 
 	def userNotificationCenter_shouldPresentNotification_(self, notifCenter, notif):
 		return True
+
+def mainWindow():
+	global window
+	if window: return window.nativeGuiObject.window()
+	return None
 
 def quit():
 	app.terminate_(None)
@@ -744,7 +752,9 @@ def setupWindow():
 	win.makeMainWindow()
 	win.makeKeyWindow()
 	
-	win.center() # later: restore earlier pos/size
+	win.center()
+	win.setFrameUsingName_("mainWindow")
+	win.setFrameAutosaveName_("mainWindow")
 
 	app.activateIgnoringOtherApps_(True)
 	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
