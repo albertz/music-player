@@ -72,7 +72,6 @@ class GuiObject:
 			y = minY + (maxH - h) / 2.
 			
 			control.pos = (x,y)
-			control.size = (w,h)
 			
 			x += w + spaceX
 

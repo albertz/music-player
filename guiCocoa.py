@@ -242,9 +242,10 @@ def buildControlList(control):
 		subCtr.parent = control
 		subCtr.attr = AttrWrapper(index, value, control)
 		buildControlObject(subCtr)
-		subCtr.autoresize = (False,False,True,False)		
-		subCtr.nativeGuiObject.setDrawsBackground_(True)
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
+		subCtr.updateContent(None,None,None)
+		subCtr.autoresize = (False,False,True,False)
+		subCtr.nativeGuiObject.setDrawsBackground_(True)
 		
 		return subCtr
 	
