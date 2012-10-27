@@ -1,5 +1,10 @@
+#!/usr/bin/env ruby
+# https://github.com/Constellation/ruby-net-github-upload/blob/master/lib/net/github-upload.rb
+# gem install nokogiri
+
 require 'tempfile'
-require 'nokogiri'
+# nokogiri still fails to load. no idea why. so i uncommented it...
+#require 'nokogiri'
 require 'httpclient'
 require 'stringio'
 require 'json'
