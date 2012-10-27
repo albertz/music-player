@@ -763,7 +763,6 @@ def setupWindow():
 	win.makeMainWindow()
 	win.makeKeyWindow()
 	
-	win.center()
 	win.setFrameUsingName_("mainWindow")
 	win.setFrameAutosaveName_("mainWindow")
 
