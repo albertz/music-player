@@ -92,18 +92,25 @@ http = Net::HTTP.new url.host, url.port
 http.use_ssl = url.scheme == 'https'
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 res = http.get("/#{repo}/downloads?login=#{user}&token=#{token}")
-die "File has already been uploaded" if res.body =~ /<td><a href="https?:\/\/s3.amazonaws.com\/github\/downloads\/#{repo.gsub(/\//, "\/")}\/#{filename}.+">#{filename}<\/a><\/td>/
+cookie = res.response['set-cookie'].split('; ')[0]
+
+if res.body =~ /<td><a href="https?:\/\/s3.amazonaws.com\/github\/downloads\/#{repo.gsub(/\//, "\/")}\/#{filename}.+">#{filename}<\/a><\/td>/
+	#die "File has already been uploaded"
+end
 
 
 # Get the info we need from GitHub to post to S3
-res = http.post_form("/#{repo}/downloads", {
-  :file_size => File.size(filename),
-  :content_type => mime_type.simplified,
-  :file_name => filename,
-  :description => '',
-  :login => user,
-  :token => token,
-})
+req = Net::HTTP::Post.new("/#{repo}/downloads")
+req.form_data = {
+	:file_size => File.size(filename),
+	:content_type => mime_type.simplified,
+	:file_name => filename,
+	:description => '',
+	:login => user,
+	:token => token,
+}
+req["Cookie"] = cookie
+res = http.request(req)
 die "Repo not found" if res.class == Net::HTTPNotFound
 date = res["Date"]
 data = XmlSimple.xml_in(res.body)
