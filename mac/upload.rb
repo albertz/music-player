@@ -1,12 +1,15 @@
 #!/usr/bin/env ruby
 
+# https://github.com/github/upload
+# You might need:
+#   gem install xml-simple mime-types
+
 require "net/http"
 require 'net/https'
 require "rubygems"
 require 'xmlsimple'
 require "time"
 require 'mime/types'
-
 
 module Net
   class HTTP
