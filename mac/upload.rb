@@ -3,6 +3,10 @@
 # https://github.com/github/upload
 # You might need:
 #   gem install xml-simple mime-types
+#   git config --global github.user YOUR_USER
+#   git config --global github.token YOUR_TOKEN
+# For the token, see:
+# https://help.github.com/articles/creating-an-oauth-token-for-command-line-use
 
 require "net/http"
 require 'net/https'
