@@ -9,6 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import <Python/Python.h>
 
+
+
 static void addPyPath() {
 	NSString* pathStr =
 	[[NSString alloc]
@@ -35,8 +37,11 @@ int main(int argc, char *argv[])
 	
 	// maybe PySys_SetArgvEx ?
 	
+	// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
+	freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
+	freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stderr);
 	PyRun_SimpleString("print 'hello there'");
-		
+	
 	FILE* fp = fopen((char*)[mainPyFilename UTF8String], "r");
 	assert(fp);
 	PyRun_SimpleFile(fp, "main.py");
