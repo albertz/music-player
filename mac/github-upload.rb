@@ -1,184 +1,113 @@
 #!/usr/bin/env ruby
-# https://github.com/Constellation/ruby-net-github-upload/blob/master/lib/net/github-upload.rb
-# gem install nokogiri
 
-require 'tempfile'
-# nokogiri still fails to load. no idea why. so i uncommented it...
-#require 'nokogiri'
-require 'httpclient'
-require 'stringio'
 require 'json'
-require 'faster_xml_simple'
+require 'net/https'
+require 'pathname'
 
-module Net
-  module GitHub
-    class Upload
-      VERSION = '0.0.8'
-      def initialize params=nil
-        @login = params[:login]
-        @token = params[:token]
 
-        if @login.empty? or @token.empty?
-          raise "login or token is empty"
-        end
-      end
 
-      # Upload a file to github. Will fail if the file already exists.
-      # To upload, either supply :data and :name or :file.
-      #
-      # @param [Hash] info
-      # @option info [String] :content_type ('application/octet-stream') Type of data to send 
-      # @option info [String] :data Data to upload as a file. Requires that the :name option is set.
-      # @option info [String] :description ('') Description of file on Github download page.
-      # @option info [String] :file Path to file to upload.
-      # @option info [String] :name (filename of info[:file] if uploading a file) Name the file will have (not including path) when uploaded.
-      # @option info [Boolean] :replace (false) True to force overwriting of an existing file.
-      # @option info [String] :repos Name of Github project, such as "my_project", which is the repository.
-      # @option info [Float] :upload_timeout (120) Maximum time, in seconds, before abandoning a file upload.
-      # @option info [Float] :yield_interval (1) Interval, in seconds, between yields if block is given.     
-      # @yield [] Optional block will yield every info[:yield_interval] seconds (This can be used, for example, to print "#" every second so users see that the upload is continuing).
-      def upload info
-        unless info[:repos]
-          raise "required repository name"
-        end
-        info[:repos] = @login + '/' + info[:repos] unless info[:repos].include? '/'
+# Extensions
+# ----------
 
-        if info[:file]
-          file = info[:file]
-          unless File.exist?(file) && File.readable?(file)
-            raise "file does not exsits or readable"
-          end
-          info[:name] ||= File.basename(file)
-        end
-        unless  info[:file] || info[:data]
-          raise "required file or data parameter to upload"
-        end
-
-        unless info[:name]
-          raise "required name parameter for filename with data parameter"
-        end
-
-        if info[:replace]
-          list_files(info[:repos]).each { |obj|
-            next unless obj[:name] == info[:name]
-            delete info[:repos], obj[:id]
-          }
-        elsif list_files(info[:repos]).any?{|obj| obj[:name] == info[:name]}
-          raise "file '#{info[:name]}' is already uploaded. please try different name"
-        end
-
-        info[:content_type] ||= 'application/octet-stream'
-        stat = HTTPClient.post("https://github.com/#{info[:repos]}/downloads", {
-          "file_size"    => info[:file] ? File.stat(info[:file]).size : info[:data].size,
-          "content_type" => info[:content_type],
-          "file_name"    => info[:name],
-          "description"  => info[:description] || '',
-          "login"        => @login,
-          "token"        => @token
-        })
-
-        unless stat.code == 200
-          raise "Failed to post file info"
-        end
-
-        upload_info = JSON.parse(stat.content)
-        if info[:file]
-          f = File.open(info[:file], 'rb')
-        else
-          f = Tempfile.open('net-github-upload')
-          f << info[:data]
-          f.flush
-        end
-        client = HTTPClient.new
-        client.send_timeout = info[:upload_timeout] if info[:upload_timeout]
-
-        res = begin
-          connection = client.post_async("http://github.s3.amazonaws.com/", [
-              ['Filename', info[:name]],
-              ['policy', upload_info['policy']],
-              ['success_action_status', 201],
-              ['key', upload_info['path']],
-              ['AWSAccessKeyId', upload_info['accesskeyid']],
-              ['Content-Type', upload_info['content_type'] || 'application/octet-stream'],
-              ['signature', upload_info['signature']],
-              ['acl', upload_info['acl']],
-              ['file', f]
-          ])
-
-          until connection.finished?
-            yield if block_given?
-            sleep info[:yield_interval] || 1
-          end
-
-          connection.pop
-        ensure
-          f.close
-        end
-
-        if res.status == 201
-          return FasterXmlSimple.xml_in(res.body.read)['PostResponse']['Location']
-        else
-          raise 'Failed to upload' + extract_error_message(res.body)
-        end
-      end
-
-      # Upload a file and replace it if it already exists on the server.
-      #
-      # @see #upload
-      def replace info = {}, &block
-         upload info.merge( :replace => true ), &block
-      end
-
-      # Delete all uploaded files.
-      def delete_all repos
-        unless repos
-          raise "required repository name"
-        end
-        repos = @login + '/' + repos unless repos.include? '/'
-        list_files(repos).each { |obj|
-          delete repos, obj[:id]
-        }
-      end
-
-      # Delete an individual file (used by #replace when replacing existing files).
-      def delete repos, id
-        HTTPClient.post("https://github.com/#{repos}/downloads/#{id.gsub( "download_", '')}", {
-          "_method"      => "delete",
-          "login"        => @login,
-          "token"        => @token
-        })
-      end
-
-      # List all the files uploaded to a repository.
-      def list_files repos
-        raise "required repository name" unless repos
-        res = HTTPClient.get_content("https://github.com/#{repos}/downloads", {
-          "login" => @login,
-          "token" => @token
-        })
-        Nokogiri::HTML(res).xpath('id("manual_downloads")/li').map do |fileinfo|
-          obj = {
-            :description =>  fileinfo.at_xpath('descendant::h4').text.force_encoding('BINARY').gsub(/.+?\xe2\x80\x94 (.+?)(\n\s*)?$/m, '\1'),
-            :date => fileinfo.at_xpath('descendant::p/time').attribute('title').text,
-            :size => fileinfo.at_xpath('descendant::p/strong').text,
-            :id => /\d+$/.match(fileinfo.at_xpath('a').attribute('href').text)[0]
-          }
-          anchor = fileinfo.at_xpath('descendant::h4/a')
-          obj[:link] = anchor.attribute('href').text
-          obj[:name] = anchor.text
-          obj
-        end
-      end
-
-      private
-
-      def extract_error_message(stat)
-        # @see http://docs.amazonwebservices.com/AmazonS3/2006-03-01/ErrorResponses.html
-        error = FasterXmlSimple.xml_in(stat.content)['Error']
-        " due to #{error['Code']} (#{error['Message']})"
-      rescue
-        ''
-      end
-    end
+# We extend Pathname a bit to get the content type.
+class Pathname
+  def type
+    flags = RUBY_PLATFORM =~ /darwin/ ? 'Ib' : 'ib'
+    `file -#{flags} #{realpath}`.chomp.gsub(/;.*/,'')
   end
 end
+
+
+
+# Helpers
+# -------
+
+# Die if something goes wrong.
+def die(msg); puts(msg); exit!(1); end
+
+# Do a post to the given url, with the payload and optional basic auth.
+def post(url, token, params, headers)
+  uri = URI.parse(url)
+
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+
+  req = Net::HTTP::Post.new(uri.path, headers)
+  req['Authorization'] = "token #{token}" if token
+
+  return http.request(req, params)
+end
+
+def urlencode(str)
+  str.gsub(/[^a-zA-Z0-9_\.\-]/n) {|s| sprintf('%%%02x', s[0].to_i) }
+end
+
+# Yep, ruby net/http doesn't support multipart. Write our own multipart generator.
+# The order of the params is important, the file needs to go as last!
+def build_multipart_content(params)
+  parts, boundary = [], "#{rand(1000000)}-we-are-all-doomed-#{rand(1000000)}"
+
+  params.each do |name, value|
+    data = []
+    if value.is_a?(Pathname) then
+      data << "Content-Disposition: form-data; name=\"#{urlencode(name.to_s)}\"; filename=\"#{value.basename}\""
+      data << "Content-Type: #{value.type}"
+      data << "Content-Length: #{value.size}"
+      data << "Content-Transfer-Encoding: binary"
+      data << ""
+      data << value.read
+    else
+      data << "Content-Disposition: form-data; name=\"#{urlencode(name.to_s)}\""
+      data << ""
+      data << value
+    end
+
+    parts << data.join("\r\n") + "\r\n"
+  end
+
+  [ "--#{boundary}\r\n" + parts.join("--#{boundary}\r\n") + "--#{boundary}--", {
+    "Content-Type" => "multipart/form-data; boundary=#{boundary}"
+  }]
+end
+
+
+
+# Configuration and setup
+# -----------------------
+
+# Get Oauth token for this script.
+token = `git config --get github.upload-script-token`.chomp
+
+# The file we want to upload, and repo where to upload it to.
+file = Pathname.new(ARGV[0])
+repo = ARGV[1] || `git config --get remote.origin.url`.match(/git@github.com:(.+?)\.git/)[1]
+
+
+
+# The actual, hard work
+# ---------------------
+
+# Register the download at github.
+res = post("https://api.github.com/repos/#{repo}/downloads", token, {
+  'name' => file.basename.to_s, 'size' => file.size.to_s,
+  'content_type' => file.type.gsub(/;.*/, '')
+}.to_json, {})
+
+die("File already exists.") if res.class == Net::HTTPClientError
+die("GitHub doens't want us to upload the file.") unless res.class == Net::HTTPCreated
+
+
+# Parse the body and use the info to upload the file to S3.
+info = JSON.parse(res.body)
+res = post(info['s3_url'], nil, *build_multipart_content({
+  'key' => info['path'], 'acl' => info['acl'], 'success_action_status' => 201,
+  'Filename' => info['name'], 'AWSAccessKeyId' => info['accesskeyid'],
+  'Policy' => info['policy'], 'signature' => info['signature'],
+  'Content-Type' => info['mime_type'], 'file' => file
+}))
+
+die("S3 is mean to us.") unless res.class == Net::HTTPCreated
+
+
+# Print the URL to the file to stdout.
+puts "#{info['s3_url']}#{info['path']}"
