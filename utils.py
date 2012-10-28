@@ -517,10 +517,11 @@ def objc_setClass(obj, clazz):
 	obj.__class__ = clazz
 
 def do_in_mainthread(f, wait=True):
-	from AppKit import NSThread
-	if NSThread.isMainThread():
-		return f()
-
+	# Note: We don't need/want the NSThread.isMainThread() check and extra handling.
+	# The `performSelectorOnMainThread:withObject:waitUntilDone:` does the right thing
+	# in case we are the main thread: if wait is True, it is executed from here,
+	# otherwise it is queued and executed in the next frame.
+	
 	try:
 		NSObject = objc.lookUpClass("NSObject")
 		class PyAsyncCallHelper(NSObject):
