@@ -1,12 +1,9 @@
 
-# http://weblog.rogueamoeba.com/2007/09/29/apple-keyboard-media-key-event-handling/
-
-import AppKit
-from AppKit import NSKeyUp, NSSystemDefined, NSEvent
-import Quartz
 import sys
 
 class MacMediaKeyEventsTap:
+	# http://weblog.rogueamoeba.com/2007/09/29/apple-keyboard-media-key-event-handling/
+	
 	def __init__(self):
 		# IOKit/hidsystem/ev_keymap.h
 		self._keyControls = {
@@ -18,6 +15,7 @@ class MacMediaKeyEventsTap:
 		}
 
 	def eventTap(self, proxy, type_, event, refcon):
+		from AppKit import NSKeyUp, NSEvent
 		# Convert the Quartz CGEvent into something more useful
 		keyEvent = NSEvent.eventWithCGEvent_(event)
 		if keyEvent.subtype() is 8: # subtype 8 is media keys
@@ -35,6 +33,8 @@ class MacMediaKeyEventsTap:
 		pass
 		
 	def runEventsCapture(self):
+		import AppKit, Quartz
+		from AppKit import NSSystemDefined
 		pool = AppKit.NSAutoreleasePool.alloc().init()
 		
 		self.runLoopRef = Quartz.CFRunLoopGetCurrent()
@@ -83,10 +83,18 @@ class MacMediaKeyEventsTap:
 		self.thread.start()
 
 	def stop(self):
+		import Quartz
 		Quartz.CFRunLoopStop(self.runLoopRef)
 
 
-EventListener = MacMediaKeyEventsTap
+if sys.platform == "darwin":
+	EventListener = MacMediaKeyEventsTap
+else:
+	print "No media key event listener implementation"
+	# Dummy implementation
+	class EventListener:
+		def start(self): pass
+		def stop(self): pass
 
 from State import state
 
