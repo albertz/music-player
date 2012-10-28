@@ -3,6 +3,7 @@
 cd "$(dirname "$0")"
 
 pushd build/Release
+rm MusicPlayer-latest.zip
 zip -9 -r MusicPlayer-latest.zip MusicPlayer.app
 popd
 
