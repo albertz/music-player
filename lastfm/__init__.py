@@ -160,7 +160,7 @@ class Client:
 	@threadedmethod
 	def apiCall(self, apiFuncName, **kwargs):
 		if not self.sess.is_linked(): return # silently ignore
-		print "lastfm", apiFuncName, kwargs
+		#print "lastfm", apiFuncName, kwargs
 		
 		f = getattr(_client.api_client, apiFuncName)
 		while True:
