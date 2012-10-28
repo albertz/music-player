@@ -9,8 +9,7 @@ import os
 
 try:
 	libraryXmlFile = codecs.open(os.path.expanduser("~/Music/iTunes/iTunes Music Library.xml"), "r", "utf-8")
-except:
-	sys.excepthook(*sys.exc_info())
+except IOError: # file not found or so
 	libraryXmlFile = None
 
 def parse_xml(stream):
