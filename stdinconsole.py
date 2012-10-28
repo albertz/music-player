@@ -5,6 +5,13 @@ import sys, os
 stdinQueue = OnRequestQueue()
 
 def readNextInput():
+	import appinfo
+	if appinfo.args.shell:
+		# if we use the shell, we cannot read from stdin here because the shell does it
+		# just wait for quit
+		import time
+		time.sleep(1)
+		return
 	ch = os.read(sys.stdin.fileno(),7)
 	stdinQueue.put(ch)
 
