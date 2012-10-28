@@ -19,11 +19,12 @@ def link(outfile, infiles, options):
 		)
 	else:
 		sysExec(
-			["ld", "-shared", "-o", outfile] +
+			["ld"] +
 			["-L/usr/local/lib"] +
-			options +
 			infiles +
-			["-lc"]
+			options +
+			["-lc"] +
+			["-shared", "-o", outfile]
 		)
 
 CFLAGS = os.environ.get("CFLAGS", "").split()
