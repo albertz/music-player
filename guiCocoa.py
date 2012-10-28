@@ -226,8 +226,10 @@ def buildControlList(control):
 	control.nativeGuiObject = view
 	control.guiObjectList = [] # all access on this list is done in the main thread
 	control.OuterSpace = (0,0)
-	control.childIter = lambda: control.guiObjectList
-	control.childGuiObjectsInColumn = lambda: control.guiObjectList
+	# Hm, why did i needed this again? This makes everything slow and because of
+	# the generic GuiControl.layout(), it also makes it wrong.
+	#control.childIter = lambda: control.guiObjectList
+	#control.childGuiObjectsInColumn = lambda: control.guiObjectList
 
 	class Updater:
 		def __init__(self):
@@ -281,6 +283,7 @@ def buildControlList(control):
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 		subCtr.updateContent(None,None,None)
 		subCtr.autoresize = (False,False,True,False)
+		subCtr.size = (0,subCtr.size[1]) # so that there isn't any flickering
 		subCtr.nativeGuiObject.setDrawsBackground_(True)
 		
 		return subCtr
@@ -291,7 +294,7 @@ def buildControlList(control):
 			# for now, a single index. later maybe a range
 			index = None
 			def onInsert(self, index, value):
-				if index < self.index: self.index += 1
+				if index <= self.index: self.index += 1
 			def onRemove(self, index):
 				if index < self.index: self.index -= 1
 				elif index == self.index: self.deselect()
@@ -307,15 +310,19 @@ def buildControlList(control):
 					if len(control.guiObjectList) == 0: return
 					index = 0
 				self.index = index
-				control.guiObjectList[index].nativeGuiObject.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
+				guiObj = control.guiObjectList[index].nativeGuiObject
+				guiObj.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
 				
-				objFrame = control.guiObjectList[index].nativeGuiObject.frame()
-				visibleFrame = scrollview.contentView().documentVisibleRect()
-				if objFrame.origin.y < visibleFrame.origin.y:				
-					scrollview.contentView().scrollToPoint_((0, objFrame.origin.y))
-				elif objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height:
-					scrollview.contentView().scrollToPoint_((0, objFrame.origin.y + objFrame.size.height - scrollview.contentSize().height))
-				scrollview.reflectScrolledClipView_(scrollview.contentView())
+				def doScrollUpdate():
+					if not guiObj.window(): return # window closed or removed from window in the meantime
+					objFrame = guiObj.frame()
+					visibleFrame = scrollview.contentView().documentVisibleRect()
+					if objFrame.origin.y < visibleFrame.origin.y:				
+						scrollview.contentView().scrollToPoint_((0, objFrame.origin.y))
+					elif objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height:
+						scrollview.contentView().scrollToPoint_((0, objFrame.origin.y + objFrame.size.height - scrollview.contentSize().height))
+					scrollview.reflectScrolledClipView_(scrollview.contentView())
+				do_in_mainthread(doScrollUpdate, wait=False)
 			def onFocus(self):
 				if self.index is None:
 					self.select()
@@ -359,9 +366,8 @@ def buildControlList(control):
 					oldIndex = self.index
 					# check if the index is still correct
 					if control.guiObjectList[oldIndex] is sourceControl:
-						list.remove(oldIndex)
-						if index > oldIndex: index -= 1
 						self.select(index)
+						list.remove(oldIndex)
 				
 		control.select = SelectionHandling()
 		view.onBecomeFirstResponder = control.select.onFocus
