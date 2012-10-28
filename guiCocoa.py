@@ -228,25 +228,42 @@ def buildControlList(control):
 	control.OuterSpace = (0,0)
 	control.childIter = lambda: control.guiObjectList
 	control.childGuiObjectsInColumn = lambda: control.guiObjectList
-	
-	def doUpdate():
-		x,y = 0,0
-		for subCtr in control.guiObjectList:
-			w = scrollview.contentSize().width
-			h = subCtr.size[1]
-			subCtr.pos = (x,y)
-			subCtr.size = (w,h)
-			y += subCtr.size[1]
-		scrollview.documentView().setFrameSize_((scrollview.contentSize().width, y))
-		
-		if control.attr.autoScrolldown:
-			scrollview.verticalScroller().setFloatValue_(1)
-			scrollview.contentView().scrollToPoint_(
-				(0, scrollview.documentView().frame().size.height -
-					scrollview.contentSize().height))
 
-	def update(): do_in_mainthread(doUpdate, wait=False)
-	control.layout = doUpdate
+	class Updater:
+		def __init__(self):
+			from threading import Lock
+			self.lock = Lock()
+			self.outstandingUpdate = False
+		
+		def doUpdate(self):
+			with self.lock:
+				if not self.outstandingUpdate: return
+				
+			x,y = 0,0
+			for subCtr in control.guiObjectList:
+				w = scrollview.contentSize().width
+				h = subCtr.size[1]
+				subCtr.pos = (x,y)
+				subCtr.size = (w,h)
+				y += subCtr.size[1]
+			scrollview.documentView().setFrameSize_((scrollview.contentSize().width, y))
+			
+			if control.attr.autoScrolldown:
+				scrollview.verticalScroller().setFloatValue_(1)
+				scrollview.contentView().scrollToPoint_(
+					(0, scrollview.documentView().frame().size.height -
+						scrollview.contentSize().height))
+
+			with self.lock:
+				self.outstandingUpdate = False
+
+		def update(self):			
+			with self.lock:
+				if self.outstandingUpdate: return
+				self.outstandingUpdate = True
+				do_in_mainthread(self.doUpdate, wait=False)
+	
+	updater = Updater()
 	
 	class AttrWrapper(UserAttrib):
 		def __init__(self, index, value, parent):
@@ -437,20 +454,20 @@ def buildControlList(control):
 		
 	with list.lock:
 		control.guiObjectList = [buildControlForIndex(i, list[i]) for i in range(len(list))]
-		doUpdate()
+		updater.update()
 		
 		def list_onInsert(index, value):
 			control.guiObjectList.insert(index, buildControlForIndex(index, value))
-			doUpdate()
+			updater.update()
 		def list_onRemove(index):
 			control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
 			del control.guiObjectList[index]
-			doUpdate()
+			updater.update()
 		def list_onClear():
 			for subCtr in control.guiObjectList:
 				subCtr.nativeGuiObject.removeFromSuperview()
 			del control.guiObjectList[:]
-			doUpdate()
+			updater.update()
 		
 		for ev in ["onInsert","onRemove","onClear"]:
 			f = locals()["list_" + ev]
