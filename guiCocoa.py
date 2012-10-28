@@ -142,7 +142,7 @@ def foregroundColor(control):
 	
 
 def buildControlOneLineTextLabel(control):
-	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (100.0, 22.0)))
+	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
 	label.setBordered_(False)
 	if control.attr.withBorder:
 		label.setBezeled_(True)
