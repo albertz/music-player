@@ -36,8 +36,9 @@ cp(env["BUILT_PRODUCTS_DIR"] + "/leveldb.so", PYDIR + "/leveldb.so")
 for f in glob(env["PROJECT_DIR"] + "/../*.py"):
 	cp(f, PYDIR + "/" + os.path.basename(f))
 for d in ["lastfm"]:
-	if not os.path.exists(PYDIR + "/" + d):
-		shutil.copytree(env["PROJECT_DIR"] + "/../" + d, PYDIR + "/" + d, symlinks=False)
+	if os.path.exists(PYDIR + "/" + d):
+		shutil.rmtree(PYDIR + "/" + d)
+	shutil.copytree(env["PROJECT_DIR"] + "/../" + d, PYDIR + "/" + d, symlinks=False)
 
 
 # copy all dylibs
