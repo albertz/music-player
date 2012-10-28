@@ -18,6 +18,8 @@ elif sys.platform == "win32":
 	from win32com.shell import shellcon, shell
 	userdir = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0) + "/" + progname
 	platform = "Win32"
+elif sys.platform == "linux2":
+	platform = "Linux"
 else:
 	print "warning: unknown/untested platform", repr(sys.platform)
 
