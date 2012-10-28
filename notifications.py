@@ -30,7 +30,7 @@ def macNotificationsMain():
 
 	del pool
 
-def notificationMain():
+def notificationsMain():
 	import sys
 	if sys.platform == "darwin":
 		macNotificationMain()
