@@ -19,10 +19,7 @@ def track(event, args, kwargs):
 		oldSong = kwargs["oldSong"]
 		newSong = kwargs["newSong"]
 		if oldSong: oldSong.close() # in case anyone is holding any ref to it, close at least the file
-		if "artist" not in newSong.metadata:
-			print "new song metadata is incomplete:", newSong.metadata
-		else:
-			print "new song:", newSong.userLongString.encode("utf-8")
+		print "new song:", newSong.userLongString.encode("utf-8")
 		lastfm.onSongChange(newSong)
 	if event is PlayerEventCallbacks.onSongFinished:
 		song = kwargs["song"]
