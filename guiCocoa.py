@@ -337,43 +337,19 @@ def buildControlList(control):
 					if NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
 						self.select(index)
 						return True
-			def onInternalDrag(self, receiver, index, filenames):
-				if receiver is control.subjectObject:
-					# internal drag to myself
+			def onInternalDrag(self, sourceControl, index, filenames):
+				if sourceControl.parent is control: # internal drag to myself
 					oldIndex = self.index
-					list.remove(oldIndex)
-					if index > oldIndex: index -= 1
-					self.select(index)
-			def onMouseDragged(self, ev):
-				if self.index is not None:
-					guiObj = control.guiObjectList[self.index]
-					songObj = guiObj.subjectObject
-					filename = convertToUnicode(songObj.url)
-					pboard = NSPasteboard.pasteboardWithName_(NSDragPboard)
-					pboard.declareTypes_owner_([NSFilenamesPboardType], None)
-					pboard.setPropertyList_forType_([filename], NSFilenamesPboardType)
-					dragImage = NSWorkspace.sharedWorkspace().iconForFile_(filename)
-					dragPosition = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
-					dragPosition.x -= 16
-					dragPosition.y += 32
-					dragSource = DragSource.alloc().init()
-					dragSource.onInternalDrag = self.onInternalDrag
-					scrollview.documentView().dragImage_at_offset_event_pasteboard_source_slideBack_(
-						dragImage,
-						dragPosition,
-						NSZeroSize,
-						ev,
-						pboard,
-						dragSource,
-						False
-					)
-					return True
+					# check if the index is still correct
+					if control.guiObjectList[oldIndex] is sourceControl:
+						list.remove(oldIndex)
+						if index > oldIndex: index -= 1
+						self.select(index)
 				
 		control.select = SelectionHandling()
 		view.onBecomeFirstResponder = control.select.onFocus
 		view.onKeyDown = control.select.onKeyDown
 		view.onMouseDown = control.select.onMouseDown
-		view.onMouseDragged = control.select.onMouseDragged
 	
 	control.dragHandler = None
 	if control.attr.dragHandler:
@@ -438,7 +414,7 @@ def buildControlList(control):
 						if internalDragCallback:
 							do_in_mainthread(lambda:
 								internalDragCallback(
-									control.subjectObject,
+									control,
 									index,
 									filenames),
 								wait=False)
@@ -450,6 +426,10 @@ def buildControlList(control):
 				except:
 					sys.excepthook(*sys.exc_info())
 					return False
+			def onInternalDrag(self, *args):
+				# Note: This doesn't work if we don't have attr.canHaveFocus. Should be fixed later...
+				control.select.onInternalDrag(*args)
+				
 		control.dragHandler = DragHandler()
 		view.onDraggingUpdated = control.dragHandler.onDraggingUpdated
 		view.onDraggingExited = control.dragHandler.onDraggingExited
@@ -500,6 +480,37 @@ def buildControlObject(control):
 	if backgroundColor(control):
 		subview.setDrawsBackground_(True)
 		subview.setBackgroundColor_(backgroundColor(control))
+	
+	def onInternalDrag(target, listindex, filenames):
+		attrChain(target, "dragHandler", "onInternalDrag")(control, listindex, filenames)
+	
+	def onMouseDragged(ev):
+		guiObj = control
+		subjectObj = guiObj.subjectObject
+		filename = getattr(subjectObj, "url", None)
+		if not filename: return False
+		filename = convertToUnicode(filename)
+		pboard = NSPasteboard.pasteboardWithName_(NSDragPboard)
+		pboard.declareTypes_owner_([NSFilenamesPboardType], None)
+		pboard.setPropertyList_forType_([filename], NSFilenamesPboardType)
+		dragImage = NSWorkspace.sharedWorkspace().iconForFile_(filename)
+		dragPosition = subview.convertPoint_toView_(ev.locationInWindow(), None)
+		dragPosition.x -= 16
+		dragPosition.y += 32
+		dragSource = DragSource.alloc().init()
+		dragSource.onInternalDrag = onInternalDrag
+		subview.dragImage_at_offset_event_pasteboard_source_slideBack_(
+			dragImage,
+			dragPosition,
+			NSZeroSize,
+			ev,
+			pboard,
+			dragSource,
+			False
+		)
+		return True
+		
+	subview.onMouseDragged = onMouseDragged
 	
 	return control
 
