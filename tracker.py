@@ -32,7 +32,9 @@ def trackerMain():
 	if not appinfo.config.lastFm: return
 
 	lastfm.login()
-	for ev,args,kwargs in state.updates.read():
+	for ev,args,kwargs in state.updates.read(
+		listType = lambda: PersistentObject(deque, "tracker-queue.dat", namespace=globals())
+	):
 		try:
 			track(ev, args, kwargs)
 		except:

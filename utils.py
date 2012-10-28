@@ -27,10 +27,15 @@ class Id:
 
 class OnRequestQueue:
 	class QueueEnd:
-		def __init__(self):
-			self.q = deque()
+		def __init__(self, listType=deque):
+			self.q = listType()
 			self.cond = Condition()
 			self.cancel = False
+		def put(self, item):
+			with self.cond:
+				if self.cancel: return False
+				self.q.append(item)
+				self.cond.notify()
 		def setCancel(self):
 			with self.cond:
 				self.cancel = True
@@ -39,15 +44,12 @@ class OnRequestQueue:
 		self.queues = set()
 	def put(self, item):
 		for q in list(self.queues):
-			with q.cond:
-				if q.cancel: continue
-				q.q.append(item)
-				q.cond.notify()
+			q.put(item)
 	def cancelAll(self):
 		for q in list(self.queues):
 			q.setCancel()
-	def read(self):
-		q = self.QueueEnd()
+	def read(self, **kwargs):
+		q = self.QueueEnd(**kwargs)
 		thread = currentThread()
 		thread.waitQueue = q
 		if thread.cancel:
