@@ -1,4 +1,4 @@
-def notificationsMain():
+def macNotificationsMain():
 	from State import state
 	from player import PlayerEventCallbacks
 	import AppKit
@@ -29,3 +29,10 @@ def notificationsMain():
 			notifyCurSong()
 
 	del pool
+
+def notificationMain():
+	import sys
+	if sys.platform == "darwin":
+		macNotificationMain()
+	else:
+		print "no notification implementation"
