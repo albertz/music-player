@@ -1,17 +1,23 @@
 
 import sys
+import utils
+
+# define fallback
+def main(): raise NotImplementedError
+def guiMain(): pass
+def locateFile(filename):
+	print "locateFile", utils.convertToUnicode(filename).encode("utf-8")
 
 try:
-	from guiCocoa import *
+	if sys.platform == "darwin":
+		from guiCocoa import *
+	else:
+		# TODO: PyQt could be the generic fallback gui
+		print "no GUI implemetation"
 except:
-	print "error in loading Cocoa GUI"
+	print "error in loading GUI implementation"
 	sys.excepthook(*sys.exc_info())
-	
-	# define fallback
-	def main(): raise NotImplementedError
-	def guiMain(): pass
-	def locateFile(filename): pass
-	
+		
 class GuiObject:
 	"This defines the protocol we must support"
 	
