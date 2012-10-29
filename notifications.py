@@ -33,6 +33,6 @@ def macNotificationsMain():
 def notificationsMain():
 	import sys
 	if sys.platform == "darwin":
-		macNotificationMain()
+		macNotificationsMain()
 	else:
 		print "no notification implementation"
