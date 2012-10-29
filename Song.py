@@ -434,10 +434,15 @@ class Song(object):
 			raise AttributeError, "no attrib " + attrib
 		if not self:
 			raise AttributeError, "not initialized yet"
-		value,accuracy = self.get(
-			attrib,
-			accuracy=self.GetAttrAccuracy,
-			fastOnly=True)
+		try:
+			value,accuracy = self.get(
+				attrib,
+				accuracy=self.GetAttrAccuracy,
+				fastOnly=True)
+		except AttributeError:
+			# Catch that here, otherwise we might get strange behaviour
+			sys.excepthook(*sys.exc_info())					
+			value,accuracy = None, 0
 		if accuracy < self.GetAttrAccuracy:
 			raise AttributeError, "attrib " + attrib + " is not yet available"		
 		return value
