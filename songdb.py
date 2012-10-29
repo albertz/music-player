@@ -229,12 +229,17 @@ class SongEntry(object):
 		try: return self._dbDict[attr]
 		except KeyError: raise AttributeError, "no attrib " + attr
 
-	def __setattr__(self, attr, value):
+	def update(self, attr, updateFunc, default=None):
 		global songDb
 		with songDb.writelock:
 			d = self._dbDict
+			value = updateFunc(d.get(attr, default))
 			d[attr] = value
-			songDb[self.id] = d
+			songDb[self.id] = d		
+		return
+	
+	def __setattr__(self, attr, value):
+		self.update(attr, lambda _: value)
 	
 def getSong(song):
 	return SongEntry(song)
