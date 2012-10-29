@@ -37,9 +37,11 @@
 
 <p><img src="https://github.com/albertz/music-player/raw/master/screenshot.png" alt="MusicPlayer screenshot"></p>
 
-<p>This music player is all centered around an intelligent queue. You can manually add songs to it - but if you don't or the queue gets too short, it will automatically intelligently fill it with further songs.</p>
+<p>This music player is supposed to be simple and all centered around an infinite intelligent queue (some other players call this PartyShuffle oder DJ mode). You can manually add songs to it - but if you don't or the queue gets too short, it will automatically intelligently fill it with further songs.</p>
 
-<p>The decision currently is based on:</p>
+<p>The code is highly modular. Most systems are optional. Also the GUI is an optional module. The music player can also run headless. Read more about <a href="https://github.com/albertz/music-player/blob/master/DevelopmentNotes.md">technical internals</a>.</p>
+
+<p>The intelligent queue decision currently is based on:</p>
 
 <ul>
 <li>song ratings</li>
@@ -78,8 +80,6 @@
 <li>watch music directory for changes (e.g. new files added)</li>
 <li>PyQt GUI interface</li>
 </ul><p>The current GUI is Cocoa only. Additional Qt support is planned. The music player also works without any GUI.</p>
-
-<p>Read more about technical internals: <a href="https://github.com/albertz/music-player/blob/master/DevelopmentNotes.md">DevelopmentNotes</a></p>
       </section>
     </div>
 
