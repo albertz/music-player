@@ -280,7 +280,9 @@ def updateSongAttribValue(song, attrib, updateFunc, default=None):
 	return value
 
 def getSongAttrib(song, attrib):
-	return getattr(Attribs[attrib].getObject(song), attrib)
+	value = getattr(Attribs[attrib].getObject(song), attrib)
+	assert value is not None, "songdb %r attrib %r is None" % (song, attrib) # if we ever want to allow that, mark it that way in class Attrib
+	return value
 	
 # Do that right on first import so that all functions here work.
 init()
