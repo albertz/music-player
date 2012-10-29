@@ -175,14 +175,20 @@ class SongFileEntry(object):
 	def __getattr__(self, attr):
 		try: return self._dbDict[attr]
 		except KeyError: raise AttributeError, "no attrib " + attr
-		
-	def __setattr__(self, attr, value):
+	
+	def update(self, attr, updateFunc, default=None):
 		global songDb
 		with songDb.writelock:
 			d = self.songEntry._dbDict
-			d.setdefault("files",{}).setdefault(self.url,{})[attr] = value
+			fileDict = d.setdefault("files",{}).setdefault(self.url,{})
+			value = updateFunc(fileDict.get(attr, default))
+			fileDict[attr] = value
 			songDb[self.songEntry.id] = d
-
+		return value
+	
+	def __setattr__(self, attr, value):
+		self.update(attr, lambda _: value)
+			
 class SongFilesDict:
 	def __init__(self, songEntry):
 		self.songEntry = songEntry
@@ -249,6 +255,8 @@ Attribs = {
 	"album": Attrib(),
 	"tags": Attrib(),
 	"rating": Attrib(),
+	"skipCount": Attrib(),
+	"completedCount": Attrib(),
 	"sha1": Attrib(fileSpecific=True),
 	"metadata": Attrib(fileSpecific=True),
 	"fingerprint_AcoustId": Attrib(fileSpecific=True),
@@ -261,9 +269,10 @@ Attribs = {
 }
 
 
-def updateSongAttribValue(song, attrib, value):
-	setattr(Attribs[attrib].getObject(song), attrib, value)
+def updateSongAttribValue(song, attrib, updateFunc, default=None):
+	value = Attribs[attrib].getObject(song).update(attrib, updateFunc, default=default)
 	maybeUpdateHashAfterAttribUpdate(song, attrib, value)
+	return value
 
 def getSongAttrib(song, attrib):
 	return getattr(Attribs[attrib].getObject(song), attrib)

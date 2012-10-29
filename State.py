@@ -143,6 +143,7 @@ for modname in [
 	"player",
 	"queue",
 	"tracker",
+	"tracker_lastfm",
 	"mediakeys",
 	"gui",
 	"stdinconsole",

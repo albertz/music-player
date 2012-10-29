@@ -334,14 +334,21 @@ class Song(object):
 		# Return 0. This is a good estimation.
 		return 0, 0.7
 
-	def __setattr__(self, attr, value):
-		if getattr(self, "_useDb", False):
-			import songdb
-			if attr in songdb.Attribs:
-				songdb.updateSongAttribValue(self, attr, value)
+	def update(self, attr, updateFunc, default=None):
+		"updateFunc is supposed to be oldValue->newValue."
+		"E.g. you can increment by one or so. While updateFunc is executed, the DB is blocked."
+		import songdb
+		if getattr(self, "_useDb", False) and attr in songdb.Attribs:
+			value = songdb.updateSongAttribValue(self, attr, updateFunc, default=default)
+		else:
+			value = getattr(self, attr, default)
+			value = updateFunc(value)
 		# Note that locally stored attribs might get outdated.
 		# Thus, in getFast(), those will not be returned for accuracy=1.
 		object.__setattr__(self, attr, value)
+		
+	def __setattr__(self, attr, value):
+		self.update(attr, lambda _: value)
 		
 	def calcAndSet(self, attrib):
 		from utils import asyncCall
@@ -386,7 +393,7 @@ class Song(object):
 		return None, 0
 	
 	def get(self, attrib, timeout=0, accuracy=1, callback=None, fastOnly=False):
-		assert bool(self)
+		assert self
 		if fastOnly:
 			assert callback is None, "we aren't going to use callback as we are not doing the calculation"
 		
@@ -425,6 +432,8 @@ class Song(object):
 		# that to avoid infinite loops in some simplified code.
 		if attrib == "" or attrib.startswith("_"):
 			raise AttributeError, "no attrib " + attrib
+		if not self:
+			raise AttributeError, "not initialized yet"
 		value,accuracy = self.get(
 			attrib,
 			accuracy=self.GetAttrAccuracy,
