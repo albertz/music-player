@@ -567,6 +567,25 @@ static void player_closeInputStream(PlayerObject* player) {
 	}
 }
 
+static void player_closeOutputStream(PlayerObject* player) {
+	// we expect that we have the lock here.
+	// we must release the lock so that any thread-join can be done.
+	PaStream* stream = player->outStream;
+	player->outStream = NULL;
+	PyThread_release_lock(player->lock);
+	Pa_CloseStream(stream);
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
+}
+
+static void player_stopOutputStream(PlayerObject* player) {
+	// we expect that we have the lock here.
+	// we must release the lock so that any thread-join can be done.
+	PaStream* stream = player->outStream;
+	PyThread_release_lock(player->lock);
+	Pa_StopStream(stream);
+	PyThread_acquire_lock(player->lock, WAIT_LOCK);
+}
+
 static
 int player_openInputStream(PlayerObject* player) {
 	char* urlStr = NULL;
@@ -1079,17 +1098,15 @@ static int player_setplaying(PlayerObject* player, int playing) {
 		   );
 		if(ret != paNoError) {
 			PyErr_SetString(PyExc_RuntimeError, "Pa_OpenDefaultStream failed");
-			if(player->outStream) {
-				Pa_CloseStream(player->outStream);
-				player->outStream = NULL;
-			}
+			if(player->outStream)
+				player_closeOutputStream(player);
 			playing = 0;
 		}
 	}
 	if(playing)
 		Pa_StartStream(player->outStream);
 	else
-		Pa_StopStream(player->outStream);
+		player_stopOutputStream(player);
 	oldplayingstate = player->playing;
 	player->playing = playing;
 	PyThread_release_lock(player->lock);
@@ -1171,11 +1188,7 @@ void player_dealloc(PyObject* obj) {
 	Py_XDECREF(player->queue);
 	player->queue = NULL;
 
-	if(player->outStream) {
-		Pa_CloseStream(player->outStream);
-		player->outStream = NULL;
-	}
-
+	player_closeOutputStream(player);
 	player_closeInputStream(player);
 	
 	if(player->frame) {
