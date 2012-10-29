@@ -236,7 +236,7 @@ class SongEntry(object):
 			value = updateFunc(d.get(attr, default))
 			d[attr] = value
 			songDb[self.id] = d		
-		return
+		return value
 	
 	def __setattr__(self, attr, value):
 		self.update(attr, lambda _: value)
