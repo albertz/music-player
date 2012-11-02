@@ -34,6 +34,13 @@ def onSongChange(**kwargs):
 	state.curSong = kwargs["newSong"]
 
 def loadPlayer(state):
+	try:
+		import os
+		os.nice(-5)
+	except:
+		print "Failed to set process nice value"
+		sys.excepthook(*sys.exc_info())
+		
 	import ffmpeg
 	player = ffmpeg.createPlayer()
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
