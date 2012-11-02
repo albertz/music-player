@@ -262,6 +262,7 @@ Attribs = {
 	"rating": Attrib(),
 	"skipCount": Attrib(),
 	"completedCount": Attrib(),
+	"lastPlayedDate": Attrib(),
 	"sha1": Attrib(fileSpecific=True),
 	"metadata": Attrib(fileSpecific=True),
 	"fingerprint_AcoustId": Attrib(fileSpecific=True),

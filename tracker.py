@@ -1,6 +1,6 @@
 
 from utils import *
-import sys
+import sys, time
 
 from State import state
 from player import PlayerEventCallbacks
@@ -16,6 +16,7 @@ def track(event, args, kwargs):
 		if oldSong: oldSong.close() # in case anyone is holding any ref to it, close at least the file
 
 		if kwargs["skipped"]: oldSong.update("skipCount", lambda n: n+1, default=0)
+		oldSong.lastPlayedDate = time.time()
 
 	if event is PlayerEventCallbacks.onSongFinished:
 		song = kwargs["song"]
