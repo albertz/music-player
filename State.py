@@ -33,9 +33,16 @@ class RecentlyplayedList:
 				self.onInsert(min(len(self.list), self.GuiLimit), song)
 				if len(self.list) > self.GuiLimit: self.onRemove(0)
 	def getLastN(self, n):
-		#return list(self.list)[-n:] # not using this for now as a bit too heavy. I timeit'd it. this is 14 times slower for n=10, len(l)=10000
-		l = self.list # better for multithreading to keep the ref
-		return [l[-i] for i in range(1,min(len(l),n)+1)]
+		with self.lock:
+			#return list(self.list)[-n:] # not using this for now as a bit too heavy. I timeit'd it. this is 14 times slower for n=10, len(l)=10000
+			l = self.list
+			if n <= len(l):
+				return [l[-i] for i in range(1,n+1)]
+			else:
+				last = [l[-i] for i in range(1,len(l)+1)]
+				if self.previous:
+					last += self.previous.getLastN(n - len(l))
+				return last
 	def __repr__(self):
 		return "RecentlyplayedList(list=%s, previous=%s, index=%i)" % (
 			betterRepr(list(self.list)),
@@ -47,12 +54,13 @@ class RecentlyplayedList:
 	def onClear(self): pass
 	def __getitem__(self, index):
 		with self.lock:
-			if index >= 0 and len(self.list) > self.GuiLimit:
-				return self.list[len(self.list) - self.GuiLimit + index]
-			else:
-				return self.list[index]
+			return self.getLastN(self.GuiLimit)[-index - 1]
 	def __len__(self):
-		return min(len(self.list), self.GuiLimit)
+		c = len(self.list)
+		if c >= self.GuiLimit: return self.GuiLimit
+		if self.previous:
+			c += len(self.previous)
+		return min(c, self.GuiLimit)
 
 
 
