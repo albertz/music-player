@@ -25,6 +25,11 @@ class Table(List):
 	def __init__(self, keys):
 		self.keys = keys
 
+class Real(TraitType):
+	def __init__(self, min=None, max=None):
+		self.min = min
+		self.max = max
+
 class EditableText(TraitType): pass
 class OneLineText(TraitType): pass
 class ClickableLabel(TraitType): pass

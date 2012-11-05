@@ -93,8 +93,22 @@ class State(object):
 		try: return formatTime(self.player.curSongPos) + " / " + formatTime(self.player.curSong.duration)
 		except: return "???"
 
-	@UserAttrib(type=Traits.SongDisplay)
+	@UserAttrib(type=Traits.SongDisplay, variableWidth=True)
 	def curSongDisplay(self): pass
+
+	@initBy
+	def _volume(self): return PersistentObject(float, "volume.dat", defaultArgs=(0.9,))
+
+	@UserAttrib(type=Traits.Real(min=0, max=2), alignRight=True, height=80, width=25)
+	@property
+	def volume(self):
+		return self._volume
+	
+	@volume.callDeco.setter
+	def volume(self, updateValue):
+		self._volume = updateValue
+		self._volume.save()
+		self.player.volume = updateValue
 
 	@UserAttrib(type=Traits.List, lowlight=True, autoScrolldown=True)
 	@initBy

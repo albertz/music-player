@@ -121,6 +121,20 @@ try:
 except:
 	NSExtendedTextField = objc.lookUpClass("NSExtendedTextField")
 
+try:
+	class NSExtendedSlider(NSSlider):
+		onValueChange = None
+		def initWithFrame_(self, frame):
+			NSSlider.initWithFrame_(self, frame)
+			self.setTarget_(self)
+			self.setAction_("valueChange")
+			return self
+		def valueChange(self, sender):
+			if self.onValueChange:
+				self.onValueChange(self.doubleValue())
+except:
+	NSExtendedSlider = objc.lookUpClass("NSExtendedSlider")
+
 
 try:
 	class ButtonActionHandler(NSObject):
@@ -130,7 +144,6 @@ try:
 			self.inst = inst
 			return self
 		def click(self, sender):
-			print "click!!", sender, self.userAttr
 			attr = self.userAttr.__get__(self.inst)
 			from threading import Thread
 			Thread(target=attr, name="click handler").start()

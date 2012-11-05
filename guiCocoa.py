@@ -550,6 +550,27 @@ def buildControlTable(control):
 	control.OuterSpace = (0,0)
 	return control
 
+def buildControlReal(control):
+	w,h = control.attr.width, control.attr.height
+	if not w: w = 70
+	if not h: h = 20
+	slider = NSExtendedSlider.alloc().initWithFrame_(((0.0, 0.0), (w, h)))
+	slider.setMinValue_(control.attr.type.min)
+	slider.setMaxValue_(control.attr.type.max)
+	slider.setNumberOfTickMarks_(3)
+	control.nativeGuiObject = slider
+
+	def update(ev, args, kwargs):
+		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
+		value = control.subjectObject
+		do_in_mainthread(lambda: slider.setDoubleValue_(value), wait=False)
+	control.updateContent = update
+
+	def onValueChange(newValue):
+		control.attr.__set__(control.parent.subjectObject, newValue)	
+	slider.onValueChange = onValueChange
+	return control
+
 def buildControlObject(control):
 	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
 	subview.control = control

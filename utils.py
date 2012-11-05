@@ -130,6 +130,7 @@ class UserAttrib(object):
 	def __init__(self, name=None, type=None, writeable=False, updateHandler=None,
 				 alignRight=False,
 				 spaceX=None, spaceY=None,
+				 width=None, height=None,
 				 variableWidth=False, variableHeight=False,
 				 autosizeWidth=False,
 				 highlight=False, lowlight=False,
@@ -146,6 +147,8 @@ class UserAttrib(object):
 		self.alignRight = alignRight
 		self.spaceX = spaceX
 		self.spaceY = spaceY
+		self.width = width
+		self.height = height
 		self.variableWidth = variableWidth
 		self.variableHeight = variableHeight
 		self.autosizeWidth = autosizeWidth
@@ -359,14 +362,14 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	LazyObject = type("LazyObject", (object,), attribs)
 	return LazyObject()
 
-def PersistentObject(baseType, filename, persistentRepr = False, namespace = None):
+def PersistentObject(baseType, filename, defaultArgs=(), persistentRepr = False, namespace = None):
 	import appinfo
 	fullfn = appinfo.userdir + "/" + filename
 	def load():
 		try:
 			f = open(fullfn)
 		except IOError: # e.g. file-not-found. that's ok
-			return baseType()
+			return baseType(*defaultArgs)
 
 		# some common types
 		g = {baseType.__name__: baseType} # the baseType itself

@@ -42,7 +42,8 @@ def loadPlayer(state):
 			cb.extraCall = onSongChange
 		setattr(PlayerEventCallbacks, e, cb)
 		setattr(player, e, cb)
-	player.queue = songs(state)	
+	player.queue = songs(state)
+	player.volume = state.volume
 	return player
 
 def playerMain():
