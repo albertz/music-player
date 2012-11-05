@@ -213,6 +213,33 @@ def buildControlClickableLabel(control):
 
 	return control
 
+def buildControlEditableText(control):
+	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
+	label.setBordered_(False)
+	#if control.attr.withBorder:
+	label.setBezeled_(True)
+	label.setBezelStyle_(NSTextFieldRoundedBezel)
+	label.setDrawsBackground_(True)
+	label.setEditable_(True)
+	label.cell().setUsesSingleLineMode_(True)
+	#label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
+	control.nativeGuiObject = label
+	control.getTextObj = lambda: control.subjectObject()
+	
+	def update(ev, args, kwargs):
+		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
+		labelContent = control.getTextObj()
+		s = "???"
+		try:
+			s = convertToUnicode(labelContent)
+		except: pass
+		def do_update():
+			label.setStringValue_(s)
+
+		do_in_mainthread(do_update, wait=False)
+
+	control.updateContent = update
+	return control
 
 def buildControlList(control):
 	list = control.subjectObject
@@ -505,6 +532,13 @@ def buildControlList(control):
 	t.daemon = True
 	t.start()	
 	
+	return control
+
+def buildControlTable(control):
+	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	subview.control = control
+	control.nativeGuiObject = subview
+	control.OuterSpace = (0,0)
 	return control
 
 def buildControlObject(control):
