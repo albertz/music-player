@@ -147,7 +147,7 @@ def foregroundColor(control):
 	return NSColor.blackColor()		
 	
 
-def buildControlOneLineTextLabel(control):
+def buildControlOneLineText(control):
 	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
 	label.setBordered_(False)
 	if control.attr.withBorder:
@@ -195,7 +195,7 @@ def buildControlOneLineTextLabel(control):
 	return control
 
 def buildControlClickableLabel(control):
-	buildControlOneLineTextLabel(control)
+	buildControlOneLineText(control)
 	control.getTextObj = lambda: control.subjectObject(handleClick=False)
 
 	label = control.nativeGuiObject
@@ -727,20 +727,12 @@ def buildControl(userAttr, parent):
 	control.parent = parent
 	control.attr = userAttr
 	control.subjectObject = userAttr.__get__(parent.subjectObject)
-	if userAttr.isType(Traits.Action):
-		return buildControlAction(control)
-	elif userAttr.isType(Traits.OneLineText):
-		return buildControlOneLineTextLabel(control)
-	elif userAttr.isType(Traits.ClickableLabel):
-		return buildControlClickableLabel(control)
-	elif userAttr.isType(Traits.Enum):
-		raise NotImplementedError
-	elif userAttr.isType(Traits.List):
-		return buildControlList(control)
-	elif userAttr.isType(Traits.Object):
-		return buildControlObject(control)
-	elif userAttr.isType(Traits.SongDisplay):
-		return buildControlSongDisplay(control)
+	typeName = userAttr.getTypeClass().__name__
+	assert userAttr.getTypeClass() is getattr(Traits, typeName)
+	buildFuncName = "buildControl" + typeName
+	buildFunc = globals().get(buildFuncName, None)
+	if buildFunc:
+		return buildFunc(control)
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 

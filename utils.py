@@ -160,9 +160,12 @@ class UserAttrib(object):
 		# as it is defined in the class.
 		# iterUserAttribs() uses this.
 		self.index = self.__class__.staticCounter
+	def getTypeClass(self):
+		import inspect
+		if inspect.isclass(self.type): return self.type
+		return self.type.__class__
 	def isType(self, T):
-		try: return issubclass(self.type, T)
-		except TypeError: return isinstance(self.type, T)
+		return issubclass(self.getTypeClass(), T)
 	@staticmethod
 	def _getUserAttribDict(inst):
 		if not hasattr(inst, "__userAttribs"):
