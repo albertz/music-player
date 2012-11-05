@@ -135,6 +135,7 @@ class UserAttrib(object):
 				 highlight=False, lowlight=False,
 				 canHaveFocus=False,
 				 withBorder=False,
+				 searchLook=False,
 				 autoScrolldown=False,
 				 dragHandler=None,
 				 ):
@@ -152,6 +153,7 @@ class UserAttrib(object):
 		self.lowlight = lowlight
 		self.canHaveFocus = canHaveFocus
 		self.withBorder = withBorder
+		self.searchLook = searchLook
 		self.autoScrolldown = autoScrolldown
 		self.dragHandler = dragHandler
 		self.__class__.staticCounter += 1

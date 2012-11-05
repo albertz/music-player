@@ -6,7 +6,7 @@ class Search:
 	Keys = ("artist", "title", "duration", "rating")
 	_searchText = ""
 	
-	@UserAttrib(type=Traits.EditableText)
+	@UserAttrib(type=Traits.EditableText, searchLook=True)
 	def searchText(self, updateText=None):
 		if updateText is not None:
 			self._searchText = updateText

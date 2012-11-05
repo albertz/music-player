@@ -215,6 +215,8 @@ def buildControlClickableLabel(control):
 
 def buildControlEditableText(control):
 	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
+	if control.attr.searchLook:
+		label.setCell_(NSSearchFieldCell.alloc().init())
 	label.setBordered_(False)
 	label.setBezeled_(True)
 	label.setBezelStyle_(NSTextFieldRoundedBezel)
@@ -238,6 +240,14 @@ def buildControlEditableText(control):
 		do_in_mainthread(do_update, wait=False)
 
 	control.updateContent = update
+
+	def onTextChange():
+		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
+		newText = unicode(label.stringValue())
+		control.subjectObject(updateText = newText)
+		
+	label.onTextChange = onTextChange
+
 	return control
 
 def buildControlList(control):

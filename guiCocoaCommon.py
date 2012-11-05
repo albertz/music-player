@@ -97,6 +97,7 @@ try:
 		onMouseDown = None
 		onMouseDragged = None
 		onMouseUp = None
+		onTextChange = None
 		def mouseEntered_(self, ev):
 			if self.onMouseEntered: self.onMouseEntered(ev)
 			else: NSTextField.mouseEntered_(self, ev)
@@ -112,6 +113,10 @@ try:
 		def mouseUp_(self, ev):
 			if not self.onMouseUp or not self.onMouseUp(ev):
 				NSView.mouseUp_(self, ev)
+		def textDidChange_(self, notif):
+			NSTextField.textDidChange_(self, notif)
+			if self.onTextChange:
+				self.onTextChange()
 
 except:
 	NSExtendedTextField = objc.lookUpClass("NSExtendedTextField")
