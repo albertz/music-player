@@ -21,6 +21,23 @@ class List(TraitType):
 	def __getitem__(self, index): pass
 	def __len__(self): pass
 	
+class Table(TraitType):
+	def onInsert(self, index, value): pass
+	def onRemove(self, index): pass
+	def onClear(self): pass
+	
+	@property
+	@contextmanager
+	def lock(self): yield
+	
+	def insert(self, index, value): pass
+	def remove(self, index): pass
+	def clear(self): pass
+	def __getitem__(self, index): pass
+	def __len__(self): pass
+	
+
+class EditableText(TraitType): pass
 class OneLineText(TraitType): pass
 class ClickableLabel(TraitType): pass
 class Enum(TraitType):
