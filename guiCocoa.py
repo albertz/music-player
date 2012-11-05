@@ -26,7 +26,10 @@ def setupAppleMenu():
 	mainMenu.setSubmenu_forItem_(m, mi)
 	
 	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
-	m.addItemWithTitle_action_keyEquivalent_('Close window', 'closeWindow:', 'w')
+	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '')
+	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '')
+	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
+	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')
 	m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
 
 	app.setMainMenu_(mainMenu)
@@ -35,7 +38,7 @@ def setupAppleMenu():
 
 def setupAfterAppFinishedLaunching(delegate):
 	setupAppleMenu()
-	setupWindow()
+	setupMainWindow()
 	app.updateWindows()
 	print "setupAfterAppFinishedLaunching ready"
 
@@ -70,8 +73,8 @@ class PyAppDelegate(NSObject):
 		return NSTerminateNow
 
 	def applicationOpenUntitledFile_(self, app):
-		if not mainWindow():
-			setupWindow()
+		if not getWindow("mainWindow"):
+			setupMainWindow()
 		else:
 			app.activateIgnoringOtherApps_(True)
 		return True
@@ -79,17 +82,20 @@ class PyAppDelegate(NSObject):
 	def userNotificationCenter_shouldPresentNotification_(self, notifCenter, notif):
 		return True
 
-	def closeWindow_(self, app):
-		if app.keyWindow():
-			app.keyWindow().close()
+	def openMainWindow_(self, app):
+		setupMainWindow()
+	
+	def openSearchWindow_(self, app):
+		setupSearchWindow()
 	
 	def about_(self, app):
 		import webbrowser
 		webbrowser.open("http://albertz.github.com/music-player/")
 		
-def mainWindow():
-	global window
-	if window: return window.nativeGuiObject.window()
+def getWindow(name):
+	global windows
+	if windows.get(name, None):
+		return windows[name].nativeGuiObject.window()
 	return None
 
 def quit():
@@ -738,7 +744,10 @@ def buildControl(userAttr, parent):
 	else:
 		raise NotImplementedError, "%r not handled yet" % userAttr.type
 
-window = None
+try:
+	windows
+except NameError:
+	windows = {}
 
 class CocoaGuiObject(object):
 	def __init__(self):
@@ -775,13 +784,17 @@ class CocoaGuiObject(object):
 	def addChild(self, child):
 		self.nativeGuiObject.addSubview_(child.nativeGuiObject)
 		
-def setupWindow():
+def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	# some example code: http://lists.apple.com/archives/cocoa-dev/2004/Jan/msg01389.html
 	# also, these might be helpful:
 	# https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ControlCell/ControlCell.html#//apple_ref/doc/uid/10000015i
 	# http://cocoadev.com/wiki/FlowLayoutView
 
 	assert NSThread.isMainThread()
+
+	if getWindow(windowName):
+		getWindow(windowName).makeKeyWindow()
+		return
 
 	win = NSWindow.alloc()
 	win.initWithContentRect_styleMask_backing_defer_(
@@ -794,13 +807,10 @@ def setupWindow():
 	win.setContentView_(NSFlippedView.alloc().init())
 	win.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	
-	import appinfo
-	win.setTitle_(appinfo.progname)
+	win.setTitle_(title)
 
-	from State import state
-	global window
 	window = CocoaGuiObject()
-	window.subjectObject = state
+	window.subjectObject = subjectObject
 	window.nativeGuiObject = win.contentView()
 	w,h = window.setupChilds()
 
@@ -811,13 +821,25 @@ def setupWindow():
 	win.makeMainWindow()
 	win.makeKeyWindow()
 	
-	win.setFrameUsingName_("mainWindow")
-	win.setFrameAutosaveName_("mainWindow")
+	win.setFrameUsingName_(windowName)
+	win.setFrameAutosaveName_(windowName)
 
 	app.activateIgnoringOtherApps_(True)
 	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
 	win.retain()
 
+	global windows
+	windows[windowName] = window
+
+def setupMainWindow():
+	from State import state
+	import appinfo
+	setupWindow(state, windowName="mainWindow", title=appinfo.progname, isMainWindow=True)
+
+def setupSearchWindow():
+	from Search import search
+	setupWindow(search, windowName="searchWindow", title="Search")
+	
 def locateFile(filename):
 	ws = NSWorkspace.sharedWorkspace()
 	ws.selectFile_inFileViewerRootedAtPath_(filename, None)
@@ -837,8 +859,8 @@ def reloadModuleHandling():
 
 	for w in app.windows():
 		w.close()
-	global window
-	window = None
+	global windows
+	windows.clear()
 	
 	appDelegate = PyAppDelegate.alloc().init()
 	app.setDelegate_(appDelegate)
@@ -854,9 +876,9 @@ def guiMain():
 	from State import state
 	for ev,args,kwargs in state.updates.read():
 		try:
-			global window
-			if window:
-				window.updateContent(ev,args,kwargs)
+			global windows
+			for w in windows.values():
+				w.updateContent(ev,args,kwargs)
 		except:
 			sys.excepthook(*sys.exc_info())
 	del pool
