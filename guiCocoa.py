@@ -216,7 +216,6 @@ def buildControlClickableLabel(control):
 def buildControlEditableText(control):
 	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
 	label.setBordered_(False)
-	#if control.attr.withBorder:
 	label.setBezeled_(True)
 	label.setBezelStyle_(NSTextFieldRoundedBezel)
 	label.setDrawsBackground_(True)
