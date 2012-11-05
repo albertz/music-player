@@ -457,33 +457,47 @@ def buildControlList(control):
 		view.onDraggingUpdated = control.dragHandler.onDraggingUpdated
 		view.onDraggingExited = control.dragHandler.onDraggingExited
 		view.onPerformDragOperation = control.dragHandler.onPerformDragOperation	
-		
-	with list.lock:
-		control.guiObjectList = [buildControlForIndex(i, list[i]) for i in range(len(list))]
-		updater.update()
-		
-		def list_onInsert(index, value):
-			control.guiObjectList.insert(index, buildControlForIndex(index, value))
-			updater.update()
-		def list_onRemove(index):
-			control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
-			del control.guiObjectList[index]
-			updater.update()
-		def list_onClear():
-			for subCtr in control.guiObjectList:
-				subCtr.nativeGuiObject.removeFromSuperview()
-			del control.guiObjectList[:]
-			updater.update()
-		
-		for ev in ["onInsert","onRemove","onClear"]:
-			f = locals()["list_" + ev]
-			def wrap(f=f, ev=ev):
-				def handler(*args):
-					if control.select: getattr(control.select, ev)(*args)
-					f(*args)
-				return lambda *args: do_in_mainthread(lambda: handler(*args), wait=False)
-			setattr(list, ev, wrap())
 	
+	def doInitialFill():
+		with list.lock:
+			import __builtin__
+			listCopy = __builtin__.list(list)
+			
+			control.guiObjectList = []
+			Step = 5
+			def doInitialAddSome(iStart):
+				for i in range(iStart, min(len(listCopy), iStart+Step)):
+					control.guiObjectList += [buildControlForIndex(i, listCopy[i])]
+				updater.update()
+				
+			for i in xrange(0, len(listCopy), Step):
+				do_in_mainthread(lambda: doInitialAddSome(i), wait=True)
+			
+			def list_onInsert(index, value):
+				control.guiObjectList.insert(index, buildControlForIndex(index, value))
+				updater.update()
+			def list_onRemove(index):
+				control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
+				del control.guiObjectList[index]
+				updater.update()
+			def list_onClear():
+				for subCtr in control.guiObjectList:
+					subCtr.nativeGuiObject.removeFromSuperview()
+				del control.guiObjectList[:]
+				updater.update()
+			
+			for ev in ["onInsert","onRemove","onClear"]:
+				f = locals()["list_" + ev]
+				def wrap(f=f, ev=ev):
+					def handler(*args):
+						if control.select: getattr(control.select, ev)(*args)
+						f(*args)
+					return lambda *args: do_in_mainthread(lambda: handler(*args), wait=False)
+				setattr(list, ev, wrap())
+	from threading import Thread
+	t = Thread(target=doInitialFill, name="List initial fill")
+	t.daemon = True
+	t.start()	
 	
 	return control
 
