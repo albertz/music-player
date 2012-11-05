@@ -80,8 +80,8 @@ class PyAppDelegate(NSObject):
 		return True
 
 	def closeWindow_(self, app):
-		if mainWindow():
-			mainWindow().close()
+		if app.keyWindow():
+			app.keyWindow().close()
 	
 	def about_(self, app):
 		import webbrowser
