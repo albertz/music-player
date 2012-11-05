@@ -267,6 +267,7 @@ Attribs = {
 	"metadata": Attrib(fileSpecific=True),
 	"fingerprint_AcoustId": Attrib(fileSpecific=True),
 	"gain": Attrib(fileSpecific=True),
+	"duration": Attrib(fileSpecific=True),
 # Note that bmpThumbnail is not here. I think it's to heavy
 # to be stored for each song in the DB. Let's just calculate it
 # on the fly when needed...
