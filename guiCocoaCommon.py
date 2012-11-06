@@ -154,7 +154,21 @@ try:
 				item = tuple(itemIter(item))
 				return item
 			self.data.sort(key=key, reverse=not sortDescs[0].ascending())
-			tableView.reloadData()			
+			tableView.reloadData()
+		def tableView_writeRowsWithIndexes_toPasteboard_(self, tableView, rowIndexes, pboard):
+			possibleSources = []
+			def handleRowIndex(index, stop):
+				url = self.data[index].get("url", None)
+				if url:
+					url = utils.convertToUnicode(url)
+					possibleSources.append(url)
+			rowIndexes.enumerateIndexesUsingBlock_(handleRowIndex)
+			if not possibleSources: return False
+
+			pboard.declareTypes_owner_([NSFilenamesPboardType], None)
+			pboard.setPropertyList_forType_(possibleSources, NSFilenamesPboardType)
+			return True
+			
 except:
 	TableViewDataSource = objc.lookUpClass("TableViewDataSource")
 

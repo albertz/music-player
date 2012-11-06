@@ -15,6 +15,6 @@ class Search:
 	@UserAttrib(type=Traits.Table(keys=Keys))
 	@property
 	def searchResults(self):
-		return [{"title": "hey", "artist": "there"}, {"title": "foo"}]
+		return [{"title": "hey", "artist": "there", "url": "/Users/az/README.md"}, {"title": "foo"}]
 
 search = Search()
