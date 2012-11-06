@@ -136,10 +136,14 @@ except:
 	NSExtendedSlider = objc.lookUpClass("NSExtendedSlider")
 
 try:
-	class NSExtendedArrayController(NSArrayController):
-		pass
+	class TableViewDataSource(NSObject):
+		data = ()
+		def numberOfRowsInTableView_(self, tableView):
+			return len(self.data)
+		def tableView_objectValueForTableColumn_row_(self, tableView, tableColumn, rowIndex):
+			return self.data[rowIndex].get(tableColumn.identifier(), None)		
 except:
-	NSExtendedArrayController = objc.lookUpClass("NSExtendedArrayController")
+	TableViewDataSource = objc.lookUpClass("TableViewDataSource")
 
 
 

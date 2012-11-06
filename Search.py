@@ -13,7 +13,8 @@ class Search:
 		return self._searchText
 	
 	@UserAttrib(type=Traits.Table(keys=Keys))
+	@property
 	def searchResults(self):
-		pass
+		return [{"title": "hey", "artist": "there"}, {"title": "foo"}]
 
 search = Search()

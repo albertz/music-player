@@ -1,6 +1,7 @@
 
 import sys
 import utils
+from utils import safe_property
 
 # define fallback
 def main(): raise NotImplementedError

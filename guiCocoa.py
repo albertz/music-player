@@ -561,8 +561,12 @@ def buildControlTable(control):
 	scrollview.setDocumentView_(table)
 	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
 	
-	array = NSArrayController.alloc().init()
-
+	#array = NSArrayController.alloc().init()
+	dataSource = TableViewDataSource.alloc().init()
+	dataSource.data = []
+	control.tableDataSource = dataSource # save ref here because table.dataSource() is only a weakref
+	table.setDataSource_(dataSource)
+	
 	table.setColumnAutoresizingStyle_(NSTableViewUniformColumnAutoresizingStyle)
 	for key in control.attr.type.keys:
 		column = NSTableColumn.alloc().initWithIdentifier_(key)
@@ -570,21 +574,17 @@ def buildControlTable(control):
 		column.setEditable_(False)
 		column.setMinWidth_(30)
 		table.addTableColumn_(column)
-		print key, table.frame()
 		
-	#table.
-	
-	table.setFrame_(((0,0),(80,80)))
-	print table, table.frame()
-
 	table.setAutosaveName_(control.name)
 	table.setAutosaveTableColumns_(True)
-	print table, table.frame()
 
-	table.setFrame_(((0,0),(80,80)))
-	print table, table.frame()
-	
-	
+	def update(ev, args, kwargs):
+		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
+		value = control.subjectObject
+		dataSource.data = value
+		table.reloadData()
+	control.updateContent = update
+
 	return control
 
 def buildControlReal(control):
