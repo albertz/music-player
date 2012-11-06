@@ -141,7 +141,20 @@ try:
 		def numberOfRowsInTableView_(self, tableView):
 			return len(self.data)
 		def tableView_objectValueForTableColumn_row_(self, tableView, tableColumn, rowIndex):
-			return self.data[rowIndex].get(tableColumn.identifier(), None)		
+			return self.data[rowIndex].get(tableColumn.identifier(), None)
+		def tableView_sortDescriptorsDidChange_(self, tableView, oldDescriptors):
+			sortDescs = tableView.sortDescriptors()
+			def itemIter(item):
+				for d in sortDescs:
+					value = item.get(d.key(), None)
+					if isinstance(value, (str,unicode)):
+						value = value.lower()
+					yield value
+			def key(item):
+				item = tuple(itemIter(item))
+				return item
+			self.data.sort(key=key, reverse=not sortDescs[0].ascending())
+			tableView.reloadData()			
 except:
 	TableViewDataSource = objc.lookUpClass("TableViewDataSource")
 

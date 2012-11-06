@@ -573,8 +573,10 @@ def buildControlTable(control):
 		column.headerCell().setStringValue_(key.capitalize()) # title
 		column.setEditable_(False)
 		column.setMinWidth_(30)
+		column.setSortDescriptorPrototype_(NSSortDescriptor.sortDescriptorWithKey_ascending_(key, True))
 		table.addTableColumn_(column)
-		
+	
+	table.setAllowsMultipleSelection_(True)	
 	table.setAutosaveName_(control.name)
 	table.setAutosaveTableColumns_(True)
 
