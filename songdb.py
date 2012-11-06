@@ -285,6 +285,9 @@ def getSongAttrib(song, attrib):
 	value = getattr(Attribs[attrib].getObject(song), attrib)
 	assert value is not None, "songdb %r attrib %r is None" % (song, attrib) # if we ever want to allow that, mark it that way in class Attrib
 	return value
+
+def search(query):
+	return [{"title": "hey", "artist": query, "url": "/Users/az/README.md"}, {"title": "foo"}]
 	
 # Do that right on first import so that all functions here work.
 init()

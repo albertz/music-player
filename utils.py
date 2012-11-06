@@ -10,7 +10,7 @@ except ImportError:
 	pass
 
 from collections import deque
-from threading import Condition, Thread, currentThread
+from threading import Condition, Thread, currentThread, Lock, RLock
 import sys, os
 
 import better_exchook
@@ -48,7 +48,7 @@ class OnRequestQueue:
 	def cancelAll(self):
 		for q in list(self.queues):
 			q.setCancel()
-	def read(self, **kwargs):
+	def read(self, *otherQueues, **kwargs):
 		q = self.QueueEnd(**kwargs)
 		thread = currentThread()
 		thread.waitQueue = q
@@ -58,7 +58,9 @@ class OnRequestQueue:
 			# and didn't got the waitQueue. In that case, it would
 			# have set the cancel already to True.
 			return
-		self.queues.add(q)
+		for reqqu in otherQueues: assert(isinstance(reqqu, OnRequestQueue))
+		reqQueues = (self,) + otherQueues
+		for reqqu in reqQeues: reqqu.queues.add(q)
 		while True:
 			with q.cond:
 				l = list(q.q)
@@ -69,7 +71,7 @@ class OnRequestQueue:
 			for item in l:
 				yield item
 			if cancel: break
-		self.queues.remove(q)
+		for reqqu in reqQeues: reqqu.queues.remove(q)
 
 class EventCallback:
 	def __init__(self, targetQueue, name=None, extraCall=None):
@@ -83,6 +85,20 @@ class EventCallback:
 	def __repr__(self):
 		return "<EventCallback %s>" % self.name
 
+class Event:
+	def __init__(self):
+		self.lock = RLock()
+		import weakref
+		self.targets = weakref.WeakSet()
+	def push(self, *args):
+		with self.lock:
+			for t in self.targets:
+				t(*args)
+	def register(self, target):
+		assert sys.getrefcount(target) > 1, "target will be weakrefed, thus we need more references to it"
+		with self.lock:
+			self.targets.add(target)
+		
 class initBy(object):
 	def __init__(self, initFunc):
 		self.initFunc = initFunc
@@ -198,6 +214,13 @@ class UserAttrib(object):
 					return self(value)
 				return wrappedFunc
 		return Wrapper()
+	def setUpdateEvent(self, updateProp):
+		self._updates = updateProp
+		return updateProp
+	def hasUpdateEvent(self):
+		return getattr(self, "_updates", None)
+	def updateEvent(self, inst, type=None):
+		return self._updates.__get__(inst, type)
 	@classmethod
 	def _set(cls, name, inst, value):
 		cls._getUserAttribDict(inst)[name] = value

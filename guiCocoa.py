@@ -123,7 +123,7 @@ def buildControlAction(control):
 	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 25.0)))
 	button.setBezelStyle_(NSRoundedBezelStyle)
 	actionTarget = ButtonActionHandler.alloc().initWithArgs(control.attr, control.parent.subjectObject)
-	actionTarget.retain() # TODO: where would we release this? ...
+	control.buttonActionHandler = actionTarget # keep ref here. button.target() is only a weakref
 	button.setTarget_(actionTarget)
 	button.setAction_("click")
 	def do_update(): button.setTitle_(control.attr.name.decode("utf-8"))
@@ -580,12 +580,15 @@ def buildControlTable(control):
 	table.setAutosaveName_(control.name)
 	table.setAutosaveTableColumns_(True)
 
-	def update(ev, args, kwargs):
+	def update():
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		value = control.subjectObject
 		dataSource.data = value
 		table.reloadData()
-	control.updateContent = update
+	control.updateContent = lambda ev, args, kwargs: update
+
+	if control.attr.hasUpdateEvent():
+		control.attr.updateEvent(control.parent.subjectObject).register(update)
 
 	return control
 
