@@ -544,10 +544,47 @@ def buildControlList(control):
 	return control
 
 def buildControlTable(control):
-	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	subview.control = control
-	control.nativeGuiObject = subview
-	control.OuterSpace = (0,0)
+	scrollview = NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
+	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	scrollview.setHasVerticalScroller_(True)
+	scrollview.setDrawsBackground_(False)
+	scrollview.setBorderType_(NSBezelBorder)
+	
+	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
+	view.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	view.addSubview_(scrollview)
+	view.control = control
+	control.nativeGuiObject = view
+
+	table = NSTableView.alloc().initWithFrame_(((0,0),(80,80)))
+	scrollview.setDocumentView_(table)
+	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
+	
+	array = NSArrayController.alloc().init()
+
+	table.setColumnAutoresizingStyle_(NSTableViewUniformColumnAutoresizingStyle)
+	for key in control.attr.type.keys:
+		column = NSTableColumn.alloc().initWithIdentifier_(key)
+		column.headerCell().setStringValue_(key.capitalize()) # title
+		column.setEditable_(False)
+		column.setMinWidth_(30)
+		table.addTableColumn_(column)
+		print key, table.frame()
+		
+	#table.
+	
+	table.setFrame_(((0,0),(80,80)))
+	print table, table.frame()
+
+	table.setAutosaveName_(control.name)
+	table.setAutosaveTableColumns_(True)
+	print table, table.frame()
+
+	table.setFrame_(((0,0),(80,80)))
+	print table, table.frame()
+	
+	
 	return control
 
 def buildControlReal(control):

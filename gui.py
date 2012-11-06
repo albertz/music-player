@@ -32,7 +32,22 @@ class GuiObject:
 	OuterSpace = (8,8)
 	
 	def __repr__(self): return "<%s %r %r>" % (self.__class__.__name__, self.subjectObject, self.attr)
+
+	@safe_property
+	@property
+	def name(self):
+		name = ""
+		obj = self
+		while True:
+			if obj.parent:
+				name = "." + obj.attr.name + name
+				obj = obj.parent
+			else:
+				name = obj.subjectObject.__class__.__name__ + name
+				break
+		return name
 	
+	@safe_property
 	@property
 	def innerSize(self): return self.size
 	

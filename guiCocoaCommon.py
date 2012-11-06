@@ -135,6 +135,13 @@ try:
 except:
 	NSExtendedSlider = objc.lookUpClass("NSExtendedSlider")
 
+try:
+	class NSExtendedArrayController(NSArrayController):
+		pass
+except:
+	NSExtendedArrayController = objc.lookUpClass("NSExtendedArrayController")
+
+
 
 try:
 	class ButtonActionHandler(NSObject):
