@@ -60,7 +60,7 @@ class OnRequestQueue:
 			return
 		for reqqu in otherQueues: assert(isinstance(reqqu, OnRequestQueue))
 		reqQueues = (self,) + otherQueues
-		for reqqu in reqQeues: reqqu.queues.add(q)
+		for reqqu in reqQueues: reqqu.queues.add(q)
 		while True:
 			with q.cond:
 				l = list(q.q)
@@ -71,7 +71,7 @@ class OnRequestQueue:
 			for item in l:
 				yield item
 			if cancel: break
-		for reqqu in reqQeues: reqqu.queues.remove(q)
+		for reqqu in reqQueues: reqqu.queues.remove(q)
 
 class EventCallback:
 	def __init__(self, targetQueue, name=None, extraCall=None):
