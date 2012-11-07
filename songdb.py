@@ -6,6 +6,7 @@ import leveldb
 
 import appinfo
 import utils
+from utils import safe_property
 
 
 # see <https://github.com/albertz/binstruct/> for documentation
@@ -166,7 +167,8 @@ class SongFileEntry(object):
 	def __init__(self, songEntry, url):
 		object.__setattr__(self, "songEntry", songEntry)
 		object.__setattr__(self, "url", url)
-		
+	
+	@safe_property
 	@property
 	def _dbDict(self):
 		# Note: If this raises an AttributeError for some reason,
@@ -195,6 +197,7 @@ class SongFilesDict:
 	def __init__(self, songEntry):
 		self.songEntry = songEntry
 		
+	@safe_property
 	@property
 	def filesDict(self):
 		return self.songEntry._dbDict.get("files", {})
@@ -213,14 +216,17 @@ class SongEntry(object):
 	def __init__(self, song):
 		object.__setattr__(self, "songObj", song)
 	
+	@safe_property
 	@property
 	def id(self):
 		return self.songObj.id
 
+	@safe_property
 	@property
 	def files(self):
 		return SongFilesDict(self)
 
+	@safe_property
 	@property
 	def _dbDict(self):
 		global songDb
@@ -245,6 +251,54 @@ class SongEntry(object):
 	
 def getSong(song):
 	return SongEntry(song)
+
+def getBestSongFileFromDict(filesDict):
+	files = filesDict.keys()
+	import os
+	files = map(os.path.expanduser, files)
+	files = filter(os.path.exists, files)
+	if not files: return None
+	# priority: flac, m4a, ogg
+	fsByExt = dict([(os.path.splitext(f)[1].lower(), f) for f in files])
+	f = None
+	for ext in ["flac","m4a","ogg"]:
+		f = fsByExt.get(ext, None)
+		if f: break
+	if not f: f = files[0] # just take first, whatever that is
+	assert f
+	return f
+	
+def getSongFilenameById(songId):
+	global songDb
+	try: dbEntry = songDb[songId]
+	except KeyError: return None
+	filesDict = dbEntry.get("files",{})
+	return getBestSongFileFromList(filesDict)
+
+def getSongById(songId):
+	f = getSongFilenameById(songId)
+	if not f: return None
+	song = Song(url=f)
+	song.id = songId
+	assert song
+	return song
+
+def getSongSummaryDictById(songId):
+	global songDb
+	try: dbEntry = songDb[songId]
+	except KeyError: return None
+	f = getBestSongFileFromDict(dbEntry.get("files",{}))
+	if not f: return None
+	fileEntry = dbEntry["files"][normalizedFilename(f)] # Note: this assumes that we never have changed the normalize-func
+	# for now, this is just enough for good results in Search.Search.Keys
+	return {
+		"url": f,
+		"id": songId,
+		"artist": dbEntry.get("artist", ""),
+		"title": dbEntry.get("title", ""),
+		"rating": dbEntry.get("rating", 0),
+		"duration": fileEntry.get("duration", -1),
+	}
 
 class Attrib:
 	def __init__(self, fileSpecific=False):
@@ -289,7 +343,24 @@ def getSongAttrib(song, attrib):
 	return value
 
 def insertSearchEntry(song):
-	pass
+	global songSearchIndexDb
+	def update(key, updateDict):
+		oldDict = songSearchIndexDb[key]
+		for dkey,dvalue in updateDict.iteritems():
+			oldValue = oldDict.get(dkey, [])
+			oldValue = set(oldValue)
+			oldValue.update(dvalue)
+			oldDict[dkey] = list(oldValue)
+			
+	with songSearchIndexDb.writelock:
+		tokens = song.artist.split() + song.title.split()
+		s = " ".join(tokens).lower()
+		def go(startIndex):
+			s[startIndex]
+			for i in xrange(startIndex, len(s)):
+				go(i)
+		for i in xrange(len(s)):
+			go(i)
 
 def search(query):
 	return [{"title": "hey", "artist": query, "url": "/Users/az/README.md"}, {"title": "foo"}]
