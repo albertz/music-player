@@ -259,7 +259,8 @@ def buildControlList(control):
 	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
 	scrollview.setHasVerticalScroller_(True)
 	scrollview.setDrawsBackground_(False)
-	scrollview.setBorderType_(NSGrooveBorder)
+	scrollview.setBorderType_(NSBezelBorder)
+	#scrollview.setBorderType_(NSGrooveBorder)
 	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
 	view.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	view.addSubview_(scrollview)
@@ -368,6 +369,9 @@ def buildControlList(control):
 			def onFocus(self):
 				if self.index is None:
 					self.select()
+				view.setDrawsFocusRing(True)
+			def onLostFocus(self):
+				view.setDrawsFocusRing(False)
 			def onKeyDown(self, ev):
 				# see HIToolbox/Events.h for keycodes
 				if ev.keyCode() == 125: # down
@@ -413,6 +417,7 @@ def buildControlList(control):
 				
 		control.select = SelectionHandling()
 		view.onBecomeFirstResponder = control.select.onFocus
+		view.onResignFirstResponder = control.select.onLostFocus
 		view.onKeyDown = control.select.onKeyDown
 		view.onMouseDown = control.select.onMouseDown
 	

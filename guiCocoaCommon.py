@@ -26,6 +26,7 @@ try:
 		onDraggingExited = None
 		onPerformDragOperation = None
 		_drawsBackground = False
+		_drawsFocusRing = False
 		_backgroundColor = None
 		def isFlipped(self): return True
 		def setDrawsBackground_(self, value):
@@ -38,11 +39,18 @@ try:
 			if self._drawsBackground:
 				self.setNeedsDisplay_(True)
 		def backgroundColor(self): return self._backgroundColor
+		def setDrawsFocusRing(self, value):
+			self._drawsFocusRing = value
+			self.setNeedsDisplay_(True)
 		def isOpaque(self): return self._drawsBackground
 		def drawRect_(self, dirtyRect):
+			self.drawFocusRingMask()
 			if self._drawsBackground:
 				self._backgroundColor.setFill()
 				NSRectFill(dirtyRect)
+			if self._drawsFocusRing:
+				NSSetFocusRingStyle(NSFocusRingOnly)
+				NSRectFill(self.bounds())
 		def acceptsFirstResponder(self):
 			return utils.attrChain(self, "control", "attr", "canHaveFocus", default=False)
 		def becomeFirstResponder(self):
