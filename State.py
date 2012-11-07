@@ -14,10 +14,11 @@ class RecentlyplayedList:
 		self.lock = RLock()
 		self.index = index
 		self.list = deque(list)
-		self.previous = None
+		self.previous = previous
 	def append(self, song):
 		if not song: return
 		with self.lock:
+			guiOldLen = len(self)
 			self.list.append(song)
 			if len(self.list) >= self.Limit:			
 				newList = PersistentObject(RecentlyplayedList, "recentlyplayed-%i.dat" % self.index, persistentRepr=True)
@@ -28,10 +29,8 @@ class RecentlyplayedList:
 				self.index += 1
 				self.previous = newList
 				self.list = deque()
-				self.onClear()
-			else:
-				self.onInsert(min(len(self.list), self.GuiLimit), song)
-				if len(self.list) > self.GuiLimit: self.onRemove(0)
+			self.onInsert(guiOldLen, song)
+			if guiOldLen == self.GuiLimit: self.onRemove(0)
 	def getLastN(self, n):
 		with self.lock:
 			#return list(self.list)[-n:] # not using this for now as a bit too heavy. I timeit'd it. this is 14 times slower for n=10, len(l)=10000
