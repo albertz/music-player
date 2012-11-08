@@ -342,26 +342,60 @@ def getSongAttrib(song, attrib):
 	assert value is not None, "songdb %r attrib %r is None" % (song, attrib) # if we ever want to allow that, mark it that way in class Attrib
 	return value
 
+Search_SubtokenLimit = 6
+Search_PrefixPostfixStrAttrIndex = 1
+Search_PrefixTokenAttrIndex = 2
+Search_PostfixTokenAttrIndex = 3
+Search_SongAttrIndex = 4
+
 def insertSearchEntry(song):
 	global songSearchIndexDb
-	def update(key, updateDict):
-		oldDict = songSearchIndexDb[key]
-		for dkey,dvalue in updateDict.iteritems():
-			oldValue = oldDict.get(dkey, [])
-			oldValue = set(oldValue)
-			oldValue.update(dvalue)
-			oldDict[dkey] = list(oldValue)
-			
-	with songSearchIndexDb.writelock:
-		tokens = song.artist.split() + song.title.split()
-		s = " ".join(tokens).lower()
-		def go(startIndex):
-			s[startIndex]
-			for i in xrange(startIndex, len(s)):
-				go(i)
-		for i in xrange(len(s)):
-			go(i)
 
+	# all entries sets. an update merges the sets
+	def update(key, updates):
+		with songSearchIndexDb.writelock:
+			old = songSearchIndexDb[key]
+			old = set(old)
+			old.update(updates)
+			songSearchIndexDb[key] = old
+	
+	# subwords of len 1,2,4,8,16,... so we need O(n * log n) subwords for n=wordLen
+	def iterSubwords(word):
+		wordLen = len(word)
+		l = 1
+		while l < wordLen:
+			for i in range(wordLen - l + 1):
+				subWord = word[i:i+l]
+				j = max(0, i - l)
+				prefix = word[j:i]
+				j = min(wordLen, i + 2*l - len(prefix))
+				postfix = word[i+l:j]
+				yield (subWord, prefix, postfix)
+			l **= 2
+	
+	# subsequences of len 1,2,..,SubtokenLimit
+	import itertools
+	def iterSubtokens(tokens):
+		for i in range(Search_SubtokenLimit):
+			if i > len(tokens): break
+			for cmb in itertools.combinations(tokens, i):
+				yield cmb
+	
+	tokens = song.artist.lower().split() + song.title.lower().split()
+	
+	import collections
+	localUpdates = collections.defaultdict(set)
+	
+	for token in tokens:
+		for subWord, prefix, postfix in iterSubwords(token):
+			localUpdates[(Search_PrefixPostfixStrAttrIndex, subWord)].add((prefix, postfix),)
+
+	for subTokens in iterSubtokens(tokens):
+		localUpdates[(Search_PrefixTokenAttrIndex, subWord)].add((prefix, postfix),)
+
+	for key,value in localUpdates.items():
+		update(key, value)
+	
 def search(query):
 	return [{"title": "hey", "artist": query, "url": "/Users/az/README.md"}, {"title": "foo"}]
 	
