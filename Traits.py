@@ -22,8 +22,14 @@ class List(TraitType):
 	def __len__(self): pass
 	
 class Table(List):
-	def __init__(self, keys):
+	def __init__(self, keys, **kwargs):
 		self.keys = keys
+		self.formaters = {}
+		for key,value in kwargs.items():
+			if key.startswith("format_") and key[len("format_"):] in keys:
+				self.formaters[key[len("format_"):]] = value
+			else:
+				assert False, "%s argument unknown" % key
 
 class Real(TraitType):
 	def __init__(self, min=None, max=None):

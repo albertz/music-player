@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 
-import utils
-from utils import UserAttrib, initBy, Event
+import utils, math
+from utils import UserAttrib, initBy, Event, formatTime
 import Traits
 import songdb
 
@@ -17,7 +18,8 @@ class Search:
 			self.searchResults_updateEvent.push()
 		return self._searchText
 	
-	@UserAttrib(type=Traits.Table(keys=Keys))
+	@UserAttrib(type=Traits.Table(keys=Keys,
+		format_duration=formatTime, format_rating=lambda r: "★" * int(round(r * 5))))
 	@property
 	def searchResults(self):
 		return list(self._searchResults)

@@ -146,10 +146,13 @@ except:
 try:
 	class TableViewDataSource(NSObject):
 		data = ()
+		formaters = {}
 		def numberOfRowsInTableView_(self, tableView):
 			return len(self.data)
 		def tableView_objectValueForTableColumn_row_(self, tableView, tableColumn, rowIndex):
-			v = self.data[rowIndex].get(tableColumn.identifier(), None)
+			key = str(tableColumn.identifier())
+			v = self.data[rowIndex].get(key, None)
+			if key in self.formaters: v = self.formaters[key](v)
 			if isinstance(v, str): v = utils.convertToUnicode(v)
 			return v
 		def tableView_sortDescriptorsDidChange_(self, tableView, oldDescriptors):

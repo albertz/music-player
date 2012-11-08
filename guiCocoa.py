@@ -572,6 +572,7 @@ def buildControlTable(control):
 	#array = NSArrayController.alloc().init()
 	dataSource = TableViewDataSource.alloc().init()
 	dataSource.data = []
+	dataSource.formaters = control.attr.type.formaters
 	control.tableDataSource = dataSource # save ref here because table.dataSource() is only a weakref
 	table.setDataSource_(dataSource)
 	
