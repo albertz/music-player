@@ -242,10 +242,13 @@ def buildControlEditableText(control):
 	control.updateContent = update
 
 	def onTextChange():
-		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
-		newText = unicode(label.stringValue())
-		control.subjectObject(updateText = newText)
-		
+		try:
+			control.subjectObject = control.attr.__get__(control.parent.subjectObject)
+			newText = unicode(label.stringValue())
+			control.subjectObject(updateText = newText)
+		except:
+			sys.excepthook(*sys.exc_info())
+			
 	label.onTextChange = onTextChange
 
 	return control

@@ -446,8 +446,10 @@ def insertSearchEntry(song):
 	for key,value in localUpdates.items():
 		update(key, value)
 	
-def search(query, limitResults=Search_ResultLimit):
+def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 	tokens = query.lower().split()
+	tokens = filter(lambda t: len(t) >= queryTokenMinLen, tokens)
+	if not tokens: return []
 	
 	def get(key, default=[]):
 		try: return songSearchIndexDb[key]
