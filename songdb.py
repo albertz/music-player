@@ -343,21 +343,26 @@ def getSongAttrib(song, attrib):
 	return value
 
 Search_SubtokenLimit = 6
-Search_PrefixPostfixStrAttrIndex = 1
-Search_PrefixTokenAttrIndex = 2
-Search_PostfixTokenAttrIndex = 3
-Search_SongAttrIndex = 4
+Search_PrefixPostfixStrAttrIndex = 1 # (prefix,postfix) pairs
+Search_ExtendTokenAttrIndex = 2 # (index,token) pairs
+Search_SongAttrIndex = 3 # songid
 
 def insertSearchEntry(song):
 	global songSearchIndexDb
 
+	def makeHashable(data):
+		if isinstance(data, list):
+			return tuple(map(makeHashable, data))
+		return data
+
 	# all entries sets. an update merges the sets
 	def update(key, updates):
 		with songSearchIndexDb.writelock:
-			old = songSearchIndexDb[key]
-			old = set(old)
-			old.update(updates)
-			songSearchIndexDb[key] = old
+			try: old = songSearchIndexDb[key]
+			except KeyError: old = ()
+			new = set(map(makeHashable, old))
+			new.update(updates)
+			songSearchIndexDb[key] = list(new)
 	
 	# subwords of len 1,2,4,8,16,... so we need O(n * log n) subwords for n=wordLen
 	def iterSubwords(word):
@@ -371,15 +376,37 @@ def insertSearchEntry(song):
 				j = min(wordLen, i + 2*l - len(prefix))
 				postfix = word[i+l:j]
 				yield (subWord, prefix, postfix)
-			l **= 2
+			l *= 2
 	
-	# subsequences of len 1,2,..,SubtokenLimit
+	def iterSubtokenFullExtensions(subTokenIdxs, tokenCount):
+		if not isinstance(subTokenIdxs, tuple): subTokenIdxs = tuple(subTokenIdxs)
+		for idx in range(tokenCount):
+			if addCount == 0: break
+			if idx in subTokenIdxs: continue
+			# index variance is max 1
+			if min([abs(idx - i) for i in subTokenIdxs]) > 1: continue
+			
+			extended = tuple(sorted(subTokenIdxs + (idx,)))
+			yield extended
+			
+			# fill in set because we will get duplicates
+			moreExtendedSet = set()
+			for moreExtended in iterSubtokenFullExtensions(extended, tokenCount):
+				moreExtendedSet.add(moreExtended)
+				
+			for moreExtended in moreExtendedSet:
+				yield moreExtended
+	
+	# subsequences of len 1,2,..,SubtokenLimit and then the full extensions
 	import itertools
-	def iterSubtokens(tokens):
-		for i in range(Search_SubtokenLimit):
-			if i > len(tokens): break
-			for cmb in itertools.combinations(tokens, i):
+	def iterSubtokens(tokenCount):
+		for n in range(Search_SubtokenLimit):
+			if n > len(tokens): break
+			for cmb in itertools.combinations(range(tokenCount), n):
 				yield cmb
+				if n == Search_SubtokenLimit: # now iter all full extensions
+					for ext in iterSubtokenFullExtensions(cmb, tokenCount):
+						yield ext
 	
 	tokens = song.artist.lower().split() + song.title.lower().split()
 	
@@ -388,10 +415,24 @@ def insertSearchEntry(song):
 	
 	for token in tokens:
 		for subWord, prefix, postfix in iterSubwords(token):
-			localUpdates[(Search_PrefixPostfixStrAttrIndex, subWord)].add((prefix, postfix),)
+			localUpdates[(Search_PrefixPostfixStrAttrIndex, subWord)].add((prefix, postfix))
 
-	for subTokens in iterSubtokens(tokens):
-		localUpdates[(Search_PrefixTokenAttrIndex, subWord)].add((prefix, postfix),)
+	tokenCount = len(tokens)
+	for subTokenIdxs in iterSubtokens(tokenCount):
+		subTokens = tuple(tokens[i] for i in subTokenIdxs)
+		for idx in range(tokenCount):
+			if idx in subTokenIdxs: continue
+			if len(subTokenIdxs) >= Search_SubtokenLimit:
+				# only direct extensions. i.e. index variance is max 1
+				if min([abs(idx - i) for i in subTokenIdxs]) > 1: continue
+			
+			insertIndex = 0
+			while insertIndex < len(subTokenIdxs) and subTokenIdxs[insertIndex] < idx:
+				insertIndex += 1
+			newToken = tokens[idx]
+			localUpdates[(Search_ExtendTokenAttrIndex, subTokens)].add((insertIndex, newToken))
+
+	localUpdates[(Search_SongAttrIndex, tuple(tokens))].add(song.id)
 
 	for key,value in localUpdates.items():
 		update(key, value)
