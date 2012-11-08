@@ -554,7 +554,8 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 					if not songId in songs:
 						songs.add(songId)
 						songDesc = getSongSummaryDictById(songId)
-						songDescList += [songDesc]
+						if songDesc:
+							songDescList += [songDesc]
 				if len(songs) >= limitResults:
 					break
 		tokenListIndex = newTokenListIndex
