@@ -43,6 +43,8 @@ class DB:
 		except leveldb.LevelDBError, exc:
 			print "LevelDB reading error:", exc
 			# fallback
+			try: self.db.Delete(dbRepr(item))
+			except: pass
 			raise KeyError
 		
 	def __setitem__(self, key, value):
@@ -448,11 +450,9 @@ def insertSearchEntry_raw(songId, tokens):
 	for key,value in localUpdates.items():
 		update(key, value)
 
-def insertSearchEntry(song, doAsync=True):
+def insertSearchEntry(song):
 	tokens = song.artist.lower().split() + song.title.lower().split()
-	f = lambda: insertSearchEntry_raw(song.id, tokens)
-	if doAsync: utils.asyncCall(f, "insertSearchEntry")
-	else: f()
+	insertSearchEntry_raw(song.id, tokens)
 	
 def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 	tokens = query.lower().split()
