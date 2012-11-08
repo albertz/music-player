@@ -356,7 +356,7 @@ Search_PrefixPostfixStrAttrIndex = 1 # (prefix,postfix) pairs
 Search_ExtendTokenAttrIndex = 2 # (index,token) pairs
 Search_SongAttrIndex = 3 # songid
 
-def insertSearchEntry(song):
+def insertSearchEntry_raw(songId, tokens):
 	global songSearchIndexDb
 
 	def makeHashable(data):
@@ -416,9 +416,7 @@ def insertSearchEntry(song):
 				if n == Search_SubtokenLimit: # now iter all full extensions
 					for ext in iterSubtokenFullExtensions(cmb, tokenCount):
 						yield ext
-	
-	tokens = song.artist.lower().split() + song.title.lower().split()
-	
+		
 	import collections
 	localUpdates = collections.defaultdict(set)
 	
@@ -441,10 +439,14 @@ def insertSearchEntry(song):
 			newToken = tokens[idx]
 			localUpdates[(Search_ExtendTokenAttrIndex, subTokens)].add((insertIndex, newToken))
 
-	localUpdates[(Search_SongAttrIndex, tuple(tokens))].add(song.id)
+	localUpdates[(Search_SongAttrIndex, tuple(tokens))].add(songId)
 
 	for key,value in localUpdates.items():
 		update(key, value)
+
+def insertSearchEntry(song):
+	tokens = song.artist.lower().split() + song.title.lower().split()
+	insertSearchEntry_raw(song.id, tokens)
 	
 def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 	tokens = query.lower().split()
@@ -575,6 +577,22 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 # Do that right on first import so that all functions here work.
 init()
 
+def indexSearchDir(dir):
+	import os
+	for fn in os.listdir(dir):
+		fullfn = dir + "/" + fn
+		if os.path.isfile(fullfn):
+			ext = os.path.splitext(fn)[1].lower()
+			if ext[:1] == ".": ext = ext[1:]
+			if ext in appinfo.formats:
+				song = Song(url=fullfn)
+				assert song
+				assert song.id
+				insertSearchEntry(song)
+				print "added", fn
+		elif os.path.isdir(fullfn):
+			indexSearchDir(fullfn)
+			
 def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
