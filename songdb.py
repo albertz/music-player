@@ -602,9 +602,16 @@ def indexSearchDir(dir):
 def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
+	# We just index all played songs...
 	from State import state
+	from player import PlayerEventCallbacks
 	for ev,args,kwargs in state.updates.read():
-		pass
+		try:
+			if ev is PlayerEventCallbacks.onSongChange:
+				oldSong = kwargs["oldSong"]
+				insertSearchEntry(oldSong)
+		except:
+			sys.excepthook(*sys.exc_info())
 	flush()
 	
 # For debugging
