@@ -36,20 +36,20 @@ class DB:
 	def __init__(self, dir):
 		import threading
 		self.writelock = threading.Lock()
-		self.db = leveldb.LevelDB(appinfo.userdir + "/" + dir, max_open_files=200)
+		self.db = leveldb.LevelDB(
+			appinfo.userdir + "/" + dir,
+			max_open_files=200)
 
 	def __getitem__(self, item):
 		try: return dbUnRepr(self.db.Get(dbRepr(item)))
 		except leveldb.LevelDBError, exc:
 			print "LevelDB reading error:", exc
 			# fallback
-			try: self.db.Delete(dbRepr(item))
-			except: pass
 			raise KeyError
 		
 	def __setitem__(self, key, value):
 		self.db.Put(dbRepr(key), dbRepr(value))
-
+			
 	def __delitem__(self, key):
 		self.db.Delete(dbRepr(key))
 
@@ -603,13 +603,14 @@ def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
 	# We just index all played songs...
+	import sys
 	from State import state
 	from player import PlayerEventCallbacks
 	for ev,args,kwargs in state.updates.read():
 		try:
 			if ev is PlayerEventCallbacks.onSongChange:
-				oldSong = kwargs["oldSong"]
-				insertSearchEntry(oldSong)
+				newSong = kwargs["newSong"]
+				insertSearchEntry(newSong)
 		except:
 			sys.excepthook(*sys.exc_info())
 	flush()
