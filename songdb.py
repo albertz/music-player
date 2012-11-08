@@ -63,7 +63,10 @@ class DB:
 		else:
 			mapFunc = saveDbUnRepr
 		return map(mapFunc, self.db.RangeIter(key_from, key_to, include_value))
-		
+	
+	def flush(self):
+		self.db.Write(leveldb.WriteBatch(), sync=True)
+
 def init():
 	global songDb
 	songDb = DB("songs.db")
@@ -72,6 +75,11 @@ def init():
 	global songSearchIndexDb
 	songSearchIndexDb = DB("songSearchIndex.db")
 
+def flush():
+	songDb.flush()
+	songHashDb.flush()
+	songSearchIndexDb.flush()
+	
 def normalizedFilename(fn):
 	import os
 	fn = os.path.normpath(fn)
@@ -438,6 +446,8 @@ def insertSearchEntry(song):
 		update(key, value)
 	
 def search(query):
+	tokens = query.lower().split()
+	
 	return [{"title": "hey", "artist": query, "url": "/Users/az/README.md"}, {"title": "foo"}]
 	
 # Do that right on first import so that all functions here work.
@@ -446,8 +456,10 @@ init()
 def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
-	pass
-
+	for ev,args,kwargs in state.updates.read():
+		pass
+	flush()
+	
 # For debugging
 def dumpDatabases():
 	global songDb, songHashDb
