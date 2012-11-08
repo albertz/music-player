@@ -39,8 +39,12 @@ class DB:
 		self.db = leveldb.LevelDB(appinfo.userdir + "/" + dir, max_open_files=200)
 
 	def __getitem__(self, item):
-		return dbUnRepr(self.db.Get(dbRepr(item)))
-
+		try: return dbUnRepr(self.db.Get(dbRepr(item)))
+		except leveldb.LevelDBError, exc:
+			print "LevelDB error:", exc
+			# fallback
+			raise KeyError
+		
 	def __setitem__(self, key, value):
 		self.db.Put(dbRepr(key), dbRepr(value))
 
@@ -444,9 +448,11 @@ def insertSearchEntry_raw(songId, tokens):
 	for key,value in localUpdates.items():
 		update(key, value)
 
-def insertSearchEntry(song):
+def insertSearchEntry(song, doAsync=True):
 	tokens = song.artist.lower().split() + song.title.lower().split()
-	insertSearchEntry_raw(song.id, tokens)
+	f = lambda: insertSearchEntry_raw(song.id, tokens)
+	if doAsync: utils.asyncCall(f, "insertSearchEntry")
+	else: f()
 	
 def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 	tokens = query.lower().split()
