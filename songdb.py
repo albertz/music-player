@@ -350,6 +350,7 @@ def getSongAttrib(song, attrib):
 	assert value is not None, "songdb %r attrib %r is None" % (song, attrib) # if we ever want to allow that, mark it that way in class Attrib
 	return value
 
+Search_ResultLimit = 500
 Search_SubtokenLimit = 6
 Search_PrefixPostfixStrAttrIndex = 1 # (prefix,postfix) pairs
 Search_ExtendTokenAttrIndex = 2 # (index,token) pairs
@@ -445,10 +446,129 @@ def insertSearchEntry(song):
 	for key,value in localUpdates.items():
 		update(key, value)
 	
-def search(query):
+def search(query, limitResults=Search_ResultLimit):
 	tokens = query.lower().split()
 	
-	return [{"title": "hey", "artist": query, "url": "/Users/az/README.md"}, {"title": "foo"}]
+	def get(key, default=[]):
+		try: return songSearchIndexDb[key]
+		except KeyError: return default
+	
+	import math	
+	class Token:
+		def __init__(self, s):
+			self.origString = s
+			self.strings = []
+			l = len(s)
+			l2 = 2 ** int(math.log(l,2))
+			if l2 != l: # it's not base2, take substring
+				self.strings += [s[:l2]]
+				self.newIndex = 1
+			else:
+				self.newIndex = 0			
+			self.initIndex = 1 if l2 < l else 0
+			self.strings += [s]
+			self.expandIndex = 0
+		def expand(self):
+			oldStringCount = len(self.strings)
+			self.newIndex = self.expandIndex
+			for i in range(self.expandIndex, oldStringCount):
+				for prefix,postfix in get((Search_PrefixPostfixStrAttrIndex,self.strings[i])):
+					s = self.strings[i]
+					s = prefix + s + postfix
+					if s == self.origString: continue
+					if len(s) > len(self.origString):
+						if not self.origString in s: continue
+					else:
+						if not s in self.origString: continue
+					self.strings += [s]
+			self.expandIndex = oldStringCount
+		@property
+		def expanded(self): return self.expandIndex >= len(self.strings)
+		@property
+		def newWords(self): return self.strings[self.newIndex:]
+		@property
+		def words(self): return self.strings[self.initIndex:]
+		def __repr__(self): return "<Token %r>" % self.strings
+	tokenWords = map(Token, tokens[0:Search_SubtokenLimit])
+	
+	tokenListSet = set() # to keep track and avoid duplicates
+	tokenLists = []
+	tokenListIndex = 0
+	
+	class TokenList:
+		def __init__(self, tokenList):
+			self.tokenList = tokenList
+		@property
+		def expansions(self):
+			for index,token in get((Search_ExtendTokenAttrIndex, self.tokenList)):
+				yield self.tokenList[:index] + (token,) + self.tokenList[index:]
+		@property
+		def songs(self):
+			for songId in get((Search_SongAttrIndex, self.tokenList)):
+				yield songId
+		@property
+		def matchesQuery(self):
+			if len(tokens) <= Search_SubtokenLimit:
+				return True
+			if len(self.tokenList) < len(tokens):
+				return False
+			i = 0
+			for token in tokens:
+				while i < len(self.tokenList) and token not in self.tokenList[i]:
+					i += 1
+				if i >= len(self.tokenList):
+					return False
+				i += 1
+			return True
+		def __repr__(self): return "<TokenList %r>" % list(self.tokenList)
+	
+	def addTokenList(tokenList):
+		if tokenList in tokenListSet: return
+		tokenListSet.add(tokenList)
+		tokenLists.append(TokenList(tokenList))
+		
+	from itertools import product
+	for tokenList in product(*[token.words for token in tokenWords]):
+		addTokenList(tuple(tokenList))
+	
+	songs = set()
+	songDescList = [] # list to keep the same order
+
+	while True:
+		newTokenListIndex = len(tokenLists)
+		for i in range(tokenListIndex, len(tokenLists)):
+			tokenList = tokenLists[i]
+			for expTokenList in tokenList.expansions:
+				addTokenList(expTokenList)
+			if tokenList.matchesQuery:
+				for songId in tokenList.songs:
+					if not songId in songs:
+						songs.add(songId)
+						songDesc = getSongSummaryDictById(songId)
+						songDescList += [songDesc]
+				if len(songs) >= limitResults:
+					break
+		tokenListIndex = newTokenListIndex
+			
+		if len(songs) >= limitResults:
+			break
+
+		for i, token in enumerate(tokenWords):
+			if not token.expanded:
+				token.expand()
+
+				if token.newWords:
+					for tokenList in product(*(
+						[t.words for t in tokenWords[:i]] +
+						[token.newWords] +
+						[t.words for t in tokenWords[i+1:]])):
+						tokenLists.append(TokenList(tokenList))
+		
+		if all([token.expanded for token in tokenWords]) and tokenListIndex >= len(tokenLists):
+			# nothing new anymore to explore
+			break
+
+	return songDescList
 	
 # Do that right on first import so that all functions here work.
 init()
@@ -456,6 +576,7 @@ init()
 def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
+	from State import state
 	for ev,args,kwargs in state.updates.read():
 		pass
 	flush()

@@ -149,7 +149,9 @@ try:
 		def numberOfRowsInTableView_(self, tableView):
 			return len(self.data)
 		def tableView_objectValueForTableColumn_row_(self, tableView, tableColumn, rowIndex):
-			return self.data[rowIndex].get(tableColumn.identifier(), None)
+			v = self.data[rowIndex].get(tableColumn.identifier(), None)
+			if isinstance(v, str): v = utils.convertToUnicode(v)
+			return v
 		def tableView_sortDescriptorsDidChange_(self, tableView, oldDescriptors):
 			sortDescs = tableView.sortDescriptors()
 			def itemIter(item):

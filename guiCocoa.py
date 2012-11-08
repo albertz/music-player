@@ -575,7 +575,7 @@ def buildControlTable(control):
 	table.setColumnAutoresizingStyle_(NSTableViewUniformColumnAutoresizingStyle)
 	for key in control.attr.type.keys:
 		column = NSTableColumn.alloc().initWithIdentifier_(key)
-		column.headerCell().setStringValue_(key.capitalize()) # title
+		column.headerCell().setStringValue_(convertToUnicode(key.capitalize())) # title
 		column.setEditable_(False)
 		column.setMinWidth_(30)
 		column.setSortDescriptorPrototype_(NSSortDescriptor.sortDescriptorWithKey_ascending_(key, True))
