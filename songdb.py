@@ -41,7 +41,7 @@ class DB:
 	def __getitem__(self, item):
 		try: return dbUnRepr(self.db.Get(dbRepr(item)))
 		except leveldb.LevelDBError, exc:
-			print "LevelDB error:", exc
+			print "LevelDB reading error:", exc
 			# fallback
 			raise KeyError
 		
