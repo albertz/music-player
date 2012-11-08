@@ -396,7 +396,6 @@ def insertSearchEntry_raw(songId, tokens):
 	def iterSubtokenFullExtensions(subTokenIdxs, tokenCount):
 		if not isinstance(subTokenIdxs, tuple): subTokenIdxs = tuple(subTokenIdxs)
 		for idx in range(tokenCount):
-			if addCount == 0: break
 			if idx in subTokenIdxs: continue
 			# index variance is max 1
 			if min([abs(idx - i) for i in subTokenIdxs]) > 1: continue
@@ -415,7 +414,7 @@ def insertSearchEntry_raw(songId, tokens):
 	# subsequences of len 1,2,..,SubtokenLimit and then the full extensions
 	import itertools
 	def iterSubtokens(tokenCount):
-		for n in range(Search_SubtokenLimit):
+		for n in range(1,Search_SubtokenLimit+1):
 			if n > len(tokens): break
 			for cmb in itertools.combinations(range(tokenCount), n):
 				yield cmb
