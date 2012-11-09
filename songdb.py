@@ -80,17 +80,17 @@ DBs = {
 	}
 for db in DBs.keys(): globals()[db] = None
 
-def usedDbsInFunc(f):
+def usedDbsInCode(f):
 	iterFunc = lambda: utils.iterGlobalsUsedInFunc(f, loadsOnly=True)
 	import types
 	if isinstance(f, (types.ClassType, types.TypeType)):
 		iterFunc = lambda: utils.iterGlobalsUsedInClass(f, module=__name__)
 
-	dbs = []
+	dbs = set() # there might be duplicates
 	for name in iterFunc():
 		if name in DBs:
-			dbs += [name]
-	return list(set(dbs)) # there might be duplicates. make unique
+			dbs.add(name)
+	return dbs
 
 def init():
 	import types
@@ -100,7 +100,7 @@ def init():
 		if getattr(v, "__module__", None) != __name__:
 			continue
 		if isinstance(v, (types.FunctionType, types.ClassType, types.TypeType)):
-			dbs = usedDbsInFunc(v)
+			dbs = usedDbsInCode(v)
 			if not dbs: continue
 			#print "used dbs in", name, ":", dbs
 			globals()[name] = lazyInitDb(*dbs)(v)
