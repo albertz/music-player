@@ -345,8 +345,11 @@ class Song(object):
 		if getattr(self, "_useDb", False) and attr in songdb.Attribs:
 			value = songdb.updateSongAttribValue(self, attr, updateFunc, default=default)
 		else:
-			value = getattr(self, attr, default)
-			value = updateFunc(value)
+			# Note that we don't use getattr to get the old value for the updateFunc.
+			# This is to avoid infinite recursion loops and also because
+			# it doesn't exactly match the useDb-case where we don't use getattr
+			# but the old value in the DB.
+			value = updateFunc(default)
 		# Note that locally stored attribs might get outdated.
 		# Thus, in getFast(), those will not be returned for accuracy=1.
 		object.__setattr__(self, attr, value)
