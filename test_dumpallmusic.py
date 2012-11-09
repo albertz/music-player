@@ -28,7 +28,9 @@ def doDir(dir):
 					"artist": song.artist,
 					"title": song.title,
 				}
-				if useDb: songDict["id"] = song.id
+				if useDb:
+					assert song.id
+					songDict["id"] = song.id
 				print betterRepr(songDict), ","
 		elif os.path.isdir(fullfn):
 			 doDir(fullfn)
