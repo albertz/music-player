@@ -260,6 +260,7 @@ class safe_property(object):
 	def __init__(self, prop):
 		self.prop = prop
 	def __get__(self, instance, owner):
+		if instance is None: return self
 		try:
 			return self.prop.__get__(instance, owner)
 		except AttributeError:
@@ -653,6 +654,7 @@ def fixValue(value):
 
 def iterGlobalsUsedInFunc(f, fast=False, loadsOnly=True):
 	if hasattr(f, "func_code"): code = f.func_code
+	elif hasattr(f, "im_func"): code = f.im_func.func_code
 	else: code = f
 	if fast:
 		# co_names is the list of all names which are used.
@@ -689,6 +691,24 @@ def iterGlobalsUsedInFunc(f, fast=False, loadsOnly=True):
 				yield g
 
 
+def iterGlobalsUsedInClass(clazz, module=None):
+	import types
+	for attrName in dir(clazz):
+		attr = getattr(clazz, attrName)
+		while True: # resolve props
+			if isinstance(attr, safe_property):
+				attr = attr.prop
+				continue
+			if isinstance(attr, property):
+				attr = attr.fget
+				continue
+			break
+		if isinstance(attr, (types.FunctionType, types.MethodType)):
+			if module:
+				if attr.__module__ != module:
+					continue
+			for g in iterGlobalsUsedInFunc(attr): yield g
+			
 # This is needed in some cases to avoid pickling problems with bounded funcs.
 def funcCall(attrChainArgs, args=()):
 	f = attrChain(*attrChainArgs)
