@@ -63,7 +63,7 @@ class DB:
 	def rangeIter(self, key_from = None, key_to = None, include_value = True):
 		def saveDbUnRepr(v):
 			try: return dbUnRepr(v)
-			except: return None # not/broken binstruct data			
+			except Exception: return None # not/broken binstruct data			
 		if include_value:
 			mapFunc = lambda value: (saveDbUnRepr(value[0]), saveDbUnRepr(value[1]))
 		else:
@@ -109,7 +109,11 @@ def lazyInitDb(*dbs):
 			return f(*args, **kwargs)
 		return decorated
 	return decorator
-	
+
+def initAllDbs():
+	for db in DBs.keys():
+		initDb(db)
+
 def flush():
 	for db in DBs.keys():
 		db = globals()[db]
@@ -249,7 +253,7 @@ class SongFilesDict:
 	def __getitem__(self, url):
 		url = normalizedFilename(url)
 		try: self.filesDict[url]
-		except: raise
+		except KeyError: raise KeyError
 		else: return SongFileEntry(self.songEntry, url)
 	
 	def get(self, url):
@@ -639,7 +643,7 @@ def songdbMain():
 			if ev is PlayerEventCallbacks.onSongChange:
 				newSong = kwargs["newSong"]
 				insertSearchEntry(newSong)
-		except:
+		except Exception:
 			sys.excepthook(*sys.exc_info())
 	flush()
 	

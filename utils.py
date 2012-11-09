@@ -457,7 +457,7 @@ class Module:
 			if self.module:
 				try:
 					reload(self.module)
-				except:
+				except Exception:
 					print "couldn't reload module", self.module
 					sys.excepthook(*sys.exc_info())
 					# continue anyway, maybe it still works and maybe the mainFunc does sth good/important
@@ -466,9 +466,7 @@ class Module:
 			mainFunc = getattr(self.module, self.mainFuncName)
 			try:
 				mainFunc()
-			except SystemExit:
-				raise
-			except:
+			except Exception:
 				print "Exception in thread", thread.name
 				sys.excepthook(*sys.exc_info())
 			if not thread.reload: break
@@ -569,7 +567,7 @@ def do_in_mainthread(f, wait=True):
 				except:
 					print "Exception in PyAsyncCallHelper call"
 					sys.excepthook(*sys.exc_info())					
-	except:
+	except Exception:
 		PyAsyncCallHelper = objc.lookUpClass("PyAsyncCallHelper") # already defined earlier
 
 	helper = PyAsyncCallHelper.alloc().initWithArgs_(f)
