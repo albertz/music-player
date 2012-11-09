@@ -109,11 +109,11 @@ class Song(object):
 				# try to read the metadata manually
 				try:
 					# make a new songObj. this prevents any multithreading issues
-					songObj = Song(self.url)
+					songObj = Song(url=self.url, _useDb=False)
 					songObj.openFile()
 					import ffmpeg
 					self._fileMetadata = ffmpeg.getMetadata(songObj) or {}
-				except: pass # couldn't open or so
+				except Exception: pass # couldn't open or so
 		if self._fileMetadata is not None:
 			m = dict([(key.lower(),value) for (key,value) in self._fileMetadata.items()])
 			self._metadata = m # only save attrib if this is from player. otherwise we might get later some better results
@@ -199,7 +199,7 @@ class Song(object):
 		try:
 			import os
 			size = os.stat(self.url).st_size
-		except:
+		except Exception:
 			size = None
 		s += ", " + self.fileext
 		if size and duration > 0:
@@ -234,10 +234,11 @@ class Song(object):
 			self._id = songdb.getSongId(self)
 			if not self._id:
 				self._id = songdb.calcNewSongId(self)
-		except:
+		except Exception:
 			print "errors while getting song id"
-			sys.excepthook(*sys.exc_info())			
-
+			import sys
+			sys.excepthook(*sys.exc_info())
+			
 		self._recursive_id_call = False
 		return self._id
 	
