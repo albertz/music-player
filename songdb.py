@@ -73,18 +73,48 @@ class DB:
 	def flush(self):
 		self.db.Write(leveldb.WriteBatch(), sync=True)
 
-def init():
-	global songDb
-	songDb = DB("songs.db")
-	global songHashDb
-	songHashDb = DB("songHashs.db")
-	global songSearchIndexDb
-	songSearchIndexDb = DB("songSearchIndex.db")
+DBs = {
+	"songDb": "songs.db",
+	"songHashDb": "songHashs.db",
+	"songSearchIndexDb": "songSearchIndex.db",
+	}
+for db in DBs.keys(): globals()[db] = None
 
+def usedDbsInFunc(f):
+	dbs = []
+	for name in utils.iterGlobalsUsedInFunc(f, loadsOnly=True):
+		if name in DBs:
+			dbs += [name]
+	return dbs
+
+def init():
+	import types
+	for fname in globals().keys():
+		f = globals()[fname]
+		if not isinstance(f, types.FunctionType): continue
+		dbs = usedDbsInFunc(f)
+		if not dbs: continue
+		#print "used dbs in", fname, ":", dbs
+		globals()[fname] = lazyInitDb(*dbs)(f)
+
+def initDb(db):
+	if not globals()[db]:
+		globals()[db] = DB(DBs[db])
+
+def lazyInitDb(*dbs):
+	def decorator(f):
+		def decorated(*args, **kwargs):
+			for db in dbs:
+				initDb(db)
+			return f(*args, **kwargs)
+		return decorated
+	return decorator
+	
 def flush():
-	songDb.flush()
-	songHashDb.flush()
-	songSearchIndexDb.flush()
+	for db in DBs.keys():
+		db = globals()[db]
+		if db:
+			db.flush()
 	
 def normalizedFilename(fn):
 	import os
@@ -136,7 +166,7 @@ def getSongHashSources(song):
 		if not func: func = lambda song: getattr(song, attrib, None)
 		value = func(song)
 		if value: yield prefix + mapHash(value)
-	
+
 def maybeUpdateHashAfterAttribUpdate(song, attrib, value):
 	for prefix,attr,func in SongHashSources:
 		if attr == attrib:
@@ -580,9 +610,6 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 
 	return songDescList
 	
-# Do that right on first import so that all functions here work.
-init()
-
 def indexSearchDir(dir):
 	import os
 	for fn in os.listdir(dir):
@@ -630,3 +657,5 @@ def dumpDatabases():
 		sys.stdout.write("%r: " % key)
 		pprint(value, indent=2)
 
+# Note: This doesn't load the DBs as earlier. This just setups the lazy loaders. See source.
+init()
