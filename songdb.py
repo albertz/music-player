@@ -602,6 +602,7 @@ def indexSearchDir(dir):
 def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
+	return # performance problems, so dont do anything for now...
 	# We just index all played songs...
 	import sys
 	from State import state
