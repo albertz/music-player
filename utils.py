@@ -653,6 +653,44 @@ def fixValue(value):
 	return value
 
 
+def iterGlobalsUsedInFunc(f, fast=False, loadsOnly=True):
+	if hasattr(f, "func_code"): code = f.func_code
+	else: code = f
+	if fast:
+		# co_names is the list of all names which are used.
+		# These are mostly the globals.	These are also attrib names, so these are more...
+		for name in code.co_names:
+			yield name
+	else:
+		# Use the disassembly. Note that this will still not
+		# find dynamic lookups to `globals()`
+		# (which is anyway not possible to detect always).
+		import dis
+		ops = ["LOAD_GLOBAL"]
+		if not loadsOnly:
+			ops += ["STORE_GLOBAL", "DELETE_GLOBAL"]
+		ops = map(dis.opmap.__getitem__, ops)
+		i = 0
+		while i < len(code.co_code):
+			op = ord(code.co_code[i])
+			i += 1
+			if op >= dis.HAVE_ARGUMENT:
+				oparg = ord(code.co_code[i]) + ord(code.co_code[i+1])*256
+				i += 2
+			else:
+				oparg = None
+			if op in ops:
+				name = code.co_names[oparg]
+				yield name
+
+	# iterate through sub code objects
+	import types
+	for subcode in code.co_consts:
+		if isinstance(subcode, types.CodeType):
+			for g in iterGlobalsUsedInFunc(subcode, fast=fast, loadsOnly=loadsOnly):
+				yield g
+
+
 # This is needed in some cases to avoid pickling problems with bounded funcs.
 def funcCall(attrChainArgs, args=()):
 	f = attrChain(*attrChainArgs)
