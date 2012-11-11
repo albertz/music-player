@@ -1,18 +1,28 @@
-from Song import Song
 
-# http://code.google.com/p/leveldb/
-# http://code.google.com/p/py-leveldb/
+# What DB backend to use? Many different DBs have been in discussion.
+# Basically we just need a key/value store which should scale well.
+# I.e. an inmemory-only DB such as Redis is probably not good as it would
+# not allow very huge DBs because of memory limitations. Even if we would
+# never hit that limit, I want the memory footprint of MusicPlayer very low,
+# so this is not a good solution.
+# * sqlite was initially discarded because we don't wanted a table like DB,
+#   mostly because I want to have it easily extensible, i.e. adding new
+#   keys (columns in a table) and probably the layout would be like a sparse
+#   table or just a wrapper around a key/value-like store. Also for searching,
+#   we would like to implement our own index to have full control over it.
+#   And for this purpose, sqlite does not perform that well.
+# * KyotoCabinet has good performance reports but unfortunately it is GPL
+#   (or commercial). I don't want the GPL dependency, so it's not an option.
+# * LevelDB looked like a good fit and has been used for a while. But unfortunately
+#   I had often got corrupt databases when the player quit unexpectedly and
+#   this is not acceptable.
+
+# So, right now, we are still using sqlite as a key/value store because of
+# stability and dependency-simplicity (sqlite comes with CPython).
+
 import leveldb
+import sqlite3
 
-import appinfo
-import utils
-from utils import safe_property
-
-
-# see <https://github.com/albertz/binstruct/> for documentation
-import binstruct
-def dbRepr(o): return binstruct.varEncode(o).tostring()
-def dbUnRepr(s): return binstruct.varDecode(s)
 
 
 # Structure of the database:
@@ -32,27 +42,84 @@ def dbUnRepr(s): return binstruct.varDecode(s)
 #			gain: float
 #   values should only be stored if they are certain with best accurary
 
+
+
+from Song import Song
+import appinfo
+import utils
+from utils import safe_property
+
+# see <https://github.com/albertz/binstruct/> for documentation
+import binstruct
+def dbRepr(o): return binstruct.varEncode(o).tostring()
+def dbUnRepr(s): return binstruct.varDecode(s)
+
+
 class DB:
-	def __init__(self, dir):
+	def __init__(self, name):
 		import threading
 		self.writelock = threading.Lock()
-		self.db = leveldb.LevelDB(
-			appinfo.userdir + "/" + dir,
-			max_open_files=200)
+		self.name = name
+		self.path = appinfo.userdir + "/" + name
+		self._connectionCache = {} # cache by thread ident
+		try:
+			self.test()
+		except Exception as exc:
+			# Maybe we had an old LevelDB or some other corruption.
+			# Not much we can do for recovering...
+			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.name, exc)
+			self.removeOldDb()
+			self.initNew()
 
-	def __getitem__(self, item):
-		try: return dbUnRepr(self.db.Get(dbRepr(item)))
-		except leveldb.LevelDBError, exc:
-			print "LevelDB reading error:", exc
-			# fallback
-			raise KeyError
-		
-	def __setitem__(self, key, value):
-		self.db.Put(dbRepr(key), dbRepr(value))
+	def test(self):
+		# Some of these may throw an OperationalError.
+		conn = sqlite3.connect(self.path)
+		conn.execute("select * from data")
 			
-	def __delitem__(self, key):
-		self.db.Delete(dbRepr(key))
-
+	def removeOldDb(self):
+		# Maybe we really should do some backuping...?
+		self._connectionCache.clear()
+		import shutil, os
+		shutil.rmtree(self.path, ignore_errors=True)
+		try: os.remove(self.path)
+		except OSError: pass
+	
+	def initNew(self):
+		self._connectionCache.clear()
+		conn = sqlite3.connect(self.path)
+		with conn:
+			conn.execute("create table data(key blob primary key unique, value blob)")
+	
+	def _getConnection(self):
+		import threading
+		myIdent = threading.currentThread().ident
+		if myIdent in self._connectionCache:
+			return self._connectionCache[myIdent]
+		conn = sqlite3.connect(self.path)
+		self._connectionCache[myIdent] = conn
+		return conn
+	
+	def __getitem__(self, key):
+		key = dbRepr(key)
+		key = buffer(key)
+		conn = self._getConnection()
+		cur = conn.execute("select value from data where key=? limit 1", (key,))
+		value = cur.fetchone()
+		if value is None: raise KeyError
+		value = value[0]
+		value = str(value)
+		value = dbUnRepr(value)
+		return value
+	
+	def __setitem__(self, key, value):
+		key = dbRepr(key)
+		key = buffer(key)
+		value = dbRepr(value)
+		value = buffer(value)
+		conn = self._getConnection()
+		with conn:
+			conn.execute("replace into data values (?,?)", (key, value))
+		
 	def setdefault(self, key, value):
 		if key in self:
 			return self[key]
@@ -60,18 +127,10 @@ class DB:
 			self[key] = value
 			return self[key]
 		
-	def rangeIter(self, key_from = None, key_to = None, include_value = True):
-		def saveDbUnRepr(v):
-			try: return dbUnRepr(v)
-			except Exception: return None # not/broken binstruct data			
-		if include_value:
-			mapFunc = lambda value: (saveDbUnRepr(value[0]), saveDbUnRepr(value[1]))
-		else:
-			mapFunc = saveDbUnRepr
-		return map(mapFunc, self.db.RangeIter(key_from, key_to, include_value))
-	
 	def flush(self):
-		self.db.Write(leveldb.WriteBatch(), sync=True)
+		# Not sure if needed, I guess the commit already is the flush.
+		# Closing all connections should in any case force the flush.
+		self._connectionCache.clear()
 
 DBs = {
 	"songDb": "songs.db",
@@ -397,7 +456,9 @@ def updateSongAttribValue(song, attrib, updateFunc, default=None):
 
 def getSongAttrib(song, attrib):
 	value = getattr(Attribs[attrib].getObject(song), attrib)
-	assert value is not None, "songdb %r attrib %r is None" % (song, attrib) # if we ever want to allow that, mark it that way in class Attrib
+	# If we ever want to allow None-values, mark it that way in class Attrib.
+	# getattr should normally have raised AttributeError otherwise.
+	assert value is not None, "songdb %r attrib %r is None" % (song, attrib)
 	return value
 
 Search_ResultLimit = 500
