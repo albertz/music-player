@@ -223,7 +223,7 @@ class MainQueue:
 	def clear(self):
 		self.queue.clear()
 			
-	@UserAttrib(type=Traits.Action)
+	@UserAttrib(type=Traits.Action, alignRight=True)
 	def fillUpTo(self, n=10):
 		while True:
 			with self.lock:
@@ -231,7 +231,7 @@ class MainQueue:
 			nextSong = self.getNextSong_auto()
 			self.queue.append(nextSong)
 
-	@UserAttrib(type=Traits.Action)
+	@UserAttrib(type=Traits.Action, alignRight=True)
 	def addSome(self, n=10):
 		for i in xrange(n):
 			nextSong = self.getNextSong_auto()
