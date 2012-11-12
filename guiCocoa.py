@@ -167,11 +167,12 @@ def buildControlOneLineText(control):
 	
 	def update(ev, args, kwargs):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
-		labelContent = control.getTextObj()
 		s = "???"
 		try:
+			labelContent = control.getTextObj()
 			s = convertToUnicode(labelContent)
-		except: pass
+		except Exception:
+			sys.excepthook(*sys.exc_info())
 		def do_update():
 			label.setStringValue_(s)
 			
@@ -206,10 +207,13 @@ def buildControlClickableLabel(control):
 			label.setTextColor_(NSColor.blueColor())
 	label.onMouseEntered = onMouseEntered
 	label.onMouseExited = lambda ev: label.setTextColor_(foregroundColor(control))
-	label.onMouseDown = lambda ev: (
-		control.subjectObject(handleClick=True),
+	def onMouseDown(ev):
+		try:
+			control.subjectObject(handleClick=True)
+		except Exception:
+			sys.excepthook(*sys.exc_info())			
 		control.parent.updateContent(None,None,None)
-		)
+	label.onMouseDown = onMouseDown
 
 	return control
 
@@ -229,11 +233,12 @@ def buildControlEditableText(control):
 	
 	def update(ev, args, kwargs):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
-		labelContent = control.getTextObj()
 		s = "???"
 		try:
+			labelContent = control.getTextObj()
 			s = convertToUnicode(labelContent)
-		except: pass
+		except Exception:
+			sys.excepthook(*sys.exc_info())			
 		def do_update():
 			label.setStringValue_(s)
 
@@ -246,7 +251,7 @@ def buildControlEditableText(control):
 			control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 			newText = unicode(label.stringValue())
 			control.subjectObject(updateText = newText)
-		except:
+		except Exception:
 			sys.excepthook(*sys.exc_info())
 			
 	label.onTextChange = onTextChange
