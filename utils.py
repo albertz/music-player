@@ -95,7 +95,7 @@ class Event:
 			for weakt in targets:
 				t = weakt() # resolve weakref
 				if t: t(*args)
-				else: self.targets.remove(t)
+				else: self.targets.remove(weakt)
 	def register(self, target):
 		assert sys.getrefcount(target) > 1, "target will be weakrefed, thus we need more references to it"
 		import weakref
