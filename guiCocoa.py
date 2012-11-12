@@ -593,6 +593,7 @@ def buildControlTable(control):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		value = control.subjectObject
 		dataSource.data = value
+		dataSource.resort(table) # initial sort
 		table.reloadData()
 	control.updateContent = lambda ev, args, kwargs: update
 

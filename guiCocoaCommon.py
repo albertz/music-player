@@ -155,7 +155,7 @@ try:
 			if key in self.formaters: v = self.formaters[key](v)
 			if isinstance(v, str): v = utils.convertToUnicode(v)
 			return v
-		def tableView_sortDescriptorsDidChange_(self, tableView, oldDescriptors):
+		def resort(self, tableView):
 			sortDescs = tableView.sortDescriptors()
 			def itemIter(item):
 				for d in sortDescs:
@@ -168,6 +168,8 @@ try:
 				return item
 			self.data.sort(key=key, reverse=not sortDescs[0].ascending())
 			tableView.reloadData()
+		def tableView_sortDescriptorsDidChange_(self, tableView, oldDescriptors):
+			self.resort(tableView)
 		def tableView_writeRowsWithIndexes_toPasteboard_(self, tableView, rowIndexes, pboard):
 			possibleSources = []
 			def handleRowIndex(index, stop):
