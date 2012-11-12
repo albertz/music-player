@@ -59,6 +59,15 @@ def printState():
 	else:
 		print "no song"
 
+def printHelp():
+	print "    h - print this help info"
+	print "Enter - next song"
+	print "space - play/pause"
+	print " left - seek back 10 seconds"
+	print "right - seek forward 10 seconds"
+	print "    r - reload modules"
+	print "    i - print song info"
+
 def handleInput(ch):
 	if ch == "q" or ch == "\0" or ch == "":
 		print "stdin: quit"
@@ -76,6 +85,10 @@ def handleInput(ch):
 			state.playPause()
 		elif ch == "r":
 			reloadModules()
+		elif ch == "i":
+			printState()
+		elif ch == "h":
+			printHelp()
 	except:
 		sys.excepthook(*sys.exc_info())
 
