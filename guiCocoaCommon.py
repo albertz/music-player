@@ -156,7 +156,7 @@ try:
 			if isinstance(v, str): v = utils.convertToUnicode(v)
 			return v
 		def resort(self, tableView):
-			sortDescs = tableView.sortDescriptors()
+			sortDescs = list(tableView.sortDescriptors())
 			def itemIter(item):
 				for d in sortDescs:
 					value = item.get(d.key(), None)
@@ -166,7 +166,12 @@ try:
 			def key(item):
 				item = tuple(itemIter(item))
 				return item
-			self.data.sort(key=key, reverse=not sortDescs[0].ascending())
+			if sortDescs:
+				firstAsc = sortDescs[0].ascending()
+			else:
+				print "error, sortDescs empty"
+				firstAsc = True
+			self.data.sort(key=key, reverse=not firstAsc)
 			tableView.reloadData()
 		def tableView_sortDescriptorsDidChange_(self, tableView, oldDescriptors):
 			self.resort(tableView)
