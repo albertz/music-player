@@ -15,7 +15,7 @@ def track(event, args, kwargs):
 		print "new song:", newSong.userLongString.encode("utf-8")
 		if oldSong: oldSong.close() # in case anyone is holding any ref to it, close at least the file
 
-		if kwargs["skipped"]: oldSong.update("skipCount", lambda n: n+1, default=0)
+		if kwargs["skipped"] and oldSong: oldSong.update("skipCount", lambda n: n+1, default=0)
 		if oldSong: oldSong.lastPlayedDate = time.time()
 
 	if event is PlayerEventCallbacks.onSongFinished:
