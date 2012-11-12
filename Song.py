@@ -375,7 +375,7 @@ class Song(object):
 		# Thus, access self.__dict__ directly.
 		# First, check local self.__dict__ cache.
 		if accuracy <= self.LocalAttribAccuracy and attrib in self.__dict__:
-			return fixValue(self.__dict__[attrib]), self.LocalAttribAccuracy
+			return utils.fixValue(self.__dict__[attrib]), self.LocalAttribAccuracy
 		# Now try the DB.
 		import songdb
 		if attrib in songdb.Attribs and self._useDb and self.id:
