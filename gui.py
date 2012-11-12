@@ -168,10 +168,9 @@ class GuiObject:
 				break
 			else:
 				y -= h
-				control.pos = (x,y)
-				control.size = (w,h)
-				control.autoresize = control.autoresize[0:1] + (True,) + control.autoresize[2:4]
-				control.layout()
+				for lineControl in control.guiObjectsInLine():
+					lineControl.pos = (lineControl.pos[0],y)
+					lineControl.autoresize = lineControl.autoresize[0:1] + (True,) + lineControl.autoresize[2:4]
 				y -= self.DefaultSpace[1]
 	
 	firstChildGuiObject = None
