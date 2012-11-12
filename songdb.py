@@ -266,14 +266,29 @@ def maybeUpdateHashAfterAttribUpdate(song, attrib, value):
 
 def getSongId(song):
 	for value in getSongHashSources(song):
-		try: return songHashDb[value]
-		except KeyError: pass
+		try: songId = songHashDb[value]
+		except KeyError: continue
+		maybeInitSongDbEntry(song, songId)
+		return songId
 	return None
 
+def maybeInitSongDbEntry(song, songId):
+	with songDb.writelock:
+		try: d = songDb[songId]
+		except KeyError: d = {}
+		filesDict = d.setdefault("files", {})
+		fn = normalizedFilename(song.url)
+		if not fn in filesDict:
+			# init empty file-dict
+			filesDict[fn] = {}
+			# save
+			songDb[songId] = d
+		
 def updateHashDb(song, songId):
 	for value in getSongHashSources(song):
 		songHashDb[value] = songId
-
+	maybeInitSongDbEntry(song, songId)
+	
 def calcNewSongId(song):
 	"Returns a new unique (in hopefully almost all cases) id for a song."
 	"Different files with the same song might return the same id."
