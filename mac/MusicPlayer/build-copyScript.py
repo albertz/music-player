@@ -19,7 +19,6 @@ import better_exchook
 better_exchook.install()
 
 assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so")
-assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/leveldb.so")
 
 # $PROJECT_DIR : /Users/az/Programmierung/music-player/mac
 # $EXECUTABLE_FOLDER_PATH : MusicPlayer.app/Contents/MacOS
@@ -32,7 +31,6 @@ try: os.makedirs(PYDIR)
 except OSError: pass
 
 cp(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so", PYDIR + "/ffmpeg.so")
-cp(env["BUILT_PRODUCTS_DIR"] + "/leveldb.so", PYDIR + "/leveldb.so")
 for f in glob(env["PROJECT_DIR"] + "/../*.py"):
 	cp(f, PYDIR + "/" + os.path.basename(f))
 for d in ["lastfm"]:
@@ -78,4 +76,3 @@ def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/
 			fixBin(targetDylibDirFull + "/" + fbase, targetDylibDir, installNameToolTargetDir, badPaths, stripVersion)
 		
 fixBin(PYDIR + "/ffmpeg.so", ".", "@executable_path/../Resources/Python")
-fixBin(PYDIR + "/leveldb.so", ".", "@executable_path/../Resources/Python")

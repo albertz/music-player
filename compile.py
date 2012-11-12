@@ -77,20 +77,3 @@ link(
 	([] if staticChromaprint else ["-lchromaprint"])
 )
 
-levelDbFiles = glob("../leveldb*.cc")
-
-cc(
-	levelDbFiles,
-	[
-		"-g",
-	]
-)
-
-link(
-	"../leveldb.so",
-	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in levelDbFiles],
-	[
-		"-lleveldb",
-		"-lsnappy",
-	]
-)

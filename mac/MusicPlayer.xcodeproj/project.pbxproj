@@ -66,10 +66,6 @@
 		233685361600BD7F00A38E78 /* spectrum.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EE1600BD7F00A38E78 /* spectrum.h */; };
 		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
 		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
-		238C586916022DA800DE5AB8 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
-		238C589C16022E8900DE5AB8 /* leveldb_ext.cc in Sources */ = {isa = PBXBuildFile; fileRef = 238C589916022E8900DE5AB8 /* leveldb_ext.cc */; };
-		238C589D16022E8900DE5AB8 /* leveldb_ext.h in Headers */ = {isa = PBXBuildFile; fileRef = 238C589A16022E8900DE5AB8 /* leveldb_ext.h */; };
-		238C589E16022E8900DE5AB8 /* leveldb_object.cc in Sources */ = {isa = PBXBuildFile; fileRef = 238C589B16022E8900DE5AB8 /* leveldb_object.cc */; };
 		23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
@@ -82,13 +78,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		238C589616022E6500DE5AB8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 238C585016022DA800DE5AB8;
-			remoteInfo = leveldb.so;
-		};
 		23A14A7115E3DFDD00376BF6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
@@ -158,10 +147,6 @@
 		233684EE1600BD7F00A38E78 /* spectrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectrum.h; sourceTree = "<group>"; };
 		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		238C589416022DA800DE5AB8 /* leveldb.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = leveldb.so; sourceTree = BUILT_PRODUCTS_DIR; };
-		238C589916022E8900DE5AB8 /* leveldb_ext.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = leveldb_ext.cc; path = ../leveldb_ext.cc; sourceTree = "<group>"; };
-		238C589A16022E8900DE5AB8 /* leveldb_ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = leveldb_ext.h; path = ../leveldb_ext.h; sourceTree = "<group>"; };
-		238C589B16022E8900DE5AB8 /* leveldb_object.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = leveldb_object.cc; path = ../leveldb_object.cc; sourceTree = "<group>"; };
 		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3915E3B2CC00376BF6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		23A14A3C15E3B2CC00376BF6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -182,14 +167,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		238C586816022DA800DE5AB8 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				238C586916022DA800DE5AB8 /* Python.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		23A14A3215E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -277,20 +254,9 @@
 			path = ../chromaprint;
 			sourceTree = "<group>";
 		};
-		238C589816022E6E00DE5AB8 /* leveldb */ = {
-			isa = PBXGroup;
-			children = (
-				238C589916022E8900DE5AB8 /* leveldb_ext.cc */,
-				238C589A16022E8900DE5AB8 /* leveldb_ext.h */,
-				238C589B16022E8900DE5AB8 /* leveldb_object.cc */,
-			);
-			name = leveldb;
-			sourceTree = "<group>";
-		};
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
-				238C589816022E6E00DE5AB8 /* leveldb */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
@@ -305,7 +271,6 @@
 			children = (
 				23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */,
 				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
-				238C589416022DA800DE5AB8 /* leveldb.so */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -364,14 +329,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		238C586A16022DA800DE5AB8 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				238C589D16022E8900DE5AB8 /* leveldb_ext.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		23A14A5C15E3B63C00376BF6 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -420,23 +377,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		238C585016022DA800DE5AB8 /* leveldb.so */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 238C589116022DA800DE5AB8 /* Build configuration list for PBXNativeTarget "leveldb.so" */;
-			buildPhases = (
-				238C585116022DA800DE5AB8 /* Sources */,
-				238C586816022DA800DE5AB8 /* Frameworks */,
-				238C586A16022DA800DE5AB8 /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = leveldb.so;
-			productName = ffmpeg.so;
-			productReference = 238C589416022DA800DE5AB8 /* leveldb.so */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
 		23A14A3415E3B2CC00376BF6 /* MusicPlayer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 23A14A5315E3B2CC00376BF6 /* Build configuration list for PBXNativeTarget "MusicPlayer" */;
@@ -449,7 +389,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				238C589716022E6500DE5AB8 /* PBXTargetDependency */,
 				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
 			);
 			name = MusicPlayer;
@@ -497,7 +436,6 @@
 			targets = (
 				23A14A3415E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
-				238C585016022DA800DE5AB8 /* leveldb.so */,
 			);
 		};
 /* End PBXProject section */
@@ -532,15 +470,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		238C585116022DA800DE5AB8 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				238C589C16022E8900DE5AB8 /* leveldb_ext.cc in Sources */,
-				238C589E16022E8900DE5AB8 /* leveldb_object.cc in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		23A14A3115E3B2CC00376BF6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -582,11 +511,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		238C589716022E6500DE5AB8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 238C585016022DA800DE5AB8 /* leveldb.so */;
-			targetProxy = 238C589616022E6500DE5AB8 /* PBXContainerItemProxy */;
-		};
 		23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 23A14A5D15E3B63C00376BF6 /* ffmpeg.so */;
@@ -614,42 +538,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		238C589216022DA800DE5AB8 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EXECUTABLE_EXTENSION = so;
-				EXECUTABLE_PREFIX = "";
-				HEADER_SEARCH_PATHS = (
-					/System/Library/Frameworks/Python.framework/Headers,
-					/usr/local/include,
-				);
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-lsnappy",
-					"-lleveldb",
-				);
-				PRODUCT_NAME = leveldb;
-			};
-			name = Debug;
-		};
-		238C589316022DA800DE5AB8 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EXECUTABLE_EXTENSION = so;
-				EXECUTABLE_PREFIX = "";
-				HEADER_SEARCH_PATHS = (
-					/System/Library/Frameworks/Python.framework/Headers,
-					/usr/local/include,
-				);
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-lsnappy",
-					"-lleveldb",
-				);
-				PRODUCT_NAME = leveldb;
-			};
-			name = Release;
-		};
 		23A14A5115E3B2CC00376BF6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -768,15 +656,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		238C589116022DA800DE5AB8 /* Build configuration list for PBXNativeTarget "leveldb.so" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				238C589216022DA800DE5AB8 /* Debug */,
-				238C589316022DA800DE5AB8 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		23A14A2F15E3B2CB00376BF6 /* Build configuration list for PBXProject "MusicPlayer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
