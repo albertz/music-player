@@ -20,7 +20,6 @@
 # So, right now, we are still using sqlite as a key/value store because of
 # stability and dependency-simplicity (sqlite comes with CPython).
 
-import leveldb
 import sqlite3
 
 
