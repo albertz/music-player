@@ -306,6 +306,7 @@ class SongFileEntry(object):
 	def __init__(self, songEntry, url):
 		object.__setattr__(self, "songEntry", songEntry)
 		object.__setattr__(self, "url", url)
+		object.__setattr__(self, "normalizedUrl", normalizedFilename(url))
 	
 	@safe_property
 	@property
@@ -313,7 +314,7 @@ class SongFileEntry(object):
 		# Note: If this raises an AttributeError for some reason,
 		# you will get a *very* strange inf recursion loop in
 		# getattr(self, "_dbDict").
-		return self.songEntry.files.filesDict.get(self.url, {})
+		return self.songEntry.files.filesDict.get(self.normalizedUrl, {})
 
 	def __getattr__(self, attr):
 		try: return self._dbDict[attr]
@@ -322,8 +323,8 @@ class SongFileEntry(object):
 	def update(self, attr, updateFunc, default=None):
 		global songDb
 		with songDb.writelock:
-			d = self.songEntry._dbDict
-			fileDict = d.setdefault("files",{}).setdefault(self.url,{})
+			d = self.songEntry._dbDict			
+			fileDict = d.setdefault("files",{}).setdefault(self.normalizedUrl,{})
 			value = updateFunc(fileDict.get(attr, default))
 			fileDict[attr] = value
 			songDb[self.songEntry.id] = d
