@@ -1,6 +1,8 @@
 Music player
 ============
 
+First, if you wonder about what is supposed to be a music player or what makes a music player different from a simple media player, read this: [What is a music player](WhatIsAMusicPlayer.md)
+
 Annoyed by all existing players because some subset of:
 
 * not open source
