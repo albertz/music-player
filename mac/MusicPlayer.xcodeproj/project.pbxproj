@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		231799221651612E00F6AC7B /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
+		231799231651613600F6AC7B /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
 		233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A51600BD7F00A38E78 /* audio_consumer.h */; };
 		233684F11600BD7F00A38E78 /* audio_processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684A61600BD7F00A38E78 /* audio_processor.cpp */; };
 		233684F21600BD7F00A38E78 /* audio_processor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A71600BD7F00A38E78 /* audio_processor.h */; };
@@ -72,8 +74,6 @@
 		23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */; };
 		23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */; };
 		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
-		23BEFDDB15E3E09C0003A05B /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
-		23BEFDDE15E3EC6B0003A05B /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A6615E3B85C00376BF6 /* Python.framework */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 /* End PBXBuildFile section */
 
@@ -88,6 +88,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		231799211651612E00F6AC7B /* libpython2.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython2.6.dylib; path = usr/lib/libpython2.6.dylib; sourceTree = SDKROOT; };
 		233684A51600BD7F00A38E78 /* audio_consumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_consumer.h; sourceTree = "<group>"; };
 		233684A61600BD7F00A38E78 /* audio_processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_processor.cpp; sourceTree = "<group>"; };
 		233684A71600BD7F00A38E78 /* audio_processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_processor.h; sourceTree = "<group>"; };
@@ -171,7 +172,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23BEFDDE15E3EC6B0003A05B /* Python.framework in Frameworks */,
+				231799221651612E00F6AC7B /* libpython2.6.dylib in Frameworks */,
 				23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -180,7 +181,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23BEFDDB15E3E09C0003A05B /* Python.framework in Frameworks */,
+				231799231651613600F6AC7B /* libpython2.6.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +279,7 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				231799211651612E00F6AC7B /* libpython2.6.dylib */,
 				23A14A6615E3B85C00376BF6 /* Python.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
 				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
