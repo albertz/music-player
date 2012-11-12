@@ -106,7 +106,10 @@ def setup():
 	mydir = os.path.dirname(__file__)
 	icon = NSImage.alloc()
 	icon.initWithContentsOfFile_(mydir + "/icon.icns")
-	app.setApplicationIconImage_(icon)
+	if not icon:
+		print "icon.icns not found"
+	else:
+		app.setApplicationIconImage_(icon)
 
 	appDelegate = PyAppDelegate.alloc().init()
 	app.setDelegate_(appDelegate)
