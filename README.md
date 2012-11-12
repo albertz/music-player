@@ -24,7 +24,6 @@ Features of this player:
 * AcoustID fingerprint
 
 ![MusicPlayer screenshot](https://github.com/albertz/music-player/raw/master/screenshot.png)
-![MusicPlayer search screenshot](https://github.com/albertz/music-player/raw/master/screenshot-search.png)
 
 About the DJ mode, what I want (maybe some of these somewhat configurable):
 
