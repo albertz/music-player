@@ -88,16 +88,19 @@ class EventCallback:
 class Event:
 	def __init__(self):
 		self.lock = RLock()
-		import weakref
-		self.targets = weakref.WeakSet()
+		self.targets = []
 	def push(self, *args):
 		with self.lock:
-			for t in self.targets:
-				t(*args)
+			targets = self.targets
+			for weakt in targets:
+				t = weakt() # resolve weakref
+				if t: t(*args)
+				else: self.targets.remove(t)
 	def register(self, target):
 		assert sys.getrefcount(target) > 1, "target will be weakrefed, thus we need more references to it"
+		import weakref
 		with self.lock:
-			self.targets.add(target)
+			self.targets.append(weakref.ref(target))
 		
 class initBy(object):
 	def __init__(self, initFunc):
