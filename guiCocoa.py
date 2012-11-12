@@ -120,7 +120,7 @@ def setup():
 
 
 def buildControlAction(control):
-	button = NSButton.alloc().initWithFrame_(((10.0, 10.0), (50.0, 25.0)))
+	button = NSButton.alloc().initWithFrame_(((0,0), (50.0, 25.0)))
 	button.setBezelStyle_(NSRoundedBezelStyle)
 	actionTarget = ButtonActionHandler.alloc().initWithArgs(control.attr, control.parent.subjectObject)
 	control.buttonActionHandler = actionTarget # keep ref here. button.target() is only a weakref
@@ -129,7 +129,7 @@ def buildControlAction(control):
 	def do_update(): button.setTitle_(control.attr.name.decode("utf-8"))
 	do_update()
 	button.sizeToFit() # to get height
-	button.setFrameSize_((50, button.frame().size.height))
+	#button.setFrameSize_((50, button.frame().size.height))
 	def update(ev, args, kwargs): do_in_mainthread(do_update, wait=False)
 	control.nativeGuiObject = button
 	control.updateContent = update
