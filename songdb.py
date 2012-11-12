@@ -55,11 +55,12 @@ def dbUnRepr(s): return binstruct.varDecode(s)
 
 
 class DB:
-	def __init__(self, name):
+	def __init__(self, name, create_command = "create table %s(key blob primary key unique, value blob)"):
 		import threading
 		self.writelock = threading.Lock()
 		self.name = name
 		self.path = appinfo.userdir + "/" + name
+		self.create_command = create_command
 		self._connectionCache = {} # cache by thread ident
 		try:
 			self.test()
@@ -73,7 +74,7 @@ class DB:
 	def test(self):
 		# Some of these may throw an OperationalError.
 		conn = sqlite3.connect(self.path)
-		conn.execute("select * from data")
+		conn.execute("select * from data limit 1")
 			
 	def removeOldDb(self):
 		# Maybe we really should do some backuping...?
@@ -87,7 +88,7 @@ class DB:
 		self._connectionCache.clear()
 		conn = sqlite3.connect(self.path)
 		with conn:
-			conn.execute("create table data(key blob primary key unique, value blob)")
+			conn.execute(self.create_command % "data")
 	
 	def _getConnection(self):
 		import threading
@@ -98,11 +99,20 @@ class DB:
 		self._connectionCache[myIdent] = conn
 		return conn
 	
+	def _selectCmd(self, cmd, args):
+		conn = self._getConnection()
+		cur = conn.execute(cmd, args)
+		return cur
+	
+	def _actionCmd(self, cmd, args):
+		conn = self._getConnection()
+		with conn:
+			conn.execute(cmd, args)
+
 	def __getitem__(self, key):
 		key = dbRepr(key)
 		key = buffer(key)
-		conn = self._getConnection()
-		cur = conn.execute("select value from data where key=? limit 1", (key,))
+		cur = self._selectCmd("select value from data where key=? limit 1", (key,))
 		value = cur.fetchone()
 		if value is None: raise KeyError
 		value = value[0]
@@ -115,9 +125,7 @@ class DB:
 		key = buffer(key)
 		value = dbRepr(value)
 		value = buffer(value)
-		conn = self._getConnection()
-		with conn:
-			conn.execute("replace into data values (?,?)", (key, value))
+		self._actionCmd("replace into data values (?,?)", (key, value))
 		
 	def setdefault(self, key, value):
 		if key in self:
@@ -132,11 +140,9 @@ class DB:
 		self._connectionCache.clear()
 
 DBs = {
-	"songDb": "songs.db",
-	"songHashDb": "songHashs.db",
-	"songSearchIndexDb": "songSearchIndex.db",
+	"songDb": lambda: DB("songs.db"),
+	"songHashDb": lambda: DB("songHashs.db"),
 	}
-for db in DBs.keys(): globals()[db] = None
 
 def usedDbsInCode(f):
 	iterFunc = lambda: utils.iterGlobalsUsedInFunc(f, loadsOnly=True)
@@ -151,6 +157,8 @@ def usedDbsInCode(f):
 	return dbs
 
 def init():
+	for db in DBs.keys():
+		globals()[db] = None
 	import types
 	c = 0
 	for name in globals().keys():
@@ -167,7 +175,7 @@ def init():
 	
 def initDb(db):
 	if not globals()[db]:
-		globals()[db] = DB(DBs[db])
+		globals()[db] = DBs[db]()
 
 def lazyInitDb(*dbs):
 	def decorator(f):
@@ -683,7 +691,49 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 			break
 
 	return songDescList
-	
+
+
+# These are search fallbacks while our own index doesn't work good enough.
+# They use the sqlite FT4 index.
+
+DBs["songSearchIndexDb"] = lambda: DB(
+	"songSearchIndex.db",
+	create_command="CREATE VIRTUAL TABLE %s USING fts4(content TEXT)")
+DBs["songSearchIndexRefDb"] = lambda: DB(
+	"songSearchIndexRef.db",
+	create_command="CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)")
+
+def insertSearchEntry_raw(songId, tokens):
+	songId = buffer(songId)
+	with songSearchIndexRefDb.writelock:
+		rowId = songSearchIndexRefDb._selectCmd("select rowid from data where songid=?", (songId,)).fetchone()
+		if rowId is not None:
+			rowId = rowId[0]
+		else:
+			# insert new
+			songSearchIndexRefDb._actionCmd("insert into data(songid) values(?)", (songId,))
+			rowId = songSearchIndexRefDb._selectCmd("select rowid from data where songid=?", (songId,)).fetchone()
+			assert rowId is not None
+			rowId = rowId[0]
+	tokens = " ".join(tokens)
+	tokens = utils.convertToUnicode(tokens).encode("utf-8")
+	songSearchIndexDb._actionCmd("replace into data(docid, content) values (?,?)", (rowId, tokens))
+
+def search(query, limitResults=Search_ResultLimit):
+	query = utils.convertToUnicode(query).encode("utf-8")
+	cur = songSearchIndexDb._selectCmd("select docid from data where data match ? limit %i" % limitResults, (query,))
+	results = [r[0] for r in cur]
+	def getSongIdByRowId(rowId):
+		songId = songSearchIndexRefDb._selectCmd("select songid from data where rowid=?", (rowId,)).fetchone()
+		if songId is not None:
+			songId = songId[0]
+			return str(songId)
+		return None
+	results = map(getSongIdByRowId, results)
+	results = map(getSongSummaryDictById, results)
+	results = filter(None, results)
+	return results
+
 def indexSearchDir(dir):
 	import os
 	for fn in os.listdir(dir):
@@ -703,7 +753,6 @@ def indexSearchDir(dir):
 def songdbMain():
 	# Later, me might scan through the disc and fill the DB and do updates here.
 	# Right now, we don't.
-	return # performance problems, so dont do anything for now...
 	# We just index all played songs...
 	import sys
 	from State import state
