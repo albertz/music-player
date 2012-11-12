@@ -11,7 +11,7 @@ Sometimes I get asked questions like:
 So, I'll try to answer these questions here now.
 
 
-## [Resampling](http://en.wikipedia.org/wiki/Resampling_(audio))
+## [Resampling](http://en.wikipedia.org/wiki/Resampling_%28audio%29)
 
 The [soundcard](http://en.wikipedia.org/wiki/Sound_card) or the [operating system (OS)](http://en.wikipedia.org/wiki/Operating_system) usually gets [raw PCM data](http://en.wikipedia.org/wiki/Pulse-code_modulation) from an application. It usually internally works with PCM data at 48 kHz or 96 kHz. If you feed it the PCM data at another frequency, it is often able to resample the data automatically.
 
@@ -41,7 +41,7 @@ Some professional music players such as iTunes have their own analyzing algorith
 This project also has its own analyzing algorithm which calculates the loudness of a song based on the [ReplayGain specification](http://www.replaygain.org/).
 
 
-## Avoid [clipping](http://en.wikipedia.org/wiki/Clipping_(audio)) issues when incrementing the volume
+## Avoid [clipping](http://en.wikipedia.org/wiki/Clipping_%28audio%29) issues when incrementing the volume
 
 When you set the volume to more than 100% (which could also theoretically, though rarely happen from the loudness normalization), you might get the case that you get PCM samples which exceeds the maximum value. E.g. assume that a PCM sample value must be between -1 and 1. If you apply the volume change and you get a value `v > 1`, you must make it fit somehow. The simplest variant would be to just use `1` as the value in that case. This is called clipping.
 
@@ -70,19 +70,19 @@ A music player could also try to avoid cracking if the song starts/ends abruptly
 Many music players also have support for [gapless playback](http://en.wikipedia.org/wiki/Gapless_playback). Some songs, e.g. coming from an album might have extra information how much pause there should be between them when playing the songs of the album consecutively.
 
 
-# Skip silence sections of songs
+## Skip silence sections of songs
 
 Some songs have some longer silence sections in between them. In some cases, you might want to automatically skip these sections.
 
 
-# Different sound formats
+## Different sound formats
 
 There is a wide range of sound formats, like MP3, Flac, WMA, Ogg, etc. It is very non-trivial to have support for them all.
 
 This project uses the great [FFmpeg](http://ffmpeg.org/) library which has support for most formats and codecs.
 
 
-# Intelligent automatic queue
+## Intelligent automatic queue
 
 In a music player when you have a big music library, you sometimes just want to play some random music, maybe listen to some songs you haven't heard in a while, randomly listening through your music. Sometimes you want to play some specific songs and when they are finished, it should randomly play further songs which are similar. Maybe you have some ongs on your computer you don't like that much and you prefer to listen to music you like more.
 
@@ -93,14 +93,14 @@ Some better music players have such things with some limited functionality. For 
 In this project, this is central element - the main queue.
 
 
-# [Last.fm](http://last.fm)
+## [Last.fm](http://last.fm)
 
 You might want to track the songs you listened with [Last.fm](http://last.fm) or some similar service (Last.fm calls this scrobbling). Last.fm can generate some interesting statistics about your music taste and make you new suggestions based on this.
 
 This project supports Last.fm scrobbling.
 
 
-# Song database
+## Song database
 
 Most users have a huge amount of music. It makes sense for a music player to provide a simple and fast way to search in that music library. Also, the music player sometimes wants to save extra information about songs, such as when you lastly played it and how often you played it, etc. Also, you might want to give the user the ability to add some extra information about a song, such as further tags, some notes or some rating.
 
@@ -109,14 +109,14 @@ For all this, you need a database. Media players as well as simple music players
 Most more complex music players as well as this project have that.
 
 
-# Audio fingerprint
+## Audio fingerprint
 
 An audio fingerprint represents the song. Depending on the properties of the fingerprint, you can compare a song for similarity (based on the similarity of the fingerprint) and search for duplicate songs. Also, there are services like [MusicBrainz](http://musicbrainz.org) where you can query for metadata information such as artist name and title for any given song fingerprint. This makes sense if these information are missing.
 
 This project can calculate the [AcoustId](http://acoustid.org/) fingerprint which is also used by MusicBrainz.
 
 
-# Visual representation of audio data
+## Visual representation of audio data
 
 You might want to see some visual representation of a song. This project supports that and calculates visual representations which look like this:
 
