@@ -84,7 +84,7 @@ This project uses the great [FFmpeg](http://ffmpeg.org/) library which has suppo
 
 ## Intelligent automatic queue
 
-In a music player when you have a big music library, you sometimes just want to play some random music, maybe listen to some songs you haven't heard in a while, randomly listening through your music. Sometimes you want to play some specific songs and when they are finished, it should randomly play further songs which are similar. Maybe you have some ongs on your computer you don't like that much and you prefer to listen to music you like more.
+In a music player when you have a big music library, you sometimes just want to play some random music, maybe listen to some songs you haven't heard in a while, randomly listening through your music. Sometimes you want to play some specific songs and when they are finished, it should randomly play further songs which are similar. Maybe you have some songs on your computer you don't like that much and you prefer to listen to music you like more.
 
 Media players as well as many simple music players usually don't have any functionality where you can achieve this.
 
