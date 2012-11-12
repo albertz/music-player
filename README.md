@@ -47,7 +47,6 @@ TODO / possible additional missing features:
 * BPM determination and clever DJ-like fading
 * echoprint.me or similar song determination (mostly for metadata, esp. if missing)
 * use tags given by Last.fm (mostly more tags)
-* integrate iTunes database (rating, volume normalization, metatags)
 * Last.fm streaming support
 * watch music directory for changes (e.g. new files added)
 
@@ -57,10 +56,9 @@ So far, there is a prebuild MacOSX app bundle in the download section which shou
 
 * ffmpeg
 * portaudio
-* leveldb
 * chromaprint
 
-(Debian/Ubuntu: `apt-get install python-dev libleveldb-dev libsnappy-dev libtool yasm libchromaprint-dev portaudio19-dev`. FFmpeg in Debian/Ubuntu is too old (lacks libswresample), so either do `add-apt-repository ppa:jon-severinsson/ffmpeg && apt-get update && apt-get install libavformat-dev libswresample-dev` or install it from source. [Chromaprint](http://acoustid.org/chromaprint) depends on FFmpeg, so if you have a custom FFmpeg install, you might also want to install that manually. `./configure && make && sudo make install` should work for FFmpeg and PortAudio. You might also want to use `--enable-shared` for FFmpeg. `cmake . && sudo make install` for Chromaprint.)
+(Debian/Ubuntu: `apt-get install python-dev libsnappy-dev libtool yasm libchromaprint-dev portaudio19-dev`. FFmpeg in Debian/Ubuntu is too old (lacks libswresample), so either do `add-apt-repository ppa:jon-severinsson/ffmpeg && apt-get update && apt-get install libavformat-dev libswresample-dev` or install it from source. [Chromaprint](http://acoustid.org/chromaprint) depends on FFmpeg, so if you have a custom FFmpeg install, you might also want to install that manually. `./configure && make && sudo make install` should work for FFmpeg and PortAudio. You might also want to use `--enable-shared` for FFmpeg. `cmake . && sudo make install` for Chromaprint.)
 
 Then call `./compile.py` to build the Python modules (it will build the Python modules `ffmpeg.so` and `leveldb.so`).
 
@@ -72,3 +70,4 @@ Authors:
 
 * Albert Zeyer, <http://www.az2000.de>: founder of the project, main core, ffmpeg module, etc.
 * Bryan Joseph, <http://bryaninspired.com>: database
+
