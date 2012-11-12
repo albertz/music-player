@@ -763,15 +763,22 @@ def indexSearchDir(dir):
 				assert song
 				assert song.id
 				insertSearchEntry(song)
-				print "added", fn
 		elif os.path.isdir(fullfn):
 			indexSearchDir(fullfn)
 			
 def songdbMain():
-	# Later, me might scan through the disc and fill the DB and do updates here.
-	# Right now, we don't.
-	# We just index all played songs...
-	import sys
+	# This is heavy, ugly, etc...
+	# But it's simple nice hack for now to index everything.
+	def indexAll():
+		import appinfo
+		for dir in appinfo.musicdirs:
+			utils.asyncCall(lambda: indexSearchDir(dir), name="create search index")
+	import threading
+	t = threading.Thread(target=indexAll, name="create search index")
+	t.daemon = True
+	t.start()
+	
+	# Reindex played songs.
 	from State import state
 	from player import PlayerEventCallbacks
 	for ev,args,kwargs in state.updates.read():
@@ -780,6 +787,7 @@ def songdbMain():
 				newSong = kwargs["newSong"]
 				insertSearchEntry(newSong)
 		except Exception:
+			import sys
 			sys.excepthook(*sys.exc_info())
 	flush()
 	
