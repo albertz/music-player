@@ -21,7 +21,7 @@ def link(outfile, infiles, options):
 			["libtool", "-dynamic", "-o", outfile] +
 			infiles +
 			options + 
-			["-lc", "-lstdc++"]
+			["-lc"]
 		)
 	else:
 		if LinkPython: options += ["-lpython2.7"]
