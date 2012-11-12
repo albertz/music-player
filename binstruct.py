@@ -48,6 +48,7 @@ def boolDecode(stream): return bool(ord(stream.read(1)))
 
 def bitsOf(n):
 	assert n >= 0
+	if n == 0: return 0
 	return len(bin(n)) - 2
 
 def bitListToInt(l):
