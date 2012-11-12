@@ -33,39 +33,6 @@ class RandomFileQueueGen:
 		return self.fileQueue.getNextFile()
 
 
-class RandomFromSongDatabaseGen:
-	randomQuality = 0.0
-
-	def __init__(self):
-		def loadDatabase():
-			from SongStore import SongStore
-			self.database = SongStore()
-
-			import utils
-
-			print "updating database"
-
-			for dir in appinfo.musicdirs:
-				self.database.addMany(utils.getSongsFromDirectory(dir))
-
-			self.randomQuality = 0.5
-			print "Done loading songs"
-
-		from threading import Thread
-
-		loadDatabaseThread = Thread(target=loadDatabase, name="loadDatabase")
-		loadDatabaseThread.start()
-
-	def next(self):
-		try:
-			oldSong = state.recentlyPlayedList.getLastN(1)[0]
-		except:
-			oldSong = None
-
-		songs = self.database.getRandomSongs(oldSong=oldSong, limit=1)
-
-		return next(iter(songs))
-
 
 
 class RandomSongs:
@@ -159,10 +126,7 @@ class MainQueue:
 		self.lock = RLock()
 
 		self.generator = RandomSongs([
-			#RandomFromSongDatabaseGen, # no good way right now ...
-			lambda: RandomSongs([
 			(lambda: RandomFileQueueGen(dir)) for dir in appinfo.musicdirs])
-		])
 		self.checkNextNForBest = 10
 		self.checkLastNForContext = 10
 		self.checkLastInQueueNForContext = 2
