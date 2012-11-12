@@ -687,10 +687,9 @@ static int player_getNextSong(PlayerObject* player, int skipped) {
 		goto final;
 	}
 	
-	if(!PyIter_Check(player->queue)) {
-		PyErr_SetString(PyExc_RuntimeError, "player queue is not an iterator");
-		goto final;
-	}
+	// Note: No PyIter_Check because it adds CPython 2.7 ABI dependency when
+	// using CPython 2.7 headers. Anyway, just calling PyIter_Next directly
+	// is also ok since it will do the check itself.
 	
 	player->curSong = PyIter_Next(player->queue);
 	
