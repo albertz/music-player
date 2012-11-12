@@ -900,7 +900,7 @@ def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	assert NSThread.isMainThread()
 
 	if getWindow(windowName):
-		getWindow(windowName).makeKeyWindow()
+		getWindow(windowName).makeKeyAndOrderFront_(None)
 		return
 
 	win = NSWindow.alloc()
