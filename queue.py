@@ -231,7 +231,7 @@ class MainQueue:
 			nextSong = self.getNextSong_auto()
 			self.queue.append(nextSong)
 
-	@UserAttrib(type=Traits.Action, alignRight=True)
+	@UserAttrib(type=Traits.Action, alignRight=True, variableWidth=False)
 	def addSome(self, n=10):
 		for i in xrange(n):
 			nextSong = self.getNextSong_auto()

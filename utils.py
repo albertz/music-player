@@ -147,7 +147,7 @@ class UserAttrib(object):
 				 alignRight=False,
 				 spaceX=None, spaceY=None,
 				 width=None, height=None,
-				 variableWidth=False, variableHeight=False,
+				 variableWidth=None, variableHeight=False,
 				 autosizeWidth=False,
 				 highlight=False, lowlight=False,
 				 canHaveFocus=False,
