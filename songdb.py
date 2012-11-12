@@ -74,8 +74,14 @@ class DB:
 	def test(self):
 		# Some of these may throw an OperationalError.
 		conn = sqlite3.connect(self.path)
+		tblinfo = conn.execute("select sql from sqlite_master where type='table' and tbl_name='data'").fetchall()
+		assert tblinfo, "DB main table not initialized"
+		assert len(tblinfo) == 1, "DB main table not unique"
+		sqlcmd = tblinfo[0][0]
+		supposedsqlcmd = self.create_command % "data"
+		assert sqlcmd.lower() == supposedsqlcmd.lower(), "DB main table was created with a different command (%s != %s)" % (sqlcmd, supposedsqlcmd)
 		conn.execute("select * from data limit 1")
-			
+		
 	def removeOldDb(self):
 		# Maybe we really should do some backuping...?
 		self._connectionCache.clear()
@@ -715,7 +721,7 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 
 DBs["songSearchIndexDb"] = lambda: DB(
 	"songSearchIndex.db",
-	create_command="CREATE VIRTUAL TABLE %s USING fts4(content TEXT)")
+	create_command="CREATE VIRTUAL TABLE %s USING fts4(content TEXT, tokenize=porter)")
 DBs["songSearchIndexRefDb"] = lambda: DB(
 	"songSearchIndexRef.db",
 	create_command="CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)")
