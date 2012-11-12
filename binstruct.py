@@ -48,7 +48,7 @@ def boolDecode(stream): return bool(ord(stream.read(1)))
 
 def bitsOf(n):
 	assert n >= 0
-	return n.bit_length()
+	return len(bin(n)) - 2
 
 def bitListToInt(l):
 	i = 0
@@ -99,7 +99,7 @@ def eliasGammaDecode(stream):
 	return num
 
 def intToBin(x):
-	bitLen = x.bit_length() if (x >= 0) else (x+1).bit_length() # two-complement
+	bitLen = bitsOf(x) if (x >= 0) else bitsOf(abs(x+1)) # two-complement
 	bitLen += 1 # for the sign
 	byteLen = (bitLen+7) / 8
 	bin = array("B", (0,)) * byteLen
