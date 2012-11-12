@@ -143,7 +143,7 @@ class ListWrapper: # implements the List trait
 		putOnModify()
 	def clear(self):
 		with self.lock:
-			self.list = []
+			self.list[:] = []
 			self.onClear()
 			self.list.save()
 		putOnModify()
