@@ -694,7 +694,7 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 
 
 # These are search fallbacks while our own index doesn't work good enough.
-# They use the sqlite FT4 index.
+# They use the sqlite FTS4 index.
 
 DBs["songSearchIndexDb"] = lambda: DB(
 	"songSearchIndex.db",
@@ -716,11 +716,11 @@ def insertSearchEntry_raw(songId, tokens):
 			assert rowId is not None
 			rowId = rowId[0]
 	tokens = " ".join(tokens)
-	tokens = utils.convertToUnicode(tokens).encode("utf-8")
+	tokens = utils.convertToUnicode(tokens)
 	songSearchIndexDb._actionCmd("replace into data(docid, content) values (?,?)", (rowId, tokens))
 
 def search(query, limitResults=Search_ResultLimit):
-	query = utils.convertToUnicode(query).encode("utf-8")
+	query = utils.convertToUnicode(query)
 	cur = songSearchIndexDb._selectCmd("select docid from data where data match ? limit %i" % limitResults, (query,))
 	results = [r[0] for r in cur]
 	def getSongIdByRowId(rowId):
