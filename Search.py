@@ -19,7 +19,8 @@ class Search:
 		return self._searchText
 	
 	@UserAttrib(type=Traits.Table(keys=Keys,
-		format_duration=formatTime, format_rating=lambda r: "★" * int(round(r * 5))))
+		format_duration=lambda d: formatTime(d) if d > 0 else "",
+		format_rating=lambda r: "★" * int(round(r * 5))))
 	@property
 	def searchResults(self):
 		return list(self._searchResults)
