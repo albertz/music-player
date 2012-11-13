@@ -458,7 +458,7 @@ class Attrib:
 			return getSong(song)
 
 Attribs = {
-	"id": Attrib(), # This is the SongId used here by the DB.
+	# no id here. it's only local
 	"artist": Attrib(),
 	"title": Attrib(),
 	"album": Attrib(),
