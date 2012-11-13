@@ -33,7 +33,15 @@ int main(int argc, char *argv[])
 	Py_SetProgramName((char*)[mainPyFilename UTF8String]);
 	
 	Py_Initialize();
+	PyEval_InitThreads();
 	addPyPath();
+
+	// Preload imp and thread. I hope to fix this bug: https://github.com/albertz/music-player/issues/8 , there was a crash in initthread which itself has called initimp
+	PyObject* m = NULL;
+	m = PyImport_ImportModule("imp");
+	Py_XDECREF(m);
+	m = PyImport_ImportModule("thread");
+	Py_XDECREF(m);
 	
 	// maybe PySys_SetArgvEx ?
 	
