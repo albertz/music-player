@@ -435,17 +435,17 @@ def getSongSummaryDictById(songId):
 	except KeyError: return None
 	f = getBestSongFileFromDict(dbEntry.get("files",{}))
 	if not f: return None
-	song = Song(url=f)
-	print "song", f, song
-	song.id = songId
-	print "songId", songId
+	# Note: this assumes that we never have changed the normalize-func
+	fileEntry = dbEntry["files"].get(normalizedFilename(f), {})
+	# for now, this is just enough for good results in Search.Search.Keys
 	songDict = {
 		"url": f,
 		"id": songId,
+		"artist": dbEntry.get("artist", ""),
+		"title": dbEntry.get("title", ""),
+		"rating": Song(url=f).rating,
+		"duration": fileEntry.get("duration", -1),
 	}
-	for key in ["artist","title","rating","duration"]:
-		songDict[key] = song.get(key, timeout=0, accuracy=0, fastOnly=True)
-	print "song", songDict
 	return songDict
 
 class Attrib:
