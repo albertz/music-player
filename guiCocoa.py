@@ -603,7 +603,8 @@ def buildControlTable(control):
 		dataSource.resort(table) # initial sort
 		table.reloadData()
 	control.updateContent = lambda ev, args, kwargs: update
-
+	update() # initial fill
+	
 	if control.attr.hasUpdateEvent():
 		control.attr.updateEvent(control.parent.subjectObject).register(update)
 
