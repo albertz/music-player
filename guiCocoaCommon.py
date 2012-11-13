@@ -44,7 +44,6 @@ try:
 			self.setNeedsDisplay_(True)
 		def isOpaque(self): return self._drawsBackground
 		def drawRect_(self, dirtyRect):
-			self.drawFocusRingMask()
 			if self._drawsBackground:
 				self._backgroundColor.setFill()
 				NSRectFill(dirtyRect)
