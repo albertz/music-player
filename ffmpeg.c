@@ -1088,9 +1088,9 @@ static int player_setplaying(PlayerObject* player, int playing) {
 		ret = Pa_OpenDefaultStream(
 		   &player->outStream,
 		   0,
-		   NUMCHANNELS, // numOutputChannels
+		   player->audio_tgt.channels, // numOutputChannels
 		   paInt16, // sampleFormat
-		   SAMPLERATE, // sampleRate
+		   player->audio_tgt.freq, // sampleRate
 		   AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
 		   &paStreamCallback,
 		   player //void *userData
@@ -1569,7 +1569,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	// https://github.com/lalinsky/chromaprint/blob/master/examples/fpcalc.c
 
 	chromaprint_ctx = chromaprint_new(CHROMAPRINT_ALGORITHM_DEFAULT);
-	chromaprint_start(chromaprint_ctx, SAMPLERATE, NUMCHANNELS);
+	chromaprint_start(chromaprint_ctx, player->audio_tgt.freq, player->audio_tgt.channels);
 
 	// Note that we don't have any max_length handling yet.
 	// fpcalc uses a default of 120 seconds.
@@ -1596,14 +1596,14 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 			player->audio_buf_size = audio_size;
 		if(PyErr_Occurred()) goto final;
 
-		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
+		totalFrameCount += audio_size / player->audio_tgt.channels / 2 /* S16 */;
 		
 		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf, audio_size / 2)) {
 			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
 			goto final;
 		}
 	}
-	double songDuration = (double)totalFrameCount / SAMPLERATE;
+	double songDuration = (double)totalFrameCount / player->audio_tgt.freq;
 	
 	if (!chromaprint_finish(chromaprint_ctx)) {
 		fprintf(stderr, "ERROR: fingerprint finish calculation failed\n");
@@ -1799,10 +1799,10 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			player->audio_buf_size = audio_size;
 		// (uint8_t *)player->audio_buf, audio_size / 2
 		
-		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
+		totalFrameCount += audio_size / player->audio_tgt.channels / 2 /* S16 */;
 		if(PyErr_Occurred()) goto final;
 	}
-	double songDuration = (double)totalFrameCount / SAMPLERATE;
+	double songDuration = (double)totalFrameCount / player->audio_tgt.freq;
 
 	// Seek back.
 	stream_seekAbs(player, 0.0);
@@ -1902,7 +1902,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 				if(i % 2 == 1) samplesBufIndex++;
 			}
 
-			frame += audio_size / NUMCHANNELS / 2 /* S16 */;
+			frame += audio_size / player->audio_tgt.channels / 2 /* S16 */;
 		}
 
 		av_rdft_calc(fftCtx, samplesBuf);
@@ -1929,7 +1929,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			spectralCentroid += absFftData[i] * i;
 		spectralCentroid /= energy;
 		spectralCentroid /= fftSize / 2;
-		spectralCentroid *= SAMPLERATE;
+		spectralCentroid *= player->audio_tgt.freq;
 		spectralCentroid *= 0.5;
 		
 		// clip
