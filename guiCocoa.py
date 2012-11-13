@@ -26,8 +26,8 @@ def setupAppleMenu():
 	mainMenu.setSubmenu_forItem_(m, mi)
 	
 	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
-	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '')
-	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '')
+	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '1')
+	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '2')
 	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
 	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')
 	m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
