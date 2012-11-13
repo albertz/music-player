@@ -63,7 +63,7 @@ The switch to the next song when some song is finished can be done in various wa
 
 The straight-forward way would be to just start the playback of the next song once the old song has hit the end. This is what most simple media players would do (if they have some playlist support at all).
 
-A music player could do some fading, i.e. fading the old song out and at the same time fading the new song in.
+A music player could do some fading, i.e. fading the old song out and at the same time fading the new song in. Some even try to do [beatmatching](http://en.wikipedia.org/wiki/Beatmatching), see [BPM detection](#BPM).
 
 A music player could also try to avoid cracking if the song starts/ends abruptly.
 
@@ -92,6 +92,15 @@ Some better music players have such things with some limited functionality. For 
 
 In this project, this is central element - the main queue.
 
+A music player could also try to choose similar songs to the current song. Analyzing the similarity of songs is again a wide area. There is for example the [MusicBox project / master thesis](http://thesis.flyingpudding.com/) which introduces in that area.
+
+
+## BPM
+
+It is useful to know the [beats per minute](http://en.wikipedia.org/wiki/Tempo#Beats_per_minute) of a song. Some music players and most DJ mixing software can analyze the song to determine the BPM. This is far from trivial and the BPM is not always well defined for all songs.
+
+Some players support [beatmatching](http://en.wikipedia.org/wiki/Beatmatching) so that the tempo or pitch of a song gets slightly changed so that it can seamlessly mixed with the next song.
+
 
 ## [Last.fm](http://last.fm)
 
@@ -111,7 +120,7 @@ Most more complex music players as well as this project have that.
 
 ## Audio fingerprint
 
-An audio fingerprint represents the song. Depending on the properties of the fingerprint, you can compare a song for similarity (based on the similarity of the fingerprint) and search for duplicate songs. Also, there are services like [MusicBrainz](http://musicbrainz.org) where you can query for metadata information such as artist name and title for any given song fingerprint. This makes sense if these information are missing.
+An audio fingerprint represents the song. Depending on the properties of the fingerprint, you can compare a song for similarity (based on the similarity of the fingerprint) and search for duplicate songs. Also, there are services like [MusicBrainz](http://musicbrainz.org) where you can query for metadata information such as artist name and title for any given song fingerprint. This makes sense if these information is missing.
 
 This project can calculate the [AcoustId](http://acoustid.org/) fingerprint which is also used by MusicBrainz.
 
@@ -122,7 +131,7 @@ You might want to see some visual representation of a song. This project support
 
 ![song thumbnail](https://github.com/albertz/music-player/raw/master/song-thumbnail.png)
 
-The color represents the spectral centroid of the sound frequency.
+The color represents the spectral centroid of the sound frequency. This is calculated via a [fast Fourier transformation](http://en.wikipedia.org/wiki/Fast_Fourier_transform).
 
 
 ---
