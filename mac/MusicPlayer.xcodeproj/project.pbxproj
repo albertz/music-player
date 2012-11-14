@@ -50,14 +50,11 @@
 		233685221600BD7F00A38E78 /* fingerprinter.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DA1600BD7F00A38E78 /* fingerprinter.h */; };
 		233685231600BD7F00A38E78 /* fingerprinter_configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */; };
 		233685241600BD7F00A38E78 /* fingerprinter_configuration.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DC1600BD7F00A38E78 /* fingerprinter_configuration.h */; };
-		233685251600BD7F00A38E78 /* foo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DD1600BD7F00A38E78 /* foo.cpp */; };
 		233685261600BD7F00A38E78 /* image.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DE1600BD7F00A38E78 /* image.h */; };
 		233685271600BD7F00A38E78 /* image_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DF1600BD7F00A38E78 /* image_builder.cpp */; };
 		233685281600BD7F00A38E78 /* image_builder.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E01600BD7F00A38E78 /* image_builder.h */; };
 		233685291600BD7F00A38E78 /* integral_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E11600BD7F00A38E78 /* integral_image.cpp */; };
 		2336852A1600BD7F00A38E78 /* integral_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E21600BD7F00A38E78 /* integral_image.h */; };
-		2336852B1600BD7F00A38E78 /* lloyds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E31600BD7F00A38E78 /* lloyds.cpp */; };
-		2336852C1600BD7F00A38E78 /* lloyds.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E41600BD7F00A38E78 /* lloyds.h */; };
 		2336852D1600BD7F00A38E78 /* moving_average.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E51600BD7F00A38E78 /* moving_average.h */; };
 		2336852E1600BD7F00A38E78 /* quantizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E61600BD7F00A38E78 /* quantizer.h */; };
 		2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E71600BD7F00A38E78 /* silence_remover.cpp */; };
@@ -130,14 +127,11 @@
 		233684DA1600BD7F00A38E78 /* fingerprinter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fingerprinter.h; sourceTree = "<group>"; };
 		233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fingerprinter_configuration.cpp; sourceTree = "<group>"; };
 		233684DC1600BD7F00A38E78 /* fingerprinter_configuration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fingerprinter_configuration.h; sourceTree = "<group>"; };
-		233684DD1600BD7F00A38E78 /* foo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = foo.cpp; sourceTree = "<group>"; };
 		233684DE1600BD7F00A38E78 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image.h; sourceTree = "<group>"; };
 		233684DF1600BD7F00A38E78 /* image_builder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_builder.cpp; sourceTree = "<group>"; };
 		233684E01600BD7F00A38E78 /* image_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_builder.h; sourceTree = "<group>"; };
 		233684E11600BD7F00A38E78 /* integral_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = integral_image.cpp; sourceTree = "<group>"; };
 		233684E21600BD7F00A38E78 /* integral_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = integral_image.h; sourceTree = "<group>"; };
-		233684E31600BD7F00A38E78 /* lloyds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lloyds.cpp; sourceTree = "<group>"; };
-		233684E41600BD7F00A38E78 /* lloyds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lloyds.h; sourceTree = "<group>"; };
 		233684E51600BD7F00A38E78 /* moving_average.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = moving_average.h; sourceTree = "<group>"; };
 		233684E61600BD7F00A38E78 /* quantizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quantizer.h; sourceTree = "<group>"; };
 		233684E71600BD7F00A38E78 /* silence_remover.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = silence_remover.cpp; sourceTree = "<group>"; };
@@ -233,14 +227,11 @@
 				233684DA1600BD7F00A38E78 /* fingerprinter.h */,
 				233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */,
 				233684DC1600BD7F00A38E78 /* fingerprinter_configuration.h */,
-				233684DD1600BD7F00A38E78 /* foo.cpp */,
 				233684DE1600BD7F00A38E78 /* image.h */,
 				233684DF1600BD7F00A38E78 /* image_builder.cpp */,
 				233684E01600BD7F00A38E78 /* image_builder.h */,
 				233684E11600BD7F00A38E78 /* integral_image.cpp */,
 				233684E21600BD7F00A38E78 /* integral_image.h */,
-				233684E31600BD7F00A38E78 /* lloyds.cpp */,
-				233684E41600BD7F00A38E78 /* lloyds.h */,
 				233684E51600BD7F00A38E78 /* moving_average.h */,
 				233684E61600BD7F00A38E78 /* quantizer.h */,
 				233684E71600BD7F00A38E78 /* silence_remover.cpp */,
@@ -365,7 +356,6 @@
 				233685261600BD7F00A38E78 /* image.h in Headers */,
 				233685281600BD7F00A38E78 /* image_builder.h in Headers */,
 				2336852A1600BD7F00A38E78 /* integral_image.h in Headers */,
-				2336852C1600BD7F00A38E78 /* lloyds.h in Headers */,
 				2336852D1600BD7F00A38E78 /* moving_average.h in Headers */,
 				2336852E1600BD7F00A38E78 /* quantizer.h in Headers */,
 				233685301600BD7F00A38E78 /* silence_remover.h in Headers */,
@@ -500,10 +490,8 @@
 				2336851F1600BD7F00A38E78 /* fingerprint_decompressor.cpp in Sources */,
 				233685211600BD7F00A38E78 /* fingerprinter.cpp in Sources */,
 				233685231600BD7F00A38E78 /* fingerprinter_configuration.cpp in Sources */,
-				233685251600BD7F00A38E78 /* foo.cpp in Sources */,
 				233685271600BD7F00A38E78 /* image_builder.cpp in Sources */,
 				233685291600BD7F00A38E78 /* integral_image.cpp in Sources */,
-				2336852B1600BD7F00A38E78 /* lloyds.cpp in Sources */,
 				2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */,
 				233685331600BD7F00A38E78 /* spectral_centroid.cpp in Sources */,
 				233685351600BD7F00A38E78 /* spectrum.cpp in Sources */,
