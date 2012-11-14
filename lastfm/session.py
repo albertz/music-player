@@ -1,3 +1,5 @@
+# code under public domain
+
 """
 lastfm.session.LastfmSession is responsible for holding OAuth authentication info
 (app key/secret, request key/secret,  access key/secret) as well as configuration information for your app

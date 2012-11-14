@@ -1,3 +1,5 @@
+# code under public domain
+
 """
 A simple JSON REST request abstraction layer that is used by the
 lastfm.client and lastfm.session modules. You shouldn't need to use this.

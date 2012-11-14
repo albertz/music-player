@@ -1,3 +1,5 @@
+# code under public domain
+
 """
 The main client API you'll be working with most often.  You'll need to
 configure a lastfm.session.LastfmSession for this to work, but otherwise
