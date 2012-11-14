@@ -1,3 +1,8 @@
+# MusicPlayer, https://github.com/albertz/music-player
+# Copyright (c) 2012, Albert Zeyer, www.az2000.de
+# All rights reserved.
+# This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
+
 # This is a simple interface to Last.fm, based on the web API: http://www.last.fm/api/
 # Some other implementations of a Last.fm scrobbler can be seen here:
 # Amarok:

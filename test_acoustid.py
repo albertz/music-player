@@ -1,3 +1,7 @@
+# MusicPlayer, https://github.com/albertz/music-player
+# Copyright (c) 2012, Albert Zeyer, www.az2000.de
+# All rights reserved.
+# This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 import better_exchook
 better_exchook.install()
 

@@ -1,3 +1,8 @@
+# MusicPlayer, https://github.com/albertz/music-player
+# Copyright (c) 2012, Albert Zeyer, www.az2000.de
+# All rights reserved.
+# This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
+
 # Import PyObjC here. This is because the first import of PyObjC *must* be
 # in the main thread. Otherwise, the NSAutoreleasePool created automatically
 # by PyObjC on the first import would be released at exit by the main thread
