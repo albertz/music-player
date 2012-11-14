@@ -9,25 +9,25 @@ Annoyed by all existing players because some subset of:
 * missing sound format ([FLAC](http://flac.sourceforge.net/itunes.html), Ogg, ...)
 * bugs ([1](http://bugzilla.songbirdnest.com/show_bug.cgi?id=23640), [2](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25023), [3](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25042), [4](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18503), [5](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18505), [6](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18480), [7](http://bugzilla.songbirdnest.com/show_bug.cgi?id=18478), [8](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25073), [9](http://bugzilla.songbirdnest.com/show_bug.cgi?id=25024), [10](http://bugzilla.songbirdnest.com/show_bug.cgi?id=5975), ...)
 * missing output possibility (RAOP, PulseAudio, ...)
-* no or too limited DJ mode
+* none or too limited intelligent automatic queue (iTunes calls this DJ mode, others call this PartyShuffle)
 * no library / database
 
 Features of this player:
 
-* open source
+* open source (simplified BSD license, see [License.txt](https://github.com/albertz/music-player/blob/master/License.txt))
 * simple
 * support of most important sound formats
-* advanced intelligent DJ mode
+* advanced intelligent automatic queue which is the main mode to play music
 * simple music database
 * ReplayGain / audio volume normalization
-* Last.fm
-* AcoustID fingerprint
+* [Last.fm](http://last.fm) scrobbling
+* [AcoustID](http://acoustid.org) fingerprint
 
 ![MusicPlayer screenshot](https://github.com/albertz/music-player/raw/master/screenshot.png)
 
-About the DJ mode, what I want (maybe some of these somewhat configurable):
+About the intelligent automatic queue, what I want (maybe some of these somewhat configurable):
 
-* continuously always add songs
+* continuously always add songs when queue becomes too empty
 * liked songs more often
 * context-based choices, e.g. related songs more likely
 * possibility to easily manually add songs to the list
@@ -37,9 +37,6 @@ About the database:
 
 * main function: search
 * should be fast and optional for playback, i.e. music can be played even when the database is currently not ready for some reason
-* file-entries located on the local filesystem which don't exist anymore should automatically be deleted
-* file-entries located on a network filesystem which is not mounted should be marked as currently-not-available
-* file-entries located on a network filesystem which is mounted which don't exist anymore should automatically be deleted
 * should automatically be filled by a filesystem directory
 * import like-state from local players like iTunes and also online services like Last.fm
 
@@ -71,5 +68,5 @@ The current GUI is Cocoa only. Additional Qt support is planned. The music playe
 Authors:
 
 * Albert Zeyer, <http://www.az2000.de>: founder of the project, main core, ffmpeg module, etc.
-* Bryan Joseph, <http://bryaninspired.com>: database
+* Bryan Joseph, <http://bryaninspired.com>: some initial ideas about the database
 
