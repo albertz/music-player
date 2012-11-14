@@ -13,7 +13,6 @@ set(chromaprint_SRCS
 	fft.cpp
 	fingerprinter.cpp
 	image_builder.cpp
-	lloyds.cpp
 	silence_remover.cpp
 	fingerprint_calculator.cpp
 	fingerprint_compressor.cpp
