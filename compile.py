@@ -48,6 +48,7 @@ def cc(files, options):
 			"-I", "/System/Library/Frameworks/Python.framework/Headers/", # mac
 			"-I", "/usr/include/python2.7", # common linux/unix
 		]
+	options += ["-fpic"]
 	sysExec(["cc"] + options + CFLAGS + ["-c"] + files)
 
 sysExec(["mkdir","-p","build"])
