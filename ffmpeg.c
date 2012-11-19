@@ -39,7 +39,9 @@
 #include <pythread.h>
 
 #include <libavformat/avformat.h>
+#ifdef USE_SWRESAMPLE
 #include <libswresample/swresample.h>
+#endif
 #include <libavcodec/avfft.h>
 #include <portaudio.h>
 #include <chromaprint.h>
@@ -820,16 +822,19 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 			data_size = av_samples_get_buffer_size(NULL, dec->channels,
 												   is->frame->nb_samples,
 												   dec->sample_fmt, 1);
-			
+
+#ifdef USE_SWRESAMPLE
 			dec_channel_layout =
 			(dec->channel_layout && dec->channels == av_get_channel_layout_nb_channels(dec->channel_layout)) ?
 			dec->channel_layout : av_get_default_channel_layout(dec->channels);
+#endif
 			wanted_nb_samples = synchronize_audio(is, is->frame->nb_samples);
 			
 			if (dec->sample_fmt    != is->audio_src.fmt            ||
 				dec_channel_layout != is->audio_src.channel_layout ||
 				dec->sample_rate   != is->audio_src.freq           ||
 				(wanted_nb_samples != is->frame->nb_samples && !is->swr_ctx)) {
+#ifdef USE_SWRESAMPLE
 				swr_free(&is->swr_ctx);
 				is->swr_ctx = swr_alloc_set_opts(NULL,
 												 is->audio_tgt.channel_layout, is->audio_tgt.fmt, is->audio_tgt.freq,
@@ -841,6 +846,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 							is->audio_tgt.freq, av_get_sample_fmt_name(is->audio_tgt.fmt), is->audio_tgt.channels);
 					break;
 				}
+#endif
 				is->audio_src.channel_layout = dec_channel_layout;
 				is->audio_src.channels = dec->channels;
 				is->audio_src.freq = dec->sample_rate;
@@ -850,6 +856,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 						is->audio_tgt.freq, av_get_sample_fmt_name(is->audio_tgt.fmt), is->audio_tgt.channels);*/
 			}
 			
+#ifdef USE_SWRESAMPLE
 			if (is->swr_ctx) {
 				const uint8_t **in = (const uint8_t **)is->frame->extended_data;
 				uint8_t *out[] = {is->audio_buf2};
@@ -873,9 +880,12 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 				is->audio_buf = is->audio_buf2;
 				resampled_data_size = len2 * is->audio_tgt.channels * av_get_bytes_per_sample(is->audio_tgt.fmt);
 			} else {
+#endif
 				is->audio_buf = is->frame->data[0];
 				resampled_data_size = data_size;
+#ifdef USE_SWRESAMPLE
 			}
+#endif
 			
 			if(volumeAdjustNeeded(is)) {
 				for(size_t i = 0; i < resampled_data_size / 2; ++i) {
@@ -1167,7 +1177,9 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->audio_tgt.freq = SAMPLERATE;
 	player->audio_tgt.fmt = AV_SAMPLE_FMT_S16;
 	player->audio_tgt.channels = NUMCHANNELS;
+#ifdef USE_SWRESAMPLE
 	player->audio_tgt.channel_layout = av_get_default_channel_layout(NUMCHANNELS);
+#endif
 	
 	return 0;
 }
@@ -1199,10 +1211,12 @@ void player_dealloc(PyObject* obj) {
 		player->frame = NULL;
 	}
 	
+#ifdef USE_SWRESAMPLE
 	if(player->swr_ctx) {
 		swr_free(&player->swr_ctx);
 		player->swr_ctx = NULL;
 	}
+#endif
 			
 	PyThread_free_lock(player->lock);
 	player->lock = NULL;

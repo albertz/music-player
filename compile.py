@@ -55,6 +55,7 @@ sysExec(["mkdir","-p","build"])
 os.chdir("build")
 
 staticChromaprint = False
+UseSwResample = True
 
 ffmpegFiles = ["../ffmpeg.c"] + \
 	(glob("../chromaprint/*.cpp") if staticChromaprint else [])
@@ -66,6 +67,7 @@ cc(
 		"-DHAVE_CONFIG_H",
 		"-g",
 	] +
+	(["-DUSE_SWRESAMPLE"] if UseSwResample else []) +
 	(["-I", "../chromaprint"] if staticChromaprint else [])
 )
 
@@ -76,9 +78,9 @@ link(
 		"-lavutil",
 		"-lavformat",
 		"-lavcodec",
-		"-lswresample",
 		"-lportaudio",
 	] +
+	(["-lswresample"] if UseSwResample else []) +
 	([] if staticChromaprint else ["-lchromaprint"])
 )
 
