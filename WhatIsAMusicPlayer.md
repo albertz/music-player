@@ -63,11 +63,13 @@ The switch to the next song when some song is finished can be done in various wa
 
 The straight-forward way would be to just start the playback of the next song once the old song has hit the end. This is what most simple media players would do (if they have some playlist support at all).
 
-A music player could do some fading, i.e. fading the old song out and at the same time fading the new song in. Some even try to do [beatmatching](http://en.wikipedia.org/wiki/Beatmatching), see [BPM detection](#bpm).
+A music player could do some fading, i.e. fading the old song out and at the same time fading the new song in.
+
+Some players support [beatmatching](http://en.wikipedia.org/wiki/Beatmatching) so that the tempo or pitch of a song gets slightly changed so that it can seamlessly mixed with the next song. For that (and other things), it is useful to know the [beats per minute](http://en.wikipedia.org/wiki/Tempo#Beats_per_minute) of a song. Some music players and most DJ mixing software can analyze the song to determine the BPM. This is far from trivial and the BPM is not always well defined for all songs.
 
 A music player could also try to avoid cracking if the song starts/ends abruptly.
 
-Many music players also have support for [gapless playback](http://en.wikipedia.org/wiki/Gapless_playback). Some songs, e.g. coming from an album might have extra information how much pause there should be between them when playing the songs of the album consecutively.
+Many music players also have support for [gapless playback](http://en.wikipedia.org/wiki/Gapless_playback). Some songs, e.g. coming from an album might have extra information how much pause there should be between them when playing the songs of the album consecutively. To have perfect control over how much pause there is, you usually need to preload the next song and mix them together in memory -- doing that on-the-fly would most certainly add some short pause.
 
 
 ## Skip silence sections of songs
@@ -93,13 +95,6 @@ Some better music players have such things with some limited functionality. For 
 In this project, this is central element - the main queue.
 
 A music player could also try to choose similar songs to the current song. Analyzing the similarity of songs is again a wide area. There is for example the [MusicBox project / master thesis](http://thesis.flyingpudding.com/) which introduces in that area.
-
-
-## BPM
-
-It is useful to know the [beats per minute](http://en.wikipedia.org/wiki/Tempo#Beats_per_minute) of a song. Some music players and most DJ mixing software can analyze the song to determine the BPM. This is far from trivial and the BPM is not always well defined for all songs.
-
-Some players support [beatmatching](http://en.wikipedia.org/wiki/Beatmatching) so that the tempo or pitch of a song gets slightly changed so that it can seamlessly mixed with the next song.
 
 
 ## [Last.fm](http://last.fm)
