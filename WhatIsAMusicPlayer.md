@@ -5,7 +5,7 @@ Sometimes I get asked questions like:
 
 > What does a music player do?
 > Isn't it trivial to just play some mp3s?
-> What makes a music player better at playing music than some media player like [VLC](http://www.videolan.org/vlc/)?
+> What makes a music player better at playing music than some media player like [VLC](http://www.videolan.org/vlc/) ([*](#vlc))?
 > Can the audio playback quality really differ between different players?
 
 So, I'll try to answer these questions here now.
@@ -63,7 +63,7 @@ The switch to the next song when some song is finished can be done in various wa
 
 The straight-forward way would be to just start the playback of the next song once the old song has hit the end. This is what most simple media players would do (if they have some playlist support at all).
 
-A music player could do some fading, i.e. fading the old song out and at the same time fading the new song in. Some even try to do [beatmatching](http://en.wikipedia.org/wiki/Beatmatching), see [BPM detection](#BPM).
+A music player could do some fading, i.e. fading the old song out and at the same time fading the new song in. Some even try to do [beatmatching](http://en.wikipedia.org/wiki/Beatmatching), see [BPM detection](#bpm).
 
 A music player could also try to avoid cracking if the song starts/ends abruptly.
 
@@ -138,3 +138,8 @@ The color represents the spectral centroid of the sound frequency. This is calcu
 
 If you want to know some more about the internals of this project, read the [development notes](DevelopmentNotes.md).
 
+---
+
+## VLC
+
+VLC is actually a bad example. It was more what you would probably expect what VLC is and does (as I did). But VLC nowadays has quite advanced in many respects and has basic volume normalizaton, dynamic range compression, an equalizer along other things. It is still missing gapless playback and a music library (although both is planned) and more advanced queue handling (such as an intelligent automatic queue).
