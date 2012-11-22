@@ -49,6 +49,17 @@
 #include <math.h>
 #include <stddef.h>
 
+// For setting the thread priority to realtime on MacOSX.
+#ifdef __APPLE__
+#include <mach/mach_init.h>
+#include <mach/thread_policy.h>
+#include <mach/thread_act.h> // the doc says mach/sched.h but that seems outdated...
+#include <pthread.h>
+#include <mach/mach_error.h>
+#endif
+static void setRealtime();
+
+
 //#define DEBUG 1
 
 #define SAMPLERATE 44100
@@ -107,6 +118,7 @@ typedef struct {
 	PyObject* dict;
 	int nextSongOnEof;
 	int skipPyExceptions; // for all callbacks, mainly song.readPacket
+	int needRealtimeReset; // PortAudio callback thread must set itself to realtime
 	
 	/* Important note about the lock:
 	To avoid deadlocks with on thread waiting on the Python GIL and another on this lock,
@@ -1010,6 +1022,11 @@ int player_fillOutStream(PlayerObject* player, uint8_t* stream, unsigned long le
 	// We must not hold the PyGIL here!
 	PyThread_acquire_lock(player->lock, WAIT_LOCK);
 
+	if(player->needRealtimeReset) {
+		player->needRealtimeReset = 0;
+		setRealtime();
+	}
+
 	if(player->inStream == NULL && player->nextSongOnEof) {
 		PyGILState_STATE gstate;
 		gstate = PyGILState_Ensure();
@@ -1112,9 +1129,10 @@ static int player_setplaying(PlayerObject* player, int playing) {
 			playing = 0;
 		}
 	}
-	if(playing)
+	if(playing) {
+		player->needRealtimeReset = 1;
 		Pa_StartStream(player->outStream);
-	else
+	} else
 		player_stopOutputStream(player);
 	oldplayingstate = player->playing;
 	player->playing = playing;
@@ -1166,6 +1184,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->curSongGainFactor = 1;
 	player->nextSongOnEof = 1;
 	player->skipPyExceptions = 1;
+	player->needRealtimeReset = 0;
 	player->volume = 0.9f;
 	smoothClip_setX(&player->volumeSmoothClip, 0.95f, 10.0f);
 	
@@ -2192,6 +2211,33 @@ pySetFfmpegLogLevel(PyObject* self, PyObject* args) {
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+#ifdef __APPLE__
+// https://developer.apple.com/library/mac/#documentation/Darwin/Conceptual/KernelProgramming/scheduler/scheduler.html
+// Also, from Google Native Client, osx/nacl_thread_nice.c has some related code.
+void setRealtime() {
+	struct thread_time_constraint_policy ttcpolicy;
+	int ret;
+	thread_port_t threadport = pthread_mach_thread_np(pthread_self());
+
+	// Not sure how to get this. This number is from the example in the Apple doc.
+	const long HZ = 133000000;
+	
+	// This is from the Apple doc.
+	ttcpolicy.period = HZ/160;
+	ttcpolicy.computation = HZ/3300;
+	ttcpolicy.constraint = HZ/2200;
+	ttcpolicy.preemptible = 1;
+
+	if((ret = thread_policy_set(threadport,
+	   THREAD_TIME_CONSTRAINT_POLICY, (thread_policy_t)&ttcpolicy,
+	   THREAD_TIME_CONSTRAINT_POLICY_COUNT)) != KERN_SUCCESS) {
+		fprintf(stderr, "setRealtime() failed: %d, %s\n", ret, mach_error_string(ret));
+	}
+}
+#else
+void setRealtime() {} // not implemented yet
+#endif
 
 
 static PyMethodDef module_methods[] = {
