@@ -30,6 +30,7 @@ class Song(object):
 
 	def __init__(self, *args, **kwargs): # we must support an empty init for PersistentObject
 		self.f = None
+		self.error = None
 		self._fileMetadata = None
 		self._metadata = None
 		self._useDb = True
