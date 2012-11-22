@@ -273,7 +273,7 @@ class Song(object):
 	
 	def _calc_bmpThumbnail(self):
 		song = Song(url = self.url, _useDb = False)
-		song.gain = self.gain # useful for the adopted BMP
+		song.gain,_ = self.get("gain", accuracy=0, fastOnly=True) # useful for the adopted BMP
 		song.openFile() # this is another process, so safe
 		# We have song.gain which mostly lowers the volume. So increase here for nicer display.
 		import ffmpeg
