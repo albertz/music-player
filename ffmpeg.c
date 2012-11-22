@@ -2215,24 +2215,50 @@ pySetFfmpegLogLevel(PyObject* self, PyObject* args) {
 #ifdef __APPLE__
 // https://developer.apple.com/library/mac/#documentation/Darwin/Conceptual/KernelProgramming/scheduler/scheduler.html
 // Also, from Google Native Client, osx/nacl_thread_nice.c has some related code.
+// Or, from Google Chrome, platform_thread_mac.mm.
 void setRealtime() {
-	struct thread_time_constraint_policy ttcpolicy;
-	int ret;
+	kern_return_t ret;
 	thread_port_t threadport = pthread_mach_thread_np(pthread_self());
 
+	thread_extended_policy_data_t policy;
+	policy.timeshare = 0;
+	ret = thread_policy_set(threadport,
+		THREAD_EXTENDED_POLICY,
+		(thread_policy_t)&policy,
+		THREAD_EXTENDED_POLICY_COUNT);
+	if(ret != KERN_SUCCESS) {
+		fprintf(stderr, "setRealtime() THREAD_EXTENDED_POLICY failed: %d, %s\n", ret, mach_error_string(ret));
+		return;
+	}
+				
+	thread_precedence_policy_data_t precedence;
+	precedence.importance = 63;
+	ret = thread_policy_set(threadport,
+		THREAD_PRECEDENCE_POLICY,
+		(thread_policy_t)&precedence,
+		THREAD_PRECEDENCE_POLICY_COUNT);
+	if(ret != KERN_SUCCESS) {
+		fprintf(stderr, "setRealtime() THREAD_PRECEDENCE_POLICY failed: %d, %s\n", ret, mach_error_string(ret));
+		return;
+	}
+	
 	// Not sure how to get this. This number is from the example in the Apple doc.
 	const long HZ = 133000000;
 	
 	// This is from the Apple doc.
+	thread_time_constraint_policy_data_t ttcpolicy;
 	ttcpolicy.period = HZ/160;
 	ttcpolicy.computation = HZ/3300;
 	ttcpolicy.constraint = HZ/2200;
 	ttcpolicy.preemptible = 1;
 
-	if((ret = thread_policy_set(threadport,
-	   THREAD_TIME_CONSTRAINT_POLICY, (thread_policy_t)&ttcpolicy,
-	   THREAD_TIME_CONSTRAINT_POLICY_COUNT)) != KERN_SUCCESS) {
-		fprintf(stderr, "setRealtime() failed: %d, %s\n", ret, mach_error_string(ret));
+	ret = thread_policy_set(threadport,
+		THREAD_TIME_CONSTRAINT_POLICY,
+		(thread_policy_t)&ttcpolicy,
+		THREAD_TIME_CONSTRAINT_POLICY_COUNT);
+	if(ret != KERN_SUCCESS) {
+		fprintf(stderr, "setRealtime() THREAD_TIME_CONSTRAINT_POLICY failed: %d, %s\n", ret, mach_error_string(ret));
+		return;
 	}
 }
 #else
