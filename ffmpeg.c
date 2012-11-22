@@ -56,6 +56,7 @@
 #include <mach/thread_act.h> // the doc says mach/sched.h but that seems outdated...
 #include <pthread.h>
 #include <mach/mach_error.h>
+#include <mach/mach_time.h>
 #endif
 static void setRealtime();
 
@@ -2241,15 +2242,15 @@ void setRealtime() {
 		fprintf(stderr, "setRealtime() THREAD_PRECEDENCE_POLICY failed: %d, %s\n", ret, mach_error_string(ret));
 		return;
 	}
+		
+	mach_timebase_info_data_t tb_info;
+	mach_timebase_info(&tb_info);
+	double timeFact = ((double)tb_info.denom / (double)tb_info.numer) * 1000000;
 	
-	// Not sure how to get this. This number is from the example in the Apple doc.
-	const long HZ = 133000000;
-	
-	// This is from the Apple doc.
 	thread_time_constraint_policy_data_t ttcpolicy;
-	ttcpolicy.period = HZ/160;
-	ttcpolicy.computation = HZ/3300;
-	ttcpolicy.constraint = HZ/2200;
+	ttcpolicy.period = 2.9 * timeFact; // about 128 frames @44.1KHz
+	ttcpolicy.computation = 0.75 * 2.9 * timeFact;
+	ttcpolicy.constraint = 0.85 * 2.9 * timeFact;
 	ttcpolicy.preemptible = 1;
 
 	ret = thread_policy_set(threadport,
