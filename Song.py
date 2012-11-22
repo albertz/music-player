@@ -261,10 +261,16 @@ class Song(object):
 	
 	def _calc_fingerprint_AcoustId(self):
 		song = Song(url = self.url, _useDb = False)
-		song.openFile()
+		try:
+			song.openFile()
+		except IOError as exc:
+			return {"error": exc}
 		song.gain = 0 # just use original
 		import ffmpeg
-		duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
+		try:
+			duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
+		except Exception as exc:
+			return {"error": exc}
 		# fingerprint is URL-safe base64 with missing padding
 		fingerprint += "==="
 		import base64
@@ -273,18 +279,30 @@ class Song(object):
 	
 	def _calc_bmpThumbnail(self):
 		song = Song(url = self.url, _useDb = False)
+		try:
+			song.openFile()
+		except IOError as exc:
+			return {"error": exc}
 		song.gain,_ = self.get("gain", accuracy=0, fastOnly=True) # useful for the adopted BMP
-		song.openFile() # this is another process, so safe
-		# We have song.gain which mostly lowers the volume. So increase here for nicer display.
 		import ffmpeg
-		duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, volume = 1.5)
+		try:
+			# We have song.gain which mostly lowers the volume. So increase here for nicer display.
+			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, volume = 1.5)
+		except Exception as exc:
+			return {"error": exc}
 		return {"duration": duration, "bmpThumbnail": bmpData}
 	
 	def _calc_gain(self):
 		song = Song(url = self.url, _useDb = False)
-		song.openFile() # this is another process, so safe
+		try:
+			song.openFile()
+		except IOError as exc:
+			return {"error": exc}
 		import ffmpeg
-		duration, gain = ffmpeg.calcReplayGain(song)
+		try:
+			duration, gain = ffmpeg.calcReplayGain(song)
+		except Exception as exc:
+			return {"error": exc}			
 		return {"duration": duration, "gain": gain}
 
 	_calc_duration = _calc_gain # if that is needed
@@ -299,7 +317,10 @@ class Song(object):
 
 	def _calc_sha1(self):
 		import songdb
-		return {"sha1": songdb.hashFile(self.url)}
+		try:
+			return {"sha1": songdb.hashFile(self.url)}
+		except IOError as exc:
+			return {"error": exc}			
 
 	def _estimate_artist(self):
 		s = self.metadata.get("artist", "").strip()
@@ -369,8 +390,7 @@ class Song(object):
 			name = "calc Song(%s) %s" % (self.userString.encode("utf-8"), attrib))
 		for attr,value in res.items():
 			setattr(self, attr, value)
-		value = getattr(self, attrib)
-		return value
+		return res.get(attrib, None)
 
 	LocalAttribAccuracy = 0.9
 	
