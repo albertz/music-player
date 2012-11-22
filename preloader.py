@@ -11,7 +11,8 @@ import sys
 Attribs = ["sha1", "gain", "fingerprint_AcoustId", "bmpThumbnail"]
 
 def needUpdate(song):
-	for attr in Attribs:		
+	if song.error: return False
+	for attr in Attribs:
 		if getattr(song, attr, None) is None: return True
 	return False
 
@@ -25,6 +26,9 @@ def update(song):
 			attr,
 			timeout=None, # wait for it. dont spawn too much tasks async
 			)
+		if song.error:
+			print "error on updating song:", song, ",", song.error
+			return
 
 def checkUpdate():
 	from queue import queue
