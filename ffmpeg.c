@@ -674,6 +674,12 @@ final:
 	if(urlStr) free(urlStr);
 	if(formatCtx) closeInputStream(formatCtx);
 	if(player->inStream) return 0;
+	if(!player->nextSongOnEof) {
+		// This means that the failure of opening is fatal because we wont skip to the next song.
+		// This mode is also only used in the calc* specific functions.
+		if(!PyErr_Occurred())
+		   PyErr_SetString(PyExc_RuntimeError, "failed to open file");
+	}
 	return -1;
 }
 
