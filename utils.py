@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # MusicPlayer, https://github.com/albertz/music-player
 # Copyright (c) 2012, Albert Zeyer, www.az2000.de
 # All rights reserved.
@@ -839,3 +840,27 @@ def dumpThread(threadId):
 def test():
 	AsyncTask.test()
 	
+
+
+def simplifyString(s):
+	s = convertToUnicode(s)
+	s = s.lower()
+	import unicodedata
+	s = unicodedata.normalize('NFD', s)
+	s = u"".join([c for c in s if unicodedata.category(c) != 'Mn'])
+	for base,repl in (
+		(u"я", "r"),
+		(u"æ", "a"),
+		(u"œ", "o"),
+		(u"ø", "o"),
+		(u"ɲ", "n"),
+		(u"ß", "ss"),
+		(u"©", "c"),
+		(u"ð", "d"),
+		(u"đ", "d"),
+		(u"ɖ", "d"),
+		(u"þ", "th"),
+	):
+		s = s.replace(base, repl)
+	return s
+
