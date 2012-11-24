@@ -65,7 +65,7 @@ static void setRealtime();
 
 #define SAMPLERATE 44100
 #define NUMCHANNELS 2
-#define AUDIO_BUFFER_SIZE 2048
+#define AUDIO_BUFFER_SIZE (2048 * 10)
 
 /* Some confusion about Python functions and their reference counting:
 
