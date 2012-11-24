@@ -411,7 +411,7 @@ def getBestSongFileFromDict(filesDict):
 	# priority: flac, m4a, ogg
 	fsByExt = dict([(os.path.splitext(f)[1].lower(), f) for f in files])
 	f = None
-	for ext in ["flac","m4a","ogg"]:
+	for ext in [".flac",".m4a",".ogg"]:
 		f = fsByExt.get(ext, None)
 		if f: break
 	if not f: f = files[0] # just take first, whatever that is
