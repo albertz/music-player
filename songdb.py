@@ -744,11 +744,11 @@ def insertSearchEntry_raw(songId, tokens):
 			assert rowId is not None
 			rowId = rowId[0]
 	tokens = " ".join(tokens)
-	tokens = utils.convertToUnicode(tokens)
+	tokens = utils.simplifyString(tokens)
 	songSearchIndexDb._actionCmd("replace into data(docid, content) values (?,?)", (rowId, tokens))
 
 def search(query, limitResults=Search_ResultLimit):
-	query = utils.convertToUnicode(query)
+	query = utils.simplifyString(query)
 	cur = songSearchIndexDb._selectCmd("select docid from data where data match ? limit %i" % limitResults, (query,))
 	results = [r[0] for r in cur]
 	def getSongIdByRowId(rowId):
