@@ -97,6 +97,21 @@ In this project, this is central element - the main queue.
 A music player could also try to choose similar songs to the current song. Analyzing the similarity of songs is again a wide area. There is for example the [MusicBox project / master thesis](http://thesis.flyingpudding.com/) which introduces in that area.
 
 
+## Caching and realtime
+
+Depending on where you are reading the song files from, e.g. local disc, network share, some Internet stream, CD, USB drive or so, reading takes some noticeable time and also might be delayed. Even worse, that might be very varying - there could be sudden drastic slow-downs or delays.
+
+You want to be sure that while playing, the music doesn't stop suddenly. So you must make an estimation about how much data you must have read in advance into a local cache in memory so that you always have enough data left.
+
+Also, encoding takes time. It is usually possible in realtime, meaning that encoding the full song takes less time than playing the full song, which makes it simpler in this regards. However, it still takes time and when you got the callback from the sound driver which requests for new data, you should provide data as fast as possible -- otherwise, the internal sound driver cache runs out of data and there will be a sudden drop of playback. Thus, you should do the encoding in parallel and do also some caching there so that there is always enough data present for delivery to the sound driver.
+
+There might be situations where your operating system or the user is doing some heavy tasks which takes many system resources. This could slow down the IO access and the CPU time for the music player drastically. This would invalidate previous calculations about how much cache you need. Also, in extreme cases, encoding or even reading is not possible in realtime anymore -- which would always lead to drops in the playback.
+
+Many operating systems provide ways to ensure your application that it got a certain amount of CPU time and also the needed amount of IO bandwidth. This is often called [real-time computing](http://en.wikipedia.org/wiki/Real-time_computing). Modern operating systems like Linux, MacOSX or Windows aren't true [real-time operating systems](http://en.wikipedia.org/wiki/Real-time_operating_system) -- however, their scheduler still can ensure certain real-time constraints with high probability.
+
+This project, on MacOSX, uses [real-time threads](https://developer.apple.com/library/mac/#documentation/Darwin/Conceptual/KernelProgramming/scheduler/scheduler.html).
+
+
 ## [Last.fm](http://last.fm)
 
 You might want to track the songs you listened with [Last.fm](http://last.fm) or some similar service (Last.fm calls this scrobbling). Last.fm can generate some interesting statistics about your music taste and make you new suggestions based on this.
