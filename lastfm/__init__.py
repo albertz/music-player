@@ -212,12 +212,13 @@ def onSongChange(newSong):
 		duration=newSong.duration
 	)
 	
-def onSongFinished(song):
+def onSongFinished(song, timestamp):
 	if not _client: return
 	_client.apiCall(
 		"scrobble",
 		artist=song.artist.encode("utf-8"),
 		track=song.title.encode("utf-8"),
-		duration=song.duration
+		duration=song.duration,
+		timestamp=timestamp
 	)
 
