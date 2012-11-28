@@ -30,15 +30,31 @@ def setupAppleMenu():
 	mainMenu.setSubmenu_forItem_(m, mi)
 	
 	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
-	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '1')
-	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '2')
-	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
-	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')
+	m.addItem_(NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
 
-	app.setMainMenu_(mainMenu)
+	# new supermenu
+	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Edit", None, "")
+	m = NSMenu.alloc().initWithTitle_("Edit")
+	mainMenu.setSubmenu_forItem_(m, mi)
 
-	return m
+	m.addItemWithTitle_action_keyEquivalent_('Cut', 'cut:', 'x')
+	m.addItemWithTitle_action_keyEquivalent_('Copy', 'copy:', 'c')
+	m.addItemWithTitle_action_keyEquivalent_('Paste', 'paste:', 'v')
+	m.addItemWithTitle_action_keyEquivalent_('Select all', 'selectText:', 'a')
+
+	# new supermenu
+	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Window", None, "")
+	m = NSMenu.alloc().initWithTitle_("Window")
+	mainMenu.setSubmenu_forItem_(m, mi)
+
+	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '1')
+	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '2')
+	m.addItem_(NSMenuItem.separatorItem())
+	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
+	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')		
+
+	app.setMainMenu_(mainMenu)
 
 def setupAfterAppFinishedLaunching(delegate):
 	setupAppleMenu()
