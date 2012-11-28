@@ -17,7 +17,7 @@ except ImportError:
 
 from collections import deque
 from threading import Condition, Thread, currentThread, Lock, RLock
-import sys, os
+import sys, os, time
 
 import better_exchook
 
@@ -85,6 +85,8 @@ class EventCallback:
 		self.name = name
 		self.extraCall = extraCall
 	def __call__(self, *args, **kwargs):
+		if not "timestamp" in kwargs:
+			kwargs["timestamp"] = time.time()
 		if self.extraCall:
 			self.extraCall(*args, **kwargs)
 		self.targetQueue.put((self, args, kwargs))
