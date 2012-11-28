@@ -20,7 +20,8 @@ def track(event, args, kwargs):
 		lastfm.onSongChange(newSong)
 	if event is PlayerEventCallbacks.onSongFinished:
 		song = kwargs["song"]
-		lastfm.onSongFinished(song)
+		timestamp = kwargs["timestamp"]
+		lastfm.onSongFinished(song, timestamp=timestamp)
 
 def tracker_lastfmMain():
 	if not appinfo.config.lastFm: return
