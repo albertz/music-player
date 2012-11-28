@@ -35,9 +35,41 @@ def macNotificationsMain():
 
 	del pool
 
+def linuxNotificationsMain():
+	from State import state
+	from player import PlayerEventCallbacks
+	from utils import convertToUnicode
+
+	try:
+		import pynotify
+	except ImportError:
+		return
+
+	def notifyCurSong():
+		pynotify.init("MusicPlayer")
+		song = state.curSong
+		s = None
+		try:
+			s = convertToUnicode(song.userString)
+		except: pass
+
+		notif = pynotify.Notification(s)
+		notif.show()
+		#print "notification:", notif
+
+	for ev, args, kwargs in state.updates.read():
+		if ev is PlayerEventCallbacks.onSongChange:
+			notifyCurSong()
+		elif ev is PlayerEventCallbacks.onPlayingStateChange and kwargs["newState"] == True:
+			notifyCurSong()
+
+	del pool
+
 def notificationsMain():
 	import sys
 	if sys.platform == "darwin":
 		macNotificationsMain()
+	elif sys.platform == "linux2":
+		linuxNotificationsMain()
 	else:
 		print "no notification implementation"
