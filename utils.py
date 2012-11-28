@@ -69,8 +69,9 @@ class OnRequestQueue:
 		for reqqu in reqQueues: reqqu.queues.add(q)
 		while True:
 			with q.cond:
-				l = list(q.q)
-				q.q.clear()
+				l = []
+				if len(q.q) > 0:
+					l += [q.q.popleft()]
 				cancel = q.cancel
 				if not l and not cancel:
 					q.cond.wait()
