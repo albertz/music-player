@@ -248,10 +248,10 @@ def ctx():
 	global _ctx
 	if _ctx: return _ctx
 	from utils import Event, initBy
-	class Ctx:
+	class Ctx(object):
 		@property
 		def curSelectedSong(self):
-			return getattr(self, "_curSelectSong", None)
+			return getattr(self, "_curSelectedSong", None)
 		
 		@curSelectedSong.setter
 		def curSelectedSong(self, obj):
