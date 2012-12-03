@@ -66,7 +66,7 @@ class GuiObject:
 
 	def childIter(self): return self.childs.itervalues()
 	
-	def updateContent(self, ev, args, kwargs):
+	def updateContent(self, ev=None, args=None, kwargs=None):
 		for control in self.childIter():
 			if control.attr and control.attr.updateHandler:
 				try:
@@ -182,6 +182,9 @@ class GuiObject:
 	def setupChilds(self):
 		"If this is a container (a generic object), this does the layouting of the childs"
 
+		if getattr(self.subjectObject, "_updateEvent", None):
+			getattr(self.subjectObject, "_updateEvent").register(self.updateContent)
+			
 		self.firstChildGuiObject = None
 		self.childs = {}
 		x, y = self.OuterSpace
@@ -192,6 +195,8 @@ class GuiObject:
 			control = buildControl(attr, self)
 			if not self.firstChildGuiObject:
 				self.firstChildGuiObject = control
+			if attr.hasUpdateEvent():
+				attr.updateEvent(self.subjectObject).register(control.updateContent)
 			self.addChild(control)
 			self.childs[attr.name] = control
 			
@@ -223,7 +228,7 @@ class GuiObject:
 			maxX = max(maxX, control.pos[0] + control.size[0])
 			maxY = max(maxY, control.pos[1] + control.size[1])
 		
-			control.updateContent(None,None,None)
+			control.updateContent()
 		
 		if lastControl:
 			lastControl.layoutLine()
@@ -231,4 +236,31 @@ class GuiObject:
 					
 		# Handy for now. This return might change.
 		return (maxX + self.OuterSpace[0], maxY + self.OuterSpace[1])
+
 	
+# This function is later supposed to give the right gui context
+# depending where we call it from. This can maybe be managed/set via
+# contextlib or so.
+# The context itself is supposed to provide objects like window list,
+# current selected song (needed for SongEdit), etc.
+# Right now, we just support a single context.
+def ctx():
+	global _ctx
+	if _ctx: return _ctx
+	from utils import Event, initBy
+	class Ctx:
+		@property
+		def curSelectedSong(self):
+			return getattr(self, "_curSelectSong", None)
+		
+		@curSelectedSong.setter
+		def curSelectedSong(self, obj):
+			self._curSelectedSong = obj
+			self.curSelectedSong_updateEvent.push()
+			
+		@initBy
+		def curSelectedSong_updateEvent(self): return Event()
+
+	_ctx = Ctx()
+	return _ctx
+_ctx = None
