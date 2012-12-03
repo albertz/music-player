@@ -50,6 +50,7 @@ def setupAppleMenu():
 
 	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '1')
 	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '2')
+	m.addItemWithTitle_action_keyEquivalent_('Song edit window', 'openSongEditWindow:', '3')
 	m.addItem_(NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
 	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')		
@@ -108,6 +109,9 @@ class PyAppDelegate(NSObject):
 	def openSearchWindow_(self, app):
 		setupSearchWindow()
 	
+	def openSongEditWindow_(self, app):
+		setupSongEditWindow()
+
 	def about_(self, app):
 		import webbrowser
 		webbrowser.open("http://albertz.github.com/music-player/")
@@ -386,6 +390,11 @@ def buildControlList(control):
 				guiObj = control.guiObjectList[index].nativeGuiObject
 				guiObj.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
 				
+				# special handling for gui.ctx().curSelectedSong
+				if control.guiObjectList[index].subjectObject.__class__.__name__ == "Song":
+					import gui
+					gui.ctx().curSelectedSong = control.guiObjectList[index].subjectObject
+				
 				def doScrollUpdate():
 					if not guiObj.window(): return # window closed or removed from window in the meantime
 					objFrame = guiObj.frame()
@@ -625,9 +634,6 @@ def buildControlTable(control):
 	control.updateContent = lambda ev, args, kwargs: update
 	update() # initial fill
 	
-	if control.attr.hasUpdateEvent():
-		control.attr.updateEvent(control.parent.subjectObject).register(update)
-
 	return control
 
 def buildControlReal(control):
@@ -975,6 +981,14 @@ def setupMainWindow():
 def setupSearchWindow():
 	from Search import search
 	setupWindow(search, windowName="searchWindow", title="Search")
+
+def setupSongEditWindow():
+	from SongEdit import SongEdit
+	import gui
+	ctx = gui.ctx()
+	if not getattr(ctx, "songEdit"):
+		ctx.songEdit = SongEdit(ctx)
+	setupWindow(ctx.songEdit, windowName="songEditWindow", title="Song edit")	
 	
 def locateFile(filename):
 	ws = NSWorkspace.sharedWorkspace()
