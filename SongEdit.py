@@ -62,9 +62,11 @@ class SongEdit:
 	def _convertTextToTags(txt):
 		pass
 	
-	@UserAttrib(type=Traits.EditableText)
+	# todo...
+	#@UserAttrib(type=Traits.EditableText)
 	def tags(self, updateText=None):
 		if self.song:
 			return self._convertTagsToText(self.song.tags)
 		return ""
 
+	
