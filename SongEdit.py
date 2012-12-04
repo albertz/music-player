@@ -78,3 +78,44 @@ class SongEdit:
 	@metadata.setUpdateEvent
 	@property
 	def metadata_updateEvent(self): return self.song._updateEvent
+
+	@UserAttrib(type=Traits.Action, variableWidth=False)
+	def queryAcoustId(self):
+		duration = self.song.duration
+		fingerprint = self.song.fingerprint_AcoustId
+		print repr(fingerprint)
+		
+		import base64
+		fingerprint = base64.urlsafe_b64encode(fingerprint)
+		
+		api_url = "http://api.acoustid.org/v2/lookup"
+		# "8XaBELgH" is the one from the web example from AcoustID.
+		# "cSpUJKpD" is from the example from pyacoustid
+		# get an own one here: http://acoustid.org/api-key
+		client_api_key = "cSpUJKpD"
+		
+		params = {
+			'format': 'json',
+			'client': client_api_key,
+			'duration': int(duration),
+			'fingerprint': fingerprint,
+			'meta': 'recordings recordingids releasegroups releases tracks compress',
+		}
+		
+		import urllib
+		body = urllib.urlencode(params)
+		
+		import urllib2
+		req = urllib2.Request(api_url, body)
+		
+		import contextlib
+		with contextlib.closing(urllib2.urlopen(req)) as f:
+			data = f.read()
+			headers = f.info()
+		
+		import json
+		data = json.loads(data)
+		
+		from pprint import pprint
+		pprint(data)
+		
