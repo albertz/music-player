@@ -31,6 +31,8 @@ try: os.makedirs(PYDIR)
 except OSError: pass
 
 cp(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so", PYDIR + "/ffmpeg.so")
+for f in ("License.txt", "DevelopmentNotes.md", "WhatIsAMusicPlayer.md"):
+	cp(env["PROJECT_DIR"] + "/../" + f, PYDIR + "/" + f)
 for f in glob(env["PROJECT_DIR"] + "/../*.py"):
 	cp(f, PYDIR + "/" + os.path.basename(f))
 for d in ["lastfm"]:
