@@ -79,11 +79,9 @@ class SongEdit:
 	@property
 	def metadata_updateEvent(self): return self.song._updateEvent
 
-	@UserAttrib(type=Traits.Action, variableWidth=False)
-	def queryAcoustId(self):
+	def _queryAcoustId(self):
 		duration = self.song.duration
 		fingerprint = self.song.fingerprint_AcoustId
-		print repr(fingerprint)
 		
 		import base64
 		fingerprint = base64.urlsafe_b64encode(fingerprint)
@@ -115,7 +113,46 @@ class SongEdit:
 		
 		import json
 		data = json.loads(data)
+		return data
+
+	@UserAttrib(type=Traits.Table(keys=("artist", "title", "album", "track", "score")))
+	@property
+	def queryAcoustIdResults(self):
+		if getattr(self, "_queryAcoustIdResults_songId", "") != getattr(self.song, "id", ""):
+			return []
+		return list(getattr(self, "_queryAcoustIdResults", []))
+	@queryAcoustIdResults.setUpdateEvent
+	@initBy
+	def queryAcoustIdResults_updateEvent(self): return Event()
 		
-		from pprint import pprint
-		pprint(data)
+	@UserAttrib(type=Traits.Action, variableWidth=False)
+	def queryAcoustId(self):
+		data = self._queryAcoustId()
 		
+		self._queryAcoustIdResults_songId = self.song.id
+		self._queryAcoustIdResults = []
+		for result in data["results"]:
+			for recording in result["recordings"]:
+				for resGroup in recording["releasegroups"]:
+					artist = resGroup["artists"][0]
+					release = resGroup["releases"][0]
+					medium = release["mediums"][0]
+					track = medium["tracks"][0]
+					entry = {
+						"id": result["id"],
+						"score": result["score"],
+						"recording-id": recording["id"],
+						"releasegroup-id": resGroup["id"],
+						"artist-id": artist["id"],
+						"artist": artist["name"],
+						"title": track["title"],
+						"album": resGroup["title"],
+						"track": "%i/%i" % (track["position"], medium["track_count"])
+					}
+					self._queryAcoustIdResults += [entry]
+		self.queryAcoustIdResults_updateEvent.push()
+		
+	@UserAttrib(type=Traits.Action, variableWidth=False, alignRight=True)
+	def apply(self):
+		pass
+	
