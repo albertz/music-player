@@ -21,7 +21,8 @@ class SongEdit:
 			ctx = gui.ctx()
 			assert ctx, "no gui context"
 		self.ctx = ctx
-		ctx.curSelectedSong_updateEvent.register(self._updateEvent.push)
+		self._updateHandler = lambda: self._updateEvent.push()
+		ctx.curSelectedSong_updateEvent.register(self._updateHandler)
 		
 	@UserAttrib(type=Traits.Object)
 	@property
