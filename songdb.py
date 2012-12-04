@@ -453,8 +453,9 @@ def getSongSummaryDictById(songId):
 	return songDict
 
 class Attrib:
-	def __init__(self, fileSpecific=False):
+	def __init__(self, fileSpecific=False, type=None):
 		self.fileSpecific = fileSpecific
+		self.type = type
 	def getObject(self, song):
 		if self.fileSpecific:
 			return getSong(song).files.get(song.url)
@@ -463,9 +464,9 @@ class Attrib:
 
 Attribs = {
 	# no id here. it's only local
-	"artist": Attrib(),
-	"title": Attrib(),
-	"album": Attrib(),
+	"artist": Attrib(type=unicode),
+	"title": Attrib(type=unicode),
+	"album": Attrib(type=unicode),
 	"tags": Attrib(),
 	"rating": Attrib(),
 	"skipCount": Attrib(),
