@@ -199,7 +199,9 @@ class GuiObject:
 			if not self.firstChildGuiObject:
 				self.firstChildGuiObject = control
 			if attr.hasUpdateEvent():
-				control._updateHandler = lambda: control.updateContent()
+				def controlUpdateHandler(control=control):
+					control.updateContent()
+				control._updateHandler = controlUpdateHandler
 				attr.updateEvent(self.subjectObject).register(control._updateHandler)
 			self.addChild(control)
 			self.childs[attr.name] = control
