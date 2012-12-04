@@ -185,7 +185,7 @@ class GuiObject:
 		"If this is a container (a generic object), this does the layouting of the childs"
 
 		if getattr(self.subjectObject, "_updateEvent", None):
-			self._updateHandler = lambda: self.updateContent()
+			self._updateHandler = lambda: do_in_mainthread(self.updateContent, wait=False)
 			getattr(self.subjectObject, "_updateEvent").register(self._updateHandler)
 			
 		self.firstChildGuiObject = None
@@ -200,7 +200,7 @@ class GuiObject:
 				self.firstChildGuiObject = control
 			if attr.hasUpdateEvent():
 				def controlUpdateHandler(control=control):
-					control.updateContent()
+					do_in_mainthread(control.updateContent, wait=False)
 				control._updateHandler = controlUpdateHandler
 				attr.updateEvent(self.subjectObject).register(control._updateHandler)
 			self.addChild(control)
