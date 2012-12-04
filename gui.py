@@ -67,6 +67,8 @@ class GuiObject:
 	def childIter(self): return self.childs.itervalues()
 	
 	def updateContent(self, ev=None, args=None, kwargs=None):
+		if self.parent:
+			self.subjectObject = self.attr.__get__(self.parent.subjectObject)
 		for control in self.childIter():
 			if control.attr and control.attr.updateHandler:
 				try:
