@@ -195,6 +195,19 @@ try:
 except:
 	TableViewDataSource = objc.lookUpClass("TableViewDataSource")
 
+try:
+	class TableViewDelegate(NSObject):
+		onSelectionChange = None
+		def tableViewSelectionDidChange_(self, notif):
+			if self.onSelectionChange:
+				tableView = notif.object()
+				selection = []
+				def handleRowIndex(index, stop):
+					selection.append(tableView.dataSource().data[index])
+				tableView.selectedRowIndexes().enumerateIndexesUsingBlock_(handleRowIndex)
+				self.onSelectionChange(selection)
+except:
+	TableViewDelegate = objc.lookUpClass("TableViewDelegate")
 
 
 try:

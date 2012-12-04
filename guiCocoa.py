@@ -613,6 +613,12 @@ def buildControlTable(control):
 	control.tableDataSource = dataSource # save ref here because table.dataSource() is only a weakref
 	table.setDataSource_(dataSource)
 	
+	if control.attr.selectionChangeHandler:
+		delegate = TableViewDelegate.alloc().init()
+		delegate.onSelectionChange = lambda sel: control.attr.selectionChangeHandler(control.parent.subjectObject, sel)
+		control.tableDelegate = delegate
+		table.setDelegate_(delegate)
+	
 	table.setColumnAutoresizingStyle_(NSTableViewUniformColumnAutoresizingStyle)
 	for key in control.attr.type.keys:
 		column = NSTableColumn.alloc().initWithIdentifier_(key)
