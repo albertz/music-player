@@ -172,7 +172,7 @@ try:
 			if sortDescs:
 				firstAsc = sortDescs[0].ascending()
 			else:
-				print "error, sortDescs empty"
+				# sort descriptors hasn't been set yet
 				firstAsc = True
 			self.data.sort(key=key, reverse=not firstAsc)
 			tableView.reloadData()
