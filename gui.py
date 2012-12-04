@@ -66,9 +66,15 @@ class GuiObject:
 
 	def childIter(self): return self.childs.itervalues()
 	
-	def updateContent(self, ev=None, args=None, kwargs=None):
+	def updateSubjectObject(self):
 		if self.parent:
 			self.subjectObject = self.attr.__get__(self.parent.subjectObject)
+		if getattr(self.subjectObject, "_updateEvent", None):
+			self._updateHandler = lambda: do_in_mainthread(self.updateContent, wait=False)
+			getattr(self.subjectObject, "_updateEvent").register(self._updateHandler)
+		
+	def updateContent(self, ev=None, args=None, kwargs=None):
+		self.updateSubjectObject()
 		for control in self.childIter():
 			if control.attr and control.attr.updateHandler:
 				try:
@@ -184,10 +190,7 @@ class GuiObject:
 	def setupChilds(self):
 		"If this is a container (a generic object), this does the layouting of the childs"
 
-		if getattr(self.subjectObject, "_updateEvent", None):
-			self._updateHandler = lambda: do_in_mainthread(self.updateContent, wait=False)
-			getattr(self.subjectObject, "_updateEvent").register(self._updateHandler)
-			
+		self.updateSubjectObject()
 		self.firstChildGuiObject = None
 		self.childs = {}
 		x, y = self.OuterSpace
