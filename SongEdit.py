@@ -69,4 +69,14 @@ class SongEdit:
 			return self._convertTagsToText(self.song.tags)
 		return ""
 
-	
+	@UserAttrib(type=Traits.Table(keys=("key", "value")))
+	@property
+	def metadata(self):
+		d = dict(self.song.metadata)
+		for key in ("artist","title","url","rating","tags"):
+			try: d[key] = unicode(getattr(self.song, key))
+			except AttributeError: pass			
+		l = []
+		for key,value in d.items():
+			l += [{"key": key, "value": value}]
+		return l
