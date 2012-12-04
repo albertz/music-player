@@ -5,7 +5,7 @@
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 import Traits
-from utils import UserAttrib, safe_property
+from utils import UserAttrib, safe_property, initBy, Event
 import utils
 
 class Song(object):
@@ -27,6 +27,10 @@ class Song(object):
 	# This is *not* the list of all further attribs (like bmpThumbnail).
 	url = None
 	skipped = False
+
+	# This is used by the GUI update system.
+	@initBy
+	def _updateEvent(self): return Event()	
 
 	def __init__(self, *args, **kwargs): # we must support an empty init for PersistentObject
 		self.f = None
@@ -380,6 +384,7 @@ class Song(object):
 		# Note that locally stored attribs might get outdated.
 		# Thus, in getFast(), those will not be returned for accuracy=1.
 		object.__setattr__(self, attr, value)
+		self._updateEvent.push()
 		
 	def __setattr__(self, attr, value):
 		self.update(attr, lambda _: value)
