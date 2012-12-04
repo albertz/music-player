@@ -702,9 +702,16 @@ def buildControlObject(control):
 			dragSource,
 			False
 		)
-		return True
-		
+		return True		
 	subview.onMouseDragged = onMouseDragged
+	
+	def onMouseDown(ev):
+		subjectObj = control.subjectObject
+		# special handling for gui.ctx().curSelectedSong
+		if subjectObj.__class__.__name__ == "Song":
+			import gui
+			gui.ctx().curSelectedSong = subjectObj	
+	subview.onMouseDown = onMouseDown
 	
 	return control
 
