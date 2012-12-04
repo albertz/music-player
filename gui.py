@@ -255,7 +255,16 @@ def ctx():
 	class Ctx(object):
 		@property
 		def curSelectedSong(self):
-			return getattr(self, "_curSelectedSong", None)
+			song = getattr(self, "_curSelectedSong", None)
+			if song: return song
+			# otherwise fall back to current song.
+			# it's better to have always one so if the window is created,
+			# the layout is correct.
+			# this is actually a hack: better would be if the re-layouting
+			# would work correctly in that case. we really should work
+			# out some generic nice and clean update-handling...
+			import State
+			return State.state.curSong
 		
 		@curSelectedSong.setter
 		def curSelectedSong(self, obj):
