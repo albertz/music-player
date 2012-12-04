@@ -156,7 +156,8 @@ def buildControlAction(control):
 	do_update()
 	button.sizeToFit() # to get height
 	#button.setFrameSize_((50, button.frame().size.height))
-	def update(ev, args, kwargs): do_in_mainthread(do_update, wait=False)
+	def update(ev=None, args=None, kwargs=None):
+		do_in_mainthread(do_update, wait=False)
 	control.nativeGuiObject = button
 	control.updateContent = update
 	return control
@@ -191,7 +192,7 @@ def buildControlOneLineText(control):
 		return NSColor.blackColor()		
 	control.getTextColor = getTextColor
 	
-	def update(ev, args, kwargs):
+	def update(ev=None, args=None, kwargs=None):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		s = "???"
 		try:
@@ -257,7 +258,7 @@ def buildControlEditableText(control):
 	control.nativeGuiObject = label
 	control.getTextObj = lambda: control.subjectObject()
 	
-	def update(ev, args, kwargs):
+	def update(ev=None, args=None, kwargs=None):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		s = "???"
 		try:
@@ -625,13 +626,13 @@ def buildControlTable(control):
 	table.setAutosaveName_(control.name)
 	table.setAutosaveTableColumns_(True)
 
-	def update():
+	def update(ev=None, args=None, kwargs=None):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		value = control.subjectObject
 		dataSource.data = value
 		dataSource.resort(table) # initial sort
 		table.reloadData()
-	control.updateContent = lambda ev, args, kwargs: update
+	control.updateContent = update
 	update() # initial fill
 	
 	return control
@@ -646,7 +647,7 @@ def buildControlReal(control):
 	slider.setNumberOfTickMarks_(3)
 	control.nativeGuiObject = slider
 
-	def update(ev, args, kwargs):
+	def update(ev=None, args=None, kwargs=None):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		value = control.subjectObject
 		do_in_mainthread(lambda: slider.setDoubleValue_(value), wait=False)
@@ -850,7 +851,7 @@ def buildControlSongDisplay(control):
 
 			del pool
 
-		def update(self, ev, args, kwargs):			
+		def update(self, ev=None, args=None, kwargs=None):
 			#if ev is PlayerEventCallbacks.onSongChange:
 			with self.lock:
 				if self.curSong is state.player.curSong: return # song not changed
@@ -986,7 +987,7 @@ def setupSongEditWindow():
 	from SongEdit import SongEdit
 	import gui
 	ctx = gui.ctx()
-	if not getattr(ctx, "songEdit"):
+	if not getattr(ctx, "songEdit", None):
 		ctx.songEdit = SongEdit(ctx)
 	setupWindow(ctx.songEdit, windowName="songEditWindow", title="Song edit")	
 	
