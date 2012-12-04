@@ -135,9 +135,9 @@ class SongEdit:
 		
 		self._queryAcoustIdResults_songId = self.song.id
 		self._queryAcoustIdResults = []
-		for result in data["results"]:
-			for recording in result["recordings"]:
-				for resGroup in recording["releasegroups"]:
+		for result in data.get("results", []):
+			for recording in result.get("recordings", []):
+				for resGroup in recording.get("releasegroups", []):
 					artist = resGroup["artists"][0]
 					release = resGroup["releases"][0]
 					medium = release["mediums"][0]
