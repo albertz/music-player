@@ -185,8 +185,8 @@ class Song(object):
 	@safe_property
 	@property
 	def userString(self):
-		artist = self.metadata.get("artist", "").strip()
-		title = self.metadata.get("title", "").strip()
+		artist = self.getAnyFast("artist", default="").strip()
+		title = self.getAnyFast("title", default="").strip()
 		if artist and title: return artist + " - " + title
 		if self.url is None: return "No song"
 		import os
@@ -480,6 +480,10 @@ class Song(object):
 			raise AttributeError, "attrib " + attrib + " is not yet available"		
 		return value
 	
+	def getAnyFast(self, attrib, default=None):
+		value,accuracy = self.getFast(attrib, accuracy=0)
+		if accuracy == 0: return default
+		return value
 
 	NumStars = 5
 	def _starHandler(self, starIndex, handleClick):
