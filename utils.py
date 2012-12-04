@@ -363,10 +363,11 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 		if not hasattr(obj, "value"):
 			obj.value = lazyLoader()
 	def obj_getattribute(self, key):
-		load()
-		try: return getattr(obj.value, key)
-		except AttributeError:
+		try:
 			return object.__getattribute__(self, key)				
+		except AttributeError:
+			load()
+			return getattr(obj.value, key)
 	def obj_setattr(self, key, value):
 		load()
 		return setattr(obj.value, key, value)
@@ -434,13 +435,16 @@ def PersistentObject(baseType, filename, defaultArgs=(), persistentRepr = False,
 		f.close()
 	def obj_repr(obj):
 		if persistentRepr:
-			return "PersistentObject(%s, %r)" % (baseType.__name__, filename)
+			return "PersistentObject(%s, %r, persistentRepr=True)" % (baseType.__name__, filename)
 		return betterRepr(obj.__get__(None))
 	def obj_del(obj):
 		save(obj)
 	return ObjectProxy(load, baseType=baseType,
 		custom_attribs={
 			"save": save,
+			"_isPersistentObject": True,
+			"_filename": filename,
+			"_persistentRepr": persistentRepr,
 			"__repr__": obj_repr,
 			"__del__": obj_del,
 			})

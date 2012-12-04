@@ -18,6 +18,17 @@ class RecentlyplayedList:
 		self.lock = RLock()
 		self.index = index
 		self.list = deque(list)
+		if previous:
+			if not getattr(previous, "_isPersistentObject", False):
+				# This was some bug from earlier... Fix it now.
+				print "Warning: RecentlyplayedList.previous is not a PersistentObject"
+				previous = PersistentObject(RecentlyplayedList, "recentlyplayed-%i.dat" % previous.index, persistentRepr=True)
+			elif not previous._persistentRepr:
+				# This was some bug from earlier... Fix it now.
+				print "Warning: RecentlyplayedList.previous not persistentRepr"
+				previous = PersistentObject(RecentlyplayedList, previous._filename, persistentRepr=True)
+			assert previous._isPersistentObject
+			assert previous._persistentRepr
 		self.previous = previous
 	def append(self, song):
 		if not song: return
