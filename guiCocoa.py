@@ -959,14 +959,13 @@ def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 
 	win.setContentMinSize_((w,h))
 	
+	win.setFrameUsingName_(windowName)
+	win.setFrameAutosaveName_(windowName)
 	win.display()
 	win.orderFrontRegardless()
 	win.makeMainWindow()
 	win.makeKeyWindow()
 	
-	win.setFrameUsingName_(windowName)
-	win.setFrameAutosaveName_(windowName)
-
 	app.activateIgnoringOtherApps_(True)
 	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
 	win.retain()
