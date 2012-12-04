@@ -660,8 +660,13 @@ def convertToUnicode(value):
 	assert isinstance(value, unicode)
 	return value
 
-def fixValue(value):
-	if isinstance(value, str): return convertToUnicode(value)
+def fixValue(value, type):
+	if not type: return value
+	if isinstance(value, type): return value
+	if type is unicode:
+		if isinstance(value, str):
+			return convertToUnicode(value)
+		return unicode(value)
 	return value
 
 
