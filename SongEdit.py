@@ -49,14 +49,14 @@ class SongEdit:
 			return self.song.title
 		return ""
 
-	@static_method
+	@staticmethod
 	def _convertTagsToText(tags):
 		def txtForTag(tag, value):
 			if value >= 1: return tag
 			return tag + ":" + str(value) 
 		return " ".join(map(txtForTag, tags.items()))
 
-	@static_method
+	@staticmethod
 	def _convertTextToTags(txt):
 		pass
 	
