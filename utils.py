@@ -168,6 +168,7 @@ class UserAttrib(object):
 				 searchLook=False,
 				 autoScrolldown=False,
 				 dragHandler=None,
+				 selectionChangeHandler=None,
 				 ):
 		self.name = name
 		self.type = type
@@ -188,6 +189,7 @@ class UserAttrib(object):
 		self.searchLook = searchLook
 		self.autoScrolldown = autoScrolldown
 		self.dragHandler = dragHandler
+		self.selectionChangeHandler = selectionChangeHandler
 		self.__class__.staticCounter += 1
 		# Keep an index. This is so that we know the order of initialization later on.
 		# This is better for the GUI representation so we can order it the same way
