@@ -115,7 +115,11 @@ class SongEdit:
 		data = json.loads(data)
 		return data
 
-	@UserAttrib(type=Traits.Table(keys=("artist", "title", "album", "track", "score")))
+	def queryAcoustIdResults_selectionChangeHandler(self, selection):
+		self._queryAcoustId_selection = selection
+		
+	@UserAttrib(type=Traits.Table(keys=("artist", "title", "album", "track", "score")),
+		selectionChangeHandler=queryAcoustIdResults_selectionChangeHandler)
 	@property
 	def queryAcoustIdResults(self):
 		if getattr(self, "_queryAcoustIdResults_songId", "") != getattr(self.song, "id", ""):
@@ -124,7 +128,7 @@ class SongEdit:
 	@queryAcoustIdResults.setUpdateEvent
 	@initBy
 	def queryAcoustIdResults_updateEvent(self): return Event()
-		
+				
 	@UserAttrib(type=Traits.Action, variableWidth=False)
 	def queryAcoustId(self):
 		data = self._queryAcoustId()
@@ -138,6 +142,8 @@ class SongEdit:
 					release = resGroup["releases"][0]
 					medium = release["mediums"][0]
 					track = medium["tracks"][0]
+					if artist["name"] == "Various Artists":
+						artist = track["artists"][0]
 					entry = {
 						"id": result["id"],
 						"score": result["score"],
@@ -154,5 +160,12 @@ class SongEdit:
 		
 	@UserAttrib(type=Traits.Action, variableWidth=False, alignRight=True)
 	def apply(self):
-		pass
-	
+		if getattr(self, "_queryAcoustIdResults_songId", "") != getattr(self.song, "id", ""):
+			return
+		sel = getattr(self, "_queryAcoustId_selection", [])
+		if not sel: return
+		sel = sel[0]
+		for key in ("artist","title","album","track"):
+			setattr(self.song, key, sel[key])
+		self._updateEvent.push() # the song is updating itself - but the edit fields aren't atm...
+
