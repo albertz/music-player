@@ -52,10 +52,11 @@ class SongEdit:
 
 	@staticmethod
 	def _convertTagsToText(tags):
-		def txtForTag(tag, value):
+		def txtForTag(tag):
+			value = tags[tag]
 			if value >= 1: return tag
 			return tag + ":" + str(value) 
-		return " ".join(map(txtForTag, tags.items()))
+		return " ".join(map(txtForTag, sorted(tags.keys())))
 
 	@staticmethod
 	def _convertTextToTags(txt):
