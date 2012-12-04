@@ -115,21 +115,22 @@ class initBy(object):
 	def __init__(self, initFunc):
 		self.initFunc = initFunc
 		self.name = initFunc.func_name
+		self.attrName = "_" + self.name
 	def load(self, inst):
-		if not hasattr(self, "value"):
-			self.value = self.initFunc(inst)
+		if not hasattr(inst, self.attrName):
+			setattr(inst, self.attrName, self.initFunc(inst))
 	def __get__(self, inst, type=None):
 		if inst is None: # access through class
 			return self
 		self.load(inst)
-		if hasattr(self.value, "__get__"):
-			return self.value.__get__(inst, type)
-		return self.value
+		if hasattr(getattr(inst, self.attrName), "__get__"):
+			return getattr(inst, self.attrName).__get__(inst, type)
+		return getattr(inst, self.attrName)
 	def __set__(self, inst, value):
 		self.load(inst)
-		if hasattr(self.value, "__set__"):
-			return self.value.__set__(inst, value)
-		self.value = value
+		if hasattr(getattr(inst, self.attrName), "__set__"):
+			return getattr(inst, self.attrName).__set__(inst, value)
+		setattr(inst, self.attrName, value)
 		
 class oneOf(object):
 	def __init__(self, *consts):
