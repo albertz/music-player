@@ -28,16 +28,12 @@ class SongEdit:
 	@property
 	def song(self):
 		return self.ctx.curSelectedSong	
-	@song.setUpdateEvent
-	@initBy
-	def song_updateEvent(self): return Event()
 
 	@UserAttrib(type=Traits.EditableText)
 	def artist(self, updateText=None):
 		if self.song:
 			if updateText:
 				self.song.artist = updateText
-				self.song_updateEvent.push()
 			return self.song.artist
 		return ""
 	
@@ -46,7 +42,6 @@ class SongEdit:
 		if self.song:
 			if updateText:
 				self.song.title = updateText
-				self.song_updateEvent.push()
 			return self.song.title
 		return ""
 
@@ -80,3 +75,6 @@ class SongEdit:
 		for key,value in d.items():
 			l += [{"key": key, "value": value}]
 		return l
+	@metadata.setUpdateEvent
+	@property
+	def metadata_updateEvent(self): return self.song._updateEvent
