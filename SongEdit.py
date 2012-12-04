@@ -64,7 +64,7 @@ class SongEdit:
 			return self._convertTagsToText(self.song.tags)
 		return ""
 
-	@UserAttrib(type=Traits.Table(keys=("key", "value")))
+	@UserAttrib(type=Traits.Table(keys=("key", "value")), variableHeight=True)
 	@property
 	def metadata(self):
 		d = dict(self.song.metadata)
