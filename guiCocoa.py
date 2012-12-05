@@ -50,7 +50,7 @@ def setupAppleMenu():
 
 	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '1')
 	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '2')
-	m.addItemWithTitle_action_keyEquivalent_('Song edit window', 'openSongEditWindow:', '3')
+	m.addItemWithTitle_action_keyEquivalent_('Song edit window', 'openSongEditWindow:', 'i')
 	m.addItem_(NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
 	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')		
