@@ -156,6 +156,8 @@ class SongEdit:
 						"track": "%i/%i" % (track["position"], medium["track_count"])
 					}
 					self._queryAcoustIdResults += [entry]
+		if not self._queryAcoustIdResults:
+			self._queryAcoustIdResults += [{"artist":"- None found -","title":"","album":"","track":""}]
 		self.queryAcoustIdResults_updateEvent.push()
 		
 	@UserAttrib(type=Traits.Action, variableWidth=False, alignRight=True)
@@ -165,6 +167,8 @@ class SongEdit:
 		sel = getattr(self, "_queryAcoustId_selection", [])
 		if not sel: return
 		sel = sel[0]
+		for key in ("artist","title"):
+			if not sel[key]: return
 		for key in ("artist","title","album","track"):
 			setattr(self.song, key, sel[key])
 		self._updateEvent.push() # the song is updating itself - but the edit fields aren't atm...
