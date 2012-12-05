@@ -80,8 +80,8 @@ class SongEdit:
 	def metadata_updateEvent(self): return self.song._updateEvent
 
 	def _queryAcoustId(self):
-		duration = self.song.duration
-		fingerprint = self.song.fingerprint_AcoustId
+		fingerprint = self.song.get("fingerprint_AcoustId", timeout=None)
+		duration = self.song.get("duration", timeout=None, accuracy=0.5)
 		
 		import base64
 		fingerprint = base64.urlsafe_b64encode(fingerprint)
