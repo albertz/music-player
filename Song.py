@@ -232,6 +232,7 @@ class Song(object):
 	def id(self):
 		if getattr(self, "_id", None): return self._id
 		if not self._useDb: return None
+		if not self: return None
 		
 		# avoid recursive calls. those might happen because
 		# calcNewSongId or getSongId will again access Song attribs.
