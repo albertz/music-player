@@ -118,6 +118,13 @@ class ListWrapper: # implements the List trait
 			self.onClear()
 			self.list.save()
 		putOnModify()
+	def shuffle(self):
+		import random
+		with self.lock:
+			self.onClear()
+			random.shuffle(self.list)
+			for index,value in enumerate(self.list):
+				self.onInsert(index, value)
 	def __getitem__(self, index):
 		with self.lock:
 			return self.list[index]
@@ -204,6 +211,11 @@ class MainQueue:
 		for i in xrange(n):
 			nextSong = self.getNextSong_auto()
 			self.queue.append(nextSong)
+
+	@UserAttrib(type=Traits.Action, alignRight=True, variableWidth=False)
+	def shuffle(self):
+		with self.lock:
+			self.queue.shuffle()
 
 queue = MainQueue()
 
