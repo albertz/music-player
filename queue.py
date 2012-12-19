@@ -125,6 +125,7 @@ class ListWrapper: # implements the List trait
 			random.shuffle(self.list)
 			for index,value in enumerate(self.list):
 				self.onInsert(index, value)
+			self.list.save()
 	def __getitem__(self, index):
 		with self.lock:
 			return self.list[index]
