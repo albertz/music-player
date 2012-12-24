@@ -1724,7 +1724,12 @@ void bmpSetPixel(char* img, int w, int x, int y, unsigned char r, unsigned char 
 // f must be in [0,1]
 static
 void rainbowColor(float f, unsigned char* r, unsigned char* g, unsigned char* b) {
-	if(f < 1.0/6) {
+	if(f < 0.0) {
+		*r = 255;
+		*g = 0;
+		*b = 0;
+	}
+	else if(f < 1.0/6) {
 		f *= 6;
 		*r = 255;
 		*g = 255 * f;
@@ -1759,6 +1764,11 @@ void rainbowColor(float f, unsigned char* r, unsigned char* g, unsigned char* b)
 		*r = 255;
 		*g = 0;
 		*b = 255 * (1 - f);
+	}
+	else {
+		*r = 255;
+		*g = 0;
+		*b = 0;
 	}
 }
 
