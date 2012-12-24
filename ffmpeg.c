@@ -1698,14 +1698,14 @@ PyObject* createBitmap24Bpp(int w, int h, char** imgDataStart) {
 
 	bmpinfoheader[ 0] = InfoHeaderSize; // size of info header. (32bit)
 	
-	bmpinfoheader[ 4] = (unsigned char)(       w    );
-	bmpinfoheader[ 5] = (unsigned char)(       w>> 8);
-	bmpinfoheader[ 6] = (unsigned char)(       w>>16);
-	bmpinfoheader[ 7] = (unsigned char)(       w>>24);
-	bmpinfoheader[ 8] = (unsigned char)(       h    );
-	bmpinfoheader[ 9] = (unsigned char)(       h>> 8);
-	bmpinfoheader[10] = (unsigned char)(       h>>16);
-	bmpinfoheader[11] = (unsigned char)(       h>>24);
+	bmpinfoheader[ 4] = (unsigned char)(w    );
+	bmpinfoheader[ 5] = (unsigned char)(w>> 8);
+	bmpinfoheader[ 6] = (unsigned char)(w>>16);
+	bmpinfoheader[ 7] = (unsigned char)(w>>24);
+	bmpinfoheader[ 8] = (unsigned char)(h    );
+	bmpinfoheader[ 9] = (unsigned char)(h>> 8);
+	bmpinfoheader[10] = (unsigned char)(h>>16);
+	bmpinfoheader[11] = (unsigned char)(h>>24);
 	
 	bmpinfoheader[12] = 1; // num of color planes. must be 1 (16bit)
 	bmpinfoheader[14] = 24; // bpp (16bit)
