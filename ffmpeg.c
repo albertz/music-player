@@ -900,7 +900,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 				for(size_t i = 0; i < resampled_data_size / 2; ++i) {
 					int16_t* sampleAddr = (int16_t*) is->audio_buf + i;
 					int32_t sample = *sampleAddr; // TODO: endian swap?
-					float sampleFloat = sample / ((float) 0x8000);
+					double sampleFloat = sample / ((double) 0x8000);
 					
 					sampleFloat *= is->volume;
 					sampleFloat *= is->curSongGainFactor;
@@ -909,7 +909,7 @@ static int audio_decode_frame(PlayerObject *is, double *pts_ptr)
 					if(sampleFloat < -1) sampleFloat = -1;
 					if(sampleFloat > 1) sampleFloat = 1;
 					
-					sample = sampleFloat * (float) 0x8000;
+					sample = sampleFloat * (double) 0x8000;
 					if(sample < -0x8000) sample = -0x8000;
 					if(sample > 0x7fff) sample = 0x7fff;
 					*sampleAddr = (int16_t) sample; // TODO: endian swap?
