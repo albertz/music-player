@@ -1175,6 +1175,23 @@ PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
 	return (PyObject*)player;
 }
 
+static void set_player_audio_tgt(PlayerObject* player, int samplerate, int numchannels) {
+	if(player->playing) return;
+	if(player->outStream)
+		// we must reopen the output stream
+		player_closeOutputStream(player);
+	memset(&player->audio_src, 0, sizeof(player->audio_src)); // force a reset of the swr resampler
+	
+	// TODO: error checkking for samplerate or numchannels?
+	// No idea how to check what libswresample supports.
+	
+	// see also player_setplaying where we init the PaStream (with same params)
+	player->audio_tgt.freq = samplerate;
+	player->audio_tgt.fmt = AV_SAMPLE_FMT_S16;
+	player->audio_tgt.channels = numchannels;
+	player->audio_tgt.channel_layout = av_get_default_channel_layout(numchannels);
+}
+
 static
 int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	PlayerObject* player = (PlayerObject*) self;
@@ -1189,11 +1206,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->volume = 0.9f;
 	smoothClip_setX(&player->volumeSmoothClip, 0.95f, 10.0f);
 	
-	// see also player_setplaying where we init the PaStream (with same params)
-	player->audio_tgt.freq = SAMPLERATE;
-	player->audio_tgt.fmt = AV_SAMPLE_FMT_S16;
-	player->audio_tgt.channels = NUMCHANNELS;
-	player->audio_tgt.channel_layout = av_get_default_channel_layout(NUMCHANNELS);
+	set_player_audio_tgt(player, SAMPLERATE, NUMCHANNELS);
 	
 	return 0;
 }
@@ -1332,7 +1345,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		PyObject* mlist = PyList_New(12);
+		PyObject* mlist = PyList_New(14);
 		PyList_SetItem(mlist, 0, PyString_FromString("queue"));
 		PyList_SetItem(mlist, 1, PyString_FromString("playing"));
 		PyList_SetItem(mlist, 2, PyString_FromString("curSong"));
@@ -1345,6 +1358,8 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, 9, PyString_FromString("nextSong"));
 		PyList_SetItem(mlist, 10, PyString_FromString("volume"));
 		PyList_SetItem(mlist, 11, PyString_FromString("volumeSmoothClip"));
+		PyList_SetItem(mlist, 12, PyString_FromString("outSamplerate"));
+		PyList_SetItem(mlist, 13, PyString_FromString("outNumChannels"));
 		return mlist;
 	}
 	
@@ -1416,6 +1431,14 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyTuple_SetItem(t, 1, PyFloat_FromDouble(player->volumeSmoothClip.x2));
 		return t;
 	}
+	
+	if(strcmp(key, "outSamplerate") == 0) {
+		return PyInt_FromLong(player->audio_tgt.freq);
+	}
+	
+	if(strcmp(key, "outNumChannels") == 0) {
+		return PyInt_FromLong(player->audio_tgt.channels);
+	}
 
 	PyObject* dict = player_getdict(player);
 	if(dict) { // should always be true...
@@ -1469,6 +1492,30 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 		if(!PyArg_ParseTuple(value, "ff", &x1, &x2))
 			return -1;
 		smoothClip_setX(&player->volumeSmoothClip, x1, x2);
+		return 0;
+	}
+	
+	if(strcmp(key, "outSamplerate") == 0) {
+		if(player->playing) {
+			PyErr_SetString(PyExc_RuntimeError, "cannot set outSamplerate while playing");
+			return -1;
+		}
+		int freq = SAMPLERATE;
+		if(!PyArg_Parse(value, "i", &freq))
+			return -1;
+		set_player_audio_tgt(player, freq, player->audio_tgt.channels);
+		return 0;
+	}
+
+	if(strcmp(key, "outNumChannels") == 0) {
+		if(player->playing) {
+			PyErr_SetString(PyExc_RuntimeError, "cannot set outNumChannels while playing");
+			return -1;
+		}
+		int numchannels = NUMCHANNELS;
+		if(!PyArg_Parse(value, "i", &numchannels))
+			return -1;
+		set_player_audio_tgt(player, player->audio_tgt.freq, numchannels);
 		return 0;
 	}
 
