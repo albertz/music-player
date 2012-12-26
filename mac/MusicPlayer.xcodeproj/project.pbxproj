@@ -71,6 +71,14 @@
 		23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */; };
 		23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */; };
 		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
+		23ACE7001689E24A00E45134 /* ffmpeg_getmetadata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */; };
+		23ACE7031689E39600E45134 /* ffmpeg_acoustid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */; };
+		23ACE7051689E4D500E45134 /* ffmpeg_replaygain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7041689E4D500E45134 /* ffmpeg_replaygain.cpp */; };
+		23ACE7071689E54300E45134 /* ffmpeg_player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7061689E54300E45134 /* ffmpeg_player.cpp */; };
+		23ACE7091689E66500E45134 /* ffmpeg_player_decoding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7081689E66500E45134 /* ffmpeg_player_decoding.cpp */; };
+		23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */; };
+		23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */; };
+		23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 /* End PBXBuildFile section */
 
@@ -157,6 +165,15 @@
 		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
 		23A14A6615E3B85C00376BF6 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
+		23ACE6FD1689E1CF00E45134 /* ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ffmpeg.h; path = ../ffmpeg.h; sourceTree = "<group>"; };
+		23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_getmetadata.cpp; path = ../ffmpeg_getmetadata.cpp; sourceTree = "<group>"; };
+		23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_acoustid.cpp; path = ../ffmpeg_acoustid.cpp; sourceTree = "<group>"; };
+		23ACE7041689E4D500E45134 /* ffmpeg_replaygain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_replaygain.cpp; path = ../ffmpeg_replaygain.cpp; sourceTree = "<group>"; };
+		23ACE7061689E54300E45134 /* ffmpeg_player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_player.cpp; path = ../ffmpeg_player.cpp; sourceTree = "<group>"; };
+		23ACE7081689E66500E45134 /* ffmpeg_player_decoding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_player_decoding.cpp; path = ../ffmpeg_player_decoding.cpp; sourceTree = "<group>"; };
+		23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_player_output.cpp; path = ../ffmpeg_player_output.cpp; sourceTree = "<group>"; };
+		23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_bitmapthumbnail.cpp; path = ../ffmpeg_bitmapthumbnail.cpp; sourceTree = "<group>"; };
+		23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_utils.cpp; path = ../ffmpeg_utils.cpp; sourceTree = "<group>"; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -314,7 +331,16 @@
 		23A14A6315E3B6A200376BF6 /* ffmpeg.so */ = {
 			isa = PBXGroup;
 			children = (
+				23ACE6FD1689E1CF00E45134 /* ffmpeg.h */,
 				23A14A6415E3B6B600376BF6 /* ffmpeg.c */,
+				23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */,
+				23ACE7061689E54300E45134 /* ffmpeg_player.cpp */,
+				23ACE7081689E66500E45134 /* ffmpeg_player_decoding.cpp */,
+				23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */,
+				23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */,
+				23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */,
+				23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */,
+				23ACE7041689E4D500E45134 /* ffmpeg_replaygain.cpp */,
 			);
 			name = ffmpeg.so;
 			sourceTree = "<group>";
@@ -495,6 +521,14 @@
 				2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */,
 				233685331600BD7F00A38E78 /* spectral_centroid.cpp in Sources */,
 				233685351600BD7F00A38E78 /* spectrum.cpp in Sources */,
+				23ACE7001689E24A00E45134 /* ffmpeg_getmetadata.cpp in Sources */,
+				23ACE7031689E39600E45134 /* ffmpeg_acoustid.cpp in Sources */,
+				23ACE7051689E4D500E45134 /* ffmpeg_replaygain.cpp in Sources */,
+				23ACE7071689E54300E45134 /* ffmpeg_player.cpp in Sources */,
+				23ACE7091689E66500E45134 /* ffmpeg_player_decoding.cpp in Sources */,
+				23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */,
+				23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */,
+				23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
