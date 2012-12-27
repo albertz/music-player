@@ -40,6 +40,7 @@ def onSongChange(**kwargs):
 def loadPlayer(state):
 	import ffmpeg
 	player = ffmpeg.createPlayer()
+	player.outSamplerate = 48000 # higher quality! :)
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
 		cb = EventCallback(targetQueue=state.updates, name=e)
 		if e == "onSongChange":
