@@ -115,8 +115,7 @@ PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
 }
 
 static
-PyObject* player_alloc(PyTypeObject *type, Py_ssize_t nitems)
-{
+PyObject* player_alloc(PyTypeObject *type, Py_ssize_t nitems) {
     PyObject *obj;
     const size_t size = _PyObject_VAR_SIZE(type, nitems+1);
     /* note that we need to add one, for the sentinel */
@@ -161,22 +160,6 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	return 0;
 }
 
-
-void PlayerObject::setAudioTgt(int samplerate, int numchannels) {
-	if(this->playing) return;
-	// we must reopen the output stream
-	this->resetBuffers();
-	
-	// TODO: error checkking for samplerate or numchannels?
-	// No idea how to check what libswresample supports.
-	
-	// see also player_setplaying where we init the PaStream (with same params)
-	this->outSamplerate = samplerate;
-	this->outNumChannels = numchannels;
-}
-
-
-
 static
 void player_dealloc(PyObject* obj) {
 	PlayerObject* player = (PlayerObject*)obj;
@@ -199,6 +182,23 @@ void player_dealloc(PyObject* obj) {
 	player->~PlayerObject();
 	Py_TYPE(obj)->tp_free(obj);
 }
+
+
+void PlayerObject::setAudioTgt(int samplerate, int numchannels) {
+	if(this->playing) return;
+	// we must reopen the output stream
+	this->resetBuffers();
+	
+	// TODO: error checkking for samplerate or numchannels?
+	// No idea how to check what libswresample supports.
+	
+	// see also player_setplaying where we init the PaStream (with same params)
+	this->outSamplerate = samplerate;
+	this->outNumChannels = numchannels;
+}
+
+
+
 
 static
 PyObject* player_method_seekAbs(PyObject* self, PyObject* arg) {
