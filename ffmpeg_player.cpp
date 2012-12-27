@@ -110,9 +110,39 @@ static int player_setqueue(PlayerObject* player, PyObject* queue) {
 static
 PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
 	PlayerObject* player = (PlayerObject*) subtype->tp_alloc(subtype, 0);
-	new (player) PlayerObject();
 	//printf("%p new\n", player);
 	return (PyObject*)player;
+}
+
+static
+PyObject* player_alloc(PyTypeObject *type, Py_ssize_t nitems)
+{
+    PyObject *obj;
+    const size_t size = _PyObject_VAR_SIZE(type, nitems+1);
+    /* note that we need to add one, for the sentinel */
+	
+    if (PyType_IS_GC(type))
+        obj = _PyObject_GC_Malloc(size);
+    else
+        obj = (PyObject *)PyObject_MALLOC(size);
+	
+    if (obj == NULL)
+        return PyErr_NoMemory();
+	
+    memset(obj, '\0', size);
+	new ((PlayerObject*) obj) PlayerObject();
+	
+    if (type->tp_flags & Py_TPFLAGS_HEAPTYPE)
+        Py_INCREF(type);
+	
+    if (type->tp_itemsize == 0)
+        PyObject_INIT(obj, type);
+    else
+        (void) PyObject_INIT_VAR((PyVarObject *)obj, type, nitems);
+	
+    if (PyType_IS_GC(type))
+        _PyObject_GC_TRACK(obj);
+    return obj;
 }
 
 static
@@ -489,7 +519,7 @@ PyTypeObject Player_Type = {
 	0, // descr_set
 	offsetof(PlayerObject, dict), // dictoffset
 	player_init, // tp_init
-	0, // alloc
+	player_alloc, // alloc
 	player_new, // new
 };
 
