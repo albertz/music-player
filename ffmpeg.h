@@ -85,7 +85,7 @@ struct Buffer {
 		uint16_t start, end;
 		uint8_t* pt() { return data + start; }
 		uint16_t size() const { assert(start <= end); return end - start; }
-		static uint16_t BufferSize() { return sizeof(data); }
+		static uint16_t BufferSize() { return BUFFER_CHUNK_SIZE; }
 		uint16_t freeDataAvailable() { return BufferSize() - end; }
 		Chunk() : start(0), end(0) {}
 	};
