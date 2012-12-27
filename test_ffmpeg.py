@@ -7,6 +7,12 @@ better_exchook.install()
 
 import ffmpeg
 
+try:
+	import faulthandler
+	faulthandler.enable()
+except ImportError:
+	print "note: module faulthandler not available"
+	
 class Song:
 	def __init__(self, fn):
 		self.url = fn
