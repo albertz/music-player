@@ -253,6 +253,7 @@ static void player_resetStreamPackets(PlayerObject::InStream* player) {
 void PlayerObject::InStream::resetBuffers() {
 	this->do_flush = true;
 	this->readerHitEnd = false;
+	this->outBuffer.clear();
 	player_resetStreamPackets(this);
 }
 
