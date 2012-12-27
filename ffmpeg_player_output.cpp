@@ -86,6 +86,7 @@ int PlayerObject::setPlaying(bool playing) {
 	Py_BEGIN_ALLOW_THREADS
 	{
 		PyScopedLock lock(player->lock);
+		player->workerThread.start(); // if not running yet, start
 		if(!player->outStream.get())
 			player->outStream.reset(new OutStream(this));
 		assert(player->outStream.get() != NULL);

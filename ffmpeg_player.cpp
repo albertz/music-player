@@ -158,7 +158,6 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
 	
 	player->workerThread.func = boost::bind(&PlayerObject::workerProc, player, _1, _2);
-	player->workerThread.start();
 	
 	return 0;
 }
