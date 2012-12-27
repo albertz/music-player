@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <boost/bind.hpp>
 
 
 #define SAMPLERATE 44100
@@ -156,6 +156,8 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
 	
 	player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
+	
+	player->workerThread.func = boost::bind(&PlayerObject::workerProc, player, _1, _2);
 	
 	return 0;
 }

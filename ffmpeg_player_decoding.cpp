@@ -13,6 +13,7 @@ extern "C" {
 }
 
 #include <math.h>
+#include <unistd.h>
 
 #define PROCESS_SIZE		(BUFFER_CHUNK_SIZE * 10) // how much data to proceed in processInStream()
 #define BUFFER_FILL_SIZE	(48000 * 2 * 2 * 10) // 10secs for 48kHz,stereo - around 2MB
@@ -940,6 +941,19 @@ static void loopFrame(PlayerObject* player) {
 		}
 	}
 }
+
+void PlayerObject::workerProc(PyMutex& lock, bool& stopSignal) {
+	while(true) {
+		{
+			PyScopedLock l(lock);
+			if(stopSignal) return;
+		}
+		
+		loopFrame(this);
+		usleep(1000);
+	}
+}
+
 
 bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 	PlayerObject::InStream* is = this->inStream.get();

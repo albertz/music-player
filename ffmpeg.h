@@ -74,6 +74,21 @@ struct PyScopedUnlock {
 	~PyScopedUnlock();
 };
 
+
+#include <boost/function.hpp>
+
+struct PyThread {
+	PyMutex lock;
+	bool running;
+	bool stopSignal;
+	boost::function<void(PyMutex& lock, bool& stopSignal)> func;
+	long ident;
+	PyThread(); ~PyThread();
+	bool start();
+	void wait();
+	void stop();
+};
+
 #include <boost/shared_ptr.hpp>
 #include <list>
 
@@ -137,7 +152,10 @@ struct PlayerObject {
 	int seekRel(double incr);
 	int seekAbs(double pos);
 	bool getNextSong(bool skipped);
-		
+	
+	void workerProc(PyMutex& lock, bool& stopSignal);
+	PyThread workerThread;
+	
 	struct InStream;
 	boost::shared_ptr<InStream> inStream;
 	bool openInStream();

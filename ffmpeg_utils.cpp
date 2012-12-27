@@ -5,6 +5,7 @@
 // This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 #include "ffmpeg.h"
+#include <unistd.h>
 
 size_t Buffer::size() const {
 	size_t c = 0;
@@ -97,3 +98,53 @@ PyScopedUnlock::~PyScopedUnlock() {
 	mutex.lock();
 }
 
+PyThread::PyThread() {
+	running = false;
+	stopSignal = false;
+	ident = -1;
+}
+
+PyThread::~PyThread() {
+	stop();
+}
+
+static void PyThread_thread(void* p) {
+	PyThread* t = (PyThread*)p;
+	t->func(t->lock, t->stopSignal);
+	{
+		PyScopedLock l(t->lock);
+		t->running = false;
+	}
+}
+
+bool PyThread::start() {
+	PyScopedLock l(lock);
+	if(running) return true;
+	stopSignal = false;
+	running = true;
+	ident = PyThread_start_new_thread(PyThread_thread, this);
+	if(ident == -1) {
+		running = false;
+		return false;
+	}
+	return true;
+}
+
+void PyThread::wait() {
+	while(true) {
+		{
+			PyScopedLock l(lock);
+			if(!running) return;
+		}
+		usleep(1000);
+	}
+}
+
+void PyThread::stop() {
+	{
+		PyScopedLock l(lock);
+		if(!running) return;
+		stopSignal = true;
+	}
+	wait();
+}
