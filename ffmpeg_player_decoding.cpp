@@ -897,37 +897,6 @@ static boost::shared_ptr<PlayerObject::InStream> takePeekInStream(PlayerObject::
 	return boost::shared_ptr<PlayerObject::InStream>();
 }
 
-PyObject* PlayerObject::getNextPeekSong() {
-	PlayerObject* player = this;
-	if(player->peekQueue == NULL) return NULL;
-	
-	PyObject* args = NULL;
-	PyObject* peekList = NULL;
-	PyObject* peekListIter = NULL;
-	PyObject* song = NULL;
-	
-	args = PyTuple_New(1);
-	if(!args) goto final;
-	PyTuple_SetItem(args, 0, PyInt_FromLong(1));
-	peekList = PyObject_CallObject(player->peekQueue, args);
-	if(!peekList) goto final;
-	
-	peekListIter = PyObject_GetIter(peekList);
-	if(!peekListIter) goto final;
-	
-	song = PyIter_Next(peekListIter);
-	
-final:
-	// pass through any Python errors
-	if(PyErr_Occurred())
-		PyErr_Print();
-	
-	Py_XDECREF(peekListIter);
-	Py_XDECREF(peekList);
-	Py_XDECREF(args);
-	return song;
-}
-
 void PlayerObject::openPeekInStreams() {
 	PlayerObject* player = this;
 	if(player->peekQueue == NULL) return;
@@ -1012,12 +981,53 @@ static void loopFrame(PlayerObject* player) {
 		if(!player->buffersFullEnough())
 			player->processInStream();
 	}
-	
+		
 	{
 		PyScopedLock lock(player->lock);
+		for(auto& it : player->peekInStreams) {
+			if(!_buffersFullEnough(it.get()))
+				_processInStream(player, it.get());
+		}
+	}
+}
 
-		PlayerObject::InStream* is = player->inStream.get();
-		if(is && is->playerHitEnd && player->nextSongOnEof) {
+void PlayerObject::workerProc(PyMutex& lock, bool& stopSignal) {
+	while(true) {
+		{
+			PyScopedLock l(lock);
+			if(stopSignal) return;
+		}
+		
+		loopFrame(this);
+		
+		{
+			PyScopedLock l(lock);
+			if(buffersFullEnough()) {
+				PyScopedUnlock ul(lock);
+				usleep(1000);
+			}
+		}
+	}
+}
+
+
+bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
+	PlayerObject* player = this;
+	while(sampleNum > 0) {
+		PlayerObject::InStream* is = this->inStream.get();
+		if(!is) break;
+		
+		size_t byteCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);
+		samples += byteCount / 2;
+		sampleNum -= byteCount / 2;
+		is->timePos += timeDelay(byteCount / 2);
+
+		if(sampleNum == 0) break;
+		if(!is->readerHitEnd) break;
+		is->playerHitEnd = true;
+		if(!player->nextSongOnEof) break;
+		
+		{
 			PyGILState_STATE gstate;
 			gstate = PyGILState_Ensure();
 			
@@ -1050,54 +1060,13 @@ static void loopFrame(PlayerObject* player) {
 			if(PyErr_Occurred())
 				PyErr_Print();
 			
-			PyGILState_Release(gstate);			
+			PyGILState_Release(gstate);
 		}
 	}
 	
-	{
-		PyScopedLock lock(player->lock);
-		for(auto& it : player->peekInStreams) {
-			if(!_buffersFullEnough(it.get()))
-				_processInStream(player, it.get());
-		}
-	}
-}
-
-void PlayerObject::workerProc(PyMutex& lock, bool& stopSignal) {
-	while(true) {
-		{
-			PyScopedLock l(lock);
-			if(stopSignal) return;
-		}
-		
-		loopFrame(this);
-		
-		{
-			PyScopedLock l(lock);
-			if(buffersFullEnough()) {
-				PyScopedUnlock ul(lock);
-				usleep(1000);
-			}
-		}
-	}
-}
-
-
-bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
-	PlayerObject::InStream* is = this->inStream.get();
-	if(is) {
-		size_t byteCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);
-		samples += byteCount / 2;
-		sampleNum -= byteCount / 2;
-		is->timePos += timeDelay(byteCount / 2);
-	}
-
 	if(sampleNum > 0) {
 		// silence
 		memset((uint8_t*)samples, 0, sampleNum*2);
-		
-		if(is && is->readerHitEnd)
-			is->playerHitEnd = true;
 	}
 
 	// TODO: later, just proceed with peekInStream. gapless playback

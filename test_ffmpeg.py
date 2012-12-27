@@ -27,27 +27,33 @@ class Song:
 		r = self.f.seek(offset, whence)
 		#print "seekRaw", self, offset, whence, r, self.f.tell()
 		return self.f.tell()
-		
+
+files = [
+	"~/Music/Classic/Glenn Gould Plays Bach/Two- & Three-Part Inventions - Gould/19 Bach - Invention 13 in a (BWV 784).mp3",
+	"~/Music/Rock/Tool/Lateralus/09 Lateralus.flac",
+	"~/Music/Cults - Cults 7/Cults - Cults 7- - 03 The Curse.flac",
+	"~/Music/Special/zorba/(01) - Theme From Zorba The Greek.ogg",
+	"~/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3",
+	"~/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3",
+	"~/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3",
+]
+import os
+files = map(os.path.expanduser, files)
+i = 0
+
 def songs():
-	files = [
-		"~/Music/Classic/Glenn Gould Plays Bach/Two- & Three-Part Inventions - Gould/19 Bach - Invention 13 in a (BWV 784).mp3",
-		"~/Music/Rock/Tool/Lateralus/09 Lateralus.flac",
-		"~/Music/Cults - Cults 7/Cults - Cults 7- - 03 The Curse.flac",
-		"~/Music/Special/zorba/(01) - Theme From Zorba The Greek.ogg",
-		"~/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3",
-		"~/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3",
-		"~/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3",
-	]
-	import os
-	files = map(os.path.expanduser, files)
-	i = 0
+	global i, files
 	while True:
 		yield Song(files[i])
 		i += 1
 		if i >= len(files): i = 0
 
+def peekSongs(n):
+	return files[i:]
+
 player = ffmpeg.createPlayer()
 player.queue = songs()
+player.peekQueue = peekSongs
 player.playing = True
 
 def formatTime(t):

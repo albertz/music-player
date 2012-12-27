@@ -26,6 +26,7 @@ bool PlayerObject::getNextSong(bool skipped) {
 	
 	PyObject* oldSong = player->curSong;
 	player->curSong = NULL;
+	player->inStream.reset();
 	
 	if(player->queue == NULL) {
 		PyErr_SetString(PyExc_RuntimeError, "player queue is not set");
@@ -114,7 +115,7 @@ static int player_setqueue(PlayerObject* player, PyObject* queue) {
 }
 
 static int player_setpeekqueue(PlayerObject* player, PyObject* queue) {
-	Py_XDECREF(player->queue);
+	Py_XDECREF(player->peekQueue);
 	Py_INCREF((PyObject*)player);
 	Py_BEGIN_ALLOW_THREADS
 	{
