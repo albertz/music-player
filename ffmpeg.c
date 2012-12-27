@@ -111,9 +111,9 @@ PyDoc_STRVAR(module_doc,
 static PyObject* EventClass = NULL;
 
 static void init() {
+	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 	initPlayerOutput();
 	initPlayerDecoder();
-	PyEval_InitThreads();
 }
 
 
