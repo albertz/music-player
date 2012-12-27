@@ -13,6 +13,13 @@ size_t Buffer::size() const {
 	return c;
 }
 
+bool Buffer::empty() {
+	for(auto& it : chunks)
+		if(it.size() > 0)
+			return false;
+	return true;
+}
+
 size_t Buffer::pop(uint8_t* target, size_t target_size) {
 	size_t c = 0;
 	while(!chunks.empty()) {
@@ -33,6 +40,20 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 	}
 	return c;	
 }
+
+void Buffer::push(const uint8_t* data, size_t size) {
+	while(size > 0) {
+		if(chunks.empty() || !chunks.back().freeDataAvailable())
+			chunks.push_back(Chunk());
+		Chunk& chunk = chunks.back();
+		size_t s = std::min(size, (size_t)chunk.freeDataAvailable());
+		memcpy(chunk.data + chunk.end, data, s);
+		data += s;
+		size -= s;
+		chunk.end += s;
+	}
+}
+
 
 int PyDict_SetItemString_retain(PyObject* dict, const char* key, PyObject* value) {
 	int ret = PyDict_SetItemString(dict, key, value);
@@ -67,3 +88,12 @@ PyScopedLock::PyScopedLock(PyMutex& m) : mutex(m) {
 PyScopedLock::~PyScopedLock() {
 	mutex.unlock();
 }
+
+PyScopedUnlock::PyScopedUnlock(PyMutex& m) : mutex(m) {
+	mutex.unlock();
+}
+
+PyScopedUnlock::~PyScopedUnlock() {
+	mutex.lock();
+}
+

@@ -6,9 +6,10 @@
 
 #include "ffmpeg.h"
 
+extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avfft.h>
-
+}
 
 
 // note that each row in imgDataStart is aligned to 4 bytes

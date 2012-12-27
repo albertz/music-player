@@ -9,16 +9,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// For setting the thread priority to realtime on MacOSX.
-#ifdef __APPLE__
-#include <mach/mach_init.h>
-#include <mach/thread_policy.h>
-#include <mach/thread_act.h> // the doc says mach/sched.h but that seems outdated...
-#include <pthread.h>
-#include <mach/mach_error.h>
-#include <mach/mach_time.h>
-#endif
-static void setRealtime();
 
 
 #define SAMPLERATE 44100
@@ -317,13 +307,13 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "curSongPos") == 0) {
-		if(player->curSong)
+		if(player->isInStreamOpened())
 			return PyFloat_FromDouble(player->curSongPos());
 		goto returnNone;
 	}
 	
 	if(strcmp(key, "curSongLen") == 0) {
-		if(player->curSong && player->curSongLen > 0)
+		if(player->isInStreamOpened() && player->curSongLen() > 0)
 			return PyFloat_FromDouble(player->curSongLen());
 		goto returnNone;
 	}
@@ -337,8 +327,8 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "curSongGainFactor") == 0) {
-		if(player->curSong)
-			return PyFloat_FromDouble(player->curSongGainFactor);
+		if(player->isInStreamOpened())
+			return PyFloat_FromDouble(player->curSongGainFactor());
 		goto returnNone;
 	}
 	
@@ -373,16 +363,18 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		return PyInt_FromLong(player->outNumChannels);
 	}
 	
-	PyObject* dict = player_getdict(player);
-	if(dict) { // should always be true...
-		Py_INCREF(dict);
-		PyObject* res = PyDict_GetItemString(dict, key);
-		if (res != NULL) {
-			Py_INCREF(res);
+	{
+		PyObject* dict = player_getdict(player);
+		if(dict) { // should always be true...
+			Py_INCREF(dict);
+			PyObject* res = PyDict_GetItemString(dict, key);
+			if (res != NULL) {
+				Py_INCREF(res);
+				Py_DECREF(dict);
+				return res;
+			}
 			Py_DECREF(dict);
-			return res;
 		}
-		Py_DECREF(dict);
 	}
 	
 	PyErr_Format(PyExc_AttributeError, "PlayerObject has no attribute '%.400s'", key);
@@ -403,15 +395,9 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 	}
 	
 	if(strcmp(key, "playing") == 0) {
-		return player_setplaying(player, PyObject_IsTrue(value));
+		return player->setPlaying(PyObject_IsTrue(value));
 	}
-	
-	if(strcmp(key, "curSongGainFactor") == 0) {
-		if(!PyArg_Parse(value, "f", &player->curSongGainFactor))
-			return -1;
-		return 0;
-	}
-	
+		
 	if(strcmp(key, "volume") == 0) {
 		if(!PyArg_Parse(value, "f", &player->volume))
 			return -1;
@@ -528,59 +514,5 @@ final:
 }
 
 
-
-
-#ifdef __APPLE__
-// https://developer.apple.com/library/mac/#documentation/Darwin/Conceptual/KernelProgramming/scheduler/scheduler.html
-// Also, from Google Native Client, osx/nacl_thread_nice.c has some related code.
-// Or, from Google Chrome, platform_thread_mac.mm.
-void setRealtime() {
-	kern_return_t ret;
-	thread_port_t threadport = pthread_mach_thread_np(pthread_self());
-	
-	thread_extended_policy_data_t policy;
-	policy.timeshare = 0;
-	ret = thread_policy_set(threadport,
-							THREAD_EXTENDED_POLICY,
-							(thread_policy_t)&policy,
-							THREAD_EXTENDED_POLICY_COUNT);
-	if(ret != KERN_SUCCESS) {
-		fprintf(stderr, "setRealtime() THREAD_EXTENDED_POLICY failed: %d, %s\n", ret, mach_error_string(ret));
-		return;
-	}
-	
-	thread_precedence_policy_data_t precedence;
-	precedence.importance = 63;
-	ret = thread_policy_set(threadport,
-							THREAD_PRECEDENCE_POLICY,
-							(thread_policy_t)&precedence,
-							THREAD_PRECEDENCE_POLICY_COUNT);
-	if(ret != KERN_SUCCESS) {
-		fprintf(stderr, "setRealtime() THREAD_PRECEDENCE_POLICY failed: %d, %s\n", ret, mach_error_string(ret));
-		return;
-	}
-	
-	mach_timebase_info_data_t tb_info;
-	mach_timebase_info(&tb_info);
-	double timeFact = ((double)tb_info.denom / (double)tb_info.numer) * 1000000;
-	
-	thread_time_constraint_policy_data_t ttcpolicy;
-	ttcpolicy.period = 2.9 * timeFact; // about 128 frames @44.1KHz
-	ttcpolicy.computation = 0.75 * 2.9 * timeFact;
-	ttcpolicy.constraint = 0.85 * 2.9 * timeFact;
-	ttcpolicy.preemptible = 1;
-	
-	ret = thread_policy_set(threadport,
-							THREAD_TIME_CONSTRAINT_POLICY,
-							(thread_policy_t)&ttcpolicy,
-							THREAD_TIME_CONSTRAINT_POLICY_COUNT);
-	if(ret != KERN_SUCCESS) {
-		fprintf(stderr, "setRealtime() THREAD_TIME_CONSTRAINT_POLICY failed: %d, %s\n", ret, mach_error_string(ret));
-		return;
-	}
-}
-#else
-void setRealtime() {} // not implemented yet
-#endif
 
 

@@ -7,13 +7,14 @@
 
 #include "ffmpeg.h"
 
+extern "C" {
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
+}
 
 #include <math.h>
 
-#define AUDIO_BUFFER_SIZE	(2048 * 10)
-#define PROCESS_SIZE		AUDIO_BUFFER_SIZE
+#define PROCESS_SIZE		(BUFFER_CHUNK_SIZE * 10) // how much data to proceed in processInStream()
 #define BUFFER_FILL_SIZE	(48000 * 2 * 2 * 10) // 10secs for 48kHz,stereo - around 2MB
 
 int initPlayerDecoder() {
@@ -337,6 +338,28 @@ int PlayerObject::seekAbs(double pos) {
 					   seek_flags
 					   );
 }
+
+PyObject* PlayerObject::curSongMetadata() {
+	if(inStream.get()) return inStream->metadata;
+	return NULL;
+}
+
+double PlayerObject::curSongPos() {
+	if(inStream.get()) return inStream->timePos;
+	return 0;
+}
+
+double PlayerObject::curSongLen() {
+	if(inStream.get()) return inStream->timeLen;
+	return -1;
+}
+
+float PlayerObject::curSongGainFactor() {
+	if(inStream.get()) return inStream->gainFactor;
+	return 1;
+}
+
+
 
 
 /* open a given stream. Return 0 if OK */
@@ -919,9 +942,6 @@ static void loopFrame(PlayerObject* player) {
 }
 
 bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
-	// We must not hold the PyGIL here!
-	PyScopedLock lock(this->lock);
-
 	PlayerObject::InStream* is = this->inStream.get();
 	if(is) {
 		size_t byteCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);

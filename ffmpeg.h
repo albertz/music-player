@@ -68,6 +68,12 @@ struct PyScopedLock {
 	~PyScopedLock();
 };
 
+struct PyScopedUnlock {
+	PyMutex& mutex;
+	PyScopedUnlock(PyMutex& m);
+	~PyScopedUnlock();
+};
+
 #include <boost/shared_ptr.hpp>
 #include <list>
 
@@ -77,8 +83,10 @@ struct Buffer {
 	struct Chunk {
 		uint8_t data[BUFFER_CHUNK_SIZE];
 		uint16_t start, end;
-		uint16_t size() const { assert(start <= end); return end - start; }
 		uint8_t* pt() { return data + start; }
+		uint16_t size() const { assert(start <= end); return end - start; }
+		static uint16_t BufferSize() { return sizeof(data); }
+		uint16_t freeDataAvailable() { return BufferSize() - end; }
 		Chunk() : start(0), end(0) {}
 	};
 	std::list<Chunk> chunks;
@@ -110,6 +118,7 @@ struct PlayerObject {
 	PyObject* queue;
 	PyObject* curSong;
 	bool playing;
+	int setPlaying(bool playing);
 	float volume;
 	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	bool volumeAdjustNeeded() const;
@@ -140,6 +149,7 @@ struct PlayerObject {
 	PyObject* curSongMetadata();
 	double curSongPos();
 	double curSongLen();
+	float curSongGainFactor();
 	
 	// returns the data read by the inStream. no matter what, it will fill the requested samples, though (with silence if nothing else is possible).
 	// the outStream will call this. data read here is supposed to go without delay to the soundcard. it will update the timePos.
