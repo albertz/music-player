@@ -16,6 +16,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	PyObject* returnObj = NULL;
 	PlayerObject* player = NULL;
 	ChromaprintContext *chromaprint_ctx = NULL;
+	unsigned long totalFrameCount = 0;
 	
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
@@ -48,43 +49,38 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	// len and don't do any decoding if we just want to calculate the len.
 	// This is all open for future hacking ... But it works good enough now.
 	
-	// The following code is loosely adopted from player_fillOutStream().
-	unsigned long totalFrameCount = 0;
-	while (1) {
-		player->audio_buf_index = 0;
-		double pts;
-		int audio_size = audio_decode_frame(player, &pts);
-		if (audio_size < 0)
-			break; // probably EOF or so
-		else
-			player->audio_buf_size = audio_size;
+	while(player->processInStream()) {
 		if(PyErr_Occurred()) goto final;
+		for(auto& it : player->inStreamBuffer()->chunks) {
+			totalFrameCount += it.size() / player->outNumChannels / 2 /* S16 */;
 		
-		totalFrameCount += audio_size / player->audio_tgt.channels / 2 /* S16 */;
+			if (!chromaprint_feed(chromaprint_ctx, it.pt(), it.size() / 2)) {
+				fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
+				goto final;
+			}
+		}
+		player->inStreamBuffer()->clear();
+	}
+	{
+		double songDuration = (double)totalFrameCount / player->outSamplerate;
+		char* fingerprint = NULL;
 		
-		if (!chromaprint_feed(chromaprint_ctx, (uint8_t *)player->audio_buf, audio_size / 2)) {
-			fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
+		if (!chromaprint_finish(chromaprint_ctx)) {
+			fprintf(stderr, "ERROR: fingerprint finish calculation failed\n");
 			goto final;
 		}
+
+		if (!chromaprint_get_fingerprint(chromaprint_ctx, &fingerprint)) {
+			fprintf(stderr, "ERROR: unable to calculate fingerprint, get_fingerprint failed\n");
+			goto final;
+		}
+		
+		returnObj = PyTuple_New(2);
+		PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
+		PyTuple_SetItem(returnObj, 1, PyString_FromString(fingerprint));
+		
+		chromaprint_dealloc(fingerprint);
 	}
-	double songDuration = (double)totalFrameCount / player->audio_tgt.freq;
-	
-	if (!chromaprint_finish(chromaprint_ctx)) {
-		fprintf(stderr, "ERROR: fingerprint finish calculation failed\n");
-		goto final;
-	}
-	
-	char* fingerprint = NULL;
-	if (!chromaprint_get_fingerprint(chromaprint_ctx, &fingerprint)) {
-		fprintf(stderr, "ERROR: unable to calculate fingerprint, get_fingerprint failed\n");
-		goto final;
-	}
-	
-	returnObj = PyTuple_New(2);
-	PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
-	PyTuple_SetItem(returnObj, 1, PyString_FromString(fingerprint));
-	
-	chromaprint_dealloc(fingerprint);
 	
 final:
 	if(chromaprint_ctx)

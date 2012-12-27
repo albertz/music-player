@@ -6,6 +6,13 @@
 
 #include "ffmpeg.h"
 
+size_t Buffer::size() const {
+	size_t c = 0;
+	for(auto& it : chunks)
+		c += it.size();
+	return c;
+}
+
 size_t Buffer::pop(uint8_t* target, size_t target_size) {
 	size_t c = 0;
 	while(!chunks.empty()) {

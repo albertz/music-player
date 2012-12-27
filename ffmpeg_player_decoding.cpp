@@ -259,7 +259,8 @@ void PlayerObject::resetBuffers() {
 		inStream->resetBuffers();
 }
 
-static int stream_seekRel(PlayerObject* pl, double incr) {
+int PlayerObject::seekRel(double incr) {
+	PlayerObject* pl = this;
 	PlayerObject::InStream* player = pl->inStream.get();
 	
 	double pos = 0;
@@ -303,7 +304,8 @@ static int stream_seekRel(PlayerObject* pl, double incr) {
 					   );
 }
 
-static int stream_seekAbs(PlayerObject* pl, double pos) {
+int PlayerObject::seekAbs(double pos) {
+	PlayerObject* pl = this;
 	PlayerObject::InStream* player = pl->inStream.get();
 	int seek_by_bytes = 0;
 	if(player->timeLen <= 0)
@@ -836,10 +838,16 @@ bool PlayerObject::processInStream() {
 		return false;
 	return true;
 }
+
 bool PlayerObject::isInStreamOpened() const {
 	if(inStream.get() == NULL) return false;
 	if(inStream->ctx == NULL) return false;
 	return true;
+}
+
+Buffer* PlayerObject::inStreamBuffer() {
+	if(inStream.get()) return &inStream->outBuffer;
+	return NULL;
 }
 
 static void loopFrame(PlayerObject* player) {

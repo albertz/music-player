@@ -6,6 +6,10 @@
 
 #include "ffmpeg.h"
 
+// Note: The yule/butter tables below have hardcoded values for this samplerate.
+#define SAMPLERATE 44100
+#define NUMCHANNELS 2
+
 // http://www.replaygain.org/
 
 #define YULE_ORDER 10
@@ -41,14 +45,12 @@ static void _genericFilter(float* out, const float* in, const float* kernel, int
 }
 
 static void yuleFilter(float* out, float* in) {
-	assert(SAMPLERATE == 44100);
 	static const float YuleCoeff[] = {0.05418656406430, -3.47845948550071, -0.02911007808948,  6.36317777566148, -0.00848709379851, -8.54751527471874, -0.00851165645469,  9.47693607801280, -0.00834990904936, -8.81498681370155,  0.02245293253339,  6.85401540936998, -0.02596338512915, -4.39470996079559,  0.01624864962975,  2.19611684890774, -0.00240879051584, -0.75104302451432,  0.00674613682247,  0.13149317958808, -0.00187763777362 };
 	assert(sizeof(YuleCoeff)/sizeof(YuleCoeff[0]) == YULE_ORDER*2 + 1);
 	_genericFilter(out, in, YuleCoeff, YULE_ORDER);
 }
 
 static void butterFilter(float* out, float* in) {
-	assert(SAMPLERATE == 44100);
 	static const float ButterCoeff[] = {0.98500175787242, -1.96977855582618, -1.97000351574484,  0.97022847566350,  0.98500175787242 };
 	assert(sizeof(ButterCoeff)/sizeof(ButterCoeff[0]) == BUTTER_ORDER*2 + 1);
 	_genericFilter(out, in, ButterCoeff, BUTTER_ORDER);
@@ -95,88 +97,84 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	PyObject* returnObj = NULL;
 	PlayerObject* player = NULL;
 	ReplayGainBuffer* buffer = NULL;
+	unsigned long totalFrameCount = 0;
+	size_t samplePos = 0;
+	size_t windowCount = 0;
 	
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
+	player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
 	player->nextSongOnEof = 0;
 	player->skipPyExceptions = 0;
-	player->playing = 1; // otherwise audio_decode_frame() wont read
+	player->playing = true; // otherwise audio_decode_frame() wont read
 	player->volume = 1; player->volumeSmoothClip.setX(1, 1); // avoid volume adjustments
-	assert(!volumeAdjustNeeded(player));
+	assert(!player->volumeAdjustNeeded());
 	Py_INCREF(songObj);
 	player->curSong = songObj;
 	if(PyObject_HasAttrString(songObj, "gain"))
 		printf("pyCalcReplayGain: warning: song has gain already - this will lead to wrong gain calculation\n");
 	if(!player->openInStream()) goto final;
 	if(PyErr_Occurred()) goto final;
-	if(player->inStream == NULL) goto final;
+	if(!player->isInStreamOpened()) goto final;
 	
-	buffer = malloc(sizeof(ReplayGainBuffer));
+	buffer = (ReplayGainBuffer*)malloc(sizeof(ReplayGainBuffer));
 	memset(buffer, 0, sizeof(ReplayGainBuffer));
 	
-	// The following code is loosely adopted from player_fillOutStream().
-	unsigned long totalFrameCount = 0;
-	size_t samplePos = 0;
-	size_t windowCount = 0;
-	while (1) {
-		player->audio_buf_index = 0;
-		double pts;
-		int audio_size = audio_decode_frame(player, &pts);
-		if (audio_size < 0)
-			break; // probably EOF or so
-		else
-			player->audio_buf_size = audio_size;
+	while (player->processInStream()) {
 		if(PyErr_Occurred()) goto final;
-		
-		totalFrameCount += audio_size / NUMCHANNELS / 2 /* S16 */;
-		
-		short channel = 0;
-		for(size_t i = 0; i < audio_size / 2; ++i) {
-			int16_t* sampleAddr = (int16_t*) player->audio_buf + i;
-			int16_t sample = *sampleAddr; // TODO: endian swap?
-			// It is by purpose that we don't normalize to [-1,1] but stay in the range [-0x8000,0x7fff].
-			// That is because it was originially based on CD data, which is 16-bit signed integers.
-			float sampleFloat = sample;
+		for(auto& it : player->inStreamBuffer()->chunks) {		
+			totalFrameCount += it.size() / NUMCHANNELS / 2 /* S16 */;
 			
-			buffer->channels[channel].stages[0].data[samplePos + MAX_FILTER_ORDER] = sampleFloat;
-			
-			++channel;
-			if(channel >= NUMCHANNELS) {
-				channel = 0;
-				++samplePos;
-				if(samplePos >= MAX_SAMPLES_PER_WINDOW) {
-					// buffer is full. i.e. we have a full window. handle it.
-					replayGainHandleWindow(buffer);
-					++windowCount;
-					
-					// move on now.
-					for(int chan = 0; chan < NUMCHANNELS; ++chan)
-						for(int stage = 0; stage < NUM_REPLAYGAIN_STAGES; ++stage)
-							memcpy(
-								   buffer->channels[chan].stages[stage].data,
-								   buffer->channels[chan].stages[stage].data + MAX_SAMPLES_PER_WINDOW,
-								   MAX_FILTER_ORDER * sizeof(buffer->channels[0].stages[0].data[0]));
-					samplePos = 0;
+			short channel = 0;
+			for(size_t i = 0; i < it.size() / 2; ++i) {
+				int16_t* sampleAddr = (int16_t*) it.pt() + i;
+				int16_t sample = *sampleAddr; // TODO: endian swap?
+				// It is by purpose that we don't normalize to [-1,1] but stay in the range [-0x8000,0x7fff].
+				// That is because it was originially based on CD data, which is 16-bit signed integers.
+				float sampleFloat = sample;
+				
+				buffer->channels[channel].stages[0].data[samplePos + MAX_FILTER_ORDER] = sampleFloat;
+				
+				++channel;
+				if(channel >= NUMCHANNELS) {
+					channel = 0;
+					++samplePos;
+					if(samplePos >= MAX_SAMPLES_PER_WINDOW) {
+						// buffer is full. i.e. we have a full window. handle it.
+						replayGainHandleWindow(buffer);
+						++windowCount;
+						
+						// move on now.
+						for(int chan = 0; chan < NUMCHANNELS; ++chan)
+							for(int stage = 0; stage < NUM_REPLAYGAIN_STAGES; ++stage)
+								memcpy(
+									   buffer->channels[chan].stages[stage].data,
+									   buffer->channels[chan].stages[stage].data + MAX_SAMPLES_PER_WINDOW,
+									   MAX_FILTER_ORDER * sizeof(buffer->channels[0].stages[0].data[0]));
+						samplePos = 0;
+					}
 				}
 			}
 		}
 	}
-	double songDuration = (double)totalFrameCount / SAMPLERATE;
-	
-	float gain = 0;
-	int64_t upperLoudness = (int64_t) ceil(windowCount * (1.0 - REPLAYGAIN_LOUD_PERC));
-	for(int i = sizeof(buffer->loudnessTable)/sizeof(buffer->loudnessTable[0]) - 1; i >= 0; --i) {
-		upperLoudness -= buffer->loudnessTable[i];
-		if(upperLoudness <= 0) {
-			gain = RG_PINK_REF - (float)i / RG_STEPS_per_dB;
-			break;
+	{
+		double songDuration = (double)totalFrameCount / SAMPLERATE;
+		
+		float gain = 0;
+		int64_t upperLoudness = (int64_t) ceil(windowCount * (1.0 - REPLAYGAIN_LOUD_PERC));
+		for(int i = sizeof(buffer->loudnessTable)/sizeof(buffer->loudnessTable[0]) - 1; i >= 0; --i) {
+			upperLoudness -= buffer->loudnessTable[i];
+			if(upperLoudness <= 0) {
+				gain = RG_PINK_REF - (float)i / RG_STEPS_per_dB;
+				break;
+			}
 		}
+		
+		returnObj = PyTuple_New(2);
+		PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
+		PyTuple_SetItem(returnObj, 1, PyFloat_FromDouble(gain));
 	}
-	
-	returnObj = PyTuple_New(2);
-	PyTuple_SetItem(returnObj, 0, PyFloat_FromDouble(songDuration));
-	PyTuple_SetItem(returnObj, 1, PyFloat_FromDouble(gain));
-	
+
 final:
 	if(buffer) free(buffer);
 	if(!PyErr_Occurred() && !returnObj) {

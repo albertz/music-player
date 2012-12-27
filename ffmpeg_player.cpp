@@ -107,9 +107,10 @@ static int player_setqueue(PlayerObject* player, PyObject* queue) {
 	Py_XDECREF(player->queue);
 	Py_INCREF((PyObject*)player);
 	Py_BEGIN_ALLOW_THREADS
-	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	player->queue = queue;
-	PyThread_release_lock(player->lock);
+	{
+		PyScopedLock lock(player->lock);
+		player->queue = queue;
+	}
 	Py_END_ALLOW_THREADS
 	Py_DECREF((PyObject*)player);
 	Py_XINCREF(queue);
@@ -168,9 +169,6 @@ void player_dealloc(PyObject* obj) {
 	Py_XDECREF(player->curSong);
 	player->curSong = NULL;
 	
-	Py_XDECREF(player->curSongMetadata);
-	player->curSongMetadata = NULL;
-	
 	Py_XDECREF(player->queue);
 	player->queue = NULL;
 	
@@ -189,9 +187,10 @@ PyObject* player_method_seekAbs(PyObject* self, PyObject* arg) {
 	int ret = 0;
 	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
-	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	ret = stream_seekAbs(player, argDouble);
-	PyThread_release_lock(player->lock);
+	{
+		PyScopedLock lock(player->lock);
+		ret = player->seekAbs(argDouble);
+	}
 	Py_END_ALLOW_THREADS
 	Py_DECREF(self);
 	return PyBool_FromLong(ret == 0);
@@ -212,9 +211,10 @@ PyObject* player_method_seekRel(PyObject* self, PyObject* arg) {
 	int ret = 0;
 	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
-	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	ret = stream_seekRel(player, argDouble);
-	PyThread_release_lock(player->lock);
+	{
+		PyScopedLock lock(player->lock);
+		ret = player->seekRel(argDouble);
+	}
 	Py_END_ALLOW_THREADS
 	Py_DECREF(self);
 	return PyInt_FromLong(ret == 0);
@@ -230,16 +230,17 @@ static PyMethodDef md_seekRel = {
 static
 PyObject* player_method_nextSong(PyObject* self, PyObject* _unused_arg) {
 	PlayerObject* player = (PlayerObject*) self;
-	int ret = 0;
+	bool ret = false;
 	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
-	PyThread_acquire_lock(player->lock, WAIT_LOCK);
-	ret = player_getNextSong(player, 1);
-	PyThread_release_lock(player->lock);
+	{
+		PyScopedLock lock(player->lock);
+		ret = player->getNextSong(true);
+	}
 	Py_END_ALLOW_THREADS
 	Py_DECREF(self);
 	if(PyErr_Occurred()) return NULL;
-	return PyBool_FromLong(ret == 0);
+	return PyBool_FromLong(ret);
 }
 
 static PyMethodDef md_nextSong = {
@@ -317,20 +318,20 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	
 	if(strcmp(key, "curSongPos") == 0) {
 		if(player->curSong)
-			return PyFloat_FromDouble(player->audio_clock);
+			return PyFloat_FromDouble(player->curSongPos());
 		goto returnNone;
 	}
 	
 	if(strcmp(key, "curSongLen") == 0) {
 		if(player->curSong && player->curSongLen > 0)
-			return PyFloat_FromDouble(player->curSongLen);
+			return PyFloat_FromDouble(player->curSongLen());
 		goto returnNone;
 	}
 	
 	if(strcmp(key, "curSongMetadata") == 0) {
-		if(player->curSongMetadata) {
-			Py_INCREF(player->curSongMetadata);
-			return player->curSongMetadata;
+		if(player->curSongMetadata()) {
+			Py_INCREF(player->curSongMetadata());
+			return player->curSongMetadata();
 		}
 		goto returnNone;
 	}
@@ -415,7 +416,7 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 		if(!PyArg_Parse(value, "f", &player->volume))
 			return -1;
 		if(player->volume < 0) player->volume = 0;
-		if(player->volume > 5) player->volume = 5; // Well, this is made up. But it makes sense to have a limit somewhere...
+		if(player->volume > 5) player->volume = 5; // Well, this limit is made up. But it makes sense to have a limit somewhere...
 		return 0;
 	}
 	

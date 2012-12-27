@@ -6,6 +6,7 @@
 
 #include "ffmpeg.h"
 
+#include <libavformat/avformat.h>
 #include <libavcodec/avfft.h>
 
 
@@ -160,6 +161,10 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	float* samplesBuf = NULL;
 	PyObject* returnObj = NULL;
 	PlayerObject* player = NULL;
+	unsigned long totalFrameCount = 0;
+	double songDuration = 0;
+	double samplesPerPixel = 0;
+	unsigned long frame = 0;
 	
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
@@ -174,24 +179,16 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	if(player->inStream == NULL) goto final;
 	
 	// First count totalFrameCount.
-	unsigned long totalFrameCount = 0;
-	while (1) {
-		player->audio_buf_index = 0;
-		double pts;
-		int audio_size = audio_decode_frame(player, &pts);
-		if (audio_size < 0)
-			break; // probably EOF or so
-		else
-			player->audio_buf_size = audio_size;
-		// (uint8_t *)player->audio_buf, audio_size / 2
-		
-		totalFrameCount += audio_size / player->audio_tgt.channels / 2 /* S16 */;
+	while(player->processInStream()) {
 		if(PyErr_Occurred()) goto final;
+		
+		totalFrameCount += player->inStreamBuffer()->size() / player->outNumChannels / 2 /* S16 */;
+		player->inStreamBuffer()->clear();
 	}
-	double songDuration = (double)totalFrameCount / player->audio_tgt.freq;
+	songDuration = (double)totalFrameCount / player->outSamplerate;
 	
 	// Seek back.
-	stream_seekAbs(player, 0.0);
+	player->seekAbs(0.0);
 	if(PyErr_Occurred()) goto final;
 	
 	// init the processor
@@ -210,9 +207,8 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	// That is also why we can't allocate it on the stack (without doing alignment).
 	samplesBuf = (float *)av_mallocz(sizeof(float) * fftSize);
 	
-	double samplesPerPixel = totalFrameCount / (double)bmpWidth;
+	samplesPerPixel = totalFrameCount / (double)bmpWidth;
 	
-	unsigned long frame = 0;
 	for(int x = 0; x < bmpWidth; ++x) {
 		
 		// draw background
@@ -265,30 +261,28 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 		
 		float peakMin = 0, peakMax = 0;
 		while(frame < (x + 1) * samplesPerPixel) {
-			player->audio_buf_index = 0;
-			double pts;
-			int audio_size = audio_decode_frame(player, &pts);
-			if (audio_size < 0)
+			if(!player->processInStream())
 				break; // probably EOF or so
-			else
-				player->audio_buf_size = audio_size;
 			if(PyErr_Occurred()) goto final;
 			
-			for(size_t i = 0; i < audio_size / 2; ++i) {
-				int16_t* sampleAddr = (int16_t*) player->audio_buf + i;
-				int16_t sample = *sampleAddr; // TODO: endian swap?
-				float sampleFloat = sample / ((double) 0x8000);
-				
-				if(sampleFloat < peakMin) peakMin = sampleFloat;
-				if(sampleFloat > peakMax) peakMax = sampleFloat;
-				
-				if(samplesBufIndex < fftSize) {
-					samplesBuf[samplesBufIndex] += sampleFloat * freqWindow[samplesBufIndex] * 0.5f /* we do this twice for each channel */;
+			for(auto& it : player->inStreamBuffer()->chunks) {
+				for(size_t i = 0; i < it.size() / 2; ++i) {
+					int16_t* sampleAddr = (int16_t*) it.pt() + i;
+					int16_t sample = *sampleAddr; // TODO: endian swap?
+					float sampleFloat = sample / ((double) 0x8000);
+					
+					if(sampleFloat < peakMin) peakMin = sampleFloat;
+					if(sampleFloat > peakMax) peakMax = sampleFloat;
+					
+					if(samplesBufIndex < fftSize) {
+						samplesBuf[samplesBufIndex] += sampleFloat * freqWindow[samplesBufIndex] * 0.5f /* we do this twice for each channel */;
+					}
+					if(i % 2 == 1) samplesBufIndex++;
 				}
-				if(i % 2 == 1) samplesBufIndex++;
+				
+				frame += it.size() / player->outNumChannels / 2 /* S16 */;
 			}
-			
-			frame += audio_size / player->audio_tgt.channels / 2 /* S16 */;
+			player->inStreamBuffer()->clear();
 		}
 		
 		av_rdft_calc(fftCtx, samplesBuf);
@@ -315,7 +309,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			spectralCentroid += absFftData[i] * i;
 		spectralCentroid /= energy;
 		spectralCentroid /= fftSize / 2;
-		spectralCentroid *= player->audio_tgt.freq;
+		spectralCentroid *= player->outSamplerate;
 		spectralCentroid *= 0.5;
 		
 		// clip

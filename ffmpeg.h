@@ -78,10 +78,13 @@ struct Buffer {
 		uint8_t data[BUFFER_CHUNK_SIZE];
 		uint16_t start, end;
 		uint16_t size() const { assert(start <= end); return end - start; }
+		uint8_t* pt() { return data + start; }
 		Chunk() : start(0), end(0) {}
 	};
 	std::list<Chunk> chunks;
 	
+	size_t size() const;
+	void clear() { chunks.clear(); }
 	bool empty();
 	
 	// returns amount of data returned, i.e. <= target_size
@@ -122,12 +125,15 @@ struct PlayerObject {
 	bool skipPyExceptions; // for all callbacks, mainly song.readPacket
 	bool needRealtimeReset; // PortAudio callback thread must set itself to realtime
 	
+	int seekRel(double incr);
+	int seekAbs(double pos);
 	bool getNextSong(bool skipped);
 		
 	struct InStream;
 	boost::shared_ptr<InStream> inStream;
 	bool openInStream();
 	bool isInStreamOpened() const; // in case we hit EOF, it is still opened
+	Buffer* inStreamBuffer();
 	void resetBuffers();
 	bool buffersFullEnough() const;
 	bool processInStream(); // returns true if there was no error
