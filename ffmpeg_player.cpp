@@ -115,6 +115,21 @@ PyObject* player_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
 	return (PyObject*)player;
 }
 
+static
+int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
+	PlayerObject* player = (PlayerObject*) self;
+	//printf("%p player init\n", player);
+	
+	player->nextSongOnEof = 1;
+	player->skipPyExceptions = 1;
+	player->needRealtimeReset = false;
+	player->volume = 0.9f;
+	player->volumeSmoothClip.setX(0.95f, 10.0f);
+	
+	player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
+	
+	return 0;
+}
 
 
 void PlayerObject::setAudioTgt(int samplerate, int numchannels) {
@@ -130,21 +145,7 @@ void PlayerObject::setAudioTgt(int samplerate, int numchannels) {
 	this->outNumChannels = numchannels;
 }
 
-static
-int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
-	PlayerObject* player = (PlayerObject*) self;
-	//printf("%p player init\n", player);
-		
-	player->nextSongOnEof = 1;
-	player->skipPyExceptions = 1;
-	player->needRealtimeReset = false;
-	player->volume = 0.9f;
-	player->volumeSmoothClip.setX(0.95f, 10.0f);
-	
-	player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
-	
-	return 0;
-}
+
 
 static
 void player_dealloc(PyObject* obj) {
