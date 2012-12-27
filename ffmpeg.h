@@ -164,6 +164,7 @@ struct PlayerObject {
 	bool openInStream();
 	bool tryOvertakePeekInStream();
 	void openPeekInStreams();
+	PyObject* getNextPeekSong(); // if not NULL, it is a new reference
 	bool isInStreamOpened() const; // in case we hit EOF, it is still opened
 	Buffer* inStreamBuffer();
 	void resetBuffers();

@@ -897,6 +897,37 @@ static boost::shared_ptr<PlayerObject::InStream> takePeekInStream(PlayerObject::
 	return boost::shared_ptr<PlayerObject::InStream>();
 }
 
+PyObject* PlayerObject::getNextPeekSong() {
+	PlayerObject* player = this;
+	if(player->peekQueue == NULL) return NULL;
+	
+	PyObject* args = NULL;
+	PyObject* peekList = NULL;
+	PyObject* peekListIter = NULL;
+	PyObject* song = NULL;
+	
+	args = PyTuple_New(1);
+	if(!args) goto final;
+	PyTuple_SetItem(args, 0, PyInt_FromLong(1));
+	peekList = PyObject_CallObject(player->peekQueue, args);
+	if(!peekList) goto final;
+	
+	peekListIter = PyObject_GetIter(peekList);
+	if(!peekListIter) goto final;
+	
+	song = PyIter_Next(peekListIter);
+	
+final:
+	// pass through any Python errors
+	if(PyErr_Occurred())
+		PyErr_Print();
+	
+	Py_XDECREF(peekListIter);
+	Py_XDECREF(peekList);
+	Py_XDECREF(args);
+	return song;
+}
+
 void PlayerObject::openPeekInStreams() {
 	PlayerObject* player = this;
 	if(player->peekQueue == NULL) return;
