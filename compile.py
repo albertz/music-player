@@ -57,12 +57,12 @@ os.chdir("build")
 staticChromaprint = False
 
 ffmpegFiles = ["../ffmpeg.c"] + \
+	glob("../ffmpeg_*.cpp") + \
 	(glob("../chromaprint/*.cpp") if staticChromaprint else [])
 
 cc(
 	ffmpegFiles,
 	[
-		"-std=c99",
 		"-DHAVE_CONFIG_H",
 		"-g",
 	] +
