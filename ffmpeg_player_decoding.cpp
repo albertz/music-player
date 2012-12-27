@@ -264,6 +264,7 @@ void PlayerObject::resetBuffers() {
 int PlayerObject::seekRel(double incr) {
 	PlayerObject* pl = this;
 	PlayerObject::InStream* player = pl->inStream.get();
+	if(!player) return -1;
 	
 	double pos = 0;
 	/*
@@ -309,6 +310,7 @@ int PlayerObject::seekRel(double incr) {
 int PlayerObject::seekAbs(double pos) {
 	PlayerObject* pl = this;
 	PlayerObject::InStream* player = pl->inStream.get();
+	if(!player) return -1;
 	int seek_by_bytes = 0;
 	if(player->timeLen <= 0)
 		seek_by_bytes = 1;
