@@ -17,6 +17,7 @@ extern "C" {
 
 #define PROCESS_SIZE		(BUFFER_CHUNK_SIZE * 10) // how much data to proceed in processInStream()
 #define BUFFER_FILL_SIZE	(48000 * 2 * 2 * 10) // 10secs for 48kHz,stereo - around 2MB
+#define PEEKSTREAM_NUM		3
 
 int initPlayerDecoder() {
 	av_log_set_level(0);
@@ -846,9 +847,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 	}
 }
 
-bool PlayerObject::buffersFullEnough() const {
-	PlayerObject::InStream* is = this->inStream.get();
-	if(!is) return true;
+static bool _buffersFullEnough(PlayerObject::InStream* is) {
 	if(is->playerHitEnd) return true;
 	size_t c = 0;
 	for(auto& it : is->outBuffer.chunks) {
@@ -858,12 +857,20 @@ bool PlayerObject::buffersFullEnough() const {
 	return false;
 }
 
+bool PlayerObject::buffersFullEnough() const {
+	PlayerObject::InStream* is = this->inStream.get();
+	if(!is) return true;
+	return _buffersFullEnough(is);
+}
+
+static bool _processInStream(PlayerObject* player, PlayerObject::InStream* is) {
+	return audio_decode_frame(player, is, PROCESS_SIZE) >= 0;
+}
+
 bool PlayerObject::processInStream() {
 	PlayerObject::InStream* is = this->inStream.get();
 	if(!is) return false;
-	if(audio_decode_frame(this, is, PROCESS_SIZE) < 0)
-		return false;
-	return true;
+	return _processInStream(this, is);
 }
 
 bool PlayerObject::isInStreamOpened() const {
@@ -876,6 +883,78 @@ Buffer* PlayerObject::inStreamBuffer() {
 	if(inStream.get()) return &inStream->outBuffer;
 	return NULL;
 }
+
+static boost::shared_ptr<PlayerObject::InStream> takePeekInStream(PlayerObject::PeekInStreams& list, PyObject* song) {
+	for(PlayerObject::PeekInStreams::iterator it = list.begin(); it != list.end(); ++it) {
+		assert(it->get() != NULL);
+		assert(it->get()->song != NULL);
+		if(PyObject_RichCompareBool(song, it->get()->song, Py_EQ) == 1) {
+			boost::shared_ptr<PlayerObject::InStream> inStream = *it;
+			list.erase(it);
+			return inStream;
+		}
+	}
+	return boost::shared_ptr<PlayerObject::InStream>();
+}
+
+void PlayerObject::openPeekInStreams() {
+	PlayerObject* player = this;
+	if(player->peekQueue == NULL) return;
+	
+	PyObject* args = NULL;
+	PyObject* peekList = NULL;
+	PyObject* peekListIter = NULL;
+	PyObject* song = NULL;
+	PeekInStreams oldPeekList;
+
+	args = PyTuple_New(1);
+	if(!args) goto final;
+	PyTuple_SetItem(args, 0, PyInt_FromLong(PEEKSTREAM_NUM));
+	peekList = PyObject_CallObject(player->peekQueue, args);
+	if(!peekList) goto final;
+
+	peekListIter = PyObject_GetIter(peekList);
+	if(!peekListIter) goto final;
+	
+	std::swap(oldPeekList, player->peekInStreams);
+	while((song = PyIter_Next(peekListIter)) != NULL) {
+		boost::shared_ptr<PlayerObject::InStream> s = takePeekInStream(oldPeekList, song);
+		if(!s.get()) {
+			s.reset(new PlayerObject::InStream);
+			if(!s->open(player, song))
+				s.reset();
+		}
+		if(s.get())
+			player->peekInStreams.push_front(s);
+		Py_DECREF(song);
+	}
+	oldPeekList.clear();
+	
+final:
+	// pass through any Python errors
+	if(PyErr_Occurred())
+		PyErr_Print();
+		
+	Py_XDECREF(song);
+	Py_XDECREF(peekListIter);
+	Py_XDECREF(peekList);
+	Py_XDECREF(args);
+}
+
+bool PlayerObject::tryOvertakePeekInStream() {
+	assert(curSong != NULL);
+	boost::shared_ptr<InStream> s = takePeekInStream(this->peekInStreams, curSong);
+	if(s.get()) {
+		inStream = s;
+		// take the new Song object. it might be a different one.
+		Py_XDECREF(curSong);
+		curSong = s->song;
+		Py_INCREF(curSong);
+		return true;
+	}
+	return false;
+}
+
 
 static void loopFrame(PlayerObject* player) {
 	// We must not hold the PyGIL here!
@@ -943,6 +1022,14 @@ static void loopFrame(PlayerObject* player) {
 			PyGILState_Release(gstate);			
 		}
 	}
+	
+	{
+		PyScopedLock lock(player->lock);
+		for(auto& it : player->peekInStreams) {
+			if(!_buffersFullEnough(it.get()))
+				_processInStream(player, it.get());
+		}
+	}
 }
 
 void PlayerObject::workerProc(PyMutex& lock, bool& stopSignal) {
@@ -953,7 +1040,14 @@ void PlayerObject::workerProc(PyMutex& lock, bool& stopSignal) {
 		}
 		
 		loopFrame(this);
-		usleep(1000);
+		
+		{
+			PyScopedLock l(lock);
+			if(buffersFullEnough()) {
+				PyScopedUnlock ul(lock);
+				usleep(1000);
+			}
+		}
 	}
 }
 

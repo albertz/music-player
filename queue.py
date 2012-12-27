@@ -223,6 +223,9 @@ queue = MainQueue()
 def getNextSong():
 	return queue.getNextSong()
 
+def peekNextSongs(n=10):
+	return queue.peekNextN(n=n)
+	
 def queueMain():
 	queue.fillUpTo() # add some right away if empty...
 	for ev, args, kwargs in state.updates.read():

@@ -131,6 +131,7 @@ struct PlayerObject {
 	
 	// public
 	PyObject* queue;
+	PyObject* peekQueue;
 	PyObject* curSong;
 	bool playing;
 	int setPlaying(bool playing);
@@ -158,7 +159,11 @@ struct PlayerObject {
 	
 	struct InStream;
 	boost::shared_ptr<InStream> inStream;
+	typedef std::list<boost::shared_ptr<InStream> > PeekInStreams;
+	PeekInStreams peekInStreams;
 	bool openInStream();
+	bool tryOvertakePeekInStream();
+	void openPeekInStreams();
 	bool isInStreamOpened() const; // in case we hit EOF, it is still opened
 	Buffer* inStreamBuffer();
 	void resetBuffers();

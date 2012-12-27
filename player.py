@@ -13,7 +13,7 @@ except NameError:
 		onSongFinished = None
 		onPlayingStateChange = None
 	
-def songs(state):
+def songsQueue(state):
 	if state.curSong:
 		# We just started the player and we have a current song from persistent storage.
 		# Yield it now so that we begin playing with this song.
@@ -30,6 +30,12 @@ def songs(state):
 		song.openFile()
 		yield song
 
+def songsPeekQueue():
+	def openSong(song):
+		song.openFile()
+		return song	
+	return lambda n: filter(openSong, queue.peekNextSongs(n))
+				
 # This is an special extra callback.
 # This is called very first. We do this so that
 # we always have state.curSong right.
@@ -47,7 +53,8 @@ def loadPlayer(state):
 			cb.extraCall = onSongChange
 		setattr(PlayerEventCallbacks, e, cb)
 		setattr(player, e, cb)
-	player.queue = songs(state)
+	player.queue = songsQueue(state)
+	player.peekQueue = songsPeekQueue()
 	player.volume = state.volume
 	return player
 

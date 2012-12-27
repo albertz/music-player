@@ -17,6 +17,7 @@
 // Pyton interface:
 //	createPlayer() -> player object with:
 //		queue: song generator
+//		peekQueue(n): list of upcoming songs. this should not change the queue. this also might not be accurate but that doesn't matter. it might also return less. it is used for caching and gapless playback. if the queue returns other songs later, it will just ignore these peeked songs. otherwise, it will use these caches.
 //		playing: True or False, initially False
 //		volume: 1.0 is norm; this is just a factor to each sample. default is 0.9
 //		volumeSmoothClip: smooth clipping, see below. set to (1,1) to disable. default is (0.95,10)

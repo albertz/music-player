@@ -42,7 +42,11 @@ bool PlayerObject::getNextSong(bool skipped) {
 	if(!player->curSong || PyErr_Occurred())
 		goto final;
 	
-	if(!player->openInStream()) {
+	if(tryOvertakePeekInStream()) {
+		// nothing needs to be done anymore!
+		ret = true;
+	}
+	else if(!player->openInStream()) {
 		// This is not fatal, so don't make a Python exception.
 		// When we are in playing state, we will just skip to the next song.
 		// This can happen if we don't support the format or whatever.
@@ -84,6 +88,8 @@ bool PlayerObject::getNextSong(bool skipped) {
 		}
 	}
 	
+	openPeekInStreams();
+	
 final:
 	Py_XDECREF(oldSong);
 	PyGILState_Release(gstate);
@@ -100,6 +106,20 @@ static int player_setqueue(PlayerObject* player, PyObject* queue) {
 	{
 		PyScopedLock lock(player->lock);
 		player->queue = queue;
+	}
+	Py_END_ALLOW_THREADS
+	Py_DECREF((PyObject*)player);
+	Py_XINCREF(queue);
+	return 0;
+}
+
+static int player_setpeekqueue(PlayerObject* player, PyObject* queue) {
+	Py_XDECREF(player->queue);
+	Py_INCREF((PyObject*)player);
+	Py_BEGIN_ALLOW_THREADS
+	{
+		PyScopedLock lock(player->lock);
+		player->peekQueue = queue;
 	}
 	Py_END_ALLOW_THREADS
 	Py_DECREF((PyObject*)player);
@@ -177,6 +197,9 @@ void player_dealloc(PyObject* obj) {
 	
 	Py_XDECREF(player->queue);
 	player->queue = NULL;
+	
+	Py_XDECREF(player->peekQueue);
+	player->peekQueue = NULL;
 	
 	player->outStream.reset();
 	player->inStream.reset();
@@ -301,21 +324,22 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		PyObject* mlist = PyList_New(14);
+		PyObject* mlist = PyList_New(15);
 		PyList_SetItem(mlist, 0, PyString_FromString("queue"));
-		PyList_SetItem(mlist, 1, PyString_FromString("playing"));
-		PyList_SetItem(mlist, 2, PyString_FromString("curSong"));
-		PyList_SetItem(mlist, 3, PyString_FromString("curSongPos"));
-		PyList_SetItem(mlist, 4, PyString_FromString("curSongLen"));
-		PyList_SetItem(mlist, 5, PyString_FromString("curSongMetadata"));
-		PyList_SetItem(mlist, 6, PyString_FromString("curSongGainFactor"));
-		PyList_SetItem(mlist, 7, PyString_FromString("seekAbs"));
-		PyList_SetItem(mlist, 8, PyString_FromString("seekRel"));
-		PyList_SetItem(mlist, 9, PyString_FromString("nextSong"));
-		PyList_SetItem(mlist, 10, PyString_FromString("volume"));
-		PyList_SetItem(mlist, 11, PyString_FromString("volumeSmoothClip"));
-		PyList_SetItem(mlist, 12, PyString_FromString("outSamplerate"));
-		PyList_SetItem(mlist, 13, PyString_FromString("outNumChannels"));
+		PyList_SetItem(mlist, 1, PyString_FromString("peekQueue"));
+		PyList_SetItem(mlist, 2, PyString_FromString("playing"));
+		PyList_SetItem(mlist, 3, PyString_FromString("curSong"));
+		PyList_SetItem(mlist, 4, PyString_FromString("curSongPos"));
+		PyList_SetItem(mlist, 5, PyString_FromString("curSongLen"));
+		PyList_SetItem(mlist, 6, PyString_FromString("curSongMetadata"));
+		PyList_SetItem(mlist, 7, PyString_FromString("curSongGainFactor"));
+		PyList_SetItem(mlist, 8, PyString_FromString("seekAbs"));
+		PyList_SetItem(mlist, 9, PyString_FromString("seekRel"));
+		PyList_SetItem(mlist, 10, PyString_FromString("nextSong"));
+		PyList_SetItem(mlist, 11, PyString_FromString("volume"));
+		PyList_SetItem(mlist, 12, PyString_FromString("volumeSmoothClip"));
+		PyList_SetItem(mlist, 13, PyString_FromString("outSamplerate"));
+		PyList_SetItem(mlist, 14, PyString_FromString("outNumChannels"));
 		return mlist;
 	}
 	
@@ -323,6 +347,14 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		if(player->queue) {
 			Py_INCREF(player->queue);
 			return player->queue;
+		}
+		goto returnNone;
+	}
+
+	if(strcmp(key, "peekQueue") == 0) {
+		if(player->peekQueue) {
+			Py_INCREF(player->peekQueue);
+			return player->peekQueue;
 		}
 		goto returnNone;
 	}
@@ -425,6 +457,10 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 	
 	if(strcmp(key, "queue") == 0) {
 		return player_setqueue(player, value);
+	}
+
+	if(strcmp(key, "peekQueue") == 0) {
+		return player_setpeekqueue(player, value);
 	}
 	
 	if(strcmp(key, "playing") == 0) {
