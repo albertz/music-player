@@ -148,3 +148,52 @@ void PyThread::stop() {
 	}
 	wait();
 }
+
+ProtectionData::ProtectionData() {
+	lockThreadIdent = 0;
+	lockCounter = 0;
+	isValid = true;
+}
+
+ProtectionData::~ProtectionData() {
+	assert(lockCounter == 0);
+	assert(lockThreadIdent == 0);
+}
+
+void ProtectionData::lock() {
+	long myThreadIdent = PyThread_get_thread_ident();
+	while(true) {
+		PyScopedLock lock(mutex);
+		if(lockCounter > 0 && lockThreadIdent != myThreadIdent) {
+			usleep(10);
+			continue;
+		}
+		lockCounter++;
+		lockThreadIdent = myThreadIdent;
+		return;
+	}
+}
+
+void ProtectionData::unlock() {
+	PyScopedLock lock(mutex);
+	assert(lockCounter > 0);
+	assert(lockThreadIdent == PyThread_get_thread_ident());
+	lockCounter--;
+}
+
+ProtectionScope::ProtectionScope(const Protection& p) : prot(p.prot) {
+	if(prot.get()) prot->lock();
+}
+
+ProtectionScope::~ProtectionScope() {
+	if(prot.get()) prot->unlock();
+}
+
+void ProtectionScope::setInvalid() {
+	if(prot.get()) prot->isValid = false;
+}
+
+bool ProtectionScope::isValid() {
+	if(prot.get()) return prot->isValid;
+	return false;
+}

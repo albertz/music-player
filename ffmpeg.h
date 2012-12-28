@@ -54,6 +54,10 @@ PyObject* pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws);
 #ifdef __cplusplus
 }
 
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <list>
+
 struct PyMutex {
 	PyThread_type_lock l;
 	PyMutex(); ~PyMutex();
@@ -80,7 +84,30 @@ struct PyScopedGIL {
 	~PyScopedGIL() { PyGILState_Release(gstate); }
 };
 
-#include <boost/function.hpp>
+struct ProtectionData {
+	PyMutex mutex;
+	uint16_t lockCounter;
+	long lockThreadIdent;
+	bool isValid;
+	ProtectionData(); ~ProtectionData();
+	void lock();
+	void unlock();
+};
+
+typedef boost::shared_ptr<ProtectionData> ProtectionPtr;
+struct Protection {
+	ProtectionPtr prot;
+	Protection() : prot(new ProtectionData) {}
+};
+
+struct ProtectionScope {
+	ProtectionPtr prot;
+	ProtectionScope(const Protection& p);
+	~ProtectionScope();
+	void setInvalid();
+	bool isValid();
+};
+
 
 struct PyThread {
 	PyMutex lock;
@@ -94,8 +121,6 @@ struct PyThread {
 	void stop();
 };
 
-#include <boost/shared_ptr.hpp>
-#include <list>
 
 #define BUFFER_CHUNK_SIZE (1024 * 4)
 

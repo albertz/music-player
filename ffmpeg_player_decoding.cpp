@@ -99,6 +99,8 @@ struct InStreamRawPOD {
 };
 
 struct PlayerObject::InStream : InStreamRawPOD {
+	Protection protection;
+	
 	Buffer outBuffer;
 	bool readerHitEnd; // this will be set by audio_decode_frame()
 	bool playerHitEnd; // this would be set by readOutStream()
