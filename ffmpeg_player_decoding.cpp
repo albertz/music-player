@@ -993,19 +993,19 @@ static void loopFrame(PlayerObject* player) {
 	}
 }
 
-void PlayerObject::workerProc(PyMutex& lock, bool& stopSignal) {
+void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
 	while(true) {
 		{
-			PyScopedLock l(lock);
+			PyScopedLock l(threadLock);
 			if(stopSignal) return;
 		}
 		
 		loopFrame(this);
 		
 		{
-			PyScopedLock l(lock);
+			PyScopedLock l(this->lock);
 			if(buffersFullEnough()) {
-				PyScopedUnlock ul(lock);
+				PyScopedUnlock ul(this->lock);
 				usleep(1000);
 			}
 		}
