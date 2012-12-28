@@ -35,6 +35,7 @@ struct PlayerObject::OutStream {
 	PlayerObject* const player;
 	PaStream* stream;
 	OutStream(PlayerObject* p) : player(p), stream(NULL) {}
+	~OutStream() { close(); }
 	void close() {
 		// we expect that we have the player lock here.
 		// we must release the lock so that any thread-join can be done.
