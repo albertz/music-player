@@ -52,6 +52,7 @@ def peekSongs(n):
 	return map(Song, files[i:])
 
 player = ffmpeg.createPlayer()
+player.outSamplerate = 48000
 player.queue = songs()
 player.peekQueue = peekSongs
 player.playing = True
