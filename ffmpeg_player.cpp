@@ -304,6 +304,33 @@ static PyMethodDef md_nextSong = {
 };
 
 static
+PyObject* player_method_reloadPeekStreams(PyObject* self, PyObject* _unused_arg) {
+	PlayerObject* player = (PlayerObject*) self;
+	Py_INCREF(self);
+	Py_BEGIN_ALLOW_THREADS
+	{
+		PyScopedLock lock(player->lock);
+		player->openPeekInStreams();
+	}
+	Py_END_ALLOW_THREADS
+	Py_DECREF(self);
+	if(PyErr_Occurred())
+		// we will consume and handle any error here.
+		// player.reloadPeekStreams should not raise any exceptions.
+		PyErr_Print();
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMethodDef md_reloadPeekStreams = {
+	"reloadPeekStreams",
+	player_method_reloadPeekStreams,
+	METH_NOARGS,
+	NULL
+};
+
+
+static
 PyObject* player_getdict(PlayerObject* player) {
 	if(!player->dict) {
 		player->dict = PyDict_New();
@@ -331,7 +358,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		PyObject* mlist = PyList_New(15);
+		PyObject* mlist = PyList_New(16);
 		PyList_SetItem(mlist, 0, PyString_FromString("queue"));
 		PyList_SetItem(mlist, 1, PyString_FromString("peekQueue"));
 		PyList_SetItem(mlist, 2, PyString_FromString("playing"));
@@ -343,10 +370,11 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, 8, PyString_FromString("seekAbs"));
 		PyList_SetItem(mlist, 9, PyString_FromString("seekRel"));
 		PyList_SetItem(mlist, 10, PyString_FromString("nextSong"));
-		PyList_SetItem(mlist, 11, PyString_FromString("volume"));
-		PyList_SetItem(mlist, 12, PyString_FromString("volumeSmoothClip"));
-		PyList_SetItem(mlist, 13, PyString_FromString("outSamplerate"));
-		PyList_SetItem(mlist, 14, PyString_FromString("outNumChannels"));
+		PyList_SetItem(mlist, 11, PyString_FromString("reloadPeekStreams"));
+		PyList_SetItem(mlist, 12, PyString_FromString("volume"));
+		PyList_SetItem(mlist, 13, PyString_FromString("volumeSmoothClip"));
+		PyList_SetItem(mlist, 14, PyString_FromString("outSamplerate"));
+		PyList_SetItem(mlist, 15, PyString_FromString("outNumChannels"));
 		return mlist;
 	}
 	
@@ -414,6 +442,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	
 	if(strcmp(key, "nextSong") == 0) {
 		return PyCFunction_New(&md_nextSong, (PyObject*) player);
+	}
+	
+	if(strcmp(key, "reloadPeekStreams") == 0) {
+		return PyCFunction_New(&md_reloadPeekStreams, (PyObject*) player);
 	}
 	
 	if(strcmp(key, "volume") == 0) {
