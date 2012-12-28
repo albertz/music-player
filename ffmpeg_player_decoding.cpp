@@ -114,7 +114,7 @@ struct PlayerObject::InStream : InStreamRawPOD {
 	void resetBuffers();
 };
 
-static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) {
+static int player_read_packet(PlayerObject::InStream* is, uint8_t* buf, int buf_size) {
 	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
 	//printf("player_read_packet %i\n", buf_size);
 	Py_ssize_t ret = -1;
@@ -123,9 +123,9 @@ static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) 
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
 	
-	if(player->curSong == NULL) goto final;
+	if(is->song == NULL) goto final;
 	
-	readPacketFunc = PyObject_GetAttrString(player->curSong, "readPacket");
+	readPacketFunc = PyObject_GetAttrString(is->song, "readPacket");
 	if(readPacketFunc == NULL) goto final;
 	
 	args = PyTuple_New(1);
@@ -155,14 +155,14 @@ final:
 	Py_XDECREF(args);
 	Py_XDECREF(readPacketFunc);
 	
-	if(player->skipPyExceptions && PyErr_Occurred())
+	if(is->player && is->player->skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
 	PyGILState_Release(gstate);
 	return (int) ret;
 }
 
-static int64_t player_seek(PlayerObject* player, int64_t offset, int whence) {
+static int64_t player_seek(PlayerObject::InStream* is, int64_t offset, int whence) {
 	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
 	//printf("player_seek %lli %i\n", offset, whence);
 	int64_t ret = -1;
@@ -170,10 +170,10 @@ static int64_t player_seek(PlayerObject* player, int64_t offset, int whence) {
 	gstate = PyGILState_Ensure();
 	
 	PyObject *seekRawFunc = NULL, *args = NULL, *retObj = NULL;
-	if(player->curSong == NULL) goto final;
+	if(is->song == NULL) goto final;
 	if(whence < 0 || whence > 2) goto final; // AVSEEK_SIZE and others not supported atm
 	
-	seekRawFunc = PyObject_GetAttrString(player->curSong, "seekRaw");
+	seekRawFunc = PyObject_GetAttrString(is->song, "seekRaw");
 	if(seekRawFunc == NULL) goto final;
 	
 	args = PyTuple_New(2);
@@ -198,7 +198,7 @@ final:
 	Py_XDECREF(args);
 	Py_XDECREF(seekRawFunc);
 	
-	if(player->skipPyExceptions && PyErr_Occurred())
+	if(is->player && is->player->skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
 	PyGILState_Release(gstate);
@@ -206,15 +206,15 @@ final:
 }
 
 static int _player_av_read_packet(void *opaque, uint8_t *buf, int buf_size) {
-	return player_read_packet((PlayerObject*)opaque, buf, buf_size);
+	return player_read_packet((PlayerObject::InStream*)opaque, buf, buf_size);
 }
 
 static int64_t _player_av_seek(void *opaque, int64_t offset, int whence) {
-	return player_seek((PlayerObject*)opaque, offset, whence);
+	return player_seek((PlayerObject::InStream*)opaque, offset, whence);
 }
 
 static
-AVIOContext* initIoCtx(PlayerObject* player) {
+AVIOContext* initIoCtx(PlayerObject::InStream* is) {
 	int buffer_size = 1024 * 4;
 	unsigned char* buffer = (unsigned char*)av_malloc(buffer_size);
 	
@@ -222,7 +222,7 @@ AVIOContext* initIoCtx(PlayerObject* player) {
 										 buffer,
 										 buffer_size,
 										 0, // writeflag
-										 player, // opaque
+										 is, // opaque
 										 _player_av_read_packet,
 										 NULL, // write_packet
 										 _player_av_seek
@@ -232,11 +232,11 @@ AVIOContext* initIoCtx(PlayerObject* player) {
 }
 
 static
-AVFormatContext* initFormatCtx(PlayerObject* player) {
+AVFormatContext* initFormatCtx(PlayerObject::InStream* is) {
 	AVFormatContext* fmt = avformat_alloc_context();
 	if(!fmt) return NULL;
 	
-	fmt->pb = initIoCtx(player);
+	fmt->pb = initIoCtx(is);
 	if(!fmt->pb) {
 		printf("initIoCtx failed\n");
 	}
@@ -536,7 +536,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	int ret = 0;
 	char* urlStr = NULL;
 	
-	AVFormatContext* formatCtx = initFormatCtx(pl);
+	AVFormatContext* formatCtx = initFormatCtx(this);
 	if(!formatCtx) {
 		printf("initFormatCtx failed\n");
 		goto final;
@@ -1006,7 +1006,7 @@ void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
 			PyScopedLock l(this->lock);
 			if(buffersFullEnough()) {
 				PyScopedUnlock ul(this->lock);
-				usleep(1000);
+				usleep(100);
 			}
 		}
 	}
