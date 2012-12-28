@@ -83,10 +83,12 @@ void PyMutex::unlock() {
 }
 
 PyScopedLock::PyScopedLock(PyMutex& m) : mutex(m) {
+	printf("%p locks %p\n", PyThread_get_thread_ident(), &mutex);
 	mutex.lock();
 }
 
 PyScopedLock::~PyScopedLock() {
+	printf("%p unlocks %p\n", PyThread_get_thread_ident(), &mutex);
 	mutex.unlock();
 }
 
