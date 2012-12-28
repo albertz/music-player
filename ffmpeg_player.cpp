@@ -22,49 +22,56 @@ bool PlayerObject::getNextSong(bool skipped) {
 	bool ret = false;
 	bool errorOnOpening = false;
 	
-	PyScopedGIL gstate;
-	
 	PyObject* oldSong = player->curSong;
 	player->curSong = NULL;
-	player->inStream.reset();
-	
-	if(player->queue == NULL) {
-		PyErr_SetString(PyExc_RuntimeError, "player queue is not set");
-		goto final;
+
+	{
+		PyScopedGIL gstate;
+		
+		player->inStream.reset();
+
+		if(player->queue == NULL) {
+			PyErr_SetString(PyExc_RuntimeError, "player queue is not set");
+			goto final;
+		}
+		
+		// Note: No PyIter_Check because it adds CPython 2.7 ABI dependency when
+		// using CPython 2.7 headers. Anyway, just calling PyIter_Next directly
+		// is also ok since it will do the check itself.
+		
+		player->curSong = PyIter_Next(player->queue);
+		
+		// pass through any Python errors
+		if(!player->curSong || PyErr_Occurred())
+			goto final;
 	}
-	
-	// Note: No PyIter_Check because it adds CPython 2.7 ABI dependency when
-	// using CPython 2.7 headers. Anyway, just calling PyIter_Next directly
-	// is also ok since it will do the check itself.
-	
-	player->curSong = PyIter_Next(player->queue);
-	
-	// pass through any Python errors
-	if(!player->curSong || PyErr_Occurred())
-		goto final;
-	
-	if(tryOvertakePeekInStream()) {
-		// nothing needs to be done anymore!
-		ret = true;
+
+	{
+		if(tryOvertakePeekInStream()) {
+			// nothing needs to be done anymore!
+			ret = true;
+		}
+		else if(!player->openInStream()) {
+			// This is not fatal, so don't make a Python exception.
+			// When we are in playing state, we will just skip to the next song.
+			// This can happen if we don't support the format or whatever.
+			printf("cannot open input stream\n");
+			errorOnOpening = true;
+		}
+		else if(!player->inStream) {
+			// This is strange, player_openInputStream should have returned !=0.
+			printf("strange error on open input stream\n");
+			errorOnOpening = true;
+		}
+		else
+			// everything fine!
+			ret = true;
 	}
-	else if(!player->openInStream()) {
-		// This is not fatal, so don't make a Python exception.
-		// When we are in playing state, we will just skip to the next song.
-		// This can happen if we don't support the format or whatever.
-		printf("cannot open input stream\n");
-		errorOnOpening = true;
-	}
-	else if(!player->inStream) {
-		// This is strange, player_openInputStream should have returned !=0.
-		printf("strange error on open input stream\n");
-		errorOnOpening = true;
-	}
-	else
-		// everything fine!
-		ret = true;
 	
 	// make callback onSongChange
 	if(player->dict) {
+		PyScopedGIL gstate;
+
 		PyObject* onSongChange = PyDict_GetItemString(player->dict, "onSongChange");
 		if(onSongChange && onSongChange != Py_None) {
 			PyObject* kwargs = PyDict_New();

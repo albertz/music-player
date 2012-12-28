@@ -117,16 +117,27 @@ struct PlayerObject::InStream : InStreamRawPOD {
 };
 
 static int player_read_packet(PlayerObject::InStream* is, uint8_t* buf, int buf_size) {
-	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
+	// We assume that we don't have the PlayerObject lock at this point and not the Python GIL.
 	//printf("player_read_packet %i\n", buf_size);
-	Py_ssize_t ret = -1;
-	PyObject *readPacketFunc = NULL, *args = NULL, *retObj = NULL;
+
+	if(is->player == NULL) return -1;
+
+	PyObject* song = NULL;
+	bool skipPyExceptions = false;;
+	{
+		PyScopedLock lock(is->player->lock);
+		PyScopedGIL gstate;
+		song = is->song;
+		if(song == NULL) return -1;
+		Py_INCREF(song);
+		skipPyExceptions = is->player->skipPyExceptions;
+	}
 	
 	PyScopedGIL gstate;
-	
-	if(is->song == NULL) goto final;
-	
-	readPacketFunc = PyObject_GetAttrString(is->song, "readPacket");
+	Py_ssize_t ret = -1;
+	PyObject *readPacketFunc = NULL, *args = NULL, *retObj = NULL;
+			
+	readPacketFunc = PyObject_GetAttrString(song, "readPacket");
 	if(readPacketFunc == NULL) goto final;
 	
 	args = PyTuple_New(1);
@@ -155,24 +166,38 @@ final:
 	Py_XDECREF(retObj);
 	Py_XDECREF(args);
 	Py_XDECREF(readPacketFunc);
+	Py_XDECREF(song);
 	
-	if(is->player && is->player->skipPyExceptions && PyErr_Occurred())
+	if(skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
 	return (int) ret;
 }
 
 static int64_t player_seek(PlayerObject::InStream* is, int64_t offset, int whence) {
-	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
+	// We assume that we don't have the PlayerObject lock at this point and not the Python GIL.
 	//printf("player_seek %lli %i\n", offset, whence);
-	int64_t ret = -1;
+
+	if(is->player == NULL) return -1;
+	
+	PyObject* song = NULL;
+	bool skipPyExceptions = false;;
+	{
+		PyScopedLock lock(is->player->lock);
+		PyScopedGIL gstate;
+		song = is->song;
+		if(song == NULL) return -1;
+		Py_INCREF(song);
+		skipPyExceptions = is->player->skipPyExceptions;
+	}
+
 	PyScopedGIL gstate;
+	int64_t ret = -1;
 	
 	PyObject *seekRawFunc = NULL, *args = NULL, *retObj = NULL;
-	if(is->song == NULL) goto final;
 	if(whence < 0 || whence > 2) goto final; // AVSEEK_SIZE and others not supported atm
 	
-	seekRawFunc = PyObject_GetAttrString(is->song, "seekRaw");
+	seekRawFunc = PyObject_GetAttrString(song, "seekRaw");
 	if(seekRawFunc == NULL) goto final;
 	
 	args = PyTuple_New(2);
@@ -196,8 +221,9 @@ final:
 	Py_XDECREF(retObj);
 	Py_XDECREF(args);
 	Py_XDECREF(seekRawFunc);
+	Py_XDECREF(song);
 	
-	if(is->player && is->player->skipPyExceptions && PyErr_Occurred())
+	if(skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
 	return ret;
@@ -545,34 +571,38 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	}
 	
 	urlStr = objAttrStrDup(song, "url"); // the url is just for debugging, the song object provides its own IO
-	ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
-	
-	if(ret != 0) {
-		printf("avformat_open_input failed\n");
-		goto final;
-	}
-	
-	ret = avformat_find_stream_info(formatCtx, NULL);
-	if(ret < 0) {
-		printf("avformat_find_stream_info failed\n");
-		goto final;
-	}
-	
-#ifdef DEBUG
-	av_dump_format(formatCtx, 0, urlStr, 0);
-#endif
-	
-	ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
-	if(ret < 0) {
-		printf("no audio stream found in song\n");
-		goto final;
-	}
-	player->audio_stream = ret;
-	
-	ret = stream_component_open(player, formatCtx, player->audio_stream);
-	if(ret < 0) {
-		printf("no audio stream found in song\n");
-		goto final;
+	{
+		PyScopedGIUnlock gunlock;
+		
+		ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
+		
+		if(ret != 0) {
+			printf("avformat_open_input failed\n");
+			goto final;
+		}
+		
+		ret = avformat_find_stream_info(formatCtx, NULL);
+		if(ret < 0) {
+			printf("avformat_find_stream_info failed\n");
+			goto final;
+		}
+		
+	#ifdef DEBUG
+		av_dump_format(formatCtx, 0, urlStr, 0);
+	#endif
+		
+		ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
+		if(ret < 0) {
+			printf("no audio stream found in song\n");
+			goto final;
+		}
+		player->audio_stream = ret;
+		
+		ret = stream_component_open(player, formatCtx, player->audio_stream);
+		if(ret < 0) {
+			printf("no audio stream found in song\n");
+			goto final;
+		}
 	}
 	
 	player->ctx = formatCtx;
@@ -624,6 +654,7 @@ bool PlayerObject::openInStream() {
 	
 	if(!player->open(this, this->curSong)) {
 		if(!this->nextSongOnEof) {
+			PyScopedGIL gstate;
 			// This means that the failure of opening is fatal because we wont skip to the next song.
 			// This mode is also only used in the calc* specific functions.
 			if(!PyErr_Occurred())
@@ -655,19 +686,21 @@ bool PlayerObject::volumeAdjustNeeded() const {
 
 static const enum AVSampleFormat outFormat = AV_SAMPLE_FMT_S16;
 
-// called from player_fillOutStream
+// called from PlayerObject::workerProc()
 // decode one audio frame and returns its uncompressed size
 // return <0 means that we must change some state for this function to work again. e.g. we could have EOF, the song is not correctly opened, the player is in stopped-state or so. an invalid frame will not cause this!
 // note that even with <0, there might have been some data written to outBuffer.
 // tries to return at least len bytes. but might return more. if something fails, also less.
 static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is, long len)
 {
-	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
+	// We assume that we have the PlayerObject lock at this point and not neccessarily the Python GIL.
 	
 	if(!player->playing) return -1;
 	if(is->ctx == NULL) return -1;
 	if(is->audio_st == NULL) return -1;
 	if(is->readerHitEnd) return -1;
+	
+	PyScopedGIUnlock gunlock; // be sure that we don't have it. the av-callbacks (read/seek) must not have it.
 	
 	AVPacket *pkt_temp = &is->audio_pkt_temp;
 	AVPacket *pkt = &is->audio_pkt;
@@ -679,6 +712,17 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 	long count = 0;
 	
 	for (;;) {
+		if(is->do_flush) {
+			avcodec_flush_buffers(dec);
+			flush_complete = 0;
+			is->do_flush = false;
+			count = 0;
+		}
+		int outSamplerate = player->outSamplerate;
+		int outNumChannels = player->outNumChannels;
+		
+		PyScopedUnlock(player->lock);
+		
 		/* NOTE: the audio packet can contain several frames */
 		while (pkt_temp->size > 0) {
 			if (!is->frame) {
@@ -720,25 +764,25 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 				dec_channel_layout != is->audio_src.channel_layout ||
 				dec->sample_rate   != is->audio_src.freq           ||
 				(wanted_nb_samples != is->frame->nb_samples && !is->swr_ctx) ||
-				is->audio_tgt.freq != player->outSamplerate	||
-				is->audio_tgt.channels != player->outNumChannels) {
+				is->audio_tgt.freq != outSamplerate	||
+				is->audio_tgt.channels != outNumChannels) {
 				swr_free(&is->swr_ctx);
 				
 				is->audio_tgt.fmt = outFormat;
-				is->audio_tgt.freq = player->outSamplerate;
-				is->audio_tgt.channels = player->outNumChannels;
+				is->audio_tgt.freq = outSamplerate;
+				is->audio_tgt.channels = outNumChannels;
 				is->audio_tgt.channel_layout = av_get_default_channel_layout(player->outNumChannels);
 				
 				is->swr_ctx = swr_alloc_set_opts
 				(
 					NULL,
-					is->audio_tgt.channel_layout, outFormat, player->outSamplerate,
+					is->audio_tgt.channel_layout, outFormat, outSamplerate,
 					 dec_channel_layout,           dec->sample_fmt,   dec->sample_rate,
 					 0, NULL);
 				if (!is->swr_ctx || swr_init(is->swr_ctx) < 0) {
 					fprintf(stderr, "Cannot create sample rate converter for conversion of %d Hz %s %d channels to %d Hz %s %d channels!\n",
 							dec->sample_rate,   av_get_sample_fmt_name(dec->sample_fmt),   dec->channels,
-							player->outSamplerate, av_get_sample_fmt_name(outFormat), player->outNumChannels);
+							outSamplerate, av_get_sample_fmt_name(outFormat), outNumChannels);
 					break;
 				}
 				is->audio_src.channel_layout = dec_channel_layout;
@@ -753,10 +797,10 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 			if (is->swr_ctx) {
 				const uint8_t **in = (const uint8_t **)is->frame->extended_data;
 				uint8_t *out[] = {is->audio_buf2};
-				int out_count = sizeof(is->audio_buf2) / player->outNumChannels / av_get_bytes_per_sample(outFormat);
+				int out_count = sizeof(is->audio_buf2) / outNumChannels / av_get_bytes_per_sample(outFormat);
 				if (wanted_nb_samples != is->frame->nb_samples) {
-					if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - is->frame->nb_samples) * player->outSamplerate / dec->sample_rate,
-											 wanted_nb_samples * player->outSamplerate / dec->sample_rate) < 0) {
+					if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - is->frame->nb_samples) * outSamplerate / dec->sample_rate,
+											 wanted_nb_samples * outSamplerate / dec->sample_rate) < 0) {
 						fprintf(stderr, "swr_set_compensation() failed\n");
 						break;
 					}
@@ -771,33 +815,16 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 					swr_init(is->swr_ctx);
 				}
 				is->audio_buf = is->audio_buf2;
-				resampled_data_size = len2 * player->outNumChannels * av_get_bytes_per_sample(outFormat);
+				resampled_data_size = len2 * outNumChannels * av_get_bytes_per_sample(outFormat);
 			} else {
 				is->audio_buf = is->frame->data[0];
 				resampled_data_size = data_size;
 			}
 			
-			if(player->volumeAdjustNeeded()) {
-				for(size_t i = 0; i < resampled_data_size / 2; ++i) {
-					int16_t* sampleAddr = (int16_t*) is->audio_buf + i;
-					int32_t sample = *sampleAddr; // TODO: endian swap?
-					double sampleFloat = sample / ((double) 0x8000);
-					
-					sampleFloat *= player->volume;
-					sampleFloat *= is->gainFactor;
-					
-					sampleFloat = player->volumeSmoothClip.get(sampleFloat);
-					if(sampleFloat < -1) sampleFloat = -1;
-					if(sampleFloat > 1) sampleFloat = 1;
-					
-					sample = sampleFloat * (double) 0x8000;
-					if(sample < -0x8000) sample = -0x8000;
-					if(sample > 0x7fff) sample = 0x7fff;
-					*sampleAddr = (int16_t) sample; // TODO: endian swap?
-				}
+			{
+				PyScopedLock lock(player->lock);
+				is->outBuffer.push(is->audio_buf, resampled_data_size);
 			}
-			
-			is->outBuffer.push(is->audio_buf, resampled_data_size);
 			
 			/* if no pts, then compute it */
 			/*player->curSongPos += (double)data_size /
@@ -817,13 +844,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 		/* free the current packet */
 		av_free_packet(pkt);
 		memset(pkt_temp, 0, sizeof(*pkt_temp));
-						
-		if(is->do_flush) {
-			avcodec_flush_buffers(dec);
-			flush_complete = 0;
-			is->do_flush = false;
-		}
-		
+								
 		while(1) {
 			int ret = av_read_frame(is->ctx, pkt);
 			if (ret < 0) {
@@ -845,6 +866,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 		
 		/* if update the audio clock with the pts */
 		if (pkt->pts != AV_NOPTS_VALUE) {
+			PyScopedLock lock(player->lock);
 			if(is->outBuffer.empty())
 				is->timePos = av_q2d(is->audio_st->time_base)*pkt->pts;
 		}
@@ -905,6 +927,7 @@ void PlayerObject::openPeekInStreams() {
 	PlayerObject* player = this;
 	if(player->peekQueue == NULL) return;
 	
+	PyScopedGIL gstate;
 	PyObject* args = NULL;
 	PyObject* peekList = NULL;
 	PyObject* peekListIter = NULL;
@@ -922,14 +945,17 @@ void PlayerObject::openPeekInStreams() {
 	
 	std::swap(oldPeekList, player->peekInStreams);
 	while((song = PyIter_Next(peekListIter)) != NULL) {
-		boost::shared_ptr<PlayerObject::InStream> s = takePeekInStream(oldPeekList, song);
-		if(!s.get()) {
-			s.reset(new PlayerObject::InStream);
-			if(!s->open(player, song))
-				s.reset();
+		{
+			PyScopedGIUnlock gunlock;
+			boost::shared_ptr<PlayerObject::InStream> s = takePeekInStream(oldPeekList, song);
+			if(!s.get()) {
+				s.reset(new PlayerObject::InStream);
+				if(!s->open(player, song))
+					s.reset();
+			}
+			if(s.get())
+				player->peekInStreams.push_front(s);
 		}
-		if(s.get())
-			player->peekInStreams.push_front(s);
 		Py_DECREF(song);
 	}
 	oldPeekList.clear();
@@ -1018,10 +1044,32 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 		PlayerObject::InStream* is = this->inStream.get();
 		if(!is) break;
 		
-		size_t byteCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);
-		samples += byteCount / 2;
-		sampleNum -= byteCount / 2;
-		is->timePos += timeDelay(byteCount / 2);
+		size_t popCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);
+		popCount /= 2; // because they are in bytes but we want number of samples
+		
+		if(player->volumeAdjustNeeded()) {
+			for(size_t i = 0; i < popCount; ++i) {
+				int16_t* sampleAddr = samples + i;
+				int32_t sample = *sampleAddr; // TODO: endian swap?
+				double sampleFloat = sample / ((double) 0x8000);
+				
+				sampleFloat *= player->volume;
+				sampleFloat *= is->gainFactor;
+				
+				sampleFloat = player->volumeSmoothClip.get(sampleFloat);
+				if(sampleFloat < -1) sampleFloat = -1;
+				if(sampleFloat > 1) sampleFloat = 1;
+				
+				sample = sampleFloat * (double) 0x8000;
+				if(sample < -0x8000) sample = -0x8000;
+				if(sample > 0x7fff) sample = 0x7fff;
+				*sampleAddr = (int16_t) sample; // TODO: endian swap?
+			}
+		}
+		
+		samples += popCount;
+		sampleNum -= popCount;
+		is->timePos += timeDelay(popCount);
 
 		if(sampleNum == 0) break;
 		if(!is->readerHitEnd) break;
@@ -1066,8 +1114,6 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 		// silence
 		memset((uint8_t*)samples, 0, sampleNum*2);
 	}
-
-	// TODO: later, just proceed with peekInStream. gapless playback
 	
 	return sampleNum == 0;
 }

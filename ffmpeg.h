@@ -84,6 +84,13 @@ struct PyScopedGIL {
 	~PyScopedGIL() { PyGILState_Release(gstate); }
 };
 
+struct PyScopedGIUnlock {
+	PyScopedGIL gstate; // in case we didn't had the GIL
+	PyThreadState* _save;
+	PyScopedGIUnlock() : _save(NULL) { Py_UNBLOCK_THREADS }
+	~PyScopedGIUnlock() { Py_BLOCK_THREADS }
+};
+
 struct ProtectionData {
 	PyMutex mutex;
 	uint16_t lockCounter;
