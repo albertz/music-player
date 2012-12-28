@@ -21,6 +21,7 @@ bool PlayerObject::getNextSong(bool skipped) {
 	// We must hold the player lock here.
 	bool ret = false;
 	bool errorOnOpening = false;
+	
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
 	

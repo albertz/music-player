@@ -122,6 +122,7 @@ static int player_read_packet(PlayerObject* player, uint8_t* buf, int buf_size) 
 	
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
+	
 	if(player->curSong == NULL) goto final;
 	
 	readPacketFunc = PyObject_GetAttrString(player->curSong, "readPacket");
@@ -167,6 +168,7 @@ static int64_t player_seek(PlayerObject* player, int64_t offset, int whence) {
 	int64_t ret = -1;
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
+	
 	PyObject *seekRawFunc = NULL, *args = NULL, *retObj = NULL;
 	if(player->curSong == NULL) goto final;
 	if(whence < 0 || whence > 2) goto final; // AVSEEK_SIZE and others not supported atm
