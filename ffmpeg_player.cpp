@@ -191,21 +191,31 @@ void player_dealloc(PyObject* obj) {
 	
 	// TODO: use Py_BEGIN_ALLOW_THREADS etc? what about deadlocks?
 	
-	Py_XDECREF(player->dict);
-	player->dict = NULL;
-	
-	Py_XDECREF(player->curSong);
-	player->curSong = NULL;
-	
-	Py_XDECREF(player->queue);
-	player->queue = NULL;
-	
-	Py_XDECREF(player->peekQueue);
-	player->peekQueue = NULL;
-	
-	player->outStream.reset();
-	player->inStream.reset();
-	
+	Py_BEGIN_ALLOW_THREADS
+	{
+		PyScopedLock lock(player->lock);
+		
+		Py_XDECREF(player->dict);
+		player->dict = NULL;
+		
+		Py_XDECREF(player->curSong);
+		player->curSong = NULL;
+		
+		Py_XDECREF(player->queue);
+		player->queue = NULL;
+		
+		Py_XDECREF(player->peekQueue);
+		player->peekQueue = NULL;
+		
+		{
+			PyScopedLock unlock(player->lock);
+			player->workerThread.stop();
+		}
+		player->outStream.reset();
+		player->inStream.reset();
+	}
+	Py_END_ALLOW_THREADS
+
 	player->~PlayerObject();
 	Py_TYPE(obj)->tp_free(obj);
 }
