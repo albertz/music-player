@@ -74,6 +74,11 @@ struct PyScopedUnlock {
 	~PyScopedUnlock();
 };
 
+struct PyScopedGIL {
+	PyGILState_STATE gstate;
+	PyScopedGIL() { gstate = PyGILState_Ensure(); }
+	~PyScopedGIL() { PyGILState_Release(gstate); }
+};
 
 #include <boost/function.hpp>
 

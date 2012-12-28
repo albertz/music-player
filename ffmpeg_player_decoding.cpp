@@ -120,8 +120,7 @@ static int player_read_packet(PlayerObject::InStream* is, uint8_t* buf, int buf_
 	Py_ssize_t ret = -1;
 	PyObject *readPacketFunc = NULL, *args = NULL, *retObj = NULL;
 	
-	PyGILState_STATE gstate;
-	gstate = PyGILState_Ensure();
+	PyScopedGIL gstate;
 	
 	if(is->song == NULL) goto final;
 	
@@ -158,7 +157,6 @@ final:
 	if(is->player && is->player->skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
-	PyGILState_Release(gstate);
 	return (int) ret;
 }
 
@@ -166,8 +164,7 @@ static int64_t player_seek(PlayerObject::InStream* is, int64_t offset, int whenc
 	// We assume that we have the PlayerObject lock at this point but not neccessarily the Python GIL.
 	//printf("player_seek %lli %i\n", offset, whence);
 	int64_t ret = -1;
-	PyGILState_STATE gstate;
-	gstate = PyGILState_Ensure();
+	PyScopedGIL gstate;
 	
 	PyObject *seekRawFunc = NULL, *args = NULL, *retObj = NULL;
 	if(is->song == NULL) goto final;
@@ -201,7 +198,6 @@ final:
 	if(is->player && is->player->skipPyExceptions && PyErr_Occurred())
 		PyErr_Print();
 	
-	PyGILState_Release(gstate);
 	return ret;
 }
 
@@ -511,11 +507,15 @@ PlayerObject::InStream::~InStream() {
 		player->swr_ctx = NULL;
 	}
 	
-	Py_XDECREF(song);
-	song = NULL;
-	
-	Py_XDECREF(metadata);
-	metadata = NULL;
+	{
+		PyScopedGIL gstate;
+
+		Py_XDECREF(song);
+		song = NULL;
+		
+		Py_XDECREF(metadata);
+		metadata = NULL;
+	}
 }
 
 
@@ -965,16 +965,13 @@ static void loopFrame(PlayerObject* player) {
 		PyScopedLock lock(player->lock);
 		
 		if(!player->isInStreamOpened() && player->nextSongOnEof) {
-			PyGILState_STATE gstate;
-			gstate = PyGILState_Ensure();
+			PyScopedGIL gstate;
 			
 			if(!player->getNextSong(false)) {
 				fprintf(stderr, "cannot get next song\n");
 				if(PyErr_Occurred())
 					PyErr_Print();
 			}
-			
-			PyGILState_Release(gstate);
 		}
 	}
 	
@@ -1030,8 +1027,7 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 		if(!player->nextSongOnEof) break;
 		
 		{
-			PyGILState_STATE gstate;
-			gstate = PyGILState_Ensure();
+			PyScopedGIL gstate;
 			
 			if(player->dict) {
 				Py_INCREF(player->dict);
@@ -1061,8 +1057,6 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 			player->getNextSong(false);
 			if(PyErr_Occurred())
 				PyErr_Print();
-			
-			PyGILState_Release(gstate);
 		}
 	}
 	

@@ -22,8 +22,7 @@ bool PlayerObject::getNextSong(bool skipped) {
 	bool ret = false;
 	bool errorOnOpening = false;
 	
-	PyGILState_STATE gstate;
-	gstate = PyGILState_Ensure();
+	PyScopedGIL gstate;
 	
 	PyObject* oldSong = player->curSong;
 	player->curSong = NULL;
@@ -94,7 +93,6 @@ bool PlayerObject::getNextSong(bool skipped) {
 	
 final:
 	Py_XDECREF(oldSong);
-	PyGILState_Release(gstate);
 	return ret;
 }
 
@@ -188,13 +186,18 @@ static
 void player_dealloc(PyObject* obj) {
 	PlayerObject* player = (PlayerObject*)obj;
 	//printf("%p dealloc\n", player);
-	
-	// TODO: use Py_BEGIN_ALLOW_THREADS etc? what about deadlocks?
-	
+		
 	Py_BEGIN_ALLOW_THREADS
 	{
+		player->workerThread.stop();
+	}
+	Py_END_ALLOW_THREADS
+	
+	{
 		PyScopedLock lock(player->lock);
-		
+		player->outStream.reset();
+		player->inStream.reset();
+
 		Py_XDECREF(player->dict);
 		player->dict = NULL;
 		
@@ -206,15 +209,7 @@ void player_dealloc(PyObject* obj) {
 		
 		Py_XDECREF(player->peekQueue);
 		player->peekQueue = NULL;
-		
-		{
-			PyScopedLock unlock(player->lock);
-			player->workerThread.stop();
-		}
-		player->outStream.reset();
-		player->inStream.reset();
 	}
-	Py_END_ALLOW_THREADS
 
 	player->~PlayerObject();
 	Py_TYPE(obj)->tp_free(obj);
