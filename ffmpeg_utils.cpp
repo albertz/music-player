@@ -21,7 +21,7 @@ void* getStackPtr(int n) {
 	return stack[n];
 }
 
-static char* getStackSymbol(void* pt) {
+static const char* getStackSymbol(void* pt) {
 	char** s_ = backtrace_symbols(&pt, 1);
 	if(!s_) return "?";
 	char* s = *s_;
@@ -38,7 +38,7 @@ static char* getStackSymbol(void* pt) {
 
 #else
 static void* getStackPtr(int n) { return NULL; }
-static char* getStackSymbol(void* pt) { return "?"; }
+static const char* getStackSymbol(void* pt) { return "?"; }
 #endif
 
 size_t Buffer::size() const {
