@@ -7,6 +7,40 @@
 #include "ffmpeg.h"
 #include <unistd.h>
 
+#if defined(__APPLE__)
+#include <execinfo.h>
+
+static __attribute__((noinline))
+void* getStackPtr(int n) {
+	n += 1; // getStackPtr() itself
+	void* stack[20];
+	static const int Size = sizeof(stack)/sizeof(stack[0]);
+	if(n >= Size) return NULL;
+	int c = backtrace(stack, Size);
+	if(n >= c) return NULL;
+	return stack[n];
+}
+
+static char* getStackSymbol(void* pt) {
+	char** s_ = backtrace_symbols(&pt, 1);
+	if(!s_) return "?";
+	char* s = *s_;
+	free(s_);
+	if(!s) return "?";
+	// s = "<number>     <filename>    <interesting-part>"
+	// we only want the interesting part.
+	while(*s && *s != ' ') ++s; // advance the number
+	while(*s && *s == ' ') ++s; // advance the spaces
+	while(*s && *s != ' ') ++s; // advance the filename
+	while(*s && *s == ' ') ++s; // advance the spaces	
+	return s;
+}
+
+#else
+static void* getStackPtr(int n) { return NULL; }
+static char* getStackSymbol(void* pt) { return "?"; }
+#endif
+
 size_t Buffer::size() const {
 	size_t c = 0;
 	for(auto& it : chunks)
@@ -83,12 +117,12 @@ void PyMutex::unlock() {
 }
 
 PyScopedLock::PyScopedLock(PyMutex& m) : mutex(m) {
-	printf("%p locks %p\n", PyThread_get_thread_ident(), &mutex);
+	printf("%p locks %p from %s\n", (void*)PyThread_get_thread_ident(), &mutex, getStackSymbol(getStackPtr(2)));
 	mutex.lock();
 }
 
 PyScopedLock::~PyScopedLock() {
-	printf("%p unlocks %p\n", PyThread_get_thread_ident(), &mutex);
+	printf("%p unlocks %p from %s\n", (void*)PyThread_get_thread_ident(), &mutex, getStackSymbol(getStackPtr(2)));
 	mutex.unlock();
 }
 
