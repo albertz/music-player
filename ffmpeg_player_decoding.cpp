@@ -894,20 +894,16 @@ static bool _buffersFullEnough(PlayerObject::InStream* is) {
 	return false;
 }
 
-bool PlayerObject::buffersFullEnough() const {
-	PlayerObject::InStream* is = this->inStream.get();
-	if(!is) return true;
-	return _buffersFullEnough(is);
-}
-
 static bool _processInStream(PlayerObject* player, PlayerObject::InStream* is) {
 	return audio_decode_frame(player, is, PROCESS_SIZE) >= 0;
 }
 
 bool PlayerObject::processInStream() {
-	PlayerObject::InStream* is = this->inStream.get();
-	if(!is) return false;
-	return _processInStream(this, is);
+	boost::shared_ptr<PlayerObject::InStream> is = this->inStream;
+	if(!is.get()) return false;
+	PyScopedUnlock unlock(this->lock);
+	PyScopedLock lock(is->lock);
+	return _processInStream(this, is.get());
 }
 
 bool PlayerObject::isInStreamOpened() const {
@@ -998,8 +994,10 @@ bool PlayerObject::tryOvertakePeekInStream() {
 }
 
 
-static void loopFrame(PlayerObject* player) {
+// returns wether there we did something
+static bool loopFrame(PlayerObject* player) {
 	// We must not hold the PyGIL here!
+	bool didSomething = false;
 	
 	{
 		PyScopedLock lock(player->lock);
@@ -1012,22 +1010,28 @@ static void loopFrame(PlayerObject* player) {
 				if(PyErr_Occurred())
 					PyErr_Print();
 			}
+			
+			didSomething = true;
 		}
 	}
 	
+	std::list<boost::shared_ptr<PlayerObject::InStream> > instreams;	
 	{
 		PyScopedLock lock(player->lock);
-		if(!player->buffersFullEnough())
-			player->processInStream();
+		if(player->inStream.get())
+			instreams.push_back(player->inStream);
+		instreams.insert(instreams.end(), player->peekInStreams.begin(), player->peekInStreams.end());
 	}
 		
-	{
-		PyScopedLock lock(player->lock);
-		for(auto& it : player->peekInStreams) {
-			if(!_buffersFullEnough(it.get()))
-				_processInStream(player, it.get());
+	for(auto& it : instreams) {
+		PyScopedLock lock(it->lock);
+		if(!_buffersFullEnough(it.get())) {
+			_processInStream(player, it.get());
+			didSomething = true;
 		}
 	}
+	
+	return didSomething;
 }
 
 void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
@@ -1037,20 +1041,16 @@ void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
 			if(stopSignal) return;
 		}
 		
-		loopFrame(this);
-		
-		{
-			PyScopedLock l(this->lock);
-			if(buffersFullEnough()) {
-				PyScopedUnlock ul(this->lock);
-				usleep(100);
-			}
-		}
+		bool didSomething = loopFrame(this);
+		if(!didSomething)
+			usleep(100);
 	}
 }
 
 
 bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
+	// We expect to have the PlayerObject lock here.
+	
 	PlayerObject* player = this;
 	while(sampleNum > 0) {
 		PlayerObject::InStream* is = this->inStream.get();

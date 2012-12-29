@@ -135,6 +135,8 @@ struct PyThread : boost::noncopyable {
 #define BUFFER_CHUNK_SIZE (1024 * 4)
 
 struct Buffer {
+	PyMutex mutex;
+
 	struct Chunk {
 		uint8_t data[BUFFER_CHUNK_SIZE];
 		uint16_t start, end;
@@ -146,8 +148,8 @@ struct Buffer {
 	};
 	std::list<Chunk> chunks;
 	
-	size_t size() const;
-	void clear() { chunks.clear(); }
+	size_t size();
+	void clear() { PyScopedLock lock(mutex); chunks.clear(); }
 	bool empty();
 	
 	// returns amount of data returned, i.e. <= target_size
@@ -207,7 +209,6 @@ struct PlayerObject {
 	bool isInStreamOpened() const; // in case we hit EOF, it is still opened
 	Buffer* inStreamBuffer();
 	void resetBuffers();
-	bool buffersFullEnough() const;
 	bool processInStream(); // returns true if there was no error
 	PyObject* curSongMetadata();
 	double curSongPos();
