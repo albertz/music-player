@@ -716,7 +716,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 	int wanted_nb_samples;
 	long count = 0;
 	
-	PyScopedUnlock(player->lock);
+	PyScopedUnlock unlock(player->lock);
 
 	for (;;) {
 		int outSamplerate = 0, outNumChannels = 0;
