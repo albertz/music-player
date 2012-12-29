@@ -10,7 +10,7 @@
 #if defined(__APPLE__)
 #include <execinfo.h>
 
-static __attribute__((noinline))
+__attribute__((noinline))
 void* getStackPtr(int n) {
 	n += 1; // getStackPtr() itself
 	void* stack[20];
@@ -21,7 +21,7 @@ void* getStackPtr(int n) {
 	return stack[n];
 }
 
-static const char* getStackSymbol(void* pt) {
+const char* getStackSymbol(void* pt) {
 	char** s_ = backtrace_symbols(&pt, 1);
 	if(!s_) return "?";
 	char* s = *s_;
@@ -37,8 +37,8 @@ static const char* getStackSymbol(void* pt) {
 }
 
 #else
-static void* getStackPtr(int n) { return NULL; }
-static const char* getStackSymbol(void* pt) { return "?"; }
+void* getStackPtr(int n) { return NULL; }
+const char* getStackSymbol(void* pt) { return "?"; }
 #endif
 
 size_t Buffer::size() const {
@@ -117,12 +117,16 @@ void PyMutex::unlock() {
 }
 
 PyScopedLock::PyScopedLock(PyMutex& m) : mutex(m) {
+#ifdef MUTEX_DEBUG
 	printf("%p locks %p from %s\n", (void*)PyThread_get_thread_ident(), &mutex, getStackSymbol(getStackPtr(2)));
+#endif
 	mutex.lock();
 }
 
 PyScopedLock::~PyScopedLock() {
+#ifdef MUTEX_DEBUG
 	printf("%p unlocks %p from %s\n", (void*)PyThread_get_thread_ident(), &mutex, getStackSymbol(getStackPtr(2)));
+#endif
 	mutex.unlock();
 }
 
