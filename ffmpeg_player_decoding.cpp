@@ -573,6 +573,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	urlStr = objAttrStrDup(song, "url"); // the url is just for debugging, the song object provides its own IO
 	{
 		PyScopedGIUnlock gunlock;
+		PyScopedUnlock unlock(pl->lock);
 		
 		ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
 		
@@ -580,7 +581,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 			printf("avformat_open_input failed\n");
 			goto final;
 		}
-		
+
 		ret = avformat_find_stream_info(formatCtx, NULL);
 		if(ret < 0) {
 			printf("avformat_find_stream_info failed\n");
@@ -597,12 +598,12 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 			goto final;
 		}
 		player->audio_stream = ret;
-		
-		ret = stream_component_open(player, formatCtx, player->audio_stream);
-		if(ret < 0) {
-			printf("no audio stream found in song\n");
-			goto final;
-		}
+	}
+
+	ret = stream_component_open(player, formatCtx, player->audio_stream);
+	if(ret < 0) {
+		printf("no audio stream found in song\n");
+		goto final;
 	}
 	
 	player->ctx = formatCtx;
@@ -618,26 +619,30 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	if(this->timeLen < 0)
 		this->timeLen = -1;
 	
-	player_setSongMetadata(this);
-	
-	this->gainFactor = 1;
-	if(PyObject_HasAttrString(song, "gain")) {
-		PyObject* gainObj = PyObject_GetAttrString(song, "gain");
-		if(gainObj) {
-			float gain = 0;
-			if(!PyArg_Parse(gainObj, "f", &gain))
-				printf("song.gain is not a float");
-			else
-				this->gainFactor = pow(10, gain / 20);
-			Py_DECREF(gainObj);
+	{
+		PyScopedGIL glock;
+		
+		player_setSongMetadata(this);
+		
+		this->gainFactor = 1;
+		if(PyObject_HasAttrString(song, "gain")) {
+			PyObject* gainObj = PyObject_GetAttrString(song, "gain");
+			if(gainObj) {
+				float gain = 0;
+				if(!PyArg_Parse(gainObj, "f", &gain))
+					printf("song.gain is not a float");
+				else
+					this->gainFactor = pow(10, gain / 20);
+				Py_DECREF(gainObj);
+			}
+			else { // !gainObj
+				// strange. reset any errors...
+				if(PyErr_Occurred())
+					PyErr_Print();
+			}
 		}
-		else { // !gainObj
-			// strange. reset any errors...
-			if(PyErr_Occurred())
-				PyErr_Print();
-		}
+		// TODO: maybe alternatively try to read from metatags?
 	}
-	// TODO: maybe alternatively try to read from metatags?
 	
 final:
 	if(urlStr) free(urlStr);
@@ -711,17 +716,21 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 	int wanted_nb_samples;
 	long count = 0;
 	
+	PyScopedUnlock(player->lock);
+
 	for (;;) {
-		if(is->do_flush) {
-			avcodec_flush_buffers(dec);
-			flush_complete = 0;
-			is->do_flush = false;
-			count = 0;
+		int outSamplerate = 0, outNumChannels = 0;
+		{
+			PyScopedLock lock(player->lock);
+			if(is->do_flush) {
+				avcodec_flush_buffers(dec);
+				flush_complete = 0;
+				is->do_flush = false;
+				count = 0;
+			}
+			outSamplerate = player->outSamplerate;
+			outNumChannels = player->outNumChannels;
 		}
-		int outSamplerate = player->outSamplerate;
-		int outNumChannels = player->outNumChannels;
-		
-		PyScopedUnlock(player->lock);
 		
 		/* NOTE: the audio packet can contain several frames */
 		while (pkt_temp->size > 0) {
