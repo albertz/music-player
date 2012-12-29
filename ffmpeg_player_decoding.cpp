@@ -550,7 +550,7 @@ PlayerObject::InStream::~InStream() {
 
 
 bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
-	// We assume to not have the PlayerObject lock!
+	// We assume to not have the PlayerObject lock and neither the GIL.
 	assert(song != NULL);
 	
 	if(this->player == NULL)
@@ -575,9 +575,6 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	
 	urlStr = objAttrStrDup(song, "url"); // the url is just for debugging, the song object provides its own IO
 	{
-		PyScopedGIUnlock gunlock;
-		PyScopedUnlock unlock(pl->lock);
-		
 		ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
 		
 		if(ret != 0) {
@@ -657,6 +654,7 @@ final:
 bool PlayerObject::openInStream() {	
 	assert(this->curSong != NULL);
 	
+	PyScopedGIUnlock gunlock;
 	PyScopedUnlock unlock(this->lock);
 
 	boost::shared_ptr<PlayerObject::InStream> player(new PlayerObject::InStream());	
