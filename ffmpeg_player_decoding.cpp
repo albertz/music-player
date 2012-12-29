@@ -559,8 +559,11 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		assert(this->player == pl);
 	}
 	
-	Py_XDECREF(this->song); // if there is any old song
-	Py_INCREF(song);
+	{
+		PyScopedGIL glock;
+		Py_XDECREF(this->song); // if there is any old song
+		Py_INCREF(song);
+	}
 	this->song = song;
 	
 	InStream* player = this;
@@ -968,7 +971,11 @@ void PlayerObject::openPeekInStreams() {
 		}
 		Py_DECREF(song);
 	}
-	oldPeekList.clear();
+	{
+		PyScopedGIUnlock gunlock;
+		PyScopedUnlock unlock(player->lock);
+		oldPeekList.clear();
+	}
 	
 final:
 	// pass through any Python errors
