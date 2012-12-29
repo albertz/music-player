@@ -920,6 +920,7 @@ Buffer* PlayerObject::inStreamBuffer() {
 }
 
 static boost::shared_ptr<PlayerObject::InStream> takePeekInStream(PlayerObject::PeekInStreams& list, PyObject* song) {
+	PyScopedGIL gstate;
 	for(PlayerObject::PeekInStreams::iterator it = list.begin(); it != list.end(); ++it) {
 		assert(it->get() != NULL);
 		assert(it->get()->song != NULL);
