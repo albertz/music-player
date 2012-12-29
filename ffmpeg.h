@@ -56,42 +56,45 @@ PyObject* pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws);
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
 #include <list>
 
 struct PyMutex {
 	PyThread_type_lock l;
 	PyMutex(); ~PyMutex();
+	PyMutex(const PyMutex&) : PyMutex() {} // ignore
+	PyMutex& operator=(const PyMutex&) { return *this; } // ignore
 	void lock();
 	bool lock_nowait();
 	void unlock();
 };
 
-struct PyScopedLock {
+struct PyScopedLock : boost::noncopyable {
 	PyMutex& mutex;
 	PyScopedLock(PyMutex& m);
 	~PyScopedLock();
 };
 
-struct PyScopedUnlock {
+struct PyScopedUnlock : boost::noncopyable {
 	PyMutex& mutex;
 	PyScopedUnlock(PyMutex& m);
 	~PyScopedUnlock();
 };
 
-struct PyScopedGIL {
+struct PyScopedGIL : boost::noncopyable {
 	PyGILState_STATE gstate;
 	PyScopedGIL() { gstate = PyGILState_Ensure(); }
 	~PyScopedGIL() { PyGILState_Release(gstate); }
 };
 
-struct PyScopedGIUnlock {
+struct PyScopedGIUnlock : boost::noncopyable {
 	PyScopedGIL gstate; // in case we didn't had the GIL
 	PyThreadState* _save;
 	PyScopedGIUnlock() : _save(NULL) { Py_UNBLOCK_THREADS }
 	~PyScopedGIUnlock() { Py_BLOCK_THREADS }
 };
 
-struct ProtectionData {
+struct ProtectionData : boost::noncopyable {
 	PyMutex mutex;
 	uint16_t lockCounter;
 	long lockThreadIdent;
@@ -102,12 +105,12 @@ struct ProtectionData {
 };
 
 typedef boost::shared_ptr<ProtectionData> ProtectionPtr;
-struct Protection {
+struct Protection : boost::noncopyable {
 	ProtectionPtr prot;
 	Protection() : prot(new ProtectionData) {}
 };
 
-struct ProtectionScope {
+struct ProtectionScope : boost::noncopyable {
 	ProtectionPtr prot;
 	ProtectionScope(const Protection& p);
 	~ProtectionScope();
@@ -116,7 +119,7 @@ struct ProtectionScope {
 };
 
 
-struct PyThread {
+struct PyThread : boost::noncopyable {
 	PyMutex lock;
 	bool running;
 	bool stopSignal;

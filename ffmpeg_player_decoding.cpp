@@ -99,7 +99,7 @@ struct InStreamRawPOD {
 };
 
 struct PlayerObject::InStream : InStreamRawPOD {
-	Protection protection;
+	PyMutex lock;
 	
 	Buffer outBuffer;
 	bool readerHitEnd; // this will be set by audio_decode_frame()
@@ -294,6 +294,8 @@ int PlayerObject::seekRel(double incr) {
 	PlayerObject::InStream* player = pl->inStream.get();
 	if(!player) return -1;
 	
+	pl->resetBuffers();
+
 	double pos = 0;
 	/*
 	 int seek_by_bytes = 0;
@@ -322,9 +324,7 @@ int PlayerObject::seekRel(double incr) {
 	int64_t seek_max    = incr < 0 ? seek_target - incr - 2: INT64_MAX;
 	int seek_flags = 0;
 	//if(seek_by_bytes) seek_flags |= AVSEEK_FLAG_BYTE;
-	
-	pl->resetBuffers();
-	
+		
 	return
 	avformat_seek_file(
 					   player->ctx, /*player->audio_stream*/ -1,
@@ -339,6 +339,9 @@ int PlayerObject::seekAbs(double pos) {
 	PlayerObject* pl = this;
 	PlayerObject::InStream* player = pl->inStream.get();
 	if(!player) return -1;
+
+	pl->resetBuffers();
+	
 	int seek_by_bytes = 0;
 	if(player->timeLen <= 0)
 		seek_by_bytes = 1;
@@ -358,7 +361,6 @@ int PlayerObject::seekAbs(double pos) {
 		pos *= AV_TIME_BASE;
 	}
 	
-	pl->resetBuffers();
 	
 	return
 	avformat_seek_file(
