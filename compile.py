@@ -49,6 +49,11 @@ def cc(files, options):
 			"-I", "/usr/include/python2.7", # common linux/unix
 		]
 	options += ["-fpic"]
+	cppfiles = [f for f in files if os.path.splitext(f)[1] == ".cpp"]
+	files = [f for f in files if f not in cppfiles]
+	if cppfiles:
+		cppoptions = ["-std=c++11"]
+		sysExec(["cc"] + options + cppoptions + CFLAGS + ["-c"] + cppfiles)		
 	sysExec(["cc"] + options + CFLAGS + ["-c"] + files)
 
 sysExec(["mkdir","-p","build"])
