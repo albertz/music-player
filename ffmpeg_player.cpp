@@ -99,7 +99,10 @@ bool PlayerObject::getNextSong(bool skipped) {
 	openPeekInStreams();
 	
 final:
-	Py_XDECREF(oldSong);
+	{
+		PyScopedGIL gstate;
+		Py_XDECREF(oldSong);
+	}
 	return ret;
 }
 

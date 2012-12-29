@@ -550,6 +550,7 @@ PlayerObject::InStream::~InStream() {
 
 
 bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
+	// We assume to not have the PlayerObject lock!
 	assert(song != NULL);
 	
 	if(this->player == NULL)
@@ -656,10 +657,11 @@ final:
 bool PlayerObject::openInStream() {	
 	assert(this->curSong != NULL);
 	
-	this->inStream.reset(new PlayerObject::InStream());
-	PlayerObject::InStream* player = this->inStream.get();
-	
+	PyScopedUnlock unlock(this->lock);
+
+	boost::shared_ptr<PlayerObject::InStream> player(new PlayerObject::InStream());	
 	if(!player->open(this, this->curSong)) {
+		PyScopedLock lock(this->lock);
 		if(!this->nextSongOnEof) {
 			PyScopedGIL gstate;
 			// This means that the failure of opening is fatal because we wont skip to the next song.
@@ -670,7 +672,11 @@ bool PlayerObject::openInStream() {
 
 		return false;
 	}
-	
+
+	{
+		PyScopedLock lock(this->lock);
+		this->inStream = player;
+	}
 	return true;
 }
 
@@ -700,9 +706,8 @@ static const enum AVSampleFormat outFormat = AV_SAMPLE_FMT_S16;
 // tries to return at least len bytes. but might return more. if something fails, also less.
 static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is, long len)
 {
-	// We assume that we have the PlayerObject lock at this point and not neccessarily the Python GIL.
+	// We assume that we don't have the PlayerObject lock at this point and neither the Python GIL.
 	
-	if(!player->playing) return -1;
 	if(is->ctx == NULL) return -1;
 	if(is->audio_st == NULL) return -1;
 	if(is->readerHitEnd) return -1;
@@ -718,8 +723,6 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 	int wanted_nb_samples;
 	long count = 0;
 	
-	PyScopedUnlock unlock(player->lock);
-
 	for (;;) {
 		int outSamplerate = 0, outNumChannels = 0;
 		{
@@ -957,6 +960,7 @@ void PlayerObject::openPeekInStreams() {
 			PyScopedGIUnlock gunlock;
 			boost::shared_ptr<PlayerObject::InStream> s = takePeekInStream(oldPeekList, song);
 			if(!s.get()) {
+				PyScopedUnlock unlock(player->lock);
 				s.reset(new PlayerObject::InStream);
 				if(!s->open(player, song))
 					s.reset();
@@ -985,6 +989,7 @@ bool PlayerObject::tryOvertakePeekInStream() {
 	if(s.get()) {
 		inStream = s;
 		// take the new Song object. it might be a different one.
+		PyScopedGIL gstate;
 		Py_XDECREF(curSong);
 		curSong = s->song;
 		Py_INCREF(curSong);
@@ -1003,10 +1008,9 @@ static bool loopFrame(PlayerObject* player) {
 		PyScopedLock lock(player->lock);
 		
 		if(!player->isInStreamOpened() && player->nextSongOnEof) {
-			PyScopedGIL gstate;
-			
 			if(!player->getNextSong(false)) {
 				fprintf(stderr, "cannot get next song\n");
+				PyScopedGIL gstate;
 				if(PyErr_Occurred())
 					PyErr_Print();
 			}
