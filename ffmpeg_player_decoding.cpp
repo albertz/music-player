@@ -285,17 +285,27 @@ void PlayerObject::InStream::resetBuffers() {
 }
 
 void PlayerObject::resetBuffers() {
-	if(inStream.get())
-		inStream->resetBuffers();
+	if(inStream.get()) {
+		boost::shared_ptr<PlayerObject::InStream> inStreamCopy(inStream);
+		PyScopedUnlock unlock(inStreamCopy->lock);
+		{
+			PyScopedLock lock(inStreamCopy->lock);
+			inStreamCopy->resetBuffers();
+		}
+		inStreamCopy.reset(); // must be in unlocked scope
+	}
 }
 
 int PlayerObject::seekRel(double incr) {
 	PlayerObject* pl = this;
-	PlayerObject::InStream* player = pl->inStream.get();
-	if(!player) return -1;
+	boost::shared_ptr<PlayerObject::InStream> player(pl->inStream);
+	if(!player.get()) return -1;
 	
-	pl->resetBuffers();
-
+	PyScopedUnlock unlock(pl->lock);
+	PyScopedLock lock(player->lock);
+	
+	player->resetBuffers();
+	
 	double pos = 0;
 	/*
 	 int seek_by_bytes = 0;
@@ -325,7 +335,7 @@ int PlayerObject::seekRel(double incr) {
 	int seek_flags = 0;
 	//if(seek_by_bytes) seek_flags |= AVSEEK_FLAG_BYTE;
 		
-	return
+	int ret =
 	avformat_seek_file(
 					   player->ctx, /*player->audio_stream*/ -1,
 					   seek_min,
@@ -333,14 +343,19 @@ int PlayerObject::seekRel(double incr) {
 					   seek_max,
 					   seek_flags
 					   );
+	player.reset(); // must be reset in unlocked scope	
+	return ret;
 }
 
 int PlayerObject::seekAbs(double pos) {
 	PlayerObject* pl = this;
-	PlayerObject::InStream* player = pl->inStream.get();
-	if(!player) return -1;
+	boost::shared_ptr<PlayerObject::InStream> player(pl->inStream);
+	if(!player.get()) return -1;
 
-	pl->resetBuffers();
+	PyScopedUnlock unlock(pl->lock);
+	PyScopedLock lock(player->lock);
+
+	player->resetBuffers();
 	
 	int seek_by_bytes = 0;
 	if(player->timeLen <= 0)
@@ -361,8 +376,7 @@ int PlayerObject::seekAbs(double pos) {
 		pos *= AV_TIME_BASE;
 	}
 	
-	
-	return
+	int ret =
 	avformat_seek_file(
 					   player->ctx, /*player->audio_stream*/ -1,
 					   INT64_MIN,
@@ -370,6 +384,9 @@ int PlayerObject::seekAbs(double pos) {
 					   INT64_MAX,
 					   seek_flags
 					   );
+
+	player.reset(); // must be reset in unlocked scope
+	return ret;	
 }
 
 PyObject* PlayerObject::curSongMetadata() {
