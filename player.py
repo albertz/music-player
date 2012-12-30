@@ -34,6 +34,7 @@ def songsPeekQueue():
 	def openSong(song):
 		song.openFile()
 		return song	
+	import queue
 	return lambda n: filter(openSong, queue.peekNextSongs(n))
 				
 # This is an special extra callback.
