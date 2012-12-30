@@ -199,15 +199,18 @@ void player_dealloc(PyObject* obj) {
 	PlayerObject* player = (PlayerObject*)obj;
 	//printf("%p dealloc\n", player);
 		
+	// first, destroy any non-python threads
 	Py_BEGIN_ALLOW_THREADS
 	{
 		player->workerThread.stop();
+		player->outStream.reset();
 	}
 	Py_END_ALLOW_THREADS
 	
 	{
-		PyScopedLock lock(player->lock);
-		player->outStream.reset();
+		// we don't need a lock because in dealloc, we have the only ref to this PlayerObject.
+		// also, we must not lock it here because we cannot free inStream otherwise.
+
 		player->inStream.reset();
 
 		Py_XDECREF(player->dict);
