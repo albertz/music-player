@@ -156,6 +156,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 				}
 			}
 		}
+		player->inStreamBuffer()->clear();
 	}
 	{
 		double songDuration = (double)totalFrameCount / SAMPLERATE;
