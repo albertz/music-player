@@ -675,8 +675,12 @@ bool PlayerObject::openInStream() {
 	}
 
 	{
-		PyScopedLock lock(this->lock);
-		this->inStream = player;
+		// inStream, if it gets freed, must be freed while the POL is not held!
+		boost::shared_ptr<PlayerObject::InStream> inStreamOld(this->inStream);
+		{
+			PyScopedLock lock(this->lock);
+			this->inStream = player;
+		}
 	}
 	return true;
 }
