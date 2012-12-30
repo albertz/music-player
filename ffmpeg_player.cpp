@@ -28,8 +28,6 @@ bool PlayerObject::getNextSong(bool skipped) {
 	{
 		PyScopedGIL gstate;
 		
-		player->inStream.reset();
-
 		if(player->queue == NULL) {
 			PyErr_SetString(PyExc_RuntimeError, "player queue is not set");
 			goto final;
@@ -102,6 +100,10 @@ final:
 	{
 		PyScopedGIL gstate;
 		Py_XDECREF(oldSong);
+	}
+	if(!ret) {
+		PyScopedUnlock unlock(this->lock);
+		player->inStream.reset();
 	}
 	return ret;
 }

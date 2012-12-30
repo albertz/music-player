@@ -658,30 +658,34 @@ bool PlayerObject::openInStream() {
 	assert(this->curSong != NULL);
 	
 	PyScopedGIUnlock gunlock;
-	PyScopedUnlock unlock(this->lock);
 
-	boost::shared_ptr<PlayerObject::InStream> player(new PlayerObject::InStream());	
-	if(!player->open(this, this->curSong)) {
-		PyScopedLock lock(this->lock);
-		if(!this->nextSongOnEof) {
-			PyScopedGIL gstate;
-			// This means that the failure of opening is fatal because we wont skip to the next song.
-			// This mode is also only used in the calc* specific functions.
-			if(!PyErr_Occurred())
-				PyErr_SetString(PyExc_RuntimeError, "failed to open file");
-		}
-
-		return false;
-	}
-
+	boost::shared_ptr<PlayerObject::InStream> is;
+	
 	{
-		// inStream, if it gets freed, must be freed while the POL is not held!
-		boost::shared_ptr<PlayerObject::InStream> inStreamOld(this->inStream);
-		{
+		PyScopedUnlock unlock(this->lock);
+
+		is.reset(new PlayerObject::InStream());
+		if(!is->open(this, this->curSong)) {
 			PyScopedLock lock(this->lock);
-			this->inStream = player;
+			if(!this->nextSongOnEof) {
+				PyScopedGIL gstate;
+				// This means that the failure of opening is fatal because we wont skip to the next song.
+				// This mode is also only used in the calc* specific functions.
+				if(!PyErr_Occurred())
+					PyErr_SetString(PyExc_RuntimeError, "failed to open file");
+			}
+
+			return false;
 		}
 	}
+	
+	{
+		boost::shared_ptr<PlayerObject::InStream> inStreamOld(this->inStream);
+		this->inStream = is;
+		PyScopedUnlock unlock(this->lock);
+		inStreamOld.reset(); // inStream, if it gets freed, must be freed while the POL is not held!
+	}
+	
 	return true;
 }
 
@@ -996,7 +1000,12 @@ bool PlayerObject::tryOvertakePeekInStream() {
 	assert(curSong != NULL);
 	boost::shared_ptr<InStream> s = takePeekInStream(this->peekInStreams, curSong);
 	if(s.get()) {
-		inStream = s;
+		{
+			boost::shared_ptr<InStream> inStreamOld(inStream);
+			inStream = s;
+			PyScopedUnlock unlock(this->lock);
+			inStreamOld.reset(); // reset in unlocked scope
+		}
 		// take the new Song object. it might be a different one.
 		PyScopedGIL gstate;
 		Py_XDECREF(curSong);
