@@ -271,7 +271,6 @@ class Song(object):
 			song.openFile()
 		except IOError as exc:
 			return {"error": exc}
-		song.gain = 0 # just use original
 		import ffmpeg
 		try:
 			duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
