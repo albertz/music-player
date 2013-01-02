@@ -68,7 +68,7 @@ class SongEdit:
 	@property
 	def metadata(self):
 		d = dict(self.song.metadata)
-		for key in ("artist","title","url","rating","tags","album"):
+		for key in ("artist","title","url","rating","tags","album","gain"):
 			try: d[key] = unicode(getattr(self.song, key))
 			except AttributeError: pass			
 		l = []
