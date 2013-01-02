@@ -289,7 +289,10 @@ class Song(object):
 			song.openFile()
 		except IOError as exc:
 			return {"error": exc}
-		song.gain,_ = self.get("gain", accuracy=0, fastOnly=True) # useful for the adopted BMP
+		# Earlier, we copied the song.gain. Because of some internal ffmpeg redesign,
+		# ffmpeg currently ignores the gain when it calculates the bmpThumnail.
+		# But I think the thumbnails actually look better without the gain adoption,
+		# so I'll just leave it that way now.
 		import ffmpeg
 		try:
 			# We have song.gain which mostly lowers the volume. So increase here for nicer display.
