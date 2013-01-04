@@ -14,9 +14,15 @@ except NameError: pools = deque()
 # just in case that we are not the main thread
 pools.append(NSAutoreleasePool.alloc().init())
 
+# we have some native code in a dylib.
+# later, maybe most of the code here can be recoded natively.
+# this is a work-in-progress.
+import ctypes, os
+l = ctypes.CDLL(os.path.dirname(__file__) + "/_guiCocoaCommon.dylib")
 
-try:
-	class NSFlippedView(NSView):
+try:	
+	_NSFlippedView = objc.lookUpClass("_NSFlippedView")
+	class NSFlippedView(_NSFlippedView):
 		control = None
 		onBecomeFirstResponder = None
 		onResignFirstResponder = None
@@ -29,31 +35,6 @@ try:
 		onDraggingUpdated = None
 		onDraggingExited = None
 		onPerformDragOperation = None
-		_drawsBackground = False
-		_drawsFocusRing = False
-		_backgroundColor = None
-		def isFlipped(self): return True
-		def setDrawsBackground_(self, value):
-			self._drawsBackground = value
-			if value and not self._backgroundColor:
-				self._backgroundColor = NSColor.whiteColor()
-			self.setNeedsDisplay_(True)
-		def setBackgroundColor_(self, value):
-			self._backgroundColor = value
-			if self._drawsBackground:
-				self.setNeedsDisplay_(True)
-		def backgroundColor(self): return self._backgroundColor
-		def setDrawsFocusRing(self, value):
-			self._drawsFocusRing = value
-			self.setNeedsDisplay_(True)
-		def isOpaque(self): return self._drawsBackground
-		def drawRect_(self, dirtyRect):
-			if self._drawsBackground:
-				self._backgroundColor.setFill()
-				NSRectFill(dirtyRect)
-			if self._drawsFocusRing:
-				NSSetFocusRingStyle(NSFocusRingOnly)
-				NSRectFill(self.bounds())
 		def acceptsFirstResponder(self):
 			return utils.attrChain(self, "control", "attr", "canHaveFocus", default=False)
 		def becomeFirstResponder(self):
