@@ -19,6 +19,7 @@ import better_exchook
 better_exchook.install()
 
 assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so")
+assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_guiCocoaCommon.dylib")
 
 # $PROJECT_DIR : /Users/az/Programmierung/music-player/mac
 # $EXECUTABLE_FOLDER_PATH : MusicPlayer.app/Contents/MacOS
@@ -30,7 +31,8 @@ PYDIR = env["TARGET_BUILD_DIR"] + "/" + env["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
 try: os.makedirs(PYDIR)
 except OSError: pass
 
-cp(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so", PYDIR + "/ffmpeg.so")
+for f in ("ffmpeg.so","_guiCocoaCommon.dylib"):
+	cp(env["BUILT_PRODUCTS_DIR"] + "/" + f, PYDIR + "/" + f)
 for f in ("License.txt", "DevelopmentNotes.md", "WhatIsAMusicPlayer.md"):
 	cp(env["PROJECT_DIR"] + "/../" + f, PYDIR + "/" + f)
 for f in glob(env["PROJECT_DIR"] + "/../*.py"):

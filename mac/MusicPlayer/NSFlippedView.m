@@ -6,7 +6,9 @@
 
 #import "NSFlippedView.h"
 
-@implementation NSFlippedView
+// This is work-in-progress for now.
+
+@implementation _NSFlippedView
 
 - (id)initWithFrame:(NSRect)frame
 {
@@ -16,11 +18,6 @@
     }
     
     return self;
-}
-
-- (void)drawRect:(NSRect)dirtyRect
-{
-    // Drawing code here.
 }
 
 - (void)dealloc
@@ -59,17 +56,29 @@
 	return _backgroundColor;
 }
 
-//		def setDrawsFocusRing(self, value):
-//			self._drawsFocusRing = value
-//			self.setNeedsDisplay_(True)
-//		def isOpaque(self): return self._drawsBackground
-//		def drawRect_(self, dirtyRect):
-//			if self._drawsBackground:
-//				self._backgroundColor.setFill()
-//				NSRectFill(dirtyRect)
-//			if self._drawsFocusRing:
-//				NSSetFocusRingStyle(NSFocusRingOnly)
-//				NSRectFill(self.bounds())
+- (void)setDrawsFocusRing:(BOOL)value
+{
+	_drawsFocusRing = value;
+	[self setNeedsDisplay:YES];
+}
+
+- (BOOL)isOpaque
+{
+	return _drawsBackground;
+}
+
+- (void)drawRect:(NSRect)dirtyRect
+{
+	if(_drawsBackground && _backgroundColor) {
+		[_backgroundColor setFill];
+		NSRectFill(dirtyRect);
+	}
+	if(_drawsFocusRing) {
+		NSSetFocusRingStyle(NSFocusRingOnly);
+		NSRectFill([self bounds]);
+	}
+}
+
 //		def acceptsFirstResponder(self):
 //			return utils.attrChain(self, "control", "attr", "canHaveFocus", default=False)
 //		def becomeFirstResponder(self):

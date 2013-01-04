@@ -6,15 +6,17 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface NSFlippedView : NSView
+@interface _NSFlippedView : NSView
 {
 @private
 	BOOL _drawsBackground;
 	NSColor* _backgroundColor;
+	BOOL _drawsFocusRing;
 }
 
 - (void)setDrawsBackground:(BOOL)value;
 - (void)setBackgroundColor:(NSColor*)value;
 - (NSColor*)backgroundColor;
+- (void)setDrawsFocusRing:(BOOL)value;
 
 @end
