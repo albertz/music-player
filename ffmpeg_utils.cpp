@@ -60,13 +60,13 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 		}
 		chunks.pop_front();
 	}
-	size -= c;
+	_size -= c;
 	return c;	
 }
 
 void Buffer::push(const uint8_t* data, size_t size) {
 	PyScopedLock lock(mutex);
-	this->size += size;
+	_size += size;
 	while(size > 0) {
 		if(chunks.empty() || !chunks.back().freeDataAvailable())
 			chunks.push_back(Chunk());

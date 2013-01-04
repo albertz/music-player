@@ -915,7 +915,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 
 static bool _buffersFullEnough(PlayerObject::InStream* is) {
 	if(is->playerHitEnd) return true;
-	if(is->outBuffer.size >= BUFFER_CHUNK_SIZE) return true;
+	if(is->outBuffer.size() >= BUFFER_CHUNK_SIZE) return true;
 	return false;
 }
 

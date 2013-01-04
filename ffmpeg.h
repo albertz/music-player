@@ -147,11 +147,12 @@ struct Buffer {
 		Chunk() : start(0), end(0) {}
 	};
 	std::list<Chunk> chunks;
-	size_t size;
+	size_t _size;
 	
-	Buffer() : size(0) {}
-	void clear() { PyScopedLock lock(mutex); chunks.clear(); size = 0; }
-	bool empty() { PyScopedLock lock(mutex); return size == 0; }
+	Buffer() : _size(0) {}
+	size_t size() { PyScopedLock lock(mutex); return _size; }
+	void clear() { PyScopedLock lock(mutex); chunks.clear(); _size = 0; }
+	bool empty() { return size() == 0; }
 	
 	// returns amount of data returned, i.e. <= target_size
 	size_t pop(uint8_t* target, size_t target_size);
