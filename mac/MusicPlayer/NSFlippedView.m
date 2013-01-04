@@ -28,11 +28,14 @@
 	return YES;
 }
 
-//		def setDrawsBackground_(self, value):
-//			self._drawsBackground = value
-//			if value and not self._backgroundColor:
-//				self._backgroundColor = NSColor.whiteColor()
-//			self.setNeedsDisplay_(True)
+- (void)setDrawsBackground:(BOOL)value
+{
+	_drawsBackground = value;
+	if(value && !_backgroundColor)
+		_backgroundColor = [NSColor whiteColor];
+	[self setNeedsDisplay:YES];
+}
+
 //		def setBackgroundColor_(self, value):
 //			self._backgroundColor = value
 //			if self._drawsBackground:

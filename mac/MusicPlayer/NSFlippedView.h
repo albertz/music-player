@@ -7,5 +7,12 @@
 #import <Cocoa/Cocoa.h>
 
 @interface NSFlippedView : NSView
+{
+@private
+	BOOL _drawsBackground;
+	NSColor* _backgroundColor;
+}
+
+- (void)setDrawsBackground(BOOL);
 
 @end
