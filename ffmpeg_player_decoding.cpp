@@ -915,11 +915,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 
 static bool _buffersFullEnough(PlayerObject::InStream* is) {
 	if(is->playerHitEnd) return true;
-	size_t c = 0;
-	for(auto& it : is->outBuffer.chunks) {
-		c += it.size();
-		if(c >= BUFFER_FILL_SIZE) return true;
-	}
+	if(is->outBuffer.size >= BUFFER_CHUNK_SIZE) return true;
 	return false;
 }
 
@@ -1082,7 +1078,7 @@ void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
 		
 		bool didSomething = loopFrame(this);
 		if(!didSomething)
-			usleep(100);
+			usleep(1000);
 	}
 }
 

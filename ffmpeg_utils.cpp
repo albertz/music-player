@@ -41,22 +41,6 @@ void* getStackPtr(int n) { return NULL; }
 const char* getStackSymbol(void* pt) { return "?"; }
 #endif
 
-size_t Buffer::size() {
-	PyScopedLock lock(mutex);
-	size_t c = 0;
-	for(auto& it : chunks)
-		c += it.size();
-	return c;
-}
-
-bool Buffer::empty() {
-	PyScopedLock lock(mutex);
-	for(auto& it : chunks)
-		if(it.size() > 0)
-			return false;
-	return true;
-}
-
 size_t Buffer::pop(uint8_t* target, size_t target_size) {
 	PyScopedLock lock(mutex);
 	size_t c = 0;
@@ -76,6 +60,7 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 		}
 		chunks.pop_front();
 	}
+	size -= c;
 	return c;	
 }
 
@@ -91,6 +76,7 @@ void Buffer::push(const uint8_t* data, size_t size) {
 		size -= s;
 		chunk.end += s;
 	}
+	this->size += size;
 }
 
 
