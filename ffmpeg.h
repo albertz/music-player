@@ -149,6 +149,7 @@ struct Buffer {
 	std::list<Chunk> chunks;
 	size_t size;
 	
+	Buffer() : size(0) {}
 	void clear() { PyScopedLock lock(mutex); chunks.clear(); size = 0; }
 	bool empty() { PyScopedLock lock(mutex); return size == 0; }
 	
