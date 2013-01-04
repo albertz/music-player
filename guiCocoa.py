@@ -409,9 +409,9 @@ def buildControlList(control):
 			def onFocus(self):
 				if self.index is None:
 					self.select()
-				view.setDrawsFocusRing(True)
+				view.setDrawsFocusRing_(True)
 			def onLostFocus(self):
-				view.setDrawsFocusRing(False)
+				view.setDrawsFocusRing_(False)
 			def onKeyDown(self, ev):
 				# see HIToolbox/Events.h for keycodes
 				if ev.keyCode() == 125: # down
