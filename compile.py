@@ -87,3 +87,12 @@ link(
 	([] if staticChromaprint else ["-lchromaprint"])
 )
 
+if sys.platform == "darwin":
+	guiCocoaCommonFiles = glob("../mac/MusicPlayer/*.m")
+	cc(guiCocoaCommonFiles,	[])
+	link(
+		"../_guiCocoaCommon.dylib",
+		[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in guiCocoaCommonFiles],
+		["-framework", "Cocoa"]
+	)
+	
