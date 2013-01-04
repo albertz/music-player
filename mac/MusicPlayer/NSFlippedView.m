@@ -23,6 +23,12 @@
     // Drawing code here.
 }
 
+- (void)dealloc
+{
+	[self setBackgroundColor:nil];
+	[super dealloc];
+}
+
 - (BOOL)isFlipped
 {
 	return YES;
@@ -32,15 +38,27 @@
 {
 	_drawsBackground = value;
 	if(value && !_backgroundColor)
-		_backgroundColor = [NSColor whiteColor];
+		_backgroundColor = [[NSColor whiteColor] retain];
 	[self setNeedsDisplay:YES];
 }
 
-//		def setBackgroundColor_(self, value):
-//			self._backgroundColor = value
-//			if self._drawsBackground:
-//				self.setNeedsDisplay_(True)
-//		def backgroundColor(self): return self._backgroundColor
+- (void)setBackgroundColor:(NSColor*)value
+{
+	if(_backgroundColor) {
+		[_backgroundColor release];
+		_backgroundColor = nil;
+	}
+	if(value) {
+		_backgroundColor = [value retain];
+		[self setNeedsDisplay:YES];
+	}
+}
+
+- (NSColor*)backgroundColor
+{
+	return _backgroundColor;
+}
+
 //		def setDrawsFocusRing(self, value):
 //			self._drawsFocusRing = value
 //			self.setNeedsDisplay_(True)

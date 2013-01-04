@@ -13,6 +13,8 @@
 	NSColor* _backgroundColor;
 }
 
-- (void)setDrawsBackground(BOOL);
+- (void)setDrawsBackground:(BOOL)value;
+- (void)setBackgroundColor:(NSColor*)value;
+- (NSColor*)backgroundColor;
 
 @end
