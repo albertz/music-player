@@ -65,6 +65,9 @@
 		233685361600BD7F00A38E78 /* spectrum.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EE1600BD7F00A38E78 /* spectrum.h */; };
 		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
 		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
+		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
+		238E98791696674000C42074 /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 238E98671696633000C42074 /* NSFlippedView.m */; };
+		238E987A1696674300C42074 /* NSFlippedView.h in Sources */ = {isa = PBXBuildFile; fileRef = 238E98661696633000C42074 /* NSFlippedView.h */; };
 		23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
@@ -83,6 +86,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		238E9877169664E200C42074 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 238E986B169664B400C42074;
+			remoteInfo = guiCocoaCommon;
+		};
 		23A14A7115E3DFDD00376BF6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
@@ -150,6 +160,9 @@
 		233684EE1600BD7F00A38E78 /* spectrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectrum.h; sourceTree = "<group>"; };
 		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		238E98661696633000C42074 /* NSFlippedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = MusicPlayer/NSFlippedView.h; sourceTree = "<group>"; };
+		238E98671696633000C42074 /* NSFlippedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = MusicPlayer/NSFlippedView.m; sourceTree = "<group>"; };
+		238E986C169664B400C42074 /* guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3915E3B2CC00376BF6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		23A14A3C15E3B2CC00376BF6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -179,6 +192,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		238E9869169664B400C42074 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				238E986D169664B400C42074 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23A14A3215E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -263,9 +284,19 @@
 			path = ../chromaprint;
 			sourceTree = "<group>";
 		};
+		238E98621696608E00C42074 /* guiCocoaCommon.so */ = {
+			isa = PBXGroup;
+			children = (
+				238E98661696633000C42074 /* NSFlippedView.h */,
+				238E98671696633000C42074 /* NSFlippedView.m */,
+			);
+			name = guiCocoaCommon.so;
+			sourceTree = "<group>";
+		};
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
+				238E98621696608E00C42074 /* guiCocoaCommon.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
@@ -280,6 +311,7 @@
 			children = (
 				23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */,
 				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
+				238E986C169664B400C42074 /* guiCocoaCommon.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -348,6 +380,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		238E986A169664B400C42074 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23A14A5C15E3B63C00376BF6 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -395,6 +434,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		238E986B169664B400C42074 /* guiCocoaCommon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */;
+			buildPhases = (
+				238E9868169664B400C42074 /* Sources */,
+				238E9869169664B400C42074 /* Frameworks */,
+				238E986A169664B400C42074 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = guiCocoaCommon;
+			productName = guiCocoaCommon;
+			productReference = 238E986C169664B400C42074 /* guiCocoaCommon.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		23A14A3415E3B2CC00376BF6 /* MusicPlayer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 23A14A5315E3B2CC00376BF6 /* Build configuration list for PBXNativeTarget "MusicPlayer" */;
@@ -408,6 +464,7 @@
 			);
 			dependencies = (
 				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
+				238E9878169664E200C42074 /* PBXTargetDependency */,
 			);
 			name = MusicPlayer;
 			productName = MusicPlayer;
@@ -454,6 +511,7 @@
 			targets = (
 				23A14A3415E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
+				238E986B169664B400C42074 /* guiCocoaCommon */,
 			);
 		};
 /* End PBXProject section */
@@ -488,6 +546,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		238E9868169664B400C42074 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				238E98791696674000C42074 /* NSFlippedView.m in Sources */,
+				238E987A1696674300C42074 /* NSFlippedView.h in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23A14A3115E3B2CC00376BF6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -535,6 +602,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		238E9878169664E200C42074 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 238E986B169664B400C42074 /* guiCocoaCommon */;
+			targetProxy = 238E9877169664E200C42074 /* PBXContainerItemProxy */;
+		};
 		23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 23A14A5D15E3B63C00376BF6 /* ffmpeg.so */;
@@ -562,6 +634,30 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		238E9875169664B400C42074 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_EMPTY_BODY = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "_$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		238E9876169664B400C42074 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_EMPTY_BODY = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				PRODUCT_NAME = "_$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		23A14A5115E3B2CC00376BF6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -680,6 +776,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				238E9875169664B400C42074 /* Debug */,
+				238E9876169664B400C42074 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		23A14A2F15E3B2CB00376BF6 /* Build configuration list for PBXProject "MusicPlayer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
