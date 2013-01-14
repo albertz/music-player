@@ -76,13 +76,14 @@ class DB(object):
 
 	@property
 	def _connection(self):
-		from threading import current_thread
-		return getattr(current_thread(), "_songdb_sqlite_connection", None)
+		if not getattr(self, "_threadLocal", None):
+			import threading
+			self._threadLocal = threading.local()
+		return getattr(self._threadLocal, "connection", None)
 
 	@_connection.setter
 	def _connection(self, v):
-		from threading import current_thread
-		return setattr(current_thread(), "_songdb_sqlite_connection", v)
+		setattr(self._threadLocal, "connection", v)
 
 	def test(self):
 		# Some of these may throw an OperationalError.
@@ -97,7 +98,7 @@ class DB(object):
 		
 	def removeOldDb(self):
 		# Maybe we really should do some backuping...?
-		self._connection = None
+		self._threadLocal = None
 		import shutil, os
 		shutil.rmtree(self.path, ignore_errors=True)
 		try: os.remove(self.path)
@@ -153,7 +154,7 @@ class DB(object):
 	def flush(self):
 		# Not sure if needed, I guess the commit already is the flush.
 		# Closing all connections should in any case force the flush.
-		self._connection = None
+		self._threadLocal = None
 
 DBs = {
 	"songDb": lambda: DB("songs.db"),
