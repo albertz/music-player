@@ -65,7 +65,6 @@ class DB:
 		self.name = name
 		self.path = appinfo.userdir + "/" + name
 		self.create_command = create_command
-		self._connectionCache = {} # cache by thread ident
 		try:
 			self.test()
 		except Exception as exc:
@@ -74,6 +73,16 @@ class DB:
 			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.name, exc)
 			self.removeOldDb()
 			self.initNew()
+
+	@property
+	def _connection(self):
+		from threading import current_thread
+		return getattr(current_thread(), "_songdb_sqlite_connection", None)
+
+	@_connection.setter
+	def _connection(self, v):
+		from threading import current_thread
+		return setattr(current_thread(), "_songdb_sqlite_connection", v)
 
 	def test(self):
 		# Some of these may throw an OperationalError.
@@ -88,25 +97,22 @@ class DB:
 		
 	def removeOldDb(self):
 		# Maybe we really should do some backuping...?
-		self._connectionCache.clear()
+		self._connection = None
 		import shutil, os
 		shutil.rmtree(self.path, ignore_errors=True)
 		try: os.remove(self.path)
 		except OSError: pass
 	
 	def initNew(self):
-		self._connectionCache.clear()
+		self._connection = None
 		conn = sqlite3.connect(self.path)
 		with conn:
 			conn.execute(self.create_command % "data")
 	
 	def _getConnection(self):
-		import threading
-		myIdent = threading.currentThread().ident
-		if myIdent in self._connectionCache:
-			return self._connectionCache[myIdent]
+		if self._connection: return self._connection
 		conn = sqlite3.connect(self.path)
-		self._connectionCache[myIdent] = conn
+		self._connection = conn
 		return conn
 	
 	def _selectCmd(self, cmd, args):
@@ -147,7 +153,7 @@ class DB:
 	def flush(self):
 		# Not sure if needed, I guess the commit already is the flush.
 		# Closing all connections should in any case force the flush.
-		self._connectionCache.clear()
+		self._connection = None
 
 DBs = {
 	"songDb": lambda: DB("songs.db"),
