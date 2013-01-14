@@ -58,7 +58,7 @@ def dbRepr(o): return binstruct.varEncode(o).tostring()
 def dbUnRepr(s): return binstruct.varDecode(s)
 
 
-class DB:
+class DB(object):
 	def __init__(self, name, create_command = "create table %s(key blob primary key unique, value blob)"):
 		import threading
 		self.writelock = threading.Lock()
