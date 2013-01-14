@@ -483,6 +483,7 @@ class Song(object):
 				fastOnly=True)
 		except AttributeError:
 			# Catch that here, otherwise we might get strange behaviour
+			import sys
 			sys.excepthook(*sys.exc_info())					
 			value,accuracy = None, 0
 		if accuracy < self.GetAttrAccuracy:
