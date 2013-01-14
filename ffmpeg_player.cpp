@@ -102,6 +102,7 @@ final:
 		Py_XDECREF(oldSong);
 	}
 	if(!ret) {
+		PyScopedGIUnlock gunlock;
 		PyScopedUnlock unlock(this->lock);
 		player->inStream.reset();
 	}
