@@ -74,5 +74,8 @@ except ImportError:
 argParser.add_argument(
 	"--shell", action="store_true",
 	help="uses a Python shell instead of the standard stdin control")
+argParser.add_argument(
+	"--qtgui", action="store_true",
+	help="force Qt GUI")
 args = argParser.parse_args()
 
