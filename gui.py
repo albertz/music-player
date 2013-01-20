@@ -16,6 +16,8 @@ def locateFile(filename):
 try:
 	if sys.platform == "darwin":
 		from guiCocoa import *
+	elif sys.platform == "linux2":
+		from guiQt import *
 	else:
 		# TODO: PyQt could be the generic fallback gui
 		print "no GUI implemetation"
