@@ -200,7 +200,6 @@ def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	# win.setMinimumSize(w, h)
 	
 	win.setVisible(True) # or show() ?
-	app.exec_()
 	# win.makeMainWindow()
 
 	global windows
@@ -262,7 +261,7 @@ def main():
 	setup()
 
 	print "entering GUI main loop"
-	reloadModuleHandling()
+	app.exec_()
 
 	sys.exit()
 
