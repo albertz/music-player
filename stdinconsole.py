@@ -110,6 +110,7 @@ def stdinconsoleMain():
 		debug_shell(
 			shellGlobals, shellGlobals,
 			execWrapper=utils.do_in_mainthread)
+		print "Python shell quit."
 		# The shell exited. Quit.
 		state.quit()
 		return
