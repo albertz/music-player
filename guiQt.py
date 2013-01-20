@@ -38,8 +38,8 @@ def setup():
 
 def buildControlAction(control):
 	button = QtGui.QPushButton()
-	actionTarget = ButtonActionHandler().initWithArgs(control.attr, control.parent.subjectObject)
-	control.buttonActionHandler = actionTarget # keep ref here. button.target() is only a weakref
+	#actionTarget = ButtonActionHandler().initWithArgs(control.attr, control.parent.subjectObject)
+	#control.buttonActionHandler = actionTarget # keep ref here. button.target() is only a weakref
 	# button.setTarget_(actionTarget)
 	def do_update():
 		button.setText(control.attr.name.decode("utf-8"))
@@ -104,6 +104,26 @@ def buildControlClickableLabel(control):
 
 	return control
 
+def buildControlSongDisplay(control):
+	# TODO ...
+	buildControlOneLineText(control)
+	return control
+
+def buildControlReal(control):
+	# TODO ...
+	buildControlOneLineText(control)
+	return control
+
+def buildControlList(control):
+	# TODO ...
+	buildControlOneLineText(control)
+	return control
+
+def buildControlObject(control):
+	# TODO ...
+	buildControlOneLineText(control)
+	return control
+
 def buildControl(userAttr, parent):
 	print "buildControl %s - %s" % (userAttr, parent)
 	control = QtGuiObject()
@@ -141,35 +161,36 @@ class QtGuiObject(object):
 	@pos.setter
 	def pos(self, value):
 		x, y = value
-		self.nativeGuiObject.pos().setX(x)
-		self.nativeGuiObject.pos().setY(y)
+		self.nativeGuiObject.move(x, y)
 
 	@property
 	def size(self):
-		size = self.nativeGuiObject.baseSize()
+		size = self.nativeGuiObject.frameGeometry()
 		return [size.width(), size.height()]
 
 	@size.setter
 	def size(self, value):
-		self.nativeGuiObject.resize(value)
+		self.nativeGuiObject.resize(*value)
 
 	@property
 	def innerSize(self):
-		return (self.nativeGuiObject.bounds().size.width, self.nativeGuiObject.bounds().size.height)
+		size = self.nativeGuiObject.size()
+		return (size.width(), size.height())
 
 	@property
 	def autoresize(self):
-		flags = self.nativeGuiObject.autoresizingMask()
-		return (flags & NSViewMinXMargin, flags & NSViewMinYMargin, flags & NSViewWidthSizable, flags & NSViewHeightSizable)
+		#flags = self.nativeGuiObject.autoresizingMask()
+		#return (flags & NSViewMinXMargin, flags & NSViewMinYMargin, flags & NSViewWidthSizable, flags & NSViewHeightSizable)
+		return (False,False,False,False)
 	
 	@autoresize.setter
 	def autoresize(self, value):
 		flags = 0
-		if value[0]: flags |= NSViewMinXMargin
-		if value[1]: flags |= NSViewMinYMargin
-		if value[2]: flags |= NSViewWidthSizable
-		if value[3]: flags |= NSViewHeightSizable
-		self.nativeGuiObject.setAutoresizingMask_(flags)
+		#if value[0]: flags |= NSViewMinXMargin
+		#if value[1]: flags |= NSViewMinYMargin
+		#if value[2]: flags |= NSViewWidthSizable
+		#if value[3]: flags |= NSViewHeightSizable
+		#self.nativeGuiObject.setAutoresizingMask_(flags)
 		
 	def addChild(self, child):
 		self.grid.addWidget(child.nativeGuiObject, 0, 0)
@@ -241,7 +262,7 @@ def reloadModuleHandling():
 
 	try:
 	 	setupAfterAppFinishedLaunching()
-	except:
+	except Exception:
 	 	sys.excepthook(*sys.exc_info())
 
 def guiMain():
@@ -251,7 +272,7 @@ def guiMain():
 			global windows
 			for w in windows.values():
 				w.updateContent(ev,args,kwargs)
-		except:
+		except Exception:
 			sys.excepthook(*sys.exc_info())
 
 def main():
@@ -260,10 +281,13 @@ def main():
 	app = QtGui.QApplication(sys.argv)
 	setup()
 
-	print "entering GUI main loop"
-	app.exec_()
+	setupAfterAppFinishedLaunching()
 
-	sys.exit()
+	print "entering QtGui main loop"
+	code = app.exec_()
+
+	print "QtGui exit code:", code
+	#sys.exit(code)
 
 if isReload:
 	do_in_mainthread(reloadModuleHandling)
