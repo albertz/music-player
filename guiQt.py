@@ -4,9 +4,9 @@ try:
 	from PyQt4 import QtGui, QtCore
 except ImportError:
 	print "Cant load PyQt4"
+	raise # That's fatal
 
 from utils import *
-from guiQtCommon import *
 import Traits
 
 try:
