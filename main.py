@@ -24,8 +24,6 @@ if __name__ == '__main__':
 	try:
 		# This will overtake the main loop and raise SystemExit at its end.
 		gui.main()
-	except NotImplementedError:
-		print "GUI not implemented"
 	except SystemExit:
 		raise
 	
