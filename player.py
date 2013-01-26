@@ -14,21 +14,32 @@ except NameError:
 		onPlayingStateChange = None
 	
 def songsQueue(state):
+	import sys
 	if state.curSong:
 		# We just started the player and we have a current song from persistent storage.
 		# Yield it now so that we begin playing with this song.
 		# Yield the Song object itself, though, not the ObjectProxy. The ObjectProxy
 		# would result in very strange behavior later for onSongChange events.
-		song = state.curSong.__get__(None)
-		assert song
-		song.openFile()
-		yield song
+		try:
+			song = state.curSong.__get__(None)
+			assert song
+			song.openFile()
+		except Exception:
+			print "exception in songsQueue on getting first song"
+			sys.excepthook(*sys.exc_info())
+		else:
+			yield song
 	import queue
 	while True:
-		song = queue.getNextSong()
-		assert song
-		song.openFile()
-		yield song
+		try:
+			song = queue.getNextSong()
+			assert song
+			song.openFile()
+		except Exception:
+			print "exception in songsQueue on getting next song"
+			sys.excepthook(*sys.exc_info())
+		else:
+			yield song
 
 def songsPeekQueue():
 	def openSong(song):
