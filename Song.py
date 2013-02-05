@@ -27,6 +27,7 @@ class Song(object):
 	# This is *not* the list of all further attribs (like bmpThumbnail).
 	url = None
 	skipped = False
+	rootAttribNames = ["url", "skipped", "id"]
 
 	# This is used by the GUI update system.
 	@initBy
@@ -68,29 +69,16 @@ class Song(object):
 	def close(self):
 		self.f = None
 
-	# returns list of all root attrib names
-	@safe_property
-	@property
-	def rootAttribNames(self):
-		# TODO: maybe cache this?
-		l = []
-		import types
-		for attrName in dir(self.__class__):
-			if attrName.startswith("_"): continue
-			attr = getattr(self.__class__, attrName)
-			if isinstance(attr, types.UnboundMethodType): continue
-			if isinstance(attr, property): continue
-			l += [attrName]
-		return l
-
 	# returns custom/changed root attrib dict
 	@safe_property
 	@property
 	def rootAttribDict(self):
 		d = {}
 		attribs = self.rootAttribNames
-		for attr in self.__dict__:
-			if attr in attribs:
+		for attr in attribs:
+			if attr in self.__dict__:
+				d[attr] = getattr(self, attr)
+			if "_" + attr in self.__dict__:
 				d[attr] = getattr(self, attr)
 		return d
 
