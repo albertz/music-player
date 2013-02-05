@@ -7,6 +7,12 @@
 import better_exchook
 better_exchook.install()
 
+try:
+	import faulthandler
+	faulthandler.enable(all_threads=True)
+except ImportError:
+	print "note: faulthandler module not available"
+
 # Do this early to do some option parsing and maybe special handling.
 import appinfo
 
