@@ -833,7 +833,7 @@ def daemonThreadCall(func, name=None):
 	def doCall():
 		try:
 			func()
-		except ForwardedKeyboardInterrupt:
+		except (ForwardedKeyboardInterrupt, KeyboardInterrupt):
 			return # just ignore
 	thread = Thread(target = func, name = name)
 	thread.daemon = True
