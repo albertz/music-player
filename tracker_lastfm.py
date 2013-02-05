@@ -32,6 +32,8 @@ def tracker_lastfmMain():
 	):
 		try:
 			track(ev, args, kwargs)
+		except lastfm.rest.ErrorResponse as exc:
+			print "lastfm error: ErrorResponse %d" % exc.status
 		except Exception:
 			sys.excepthook(*sys.exc_info())
 	lastfm.quit()
