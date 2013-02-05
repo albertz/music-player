@@ -83,6 +83,9 @@ class DB(object):
 
 	@_connection.setter
 	def _connection(self, v):
+		if not getattr(self, "_threadLocal", None):
+			import threading
+			self._threadLocal = threading.local()
 		setattr(self._threadLocal, "connection", v)
 
 	def test(self):
