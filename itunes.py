@@ -248,7 +248,5 @@ try:
 	loadRatingsThread
 except NameError:
 	ratings = {}
-	from threading import Thread
-	loadRatingsThread = Thread(target = loadRatings, name = "iTunes ratings loader")
-	loadRatingsThread.daemon = True
-	loadRatingsThread.start()
+	from utils import daemonThreadCall
+	daemonThreadCall(loadRatings, name = "iTunes ratings loader")

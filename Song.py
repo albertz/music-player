@@ -393,10 +393,13 @@ class Song(object):
 		self.update(attr, lambda _: value)
 		
 	def calcAndSet(self, attrib):
-		from utils import asyncCall
-		res = asyncCall(
-			func = getattr(self, "_calc_" + attrib),
-			name = "calc Song(%s) %s" % (self.userString.encode("utf-8"), attrib))
+		from utils import asyncCall, ForwardedKeyboardInterrupt
+		try:
+			res = asyncCall(
+				func = getattr(self, "_calc_" + attrib),
+				name = "calc Song(%s) %s" % (self.userString.encode("utf-8"), attrib))
+		except ForwardedKeyboardInterrupt:
+			return None
 		for attr,value in res.items():
 			setattr(self, attr, value)
 		return res.get(attrib, None)

@@ -798,10 +798,7 @@ def songdbMain():
 		import appinfo
 		for dir in appinfo.musicdirs:
 			utils.asyncCall(lambda: indexSearchDir(dir), name="create search index")
-	import threading
-	t = threading.Thread(target=indexAll, name="create search index")
-	t.daemon = True
-	t.start()
+	utils.daemonThreadCall(indexAll, name="create search index")
 	
 	# Reindex played songs.
 	from State import state

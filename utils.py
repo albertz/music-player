@@ -764,6 +764,8 @@ class AsyncTask:
 		self.conn = self.child_conn # we are the child
 		try:
 			self.func(self)
+		except KeyboardInterrupt:
+			print "Exception in AsyncTask", self.name, ": KeyboardInterrupt"
 		except:
 			print "Exception in AsyncTask", self.name
 			sys.excepthook(*sys.exc_info())			
@@ -802,12 +804,17 @@ class AsyncTask:
 	def test(cls):
 		pass
 
+class ForwardedKeyboardInterrupt(Exception): pass
+
 def asyncCall(func, name=None):
 	def doCall(queue):
 		res = None
 		try:
 			res = func()
 			queue.put((None,res))
+		except KeyboardInterrupt as exc:
+			print "Exception in asyncCall", name, ": KeyboardInterrupt"
+			queue.put((ForwardedKeyboardInterrupt(exc),None))
 		except BaseException as exc:
 			print "Exception in asyncCall", name
 			sys.excepthook(*sys.exc_info())
@@ -820,6 +827,17 @@ def asyncCall(func, name=None):
 	if exc is not None:
 		raise exc
 	return res
+
+def daemonThreadCall(func, name=None):
+	from threading import Thread
+	def doCall():
+		try:
+			func()
+		except ForwardedKeyboardInterrupt:
+			return # just ignore
+	thread = Thread(target = func, name = name)
+	thread.daemon = True
+	thread.start()
 
 def killMeHard():
 	import sys, os, signal
