@@ -776,9 +776,15 @@ class AsyncTask:
 		
 	def get(self):
 		thread = currentThread()
-		thread.waitQueue = self
-		res = self.conn.recv()
-		thread.waitQueue = None
+		try:
+			thread.waitQueue = self
+			res = self.conn.recv()
+		except EOFError: # this happens when the child died
+			raise ForwardedKeyboardInterrupt()
+		except Exception:
+			raise
+		finally:
+			thread.waitQueue = None
 		return res
 	
 	@property
@@ -823,10 +829,7 @@ def asyncCall(func, name=None):
 	# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
 	# this will raise an EOFError here.
 	# However, normally, we should catch all exceptions and just reraise them here.
-	try:
-		exc,res = task.get()
-	except EOFError:
-		raise ForwardedKeyboardInterrupt()
+	exc,res = task.get()
 	if exc is not None:
 		raise exc
 	return res
