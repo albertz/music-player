@@ -528,10 +528,7 @@ def buildControlList(control):
 									index,
 									filenames),
 								wait=False)
-					from threading import Thread
-					t = Thread(target=doDragHandler, name="DragHandler")
-					t.daemon = True
-					t.start()
+					utils.daemonThreadCall(doDragHandler, name="DragHandler")
 					return True
 				except:
 					sys.excepthook(*sys.exc_info())
