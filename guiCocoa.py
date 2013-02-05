@@ -55,7 +55,33 @@ def setupAppleMenu():
 	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
 	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')		
 
+	# new supermenu
+	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Control", None, "")
+	m = NSMenu.alloc().initWithTitle_("Control")
+	mainMenu.setSubmenu_forItem_(m, mi)
+
+	m.addItemWithTitle_action_keyEquivalent_('no song yet', '', '')
+	m.addItemWithTitle_action_keyEquivalent_('Play', 'playPause:', '')
+	m.addItemWithTitle_action_keyEquivalent_('Next song', 'nextSong:', '')
+	
+	app.delegate().dockMenu = m
+	app.setDockMenu_(m)
+
 	app.setMainMenu_(mainMenu)
+
+def updateControlMenu():
+	if not app: return
+	menu = getattr(app.delegate(), "dockMenu", None)
+	if not menu: return
+	from State import state
+	if not state: return
+	songEntry = menu.itemAtIndex_(0)
+	playPauseEntry = menu.itemAtIndex_(1)
+	songEntry.setTitle_(convertToUnicode(state.curSong.userString))
+	if state.player.playing:
+		playPauseEntry.setTitle_("Pause")
+	else:
+		playPauseEntry.setTitle_("Play")		
 
 def setupAfterAppFinishedLaunching(delegate):
 	setupAppleMenu()
@@ -115,7 +141,15 @@ class PyAppDelegate(NSObject):
 	def about_(self, app):
 		import webbrowser
 		webbrowser.open("http://albertz.github.com/music-player/")
-		
+	
+	def playPause_(self, app):
+		from State import state
+		state.playPause()
+	
+	def nextSong_(self, app):
+		from State import state
+		state.nextSong()
+
 def getWindow(name):
 	global windows
 	if windows.get(name, None):
@@ -1032,6 +1066,7 @@ def reloadModuleHandling():
 		sys.excepthook(*sys.exc_info())
 
 def guiMain():
+	from player import PlayerEventCallbacks
 	pool = NSAutoreleasePool.alloc().init()
 	from State import state
 	for ev,args,kwargs in state.updates.read():
@@ -1039,6 +1074,8 @@ def guiMain():
 			global windows
 			for w in windows.values():
 				w.updateContent(ev,args,kwargs)
+			if ev is PlayerEventCallbacks.onPlayingStateChange or ev is PlayerEventCallbacks.onSongChange:
+				updateControlMenu()
 		except:
 			sys.excepthook(*sys.exc_info())
 	del pool
