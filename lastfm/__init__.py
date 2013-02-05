@@ -183,7 +183,7 @@ class Client:
 				# wait a bit and retry
 				import time
 				time.sleep(1)
-			except:
+			except Exception:
 				import sys
 				sys.excepthook(*sys.exc_info())
 				import time
