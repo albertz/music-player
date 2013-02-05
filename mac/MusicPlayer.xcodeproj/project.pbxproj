@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		231799221651612E00F6AC7B /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
 		231799231651613600F6AC7B /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
+		2331F83616C16B720037D148 /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
+		2331F86316C16BC40037D148 /* faulthandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86116C16BC40037D148 /* faulthandler.c */; };
+		2331F86416C16BC40037D148 /* traceback.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86216C16BC40037D148 /* traceback.c */; };
 		233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A51600BD7F00A38E78 /* audio_consumer.h */; };
 		233684F11600BD7F00A38E78 /* audio_processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684A61600BD7F00A38E78 /* audio_processor.cpp */; };
 		233684F21600BD7F00A38E78 /* audio_processor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A71600BD7F00A38E78 /* audio_processor.h */; };
@@ -86,6 +89,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2331F86516C16BCE0037D148 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2331F81716C16B720037D148;
+			remoteInfo = faulthandler.so;
+		};
 		238E9877169664E200C42074 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
@@ -104,6 +114,9 @@
 
 /* Begin PBXFileReference section */
 		231799211651612E00F6AC7B /* libpython2.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython2.6.dylib; path = usr/lib/libpython2.6.dylib; sourceTree = SDKROOT; };
+		2331F86016C16B720037D148 /* faulthandler.so.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = faulthandler.so.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		2331F86116C16BC40037D148 /* faulthandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = faulthandler.c; path = ../faulthandler/faulthandler.c; sourceTree = "<group>"; };
+		2331F86216C16BC40037D148 /* traceback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = traceback.c; path = ../faulthandler/traceback.c; sourceTree = "<group>"; };
 		233684A51600BD7F00A38E78 /* audio_consumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_consumer.h; sourceTree = "<group>"; };
 		233684A61600BD7F00A38E78 /* audio_processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_processor.cpp; sourceTree = "<group>"; };
 		233684A71600BD7F00A38E78 /* audio_processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_processor.h; sourceTree = "<group>"; };
@@ -162,7 +175,7 @@
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		238E98661696633000C42074 /* NSFlippedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = MusicPlayer/NSFlippedView.h; sourceTree = "<group>"; };
 		238E98671696633000C42074 /* NSFlippedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = MusicPlayer/NSFlippedView.m; sourceTree = "<group>"; };
-		238E986C169664B400C42074 /* guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		238E986C169664B400C42074 /* guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = guiCocoaCommon.dylib; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3915E3B2CC00376BF6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		23A14A3C15E3B2CC00376BF6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -192,6 +205,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2331F83516C16B720037D148 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2331F83616C16B720037D148 /* libpython2.6.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		238E9869169664B400C42074 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -220,6 +241,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2331F81616C16A750037D148 /* faulthandler */ = {
+			isa = PBXGroup;
+			children = (
+				2331F86116C16BC40037D148 /* faulthandler.c */,
+				2331F86216C16BC40037D148 /* traceback.c */,
+			);
+			name = faulthandler;
+			sourceTree = "<group>";
+		};
 		233684A41600BD7F00A38E78 /* chromaprint */ = {
 			isa = PBXGroup;
 			children = (
@@ -296,6 +326,7 @@
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
+				2331F81616C16A750037D148 /* faulthandler */,
 				238E98621696608E00C42074 /* guiCocoaCommon.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
@@ -312,6 +343,7 @@
 				23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */,
 				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
 				238E986C169664B400C42074 /* guiCocoaCommon.dylib */,
+				2331F86016C16B720037D148 /* faulthandler.so.so */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -380,6 +412,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		2331F83716C16B720037D148 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		238E986A169664B400C42074 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -434,6 +473,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2331F81716C16B720037D148 /* faulthandler.so */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2331F85D16C16B720037D148 /* Build configuration list for PBXNativeTarget "faulthandler.so" */;
+			buildPhases = (
+				2331F81816C16B720037D148 /* Sources */,
+				2331F83516C16B720037D148 /* Frameworks */,
+				2331F83716C16B720037D148 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = faulthandler.so;
+			productName = ffmpeg.so;
+			productReference = 2331F86016C16B720037D148 /* faulthandler.so.so */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		238E986B169664B400C42074 /* guiCocoaCommon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */;
@@ -465,6 +521,7 @@
 			dependencies = (
 				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
 				238E9878169664E200C42074 /* PBXTargetDependency */,
+				2331F86616C16BCE0037D148 /* PBXTargetDependency */,
 			);
 			name = MusicPlayer;
 			productName = MusicPlayer;
@@ -512,6 +569,7 @@
 				23A14A3415E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
 				238E986B169664B400C42074 /* guiCocoaCommon */,
+				2331F81716C16B720037D148 /* faulthandler.so */,
 			);
 		};
 /* End PBXProject section */
@@ -546,6 +604,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2331F81816C16B720037D148 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2331F86316C16BC40037D148 /* faulthandler.c in Sources */,
+				2331F86416C16BC40037D148 /* traceback.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		238E9868169664B400C42074 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -602,6 +669,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2331F86616C16BCE0037D148 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2331F81716C16B720037D148 /* faulthandler.so */;
+			targetProxy = 2331F86516C16BCE0037D148 /* PBXContainerItemProxy */;
+		};
 		238E9878169664E200C42074 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 238E986B169664B400C42074 /* guiCocoaCommon */;
@@ -634,6 +706,26 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2331F85E16C16B720037D148 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
+				PRODUCT_NAME = faulthandler;
+			};
+			name = Debug;
+		};
+		2331F85F16C16B720037D148 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
+				PRODUCT_NAME = faulthandler;
+			};
+			name = Release;
+		};
 		238E9875169664B400C42074 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -675,7 +767,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Headers;
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Versions/2.6/Headers;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -697,7 +789,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Headers;
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Versions/2.6/Headers;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SDKROOT = macosx;
 			};
@@ -776,6 +868,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2331F85D16C16B720037D148 /* Build configuration list for PBXNativeTarget "faulthandler.so" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2331F85E16C16B720037D148 /* Debug */,
+				2331F85F16C16B720037D148 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -783,6 +884,7 @@
 				238E9876169664B400C42074 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		23A14A2F15E3B2CB00376BF6 /* Build configuration list for PBXProject "MusicPlayer" */ = {
 			isa = XCConfigurationList;

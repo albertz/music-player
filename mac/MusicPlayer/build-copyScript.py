@@ -19,6 +19,7 @@ import better_exchook
 better_exchook.install()
 
 assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so")
+assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/faulthandler.so")
 assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_guiCocoaCommon.dylib")
 
 # $PROJECT_DIR : /Users/az/Programmierung/music-player/mac
@@ -35,7 +36,7 @@ open(PYDIR + "/appinfo_build.py", "w").write(
 	"buildTime = %r\n" % time.strftime("%Y-%m-%d %H:%M:%S +0000", time.gmtime())
 )
 
-for f in ("ffmpeg.so","_guiCocoaCommon.dylib"):
+for f in ("ffmpeg.so","faulthandler.so","_guiCocoaCommon.dylib"):
 	cp(env["BUILT_PRODUCTS_DIR"] + "/" + f, PYDIR + "/" + f)
 for f in ("License.txt", "DevelopmentNotes.md", "WhatIsAMusicPlayer.md"):
 	cp(env["PROJECT_DIR"] + "/../" + f, PYDIR + "/" + f)
