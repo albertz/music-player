@@ -177,7 +177,9 @@ def usedDbsInCode(f):
 	return dbs
 
 def init():
+	import threading
 	for db in DBs.keys():
+		globals()["_%s_initlock" % db] = threading.Lock()
 		globals()[db] = None
 	import types
 	c = 0
@@ -194,8 +196,9 @@ def init():
 	assert c > 0, "check if __module__ is correct..."
 	
 def initDb(db):
-	if not globals()[db]:
-		globals()[db] = DBs[db]()
+	with globals()["_%s_initlock" % db]:
+		if not globals()[db]:
+			globals()[db] = DBs[db]()
 
 def lazyInitDb(*dbs):
 	def decorator(f):
