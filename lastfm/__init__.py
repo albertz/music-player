@@ -177,6 +177,12 @@ class Client:
 					# This is an API error, we would very likely get the same error again, so just stop
 					return
 				return ret
+			except rest.ErrorResponse as exc:
+				print "Last.fm error: ErrorResponse %d" % exc.status
+				# last.fm server busy or so
+				# wait a bit and retry
+				import time
+				time.sleep(1)
 			except rest.RESTSocketError:
 				# maybe no internet connection
 				# dont print an error, dont spam	
