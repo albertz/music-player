@@ -739,6 +739,8 @@ def funcCall(attrChainArgs, args=()):
 	return f(*args)
 
 
+isFork = False
+
 class AsyncTask:
 	def __init__(self, func, name=None):
 		from multiprocessing import Process, Pipe, Queue
@@ -762,14 +764,17 @@ class AsyncTask:
 		assert self.isChild
 		self.parent_conn.close()
 		self.conn = self.child_conn # we are the child
+		global isFork
+		isFork = True
 		try:
 			self.func(self)
 		except KeyboardInterrupt:
 			print "Exception in AsyncTask", self.name, ": KeyboardInterrupt"
 		except:
 			print "Exception in AsyncTask", self.name
-			sys.excepthook(*sys.exc_info())			
-		self.conn.close()
+			sys.excepthook(*sys.exc_info())
+		finally:
+			self.conn.close()
 	
 	def put(self, value):
 		self.conn.send(value)
