@@ -823,7 +823,10 @@ def asyncCall(func, name=None):
 	# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
 	# this will raise an EOFError here.
 	# However, normally, we should catch all exceptions and just reraise them here.
-	exc,res = task.get()
+	try:
+		exc,res = task.get()
+	except EOFError:
+		raise ForwardedKeyboardInterrupt()
 	if exc is not None:
 		raise exc
 	return res
