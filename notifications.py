@@ -8,10 +8,14 @@ def macNotificationsMain():
 	from player import PlayerEventCallbacks
 	import AppKit
 	import utils
+
+	if not hasattr(AppKit, "NSUserNotificationCenter"):
+		print "macNotificationsMain: NSUserNotificationCenter not available. this is only available since MacOSX 10.8"
+		return
 	
 	pool = AppKit.NSAutoreleasePool.alloc().init()
 
-	appDelegate = AppKit.NSApplication.sharedApplication().delegate()
+	appDelegate = AppKit.NSApplication.sharedApplication().delegate()	
 	notifCenter = AppKit.NSUserNotificationCenter.defaultUserNotificationCenter()
 	notifCenter.setDelegate_(appDelegate)
 
