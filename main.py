@@ -14,7 +14,7 @@ import appinfo
 import utils
 
 import sys, time
-print "MusicPlayer from", appinfo.buildTime
+print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "on", appinfo.platform, "(%s)" % sys.platform
 print "startup on", utils.formatDate(time.time())
 
 from State import state, modules
