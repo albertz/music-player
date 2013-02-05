@@ -13,8 +13,11 @@ import appinfo
 # This might do some init which might be important to be done in the main thread.
 import utils
 
+import sys, time
+print "MusicPlayer from", appinfo.buildTime
+print "startup on", utils.formatDate(time.time())
+
 from State import state, modules
-import sys
 
 if __name__ == '__main__':	
 

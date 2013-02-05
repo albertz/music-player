@@ -8,6 +8,11 @@ progname = "MusicPlayer"
 appid = "com.albertzeyer." + progname
 version = "1.0"
 
+try:
+	from appinfo_build import *
+except ImportError:
+	buildTime = "<unknown>"
+
 userdir = "~/." + appid
 platform = None
 
