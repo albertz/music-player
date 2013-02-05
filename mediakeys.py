@@ -69,7 +69,7 @@ class MacMediaKeyEventsTap:
 			try:
 				# and run! This won't return until we exit or are terminated.
 				Quartz.CFRunLoopRun()
-			except:
+			except Exception:
 				# I got this one here once:
 				# error: NSInternalInconsistencyException - Invalid parameter not satisfying: cgsEvent.type > 0 && cgsEvent.type <= kCGSLastEventType
 				sys.excepthook(*sys.exc_info())
@@ -81,10 +81,8 @@ class MacMediaKeyEventsTap:
 		del pool
 
 	def start(self):
-		from threading import Thread
-		self.thread = Thread(target = self.runEventsCapture, name = "mediakeys runEventsCapture")
-		self.thread.daemon = True
-		self.thread.start()
+		import utils
+		utils.daemonThreadCall(self.runEventsCapture, name = "mediakeys runEventsCapture")
 
 	def stop(self):
 		import Quartz
