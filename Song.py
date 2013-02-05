@@ -53,9 +53,31 @@ class Song(object):
 		return hasattr(other, "url") and self.url == other.url
 	def __ne__(self, other):
 		return not self == other
+	def selectUrlById(self):
+		assert self._useDb, "Song.selectUrl: need to use the songdb"
+		id = getattr(self, "_id", None)
+		assert id, "Song.selectUrl: need a song-id"
+		import songdb
+		url = songdb.getSongFilenameById(id)
+		if url: self.url = url
+		return url
 	def openFile(self):
 		if not self.f:
-			self.f = open(self.url)
+			if not self.url and hasattr(self, "_id") and self._useDb:
+				self.selectUrlById()
+			assert self.url, "Song.openFile: need a song-url"
+			try:
+				self.f = open(self.url)
+				return
+			except IOError:
+				if hasattr(self, "_id") and self._useDb:
+					oldUrl = self.url
+					newUrl = self.selectUrlById()
+					if newUrl and newUrl != oldUrl:
+						assert newUrl == self.url
+						self.f = open(self.url)
+						return
+				raise
 
 	# { ffmpeg player interface
 	def readPacket(self, bufSize):
