@@ -227,7 +227,6 @@ class Song(object):
 		# TODO ...
 		data = sorted()
 	
-	@safe_property
 	@property
 	def id(self):
 		if getattr(self, "_id", None): return self._id
@@ -252,6 +251,7 @@ class Song(object):
 		self._recursive_id_call = False
 		return self._id
 	
+	@safe_property
 	@id.setter
 	def id(self, value):
 		self._id = value
