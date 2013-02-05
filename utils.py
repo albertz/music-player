@@ -18,6 +18,7 @@ except ImportError:
 from collections import deque
 from threading import Condition, Thread, currentThread, Lock, RLock
 import sys, os, time
+import types
 
 import better_exchook
 
@@ -291,6 +292,11 @@ class safe_property(object):
 	def __getattr__(self, attr):
 		# forward prop.setter, prop.deleter, etc.
 		return getattr(self.prop, attr)
+
+def formatDate(t):
+	if isinstance(t, (types.IntType,types.LongType,types.FloatType)):
+		t = time.gmtime(t)
+	return time.strftime("%Y-%m-%d %H:%M:%S +0000", t)
 
 def formatTime(t):
 	if t is None: return "?"
