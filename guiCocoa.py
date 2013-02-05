@@ -31,6 +31,11 @@ def setupAppleMenu():
 	
 	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
 	m.addItem_(NSMenuItem.separatorItem())
+	m.addItemWithTitle_action_keyEquivalent_('Hide MusicPlayer', 'hide:', 'h')
+	mii = m.addItemWithTitle_action_keyEquivalent_('Hide Others', 'hideOtherApplications:', 'h')
+	mii.setKeyEquivalentModifierMask_(NSAlternateKeyMask|NSCommandKeyMask)
+	m.addItemWithTitle_action_keyEquivalent_('Show All', 'unhideAllApplications:', '')
+	m.addItem_(NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
 
 	# new supermenu
