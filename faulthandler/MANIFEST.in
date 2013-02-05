@@ -1,0 +1,4 @@
+include COPYING
+include MANIFEST.in
+include tests.py
+include faulthandler/faulthandler.h
