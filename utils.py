@@ -845,6 +845,16 @@ def asyncCall(func, name=None):
 		raise exc
 	return res
 
+
+def MustNotBeInForkDecorator(func):
+	def decoratedFunc(*args, **kwargs):
+		global isFork
+		if isFork:
+			debugWarn("Must not be in fork!")
+			return None
+		return func(*args, **kwargs)
+	return decoratedFunc
+
 def daemonThreadCall(func, name=None):
 	from threading import Thread
 	def doCall():
