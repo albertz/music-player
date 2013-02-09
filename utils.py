@@ -901,7 +901,13 @@ def debugWarn(msg):
 	if not hasattr(sys, "_getframe"):
 		print "Warning: debugWarn: no sys._getframe"
 		return
-	better_exchook.print_traceback(sys._getframe())
+	f = sys._getframe()
+	if not f:
+		print "Warning: debugWarn: no frame"
+	f = f.f_back
+	if not f:
+		print "Warning: debugWarn: no previous frame"	
+	better_exchook.print_traceback(f)
 	
 
 def test():
