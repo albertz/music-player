@@ -847,10 +847,14 @@ def asyncCall(func, name=None):
 
 
 def WarnMustNotBeInForkDecorator(func):
+	class Ctx:
+		didWarn = False
 	def decoratedFunc(*args, **kwargs):
 		global isFork
 		if isFork:
-			debugWarn("Must not be in fork!")
+			if not Ctx.didWarn:
+				debugWarn("Must not be in fork!")
+				Ctx.didWarn = True
 			return None
 		return func(*args, **kwargs)
 	return decoratedFunc
