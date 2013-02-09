@@ -861,30 +861,37 @@ def killMeHard():
 	os.kill(0, signal.SIGKILL)
 	
 def dumpAllThreads():
-	import threading, sys, traceback
+	import sys
+	if not hasattr(sys, "_current_frames"):
+		print "Warning: dumpAllThreads: no sys._current_frames"
+		return
+
+	import threading
 	id2name = dict([(th.ident, th.name) for th in threading.enumerate()])
-	code = []
 	for threadId, stack in sys._current_frames().items():
-		code.append("\n# Thread: %s(%d)" % (id2name.get(threadId,""), threadId))
-		for filename, lineno, name, line in traceback.extract_stack(stack):
-			code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
-			if line:
-				code.append("  %s" % (line.strip()))
-	print "\n".join(code)
+		print("\n# Thread: %s(%d)" % (id2name.get(threadId,""), threadId))
+		better_exchook.print_traceback(stack)
 
 def dumpThread(threadId):
-	import threading, sys, traceback
-	if threadId not in sys._current_frames():
-		print "Thread", threadId, "not found"
+	import sys
+	if not hasattr(sys, "_current_frames"):
+		print "Warning: dumpThread: no sys._current_frames"
 		return
 	
-	code = []
+	if threadId not in sys._current_frames():
+		print("Thread %d not found" % threadId)
+		return
+	
 	stack = sys._current_frames()[threadId]
-	for filename, lineno, name, line in traceback.extract_stack(stack):
-		code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
-		if line:
-			code.append("  %s" % (line.strip()))
-	print "\n".join(code)
+	better_exchook.print_traceback(stack)
+
+def debugWarn(msg):
+	print "Warning:", msg
+	import sys
+	if not hasattr(sys, "_getframe"):
+		print "Warning: debugWarn: no sys._getframe"
+		return
+	better_exchook.print_traceback(sys._getframe())
 	
 
 def test():
@@ -930,3 +937,4 @@ def isPymoduleAvailable(mod):
 	except ImportError:
 		return False
 	return True
+
