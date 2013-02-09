@@ -913,7 +913,7 @@ def NSAutoreleasePoolDecorator(func):
 	def decoratedFunc(*args, **kwargs):
 		import AppKit
 		pool = AppKit.NSAutoreleasePool.alloc().init()
-		ret = func()
+		ret = func(*args, **kwargs)
 		del pool
 		return ret
 	return decoratedFunc
