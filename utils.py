@@ -846,7 +846,7 @@ def asyncCall(func, name=None):
 	return res
 
 
-def MustNotBeInForkDecorator(func):
+def WarnMustNotBeInForkDecorator(func):
 	def decoratedFunc(*args, **kwargs):
 		global isFork
 		if isFork:

@@ -11,9 +11,9 @@ import utils
 if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 
 	import AppKit
-	from utils import NSAutoreleasePoolDecorator, MustNotBeInForkDecorator
+	from utils import NSAutoreleasePoolDecorator, WarnMustNotBeInForkDecorator
 	
-	@MustNotBeInForkDecorator
+	@WarnMustNotBeInForkDecorator
 	@NSAutoreleasePoolDecorator
 	def getFileNativeId(filepath):
 		if not os.path.isfile(filepath): return None
@@ -27,7 +27,7 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		bytes = bookmark.bytes().tobytes()		
 		return bytes
 	
-	@MustNotBeInForkDecorator
+	@WarnMustNotBeInForkDecorator
 	@NSAutoreleasePoolDecorator
 	def getPathByNativeId(fileid):
 		nsdata = AppKit.NSData.alloc().initWithBytes_length_(fileid, len(fileid))
