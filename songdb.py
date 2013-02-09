@@ -296,7 +296,11 @@ def getSongId(song):
 	return None
 
 def maybeInitSongDbEntry(song, songId):
+	import fileid
+	nativeFileId = fileid.getFileNativeId(song.url)
+	
 	with songDb.writelock:
+		change = False
 		try: d = songDb[songId]
 		except KeyError: d = {}
 		filesDict = d.setdefault("files", {})
@@ -304,6 +308,13 @@ def maybeInitSongDbEntry(song, songId):
 		if not fn in filesDict:
 			# init empty file-dict
 			filesDict[fn] = {}
+			change = True
+		
+		if nativeFileId and nativeFileId != filesDict[fn].get("nativeFileId", None):
+			filesDict[fn]["nativeFileId"] = nativeFileId
+			change = True
+			
+		if change:
 			# save
 			songDb[songId] = d
 		
@@ -488,6 +499,7 @@ Attribs = {
 	"sha1": Attrib(fileSpecific=True),
 	"metadata": Attrib(fileSpecific=True),
 	"fingerprint_AcoustId": Attrib(fileSpecific=True),
+	"nativeFileId": Attrib(fileSpecific=True),
 	"gain": Attrib(fileSpecific=True),
 	"duration": Attrib(fileSpecific=True),
 # Note that bmpThumbnail is not here. I think it's to heavy
