@@ -892,6 +892,15 @@ def test():
 	
 
 
+def NSAutoreleasePoolDecorator(func):
+	def decoratedFunc(*args, **kwargs):
+		import AppKit
+		pool = AppKit.NSAutoreleasePool.alloc().init()
+		ret = func()
+		del pool
+		return ret
+	return decoratedFunc
+
 def simplifyString(s):
 	s = convertToUnicode(s)
 	s = s.lower()
