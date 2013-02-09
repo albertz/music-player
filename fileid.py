@@ -11,7 +11,7 @@ import utils
 if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 
 	import AppKit
-	from utils import NSAutoreleasePoolDecorator
+	from utils import NSAutoreleasePoolDecorator, MustNotBeInForkDecorator
 	
 	@MustNotBeInForkDecorator
 	@NSAutoreleasePoolDecorator
