@@ -215,10 +215,11 @@ def fallback_findfile(filename):
 	return altfn
 
 def print_traceback(tb, allLocals=None, allGlobals=None):
-	output('Traceback (most recent call last):')
 	assert tb is not None
 	import inspect
 	isframe = inspect.isframe
+	if isframe(tb): output('Traceback (most recent call first)')
+	else: output('Traceback (most recent call last):') # expect traceback-object (or compatible)
 	try:
 		import linecache
 		limit = None
