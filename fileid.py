@@ -11,7 +11,9 @@ import utils
 if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 
 	import AppKit
+	from utils import NSAutoreleasePoolDecorator
 	
+	@NSAutoreleasePoolDecorator
 	def getFileNativeId(filepath):
 		if not os.path.isfile(filepath): return None
 		filepath = os.path.abspath(filepath)
@@ -24,6 +26,7 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		bytes = bookmark.bytes().tobytes()		
 		return bytes
 
+	@NSAutoreleasePoolDecorator
 	def getPathByNativeId(fileid):
 		nsdata = AppKit.NSData.alloc().initWithBytes_length_(fileid, len(fileid))
 		url, _, _ = AppKit.NSURL.URLByResolvingBookmarkData_options_relativeToURL_bookmarkDataIsStale_error_(nsdata, AppKit.NSURLBookmarkResolutionWithoutUI, None,None,None)
