@@ -214,10 +214,11 @@ def fallback_findfile(filename):
 	if altfn[-4:-1] == ".py": altfn = altfn[:-1] # *.pyc or whatever
 	return altfn
 
-def better_exchook(etype, value, tb, debugshell=False, autodebugshell=True):
-	output("EXCEPTION")
+def print_traceback(tb, allLocals=None, allGlobals=None):
 	output('Traceback (most recent call last):')
-	allLocals,allGlobals = {},{}
+	assert tb is not None
+	import inspect
+	isframe = inspect.isframe
 	try:
 		import linecache
 		limit = None
@@ -237,10 +238,12 @@ def better_exchook(etype, value, tb, debugshell=False, autodebugshell=True):
 			except Exception as e:
 				return prefix + "!" + e.__class__.__name__ + ": " + str(e)
 		while _tb is not None and (limit is None or n < limit):
-			f = _tb.tb_frame
-			allLocals.update(f.f_locals)
-			allGlobals.update(f.f_globals)
-			lineno = _tb.tb_lineno
+			if isframe(_tb): f = _tb
+			else: f = _tb.tb_frame
+			if allLocals is not None: allLocals.update(f.f_locals)
+			if allGlobals is not None: allGlobals.update(f.f_globals)
+			if hasattr(_tb, "tb_lineno"): lineno = _tb.tb_lineno
+			else: lineno = f.f_lineno
 			co = f.f_code
 			filename = co.co_filename
 			name = co.co_name
@@ -271,7 +274,8 @@ def better_exchook(etype, value, tb, debugshell=False, autodebugshell=True):
 				if len(alreadyPrintedLocals) == 0: output("       no locals")
 			else:
 				output('    -- code not available --')
-			_tb = _tb.tb_next
+			if isframe(_tb): _tb = _tb.f_back
+			else: _tb = _tb.tb_next
 			n += 1
 
 	except Exception as e:
@@ -279,8 +283,15 @@ def better_exchook(etype, value, tb, debugshell=False, autodebugshell=True):
 		import traceback
 		for l in traceback.format_exc().split("\n"): output("   " + l)
 		output("simple traceback:")
-		traceback.print_tb(tb)
+		if isframe(tb): traceback.print_stack(tb)
+		else: traceback.print_tb(tb)
+	
 
+def better_exchook(etype, value, tb, debugshell=False, autodebugshell=True):
+	output("EXCEPTION")
+	allLocals,allGlobals = {},{}
+	print_traceback(tb, allLocals=allLocals, allGlobals=allGlobals)
+	
 	import types
 	def _some_str(value):
 		try: return str(value)
