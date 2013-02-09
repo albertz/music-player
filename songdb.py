@@ -429,8 +429,17 @@ def getSong(song):
 def getBestSongFileFromDict(filesDict):
 	files = filesDict.keys()
 	import os
-	files = map(os.path.expanduser, files)
-	files = filter(os.path.exists, files)
+	import fileid
+	def remapFilename(fn):
+		expanded = os.path.expanduser(fn)
+		if os.path.exists(expanded): return expanded
+		nativeFileId = filesDict[fn].get("nativeFileId", None)
+		if nativeFileId:
+			path = fileid.getPathByNativeId(nativeFileId)
+			if path and os.path.exists(path): return path
+		return None
+	files = map(remapFilename, files)
+	files = filter(None, files)
 	if not files: return None
 	# priority: flac, m4a, ogg
 	fsByExt = dict([(os.path.splitext(f)[1].lower(), f) for f in files])
