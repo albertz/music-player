@@ -17,11 +17,11 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		filepath = os.path.abspath(filepath)
 		filepath = unicode(filepath)
 		
-		url = AppKit.NSURL.alloc().initFileURLWithPath_(filepath)	
+		url = AppKit.NSURL.alloc().initFileURLWithPath_(filepath)
+		bookmark, _ = url.bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_(AppKit.NSURLBookmarkCreationPreferFileIDResolution,None,None,None)
 		
-		bookmark = url.bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_(AppKit.NSURLBookmarkCreationPreferFileIDResolution,None,None,None)
-		bytes = bookmark[0].bytes().tobytes()
-		
+		if not bookmark: return None
+		bytes = bookmark.bytes().tobytes()		
 		return bytes
 
 	def getPathByNativeId(fileid):
