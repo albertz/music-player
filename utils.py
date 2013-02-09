@@ -914,3 +914,10 @@ def simplifyString(s):
 		s = s.replace(base, repl)
 	return s
 
+
+def isPymoduleAvailable(mod):
+	try:
+		__import__(mod)
+	except ImportError:
+		return False
+	return True
