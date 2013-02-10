@@ -19,6 +19,8 @@ import appinfo
 # This might do some init which might be important to be done in the main thread.
 import utils
 
+utils.AsyncTask.ExecingProcess.checkExec()
+
 import sys, time
 print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "on", appinfo.platform, "(%s)" % sys.platform
 print "startup on", utils.formatDate(time.time())

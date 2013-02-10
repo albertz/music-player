@@ -818,7 +818,7 @@ def songdbMain():
 	def indexAll():
 		import appinfo
 		for dir in appinfo.musicdirs:
-			utils.asyncCall(lambda: indexSearchDir(dir), name="create search index")
+			utils.asyncCall(lambda: indexSearchDir(dir), name="create search index", mustExec=True)
 	utils.daemonThreadCall(indexAll, name="create search index")
 	
 	# Reindex played songs.

@@ -748,13 +748,42 @@ def funcCall(attrChainArgs, args=()):
 isFork = False
 
 class AsyncTask:
-	def __init__(self, func, name=None):
+	class ExecingProcess:
+		def __init__(self, target, args, name):
+			self.target = target
+			self.args = args
+			self.name = name
+			self.daemon = True
+			self.pid = None
+		def start(self):
+			print "exec", sys.executable
+			import subprocess
+			args = sys.argv + ["--forkExecProc"]
+			self.proc = subprocess.Popen(args)
+			self.pid = self.proc.pid
+			pass
+	
+		@staticmethod
+		def checkExec():
+			print "args:", sys.argv
+			
+			if "--forkExecProc" in sys.argv:
+				print "yup"
+				raise SystemExit
+			pass
+		
+	def __init__(self, func, name=None, mustExec=False):
 		from multiprocessing import Process, Pipe, Queue
 		self.name = name or "unnamed"
 		self.func = func
+		self.mustExec = mustExec
 		self.parent_conn, self.child_conn = Pipe()
 		self.parent_pid = os.getpid()
-		self.proc = Process(
+		if mustExec and sys.platform != "win32":
+			self.P = self.ExecingProcess		
+		else:
+			self.P = Process
+		self.proc = self.P(
 			target = self._asyncCall,
 			args = (self,),
 			name = self.name + " worker process")
@@ -770,8 +799,9 @@ class AsyncTask:
 		assert self.isChild
 		self.parent_conn.close()
 		self.conn = self.child_conn # we are the child
-		global isFork
-		isFork = True
+		if not self.mustExec and sys.platform != "win32":
+			global isFork
+			isFork = True
 		try:
 			self.func(self)
 		except KeyboardInterrupt:
@@ -823,7 +853,7 @@ class AsyncTask:
 
 class ForwardedKeyboardInterrupt(Exception): pass
 
-def asyncCall(func, name=None):
+def asyncCall(func, name=None, mustExec=False):
 	def doCall(queue):
 		res = None
 		try:
@@ -836,7 +866,7 @@ def asyncCall(func, name=None):
 			print "Exception in asyncCall", name
 			sys.excepthook(*sys.exc_info())
 			queue.put((exc,None))
-	task = AsyncTask(func=doCall, name=name)
+	task = AsyncTask(func=doCall, name=name, mustExec=mustExec)
 	# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
 	# this will raise an EOFError here.
 	# However, normally, we should catch all exceptions and just reraise them here.
