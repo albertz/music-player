@@ -755,13 +755,14 @@ class AsyncTask:
 			self.name = name
 			self.daemon = True
 			self.pid = None
+			self.proc = None
 		def start(self):
-			print "exec", sys.executable
-			import subprocess
 			args = sys.argv + ["--forkExecProc"]
-			self.proc = subprocess.Popen(args)
-			self.pid = self.proc.pid
-			pass
+			pid = os.fork()
+			if pid == 0: # child
+				os.execv(args[0], args)
+			else: # parent
+				self.pid = pid
 	
 		@staticmethod
 		def checkExec():
