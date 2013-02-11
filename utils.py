@@ -808,7 +808,7 @@ class AsyncTask:
 		self.parent_conn, self.child_conn = Pipe()
 		self.parent_pid = os.getpid()
 		if mustExec and sys.platform != "win32":
-			self.P = self.ExecingProcess
+			self.P = ExecingProcess
 		else:
 			self.P = Process
 		self.proc = self.P(
