@@ -745,60 +745,61 @@ def funcCall(attrChainArgs, args=()):
 	return f(*args)
 
 
+class ExecingProcess:
+	def __init__(self, target, args, name):
+		self.target = target
+		self.args = args
+		self.name = name
+		self.daemon = True
+		self.pid = None
+	def start(self):
+		assert self.pid is None
+		pid = os.fork()
+		def pipeOpen():
+			readend,writeend = os.pipe()
+			readend = os.fdopen(readend, "r")
+			writeend = os.fdopen(writeend, "w")
+			return readend,writeend
+		self.pipe_c2p = pipeOpen()
+		self.pipe_p2c = pipeOpen()
+		if pid == 0: # child
+			self.pipe_c2p[0].close()
+			self.pipe_p2c[1].close()
+			args = sys.argv + [
+				"--forkExecProc",
+				str(self.pipe_c2p[1].fileno()),
+				str(self.pipe_p2c[0].fileno())]
+			os.execv(args[0], args)
+		else: # parent
+			self.pipe_c2p[1].close()
+			self.pipe_p2c[0].close()
+			self.pid = pid
+			import pickle
+			from multiprocessing.forking import ForkingPickler
+			pickler = ForkingPickler(self.pipe_p2c[1], protocol=pickle.HIGHEST_PROTOCOL)
+			pickler.dump(self.name)
+			pickler.dump(self.target)
+			pickler.dump(self.args)
+	@staticmethod
+	def checkExec():
+		if "--forkExecProc" in sys.argv:
+			argidx = sys.argv.index("--forkExecProc")
+			writeFileNo = int(sys.argv[argidx + 1])
+			readFileNo = int(sys.argv[argidx + 2])
+			readend = os.fdopen(readFileNo, "r")
+			writeend = os.fdopen(writeFileNo, "w")
+			import pickle
+			name = pickle.load(readend)
+			print "ExecingProcess child", name, "(pid %i)" % os.getpid()
+			target = pickle.load(readend)
+			args = pickle.load(readend)
+			ret = target(*args)
+			pickle.dump(ret, writeend)
+			raise SystemExit
+
 isFork = False
 
-class AsyncTask:
-	class ExecingProcess:
-		def __init__(self, target, args, name):
-			self.target = target
-			self.args = args
-			self.name = name
-			self.daemon = True
-			self.pid = None
-		def start(self):
-			assert self.pid is None
-			pid = os.fork()
-			def pipeOpen():
-				readend,writeend = os.pipe()
-				readend = os.fdopen(readend, "r")
-				writeend = os.fdopen(writeend, "w")
-				return readend,writeend
-			self.pipe_c2p = pipeOpen()
-			self.pipe_p2c = pipeOpen()
-			if pid == 0: # child
-				self.pipe_c2p[0].close()
-				self.pipe_p2c[1].close()
-				args = sys.argv + [
-					"--forkExecProc",
-					str(self.pipe_c2p[1].fileno()),
-					str(self.pipe_p2c[0].fileno())]
-				os.execv(args[0], args)
-			else: # parent
-				self.pipe_c2p[1].close()
-				self.pipe_p2c[0].close()
-				self.pid = pid
-				import pickle
-				pickler = pickle.Pickler(self.pipe_p2c[1], protocol=pickle.HIGHEST_PROTOCOL)
-				pickler.dump(self.name)
-				pickler.dump(self.target)
-				pickler.dump(self.args)
-		@staticmethod
-		def checkExec():
-			if "--forkExecProc" in sys.argv:
-				argidx = sys.argv.index("--forkExecProc")
-				writeFileNo = int(sys.argv[argidx + 1])
-				readFileNo = int(sys.argv[argidx + 2])
-				readend = os.fdopen(readFileNo, "r")
-				writeend = os.fdopen(writeFileNo, "w")
-				import pickle
-				name = pickle.load(readend)
-				print "ExecingProcess child", name, "(pid %i)" % os.getpid()
-				target = pickle.load(readend)
-				args = pickle.load(readend)
-				ret = target(*args)
-				pickle.dump(ret, writeend)
-				raise SystemExit
-		
+class AsyncTask:		
 	def __init__(self, func, name=None, mustExec=False):
 		from multiprocessing import Process, Pipe, Queue
 		self.name = name or "unnamed"
@@ -811,8 +812,8 @@ class AsyncTask:
 		else:
 			self.P = Process
 		self.proc = self.P(
-			target = self._asyncCall,
-			args = (self,),
+			target = funcCall,
+			args = ((AsyncTask, "_asyncCall"), (self,)),
 			name = self.name + " worker process")
 		self.proc.daemon = True		
 		self.proc.start()
