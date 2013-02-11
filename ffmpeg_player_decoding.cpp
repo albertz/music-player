@@ -776,8 +776,14 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 			int got_frame = 0;
 			int len1 = avcodec_decode_audio4(dec, is->frame, &got_frame, pkt_temp);
 			if (len1 < 0) {
-				/* if error, we skip the frame */
 				pkt_temp->size = 0;
+				printf("avcodec_decode_audio4 error\n");
+				// earlier, we just breaked. but I encountered some audio files
+				// which only have garbage following and the user should never
+				// listen to that.
+				// other musicplayers also skip that part.
+				is->readerHitEnd = true;
+				return count;
 				break;
 			}
 			//printf("avcodec_decode_audio4: %i\n", len1);
