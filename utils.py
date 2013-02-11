@@ -827,6 +827,11 @@ class Pickler(pickle.Pickler):
 		self.save_global(obj)
 	dispatch[types.TypeType] = fixedsave_type
 
+	# avoid pickling instances of ourself. this mostly doesn't make sense and leads to trouble.
+	# however, also doesn't break. it mostly makes sense to just ignore.
+	def __getstate__(self): return None
+	def __setstate__(self, state): pass
+
 class ExecingProcess:
 	def __init__(self, target, args, name):
 		self.target = target
@@ -842,24 +847,24 @@ class ExecingProcess:
 			readend = os.fdopen(readend, "r")
 			writeend = os.fdopen(writeend, "w")
 			return readend,writeend
-		self.pipe_c2p = pipeOpen()
-		self.pipe_p2c = pipeOpen()
+		self.pipe_c2p = os.pipe()
+		self.pipe_p2c = os.pipe()
 		if pid == 0: # child
-			self.pipe_c2p[0].close()
-			self.pipe_p2c[1].close()
+			os.close(self.pipe_c2p[0])
+			os.close(self.pipe_p2c[1])
 			args = sys.argv + [
 				"--forkExecProc",
-				str(self.pipe_c2p[1].fileno()),
-				str(self.pipe_p2c[0].fileno())]
+				str(self.pipe_c2p[1]),
+				str(self.pipe_p2c[0])]
 			os.execv(args[0], args)
 		else: # parent
-			self.pipe_c2p[1].close()
-			self.pipe_p2c[0].close()
+			os.close(self.pipe_c2p[1])
+			os.close(self.pipe_p2c[0])
 			self.pid = pid
-			pickler = Pickler(self.pipe_p2c[1])
-			pickler.dump(self.name)
-			pickler.dump(self.target)
-			pickler.dump(self.args)
+			self.pickler = Pickler(os.fdopen(self.pipe_p2c[1], "w"))
+			self.pickler.dump(self.name)
+			self.pickler.dump(self.target)
+			self.pickler.dump(self.args)
 	@staticmethod
 	def checkExec():
 		if "--forkExecProc" in sys.argv:
@@ -871,8 +876,12 @@ class ExecingProcess:
 			unpickler = Unpickler(readend)
 			name = unpickler.load()
 			print "ExecingProcess child", name, "(pid %i)" % os.getpid()
-			target = unpickler.load()
-			args = unpickler.load()
+			try:
+				target = unpickler.load()
+				args = unpickler.load()
+			except EOFError:
+				print "Error: unpickle incomplete"
+				raise SystemExit
 			ret = target(*args)
 			Pickler(writeend).dump(ret)
 			raise SystemExit
@@ -1004,6 +1013,9 @@ def daemonThreadCall(func, name=None):
 			func()
 		except (ForwardedKeyboardInterrupt, KeyboardInterrupt):
 			return # just ignore
+		except BaseException:
+			print "Exception in daemonThreadCall thread", name
+			sys.excepthook(*sys.exc_info())
 	thread = Thread(target = doCall, name = name)
 	thread.daemon = True
 	thread.start()
