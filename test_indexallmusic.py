@@ -2,6 +2,20 @@
 # Copyright (c) 2012, Albert Zeyer, www.az2000.de
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
+
+import sys
+from appinfo_args import argParser
+argParser.add_argument("--disableFileId", action="store_true")
+argParser.add_argument("--doPrint", action="store_true")
+from appinfo import args
+
+if args.disableFileId:
+	import fileid
+	fileid.getFileNativeId = lambda fn: None
+	fileid.getPathByNativeId = lambda fn: None
+
+doPrint = args.doPrint
+
 from Song import Song
 import songdb
 from utils import *
@@ -23,7 +37,7 @@ def indexSearchDir(dir):
 				assert song
 				assert song.id
 				songdb.insertSearchEntry(song)
-				print "added", fn
+				if doPrint: print "added", fn
 		elif os.path.isdir(fullfn):
 			indexSearchDir(fullfn)
 
