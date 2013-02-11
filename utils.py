@@ -841,30 +841,31 @@ class ExecingProcess:
 		self.pid = None
 	def start(self):
 		assert self.pid is None
-		pid = os.fork()
 		def pipeOpen():
 			readend,writeend = os.pipe()
 			readend = os.fdopen(readend, "r")
 			writeend = os.fdopen(writeend, "w")
 			return readend,writeend
-		self.pipe_c2p = os.pipe()
-		self.pipe_p2c = os.pipe()
+		self.pipe_c2p = pipeOpen()
+		self.pipe_p2c = pipeOpen()
+		pid = os.fork()
 		if pid == 0: # child
-			os.close(self.pipe_c2p[0])
-			os.close(self.pipe_p2c[1])
+			self.pipe_c2p[0].close()
+			self.pipe_p2c[1].close()
 			args = sys.argv + [
 				"--forkExecProc",
-				str(self.pipe_c2p[1]),
-				str(self.pipe_p2c[0])]
+				str(self.pipe_c2p[1].fileno()),
+				str(self.pipe_p2c[0].fileno())]
 			os.execv(args[0], args)
 		else: # parent
-			os.close(self.pipe_c2p[1])
-			os.close(self.pipe_p2c[0])
+			self.pipe_c2p[1].close()
+			self.pipe_p2c[0].close()
 			self.pid = pid
-			self.pickler = Pickler(os.fdopen(self.pipe_p2c[1], "w"))
+			self.pickler = Pickler(self.pipe_p2c[1])
 			self.pickler.dump(self.name)
 			self.pickler.dump(self.target)
 			self.pickler.dump(self.args)
+			self.pipe_p2c[1].flush()
 	@staticmethod
 	def checkExec():
 		if "--forkExecProc" in sys.argv:
