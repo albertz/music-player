@@ -891,7 +891,7 @@ isFork = False
 
 class AsyncTask:		
 	def __init__(self, func, name=None, mustExec=False):
-		from multiprocessing import Process, Pipe, Queue
+		from multiprocessing import Process, Pipe
 		self.name = name or "unnamed"
 		self.func = func
 		self.mustExec = mustExec
