@@ -754,7 +754,7 @@ class Pickler(pickle.Pickler):
 	def __init__(self, *args, **kwargs):
 		if not "protocol" in kwargs:
 			kwargs["protocol"] = pickle.HIGHEST_PROTOCOL
-
+		pickle.Pickler.__init__(self, *args, **kwargs)
 	dispatch = pickle.Pickler.dispatch.copy()
 
 	def save_func(self, obj):
@@ -772,7 +772,7 @@ class Pickler(pickle.Pickler):
 			obj.func_defaults,
 			obj.func_closure,
 			))
-		self.write(REDUCE)
+		self.write(pickle.REDUCE)
 		self.memoize(obj)
 	dispatch[types.FunctionType] = save_func
 
@@ -780,7 +780,7 @@ class Pickler(pickle.Pickler):
 		assert type(obj) is types.CodeType
 		self.save(marshal.loads)
 		self.save((marshal.dumps(obj),))
-		self.write(REDUCE)
+		self.write(pickle.REDUCE)
 		self.memoize(obj)
 	dispatch[types.CodeType] = save_code
 
@@ -788,23 +788,44 @@ class Pickler(pickle.Pickler):
 		assert type(obj) is CellType
 		self.save(makeCell)
 		self.save((obj.cell_contents,))
-		self.write(REDUCE)
+		self.write(pickle.REDUCE)
 		self.memoize(obj)
 	dispatch[CellType] = save_cell
 	
+	# We also search for module dicts and reference them.
 	def intellisave_dict(self, obj):
 		if len(obj) <= 5: # fastpath
 			self.save_dict(obj)
 			return
-		for modname, moddict in sys.modules.iteritems():
+		for modname, mod in sys.modules.iteritems():
+			if not mod: continue
+			moddict = mod.__dict__
 			if obj is moddict:
 				self.save(getModuleDict)
 				self.save((modname,))
-				self.write(REDUCE)
+				self.write(pickle.REDUCE)
 				self.memoize(obj)
 				return
 		self.save_dict(obj)
 	dispatch[types.DictionaryType] = intellisave_dict
+
+	# Some types in the types modules are not correctly referenced,
+	# such as types.FunctionType. This is fixed here.
+	def fixedsave_type(self, obj):
+		try:
+			self.save_global(obj)
+			return
+		except pickle.PicklingError:
+			pass
+		for modname in ["types"]:
+			moddict = sys.modules[modname].__dict__
+			for modobjname,modobj in moddict.iteritems():
+				if modobj is obj:
+					self.write(pickle.GLOBAL + modname + '\n' + modobjname + '\n')
+					self.memoize(obj)
+					return
+		self.save_global(obj)
+	dispatch[types.TypeType] = fixedsave_type
 
 class ExecingProcess:
 	def __init__(self, target, args, name):
