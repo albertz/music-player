@@ -37,6 +37,8 @@ files = [
 	"~/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3",
 	"~/Music/Electronic/One Day_Reckoning Song (Wankelmut Remix) - Asaf Avidan & the Mojos.mp3",
 ]
+import sys
+files = sys.argv[1:] + files
 import os
 files = map(os.path.expanduser, files)
 i = 0
@@ -66,7 +68,7 @@ def formatTime(t):
 	if hours: return "%02i:%02i:%02.0f" % (hours,mins,t)
 	return "%02i:%02.0f" % (mins,t)
 
-import os,sys,termios
+import termios
 
 def prepareStdin():
 	fd = sys.stdin.fileno()
