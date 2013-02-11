@@ -876,7 +876,7 @@ class ExecingProcess:
 			writeend = os.fdopen(writeFileNo, "w")
 			unpickler = Unpickler(readend)
 			name = unpickler.load()
-			print "ExecingProcess child", name, "(pid %i)" % os.getpid()
+			print "ExecingProcess child %s (pid %i)" % (name, os.getpid())
 			try:
 				target = unpickler.load()
 				args = unpickler.load()
@@ -885,23 +885,45 @@ class ExecingProcess:
 				raise SystemExit
 			ret = target(*args)
 			Pickler(writeend).dump(ret)
+			print "ExecingProcess child %s (pid %i) finished" % (name, os.getpid())
 			raise SystemExit
+
+class ExecingProcess_ConnectionWrapper(object):
+	def __init__(self, fd=None):
+		self.fd = fd
+		if self.fd:
+			from _multiprocessing import Connection
+			self.conn = Connection(fd)
+	def __getstate__(self): return self.fd
+	def __setstate__(self, state): self.__init__(state)
+	def __getattr__(self, attr): return getattr(self.conn, attr)
+		
+def ExecingProcess_Pipe():
+	import socket
+	s1, s2 = socket.socketpair()
+	c1 = ExecingProcess_ConnectionWrapper(os.dup(s1.fileno()))
+	c2 = ExecingProcess_ConnectionWrapper(os.dup(s2.fileno()))
+	s1.close()
+	s2.close()
+	return c1, c2
 
 isFork = False
 
 class AsyncTask:		
 	def __init__(self, func, name=None, mustExec=False):
-		from multiprocessing import Process, Pipe
 		self.name = name or "unnamed"
 		self.func = func
 		self.mustExec = mustExec
-		self.parent_conn, self.child_conn = Pipe()
 		self.parent_pid = os.getpid()
 		if mustExec and sys.platform != "win32":
-			self.P = ExecingProcess
+			self.Process = ExecingProcess
+			self.Pipe = ExecingProcess_Pipe
 		else:
-			self.P = Process
-		self.proc = self.P(
+			from multiprocessing import Process, Pipe
+			self.Process = Process
+			self.Pipe = Pipe
+		self.parent_conn, self.child_conn = self.Pipe()
+		self.proc = self.Process(
 			target = funcCall,
 			args = ((AsyncTask, "_asyncCall"), (self,)),
 			name = self.name + " worker process")
