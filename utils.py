@@ -767,7 +767,7 @@ class Pickler(pickle.Pickler):
 		self.save(types.FunctionType)
 		self.save((
 			obj.func_code,
-			obj.func_globals, ##...
+			obj.func_globals,
 			obj.func_name,
 			obj.func_defaults,
 			obj.func_closure,
