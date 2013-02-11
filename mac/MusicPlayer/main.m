@@ -28,8 +28,16 @@ int main(int argc, char *argv[])
 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
+	BOOL forkExecProc = NO;
+	for(int i = 1; i < argc; ++i)
+		if(strcmp(argv[i], "--forkExecProc") == 0) {
+			forkExecProc = YES;
+			break;
+		}
+	
 	NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
-	NSLog(@"Python version: %s, prefix: %s, main: %@", Py_GetVersion(), Py_GetPrefix(), mainPyFilename);
+	if(!forkExecProc)
+		NSLog(@"Python version: %s, prefix: %s, main: %@", Py_GetVersion(), Py_GetPrefix(), mainPyFilename);
 	Py_SetProgramName((char*)[mainPyFilename UTF8String]);
 	
 	Py_Initialize();
@@ -45,10 +53,12 @@ int main(int argc, char *argv[])
 	
 	PySys_SetArgvEx(argc, argv, 0);
 	
-	// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
-	freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
-	freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stderr);
-	PyRun_SimpleString("print 'hello there'");
+	if(!forkExecProc) {
+		// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
+		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
+		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stderr);
+		PyRun_SimpleString("print 'hello there'");
+	}
 	
 	FILE* fp = fopen((char*)[mainPyFilename UTF8String], "r");
 	assert(fp);
