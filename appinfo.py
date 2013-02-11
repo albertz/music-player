@@ -63,26 +63,6 @@ import sys
 if not getattr(sys, "argv", None):
 	sys.argv = ["."] # foo... constructor of ArgumentParser needs that
 
-try:
-	import argparse
-	argParser = argparse.ArgumentParser()
-except ImportError:
-	print "Error, argparse not available. This needs Python >=2.7."
-	# Dummy fallback
-	class DummyArgParser:
-		def add_argument(self, key, **kwargs):
-			assert key[0:2] == "--"
-			setattr(self, key[2:], False)
-		def parse_args(self): return self
-	argParser = DummyArgParser()
-
-argParser.add_argument(
-	"--shell", action="store_true",
-	help="uses a Python shell instead of the standard stdin control")
-argParser.add_argument(
-	"--qtgui", action="store_true",
-	help="force Qt GUI")
-argParser.add_argument(
-	"--forkExecProc", nargs=2)
+from appinfo_args import argParser
 args = argParser.parse_args()
 
