@@ -745,6 +745,67 @@ def funcCall(attrChainArgs, args=()):
 	return f(*args)
 
 
+import pickle, types, marshal
+Unpickler = pickle.Unpickler
+CellType = type((lambda x: lambda: x)(0).func_closure[0])
+def makeCell(value): return (lambda: value).func_closure[0]
+def getModuleDict(modname): return __import__(modname).__dict__
+class Pickler(pickle.Pickler):
+	def __init__(self, *args, **kwargs):
+		if not "protocol" in kwargs:
+			kwargs["protocol"] = pickle.HIGHEST_PROTOCOL
+
+	dispatch = pickle.Pickler.dispatch.copy()
+
+	def save_func(self, obj):
+		try:
+			self.save_global(obj)
+			return
+		except pickle.PicklingError:
+			pass
+		assert type(obj) is types.FunctionType
+		self.save(types.FunctionType)
+		self.save((
+			obj.func_code,
+			obj.func_globals, ##...
+			obj.func_name,
+			obj.func_defaults,
+			obj.func_closure,
+			))
+		self.write(REDUCE)
+		self.memoize(obj)
+	dispatch[types.FunctionType] = save_func
+
+	def save_code(self, obj):
+		assert type(obj) is types.CodeType
+		self.save(marshal.loads)
+		self.save((marshal.dumps(obj),))
+		self.write(REDUCE)
+		self.memoize(obj)
+	dispatch[types.CodeType] = save_code
+
+	def save_cell(self, obj):
+		assert type(obj) is CellType
+		self.save(makeCell)
+		self.save((obj.cell_contents,))
+		self.write(REDUCE)
+		self.memoize(obj)
+	dispatch[CellType] = save_cell
+	
+	def intellisave_dict(self, obj):
+		if len(obj) <= 5: # fastpath
+			self.save_dict(obj)
+			return
+		for modname, moddict in sys.modules.iteritems():
+			if obj is moddict:
+				self.save(getModuleDict)
+				self.save((modname,))
+				self.write(REDUCE)
+				self.memoize(obj)
+				return
+		self.save_dict(obj)
+	dispatch[types.DictionaryType] = intellisave_dict
+
 class ExecingProcess:
 	def __init__(self, target, args, name):
 		self.target = target
@@ -774,9 +835,7 @@ class ExecingProcess:
 			self.pipe_c2p[1].close()
 			self.pipe_p2c[0].close()
 			self.pid = pid
-			import pickle
-			from multiprocessing.forking import ForkingPickler
-			pickler = ForkingPickler(self.pipe_p2c[1], protocol=pickle.HIGHEST_PROTOCOL)
+			pickler = Pickler(self.pipe_p2c[1])
 			pickler.dump(self.name)
 			pickler.dump(self.target)
 			pickler.dump(self.args)
@@ -788,13 +847,13 @@ class ExecingProcess:
 			readFileNo = int(sys.argv[argidx + 2])
 			readend = os.fdopen(readFileNo, "r")
 			writeend = os.fdopen(writeFileNo, "w")
-			import pickle
-			name = pickle.load(readend)
+			unpickler = Unpickler(readend)
+			name = unpickler.load()
 			print "ExecingProcess child", name, "(pid %i)" % os.getpid()
-			target = pickle.load(readend)
-			args = pickle.load(readend)
+			target = unpickler.load()
+			args = unpickler.load()
 			ret = target(*args)
-			pickle.dump(ret, writeend)
+			Pickler(writeend).dump(ret)
 			raise SystemExit
 
 isFork = False
