@@ -755,34 +755,48 @@ class AsyncTask:
 			self.name = name
 			self.daemon = True
 			self.pid = None
-			self.proc = None
 		def start(self):
 			assert self.pid is None
-			args = sys.argv + ["--forkExecProc"]
 			pid = os.fork()
-			self.pipe_c2p = os.pipe() # (readend,writeend)
-			self.pipe_p2c = os.pipe()
+			def pipenOpen():
+				readend,writeend = os.pipe()
+				readend = os.fdopen(readend, "r")
+				writeend = os.fdopen(writeend, "w")
+				return readend,writeend
+			self.pipe_c2p = pipeOpen()
+			self.pipe_p2c = pipeOpen()
 			if pid == 0: # child
-				os.close(self.pipe_c2p[0])
-				os.close(self.pipe_p2c[1])
+				self.pipe_c2p[0] = None
+				self.pipe_p2c[1] = None
+				args = sys.argv + [
+					"--forkExecProc",
+					str(self.pipe_c2p[1].fileno()),
+					str(self.pipe_p2c[0].fileno())]
 				os.execv(args[0], args)
 			else: # parent
-				os.close(self.pipe_c2p[1])
-				os.close(self.pipe_p2c[0])
+				self.pipe_c2p[1] = None
+				self.pipe_p2c[0] = None
 				self.pid = pid
-		def __del__(self):
-			if self.pipe_c2p:
-				os.close(self.pipe_c2p[0])
-			if self.pipe_p2c:
-				os.close(self.pipe_p2c[1])
+				import pickle
+				pickle.dump(self.name)
+				pickle.dump(self.target)
+				pickle.dump(self.args)
 		@staticmethod
 		def checkExec():
-			print "args:", sys.argv
-			
 			if "--forkExecProc" in sys.argv:
-				print "yup"
+				argidx = sys.argv.index("--forkExecProc")
+				writeFileNo = int(sys.argv[argidx + 1])
+				readFileNo = int(sys.argv[argidx + 2])
+				readend = os.fdopen(readFileNo, "r")
+				writeend = os.fdopen(writeFileNo, "w")
+				import pickle
+				name = pickle.load(readend)
+				print "ExecingProcess child", name, "(pid %i)" % os.getpid()
+				target = pickle.load(readend)
+				args = pickle.load(readend)
+				ret = target(*args)
+				pickle.dump(ret, writeend)
 				raise SystemExit
-			pass
 		
 	def __init__(self, func, name=None, mustExec=False):
 		from multiprocessing import Process, Pipe, Queue
