@@ -757,13 +757,24 @@ class AsyncTask:
 			self.pid = None
 			self.proc = None
 		def start(self):
+			assert self.pid is None
 			args = sys.argv + ["--forkExecProc"]
 			pid = os.fork()
+			self.pipe_c2p = os.pipe() # (readend,writeend)
+			self.pipe_p2c = os.pipe()
 			if pid == 0: # child
+				os.close(self.pipe_c2p[0])
+				os.close(self.pipe_p2c[1])
 				os.execv(args[0], args)
 			else: # parent
+				os.close(self.pipe_c2p[1])
+				os.close(self.pipe_p2c[0])
 				self.pid = pid
-	
+		def __del__(self):
+			if self.pipe_c2p:
+				os.close(self.pipe_c2p[0])
+			if self.pipe_p2c:
+				os.close(self.pipe_p2c[1])
 		@staticmethod
 		def checkExec():
 			print "args:", sys.argv
