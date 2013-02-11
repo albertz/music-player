@@ -758,7 +758,7 @@ class AsyncTask:
 		def start(self):
 			assert self.pid is None
 			pid = os.fork()
-			def pipenOpen():
+			def pipeOpen():
 				readend,writeend = os.pipe()
 				readend = os.fdopen(readend, "r")
 				writeend = os.fdopen(writeend, "w")
@@ -766,21 +766,22 @@ class AsyncTask:
 			self.pipe_c2p = pipeOpen()
 			self.pipe_p2c = pipeOpen()
 			if pid == 0: # child
-				self.pipe_c2p[0] = None
-				self.pipe_p2c[1] = None
+				self.pipe_c2p[0].close()
+				self.pipe_p2c[1].close()
 				args = sys.argv + [
 					"--forkExecProc",
 					str(self.pipe_c2p[1].fileno()),
 					str(self.pipe_p2c[0].fileno())]
 				os.execv(args[0], args)
 			else: # parent
-				self.pipe_c2p[1] = None
-				self.pipe_p2c[0] = None
+				self.pipe_c2p[1].close()
+				self.pipe_p2c[0].close()
 				self.pid = pid
 				import pickle
-				pickle.dump(self.name)
-				pickle.dump(self.target)
-				pickle.dump(self.args)
+				pickler = pickle.Pickler(self.pipe_p2c[1], protocol=pickle.HIGHEST_PROTOCOL)
+				pickler.dump(self.name)
+				pickler.dump(self.target)
+				pickler.dump(self.args)
 		@staticmethod
 		def checkExec():
 			if "--forkExecProc" in sys.argv:
@@ -806,7 +807,7 @@ class AsyncTask:
 		self.parent_conn, self.child_conn = Pipe()
 		self.parent_pid = os.getpid()
 		if mustExec and sys.platform != "win32":
-			self.P = self.ExecingProcess		
+			self.P = self.ExecingProcess
 		else:
 			self.P = Process
 		self.proc = self.P(

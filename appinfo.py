@@ -83,6 +83,6 @@ argParser.add_argument(
 	"--qtgui", action="store_true",
 	help="force Qt GUI")
 argParser.add_argument(
-	"--forkExecProc", action="store_true")
+	"--forkExecProc", nargs=2)
 args = argParser.parse_args()
 
