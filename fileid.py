@@ -24,7 +24,11 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		bookmark, _ = url.bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_(AppKit.NSURLBookmarkCreationPreferFileIDResolution,None,None,None)
 		
 		if not bookmark: return None
-		bytes = bookmark.bytes().tobytes()		
+		bytes = bookmark.bytes()
+		if isinstance(bytes, buffer): # Python 2.6 has buffer here - otherwise (>=2.7) we have memory
+			bytes = str(bytes)
+		else:
+			bytes = bytes.tobytes()
 		return bytes
 	
 	@WarnMustNotBeInForkDecorator
