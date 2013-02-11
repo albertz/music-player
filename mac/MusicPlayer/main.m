@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	m = PyImport_ImportModule("thread");
 	Py_XDECREF(m);
 	
-	// maybe PySys_SetArgvEx ?
+	PySys_SetArgvEx(argc, argv, 0);
 	
 	// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
 	freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
