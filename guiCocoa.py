@@ -846,6 +846,7 @@ def buildControlSongDisplay(control):
 						queue.put((duration, bmpData))
 						return True
 
+					song._useDb = False
 					song.openFile()
 					import ffmpeg
 					bmpThumbRet = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
