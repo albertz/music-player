@@ -1058,7 +1058,15 @@ void PlayerObject::openPeekInStreams() {
 	args = PyTuple_New(1);
 	if(!args) goto final;
 	PyTuple_SetItem(args, 0, PyInt_FromLong(PEEKSTREAM_NUM));
-	peekList = PyObject_CallObject(player->peekQueue, args);
+	{
+		PyObject* peekQueue = player->peekQueue;
+		Py_INCREF(peekQueue);		
+		PyScopedGIUnlock gunlock;
+		PyScopedUnlock unlock(player->lock);
+		PyScopedGIL glock;
+		peekList = PyObject_CallObject(peekQueue, args);
+		Py_DECREF(peekQueue);
+	}
 	if(!peekList) goto final;
 
 	peekListIter = PyObject_GetIter(peekList);
