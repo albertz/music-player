@@ -22,6 +22,8 @@ import types
 
 import better_exchook
 
+# some global variable which indicates that we are quitting just right now
+quit = False
 
 class Id:
 	"When you need some unique object with maybe some name, use this"
@@ -576,6 +578,10 @@ def do_in_mainthread(f, wait=True):
 	# The `performSelectorOnMainThread:withObject:waitUntilDone:` does the right thing
 	# in case we are the main thread: if wait is True, it is executed from here,
 	# otherwise it is queued and executed in the next frame.
+	
+	global quit
+	if quit:
+		raise KeyboardInterrupt
 	
 	try:
 		NSObject = objc.lookUpClass("NSObject")

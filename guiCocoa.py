@@ -112,6 +112,7 @@ class PyAppDelegate(NSObject):
 	def applicationShouldTerminate_(self, app):
 		print "AppDelegate quit"
 		from State import modules
+		utils.quit = True
 		# first set/send signals to all modules
 		for m in modules: m.stop(join=False)
 		try:
