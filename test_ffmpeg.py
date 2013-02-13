@@ -6,7 +6,9 @@ import better_exchook
 better_exchook.install()
 
 import ffmpeg
-ffmpeg.setFfmpegLogLevel(1)
+
+# ffmpeg log levels: {0:panic, 8:fatal, 16:error, 24:warning, 32:info, 40:verbose}
+ffmpeg.setFfmpegLogLevel(20)
 
 try:
 	import faulthandler
