@@ -634,8 +634,14 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	}
 	
 	{
-		ret = avformat_open_input(&formatCtx, debugName.c_str(), NULL, NULL);
+		AVInputFormat* fmt = NULL;
+		ret = av_probe_input_buffer(formatCtx->pb, &fmt, debugName.c_str(), NULL, 0, formatCtx->probesize);
+		if(ret < 0) {
+			printf("(%s) av_probe_input_buffer failed\n", debugName.c_str());
+			goto final;
+		}
 		
+		ret = avformat_open_input(&formatCtx, debugName.c_str(), fmt, NULL);
 		if(ret != 0) {
 			printf("(%s) avformat_open_input failed\n", debugName.c_str());
 			goto final;
@@ -648,8 +654,13 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		}
 		
 	#ifdef DEBUG
-		av_dump_format(formatCtx, 0, urlStr, 0);
+		av_dump_format(formatCtx, 0, debugName.c_str(), 0);
 	#endif
+		
+		if(formatCtx->nb_streams == 0) {
+			printf("(%s) no streams found in song\n", debugName.c_str());
+			goto final;
+		}
 		
 		ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
 		if(ret < 0) {
@@ -657,6 +668,10 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 			if(ret == AVERROR_STREAM_NOT_FOUND) errorMsg = "stream not found";
 			else if(ret == AVERROR_DECODER_NOT_FOUND) errorMsg = "decoder not found";
 			printf("(%s) no audio stream found in song: %s\n", debugName.c_str(), errorMsg);
+			int oldloglevel = av_log_get_level();
+			av_log_set_level(AV_LOG_INFO);
+			av_dump_format(formatCtx, 0, debugName.c_str(), 0);
+			av_log_set_level(oldloglevel);
 			goto final;
 		}
 		player->audio_stream = ret;
