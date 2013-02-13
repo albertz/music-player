@@ -40,6 +40,10 @@ def checkUpdate():
 	checkAgain = True
 	while checkAgain:
 		checkAgain = False
+
+		# This is cheap / almost free if the peek-list didn't change.
+		state.player.reloadPeekStreams()	
+
 		songs = []
 		if state.curSong:
 			songs += [state.curSong]
