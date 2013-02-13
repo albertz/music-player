@@ -213,7 +213,8 @@ void player_dealloc(PyObject* obj) {
 		// also, we must not lock it here because we cannot free inStream otherwise.
 
 		player->inStream.reset();
-
+		player->peekInStreams.clear();
+		
 		Py_XDECREF(player->dict);
 		player->dict = NULL;
 		
