@@ -58,7 +58,7 @@ char* objAttrStrDup(PyObject* obj, const char* attrStr) {
 }
 
 std::string objAttrStr(PyObject* obj, const std::string& attrStr) {
-	char* s = objAttrStrDup(obj, attrStr);
+	char* s = objAttrStrDup(obj, attrStr.c_str());
 	std::string s2(s);
 	free(s);
 	return s2;
