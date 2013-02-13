@@ -18,6 +18,9 @@ class Song:
 		self.url = fn
 		self.f = open(fn)
 		
+	def __eq__(self, other):
+		return self.url == other.url
+	
 	def readPacket(self, bufSize):
 		s = self.f.read(bufSize)
 		#print "readPacket", self, bufSize, len(s)
