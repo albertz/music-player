@@ -9,7 +9,7 @@ import ffmpeg
 
 try:
 	import faulthandler
-	faulthandler.enable()
+	faulthandler.enable(all_threads=True)
 except ImportError:
 	print "note: module faulthandler not available"
 	
