@@ -42,57 +42,6 @@
 
 
 
-// this is mostly safe to call.
-// returns a newly allocated c-string.
-char* objStrDup(PyObject* obj) {
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	char* str = NULL;
-	PyObject* earlierError = PyErr_Occurred();
-	if(!obj)
-		str = "<None>";
-	else if(PyString_Check(obj))
-		str = PyString_AsString(obj);
-	else {
-		PyObject* strObj = NULL;
-		if(PyUnicode_Check(obj))
-			strObj = PyUnicode_AsUTF8String(obj);
-		else {
-			PyObject* unicodeObj = PyObject_Unicode(obj);
-			if(unicodeObj) {
-				strObj = PyUnicode_AsUTF8String(unicodeObj);
-				Py_DECREF(unicodeObj);
-			}
-		}
-		if(strObj) {
-			str = PyString_AsString(strObj);
-			Py_DECREF(strObj);
-		}
-		else
-			str = "<CantConvertToString>";
-	}
-	if(!earlierError && PyErr_Occurred())
-		PyErr_Print();
-	assert(str);
-	str = strdup(str);
-	PyGILState_Release(gstate);
-	return str;
-}
-
-// returns a newly allocated c-string.
-char* objAttrStrDup(PyObject* obj, const char* attrStr) {
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	PyObject* attrObj = PyObject_GetAttrString(obj, attrStr);
-	char* str = objStrDup(attrObj);
-	Py_XDECREF(attrObj);
-	PyGILState_Release(gstate);
-	return str;
-}
-
-
-
-
-
-
 
 
 
