@@ -15,7 +15,7 @@
 // returns a newly allocated c-string.
 char* objStrDup(PyObject* obj) {
 	PyGILState_STATE gstate = PyGILState_Ensure();
-	char* str = NULL;
+	const char* str = NULL;
 	PyObject* earlierError = PyErr_Occurred();
 	if(!obj)
 		str = "<None>";
@@ -42,9 +42,9 @@ char* objStrDup(PyObject* obj) {
 	if(!earlierError && PyErr_Occurred())
 		PyErr_Print();
 	assert(str);
-	str = strdup(str);
+	char* str2 = strdup(str);
 	PyGILState_Release(gstate);
-	return str;
+	return str2;
 }
 
 // returns a newly allocated c-string.
