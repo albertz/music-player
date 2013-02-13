@@ -460,7 +460,7 @@ static int stream_component_open(PlayerObject::InStream *is, AVFormatContext* ic
 	
 	codec = avcodec_find_decoder(avctx->codec_id);
 	if (!codec) {
-		printf("avcodec_find_decoder failed\n");
+		printf("(%s) avcodec_find_decoder failed\n", is->debugName.c_str());
 		return -1;
 	}
 	
@@ -483,7 +483,7 @@ static int stream_component_open(PlayerObject::InStream *is, AVFormatContext* ic
 		avctx->flags |= CODEC_FLAG_EMU_EDGE;
 	
 	if (avcodec_open2(avctx, codec, NULL /*opts*/) < 0) {
-		printf("avcodec_open2 failed\n");
+		printf("(%s) avcodec_open2 failed\n", is->debugName.c_str());
 		return -1;
 	}
 	
@@ -510,7 +510,7 @@ static int stream_component_open(PlayerObject::InStream *is, AVFormatContext* ic
 			//SDL_PauseAudio(0);
 			break;
 		default:
-			printf("stream_component_open: not an audio stream\n");
+			printf("(%s) stream_component_open: not an audio stream\n", is->debugName.c_str());
 			return -1;
 	}
 	
@@ -809,7 +809,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 			int len1 = avcodec_decode_audio4(dec, is->frame, &got_frame, pkt_temp);
 			if (len1 < 0) {
 				pkt_temp->size = 0;
-				printf("avcodec_decode_audio4 error\n");
+				printf("(%s) avcodec_decode_audio4 error\n", is->debugName.c_str());
 				// earlier, we just breaked. but I encountered some audio files
 				// which only have garbage following and the user should never
 				// listen to that.
