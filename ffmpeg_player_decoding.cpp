@@ -1032,7 +1032,7 @@ void PlayerObject::openPeekInStreams() {
 					s.reset();
 			}
 			if(s.get())
-				player->peekInStreams.push_front(s);
+				player->peekInStreams.push_back(s);
 		}
 		Py_DECREF(song);
 	}
