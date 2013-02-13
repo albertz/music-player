@@ -656,7 +656,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		
 		ret = av_probe_input_buffer(formatCtx->pb, &fmt, debugName.c_str(), NULL, 0, formatCtx->probesize);
 		if(ret < 0) {
-			printf("(%s) av_probe_input_buffer failed\n", debugName.c_str());
+			printf("(%s) av_probe_input_buffer failed (%s)\n", debugName.c_str(), fmt ? fmt->name : "<NULL>");
 			continue;
 		}
 		
