@@ -653,7 +653,10 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		
 		ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
 		if(ret < 0) {
-			printf("(%s) no audio stream found in song\n", debugName.c_str());
+			const char* errorMsg = "unkown error";
+			if(ret == AVERROR_STREAM_NOT_FOUND) errorMsg = "stream not found";
+			else if(ret == AVERROR_DECODER_NOT_FOUND) errorMsg = "decoder not found";
+			printf("(%s) no audio stream found in song: %s\n", debugName.c_str(), errorMsg);
 			goto final;
 		}
 		player->audio_stream = ret;
