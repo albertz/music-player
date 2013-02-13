@@ -645,10 +645,10 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		if(i == 1 && fmts[0] == NULL) continue; // we already tried NULL
 		AVInputFormat* fmt = fmts[i];
 		
-		if(formatCtx) {
+		if(formatCtx)
 			closeInputStream(formatCtx);
-			player_seek(this, 0, 0);
-		}
+		player_seek(this, 0, SEEK_SET);
+
 		formatCtx = initFormatCtx(this);
 		if(!formatCtx) {
 			printf("(%s) initFormatCtx failed\n", debugName.c_str());
