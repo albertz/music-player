@@ -20,6 +20,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
+	player->lock.enabled = false;
 	player->nextSongOnEof = 0;
 	player->skipPyExceptions = 0;
 	player->playing = 1; // otherwise audio_decode_frame() wont read

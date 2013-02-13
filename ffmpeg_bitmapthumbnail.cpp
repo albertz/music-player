@@ -169,6 +169,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
+	player->lock.enabled = false;
 	player->nextSongOnEof = 0;
 	player->skipPyExceptions = 0;
 	player->volume = volume;

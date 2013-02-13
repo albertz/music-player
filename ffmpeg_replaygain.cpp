@@ -103,6 +103,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
+	player->lock.enabled = false;
 	player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
 	player->nextSongOnEof = 0;
 	player->skipPyExceptions = 0;
