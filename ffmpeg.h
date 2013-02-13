@@ -54,6 +54,10 @@ PyObject* pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws);
 #ifdef __cplusplus
 }
 
+#include <string>
+
+std::string objAttrStr(PyObject* obj, const std::string& attrStr);
+
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
