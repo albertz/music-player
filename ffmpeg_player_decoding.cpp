@@ -76,7 +76,8 @@ struct InStreamRawPOD {
 	PlayerObject* player;
 	PyObject* song;
 	PyObject* metadata;
-	double timePos;
+	double playerTimePos;
+	double readerTimePos;
 	double timeLen;
 	float gainFactor;
 	
@@ -289,11 +290,11 @@ void PlayerObject::InStream::resetBuffers() {
 }
 
 void PlayerObject::InStream::seekToStart() {
-	if(!playerStartedPlaying && timePos == 0) return;
+	if(!playerStartedPlaying && playerTimePos == 0) return;
 	
 	resetBuffers();
 	playerStartedPlaying = false;
-	timePos = 0;
+	playerTimePos = readerTimePos = 0;
 	
 	int ret = avformat_seek_file(
 					   this->ctx, /*player->audio_stream*/ -1,
@@ -350,9 +351,9 @@ int PlayerObject::seekRel(double incr) {
 			pos += incr;
 		}
 		else*/ {
-			pos = is->timePos;
+			pos = is->playerTimePos;
 			pos += incr;
-			is->timePos = pos;
+			is->playerTimePos = is->readerTimePos = pos;
 			
 			pos *= AV_TIME_BASE;
 			incr *= AV_TIME_BASE;
@@ -394,7 +395,7 @@ int PlayerObject::seekAbs(double pos) {
 		if(is->timeLen <= 0)
 			seek_by_bytes = 1;
 		
-		is->timePos = pos;
+		is->playerTimePos = is->readerTimePos = pos;
 
 		int seek_flags = 0;
 		if(seek_by_bytes) seek_flags |= AVSEEK_FLAG_BYTE;
@@ -429,7 +430,7 @@ PyObject* PlayerObject::curSongMetadata() {
 }
 
 double PlayerObject::curSongPos() {
-	if(inStream.get()) return inStream->timePos;
+	if(inStream.get()) return inStream->playerTimePos;
 	return 0;
 }
 
@@ -955,8 +956,9 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 			}
 			
 			/* if no pts, then compute it */
-			/*player->curSongPos += (double)data_size /
-			(dec->channels * dec->sample_rate * av_get_bytes_per_sample(dec->sample_fmt));*/
+			is->readerTimePos += (double)data_size /
+			(dec->channels * dec->sample_rate * av_get_bytes_per_sample(dec->sample_fmt));
+			
 			/*{
 			 static double last_clock;
 			 printf("audio: delay=%0.3f clock=%0.3f pts=%0.3f\n",
@@ -995,8 +997,9 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 		/* if update the audio clock with the pts */
 		if (pkt->pts != AV_NOPTS_VALUE) {
 			PyScopedLock lock(player->lock);
+			is->readerTimePos = av_q2d(is->audio_st->time_base)*pkt->pts;
 			if(is->outBuffer.empty())
-				is->timePos = av_q2d(is->audio_st->time_base)*pkt->pts;
+				is->playerTimePos = is->readerTimePos;
 		}
 	}
 }
@@ -1281,7 +1284,7 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 		
 		samples += popCount;
 		sampleNum -= popCount;
-		is->timePos += timeDelay(popCount);
+		is->playerTimePos += timeDelay(popCount);
 
 		if(sampleNum == 0) break;
 		// if the reader hit not the end but we haven't filled this buffer,
