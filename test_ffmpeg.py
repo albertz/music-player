@@ -51,7 +51,7 @@ def songs():
 		if i >= len(files): i = 0
 
 def peekSongs(n):
-	return map(Song, files[i:])
+	return map(Song, files[i:] + files[:i])
 
 player = ffmpeg.createPlayer()
 player.outSamplerate = 48000
