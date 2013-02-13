@@ -65,6 +65,7 @@ std::string objAttrStr(PyObject* obj, const std::string& attrStr);
 
 struct PyMutex {
 	PyThread_type_lock l;
+	bool enabled;
 	PyMutex(); ~PyMutex();
 	PyMutex(const PyMutex&) : PyMutex() {} // ignore
 	PyMutex& operator=(const PyMutex&) { return *this; } // ignore

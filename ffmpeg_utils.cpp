@@ -147,6 +147,7 @@ int PyDict_SetItemString_retain(PyObject* dict, const char* key, PyObject* value
 
 PyMutex::PyMutex() {
 	l = PyThread_allocate_lock();
+	enabled = true;
 }
 
 PyMutex::~PyMutex() {
@@ -154,15 +155,20 @@ PyMutex::~PyMutex() {
 }
 
 void PyMutex::lock() {
-	PyThread_acquire_lock(l, WAIT_LOCK);
+	if(enabled)
+		PyThread_acquire_lock(l, WAIT_LOCK);
 }
 
 bool PyMutex::lock_nowait() {
-	return PyThread_acquire_lock(l, NOWAIT_LOCK);
+	if(enabled)
+		return PyThread_acquire_lock(l, NOWAIT_LOCK);
+	else
+		return true;
 }
 
 void PyMutex::unlock() {
-	PyThread_release_lock(l);
+	if(enabled)
+		PyThread_release_lock(l);
 }
 
 PyScopedLock::PyScopedLock(PyMutex& m) : mutex(m) {
