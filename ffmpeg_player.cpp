@@ -520,6 +520,8 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 	}
 	
 	if(strcmp(key, "playing") == 0) {
+		PyScopedGIUnlock gunlock;
+		PyScopedLock lock(player->lock);
 		return player->setPlaying(PyObject_IsTrue(value));
 	}
 		

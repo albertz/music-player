@@ -83,10 +83,10 @@ int paStreamCallback(
 int PlayerObject::setPlaying(bool playing) {
 	PlayerObject* player = this;
 	bool oldplayingstate = false;
-	Py_INCREF((PyObject*)player);
-	Py_BEGIN_ALLOW_THREADS
+	PyScopedGIL gil;
 	{
-		PyScopedLock lock(player->lock);
+		PyScopedGIUnlock gunlock;
+		
 		player->workerThread.start(); // if not running yet, start
 		if(!player->outStream.get())
 			player->outStream.reset(new OutStream(this));
@@ -118,8 +118,6 @@ int PlayerObject::setPlaying(bool playing) {
 		oldplayingstate = player->playing;
 		player->playing = playing;
 	}
-	Py_END_ALLOW_THREADS
-	Py_DECREF((PyObject*)player);
 	
 	if(!PyErr_Occurred() && player->dict) {
 		Py_INCREF(player->dict);
