@@ -612,6 +612,15 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	}
 	
 	{
+		PyScopedLock lock(pl->lock);
+		while(pl->openStreamLock) {
+			PyScopedUnlock unlock(pl->lock);
+			usleep(100);
+		}
+		pl->openStreamLock = true;
+	}
+	
+	{
 		PyScopedGIL glock;
 		Py_XDECREF(this->song); // if there is any old song
 		Py_INCREF(song);
@@ -750,6 +759,12 @@ success:
 	
 final:
 	if(formatCtx) closeInputStream(formatCtx);
+
+	{
+		PyScopedLock lock(pl->lock);
+		pl->openStreamLock = false;
+	}
+
 	if(this->ctx) return true;
 	return false;
 }
@@ -1053,6 +1068,12 @@ void PlayerObject::openPeekInStreams() {
 	PlayerObject* player = this;
 	if(player->peekQueue == NULL) return;
 	
+	while(openPeekInStreamsLock || openStreamLock || getNextSongLock) {
+		PyScopedUnlock unlock(this->lock);
+		usleep(100);
+	}
+	openPeekInStreamsLock = true;
+	
 	PyScopedGIL gstate;
 	PyObject* args = NULL;
 	PyObject* peekList = NULL;
@@ -1104,6 +1125,7 @@ final:
 	if(PyErr_Occurred())
 		PyErr_Print();
 		
+	openPeekInStreamsLock = false;
 	Py_XDECREF(song);
 	Py_XDECREF(peekListIter);
 	Py_XDECREF(peekList);

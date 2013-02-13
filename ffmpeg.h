@@ -251,7 +251,10 @@ struct PlayerObject {
 	 the players lock but don't always need the PyGIL.
 	 */
 	PyMutex lock;
-		
+	
+	bool getNextSongLock;
+	bool openPeekInStreamsLock;
+	bool openStreamLock;
 };
 
 #endif
