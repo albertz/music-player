@@ -547,7 +547,11 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 		int freq = SAMPLERATE;
 		if(!PyArg_Parse(value, "i", &freq))
 			return -1;
-		player->setAudioTgt(freq, player->outNumChannels);
+		{
+			PyScopedGIUnlock gunlock;
+			PyScopedLock lock(player->lock);
+			player->setAudioTgt(freq, player->outNumChannels);
+		}
 		return 0;
 	}
 	
@@ -559,7 +563,11 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 		int numchannels = NUMCHANNELS;
 		if(!PyArg_Parse(value, "i", &numchannels))
 			return -1;
-		player->setAudioTgt(player->outSamplerate, numchannels);
+		{
+			PyScopedGIUnlock gunlock;
+			PyScopedLock lock(player->lock);
+			player->setAudioTgt(player->outSamplerate, numchannels);
+		}
 		return 0;
 	}
 	
