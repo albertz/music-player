@@ -188,7 +188,10 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->volume = 0.9f;
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
 	
-	player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
+	{
+		PyScopedLock lock(player->lock);
+		player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
+	}
 	
 	player->workerThread.func = boost::bind(&PlayerObject::workerProc, player, _1, _2);
 	
