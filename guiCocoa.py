@@ -397,12 +397,27 @@ def buildControlList(control):
 		subCtr.subjectObject = value
 		subCtr.parent = control
 		subCtr.attr = AttrWrapper(index, value, control)
-		buildControlObject(subCtr)
-		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
-		subCtr.updateContent(None,None,None)
+		if len(control.guiObjectList) > 0:
+			presetSize = control.guiObjectList[0].size
+		else:
+			presetSize = (80,80)
+		subCtr.presetSize = presetSize
+		_buildControlObject_pre(subCtr)
+		
 		subCtr.autoresize = (False,False,True,False)
-		subCtr.size = (0,subCtr.size[1]) # so that there isn't any flickering
+		subCtr.pos = (0,-subCtr.size[1]) # so that there isn't any flickering
 		subCtr.nativeGuiObject.setDrawsBackground_(True)
+		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
+
+		def delayedBuild():
+			_buildControlObject_post(subCtr)		
+			#subCtr.updateContent(None,None,None)
+		
+			if subCtr.size[1] != presetSize[1]:
+				updater.update()
+		utils.daemonThreadCall(
+			lambda: utils.do_in_mainthread(delayedBuild, wait=False),
+			name="GUI list item delayed build")
 		
 		return subCtr
 	
@@ -702,9 +717,18 @@ def buildControlReal(control):
 	return control
 
 def buildControlObject(control):
-	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
+	_buildControlObject_pre(control)
+	_buildControlObject_post(control)
+	return control
+
+def _buildControlObject_pre(control):
+	presetSize = getattr(control, "presetSize", (80.0,80.0))	
+	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), presetSize))
 	subview.control = control
 	control.nativeGuiObject = subview
+	
+def _buildControlObject_post(control):
+	subview = control.nativeGuiObject
 	control.OuterSpace = (0,0)
 	w,h = control.setupChilds()
 	control.size = (w,h)
@@ -756,7 +780,6 @@ def buildControlObject(control):
 			gui.ctx().curSelectedSong = subjectObj	
 	subview.onMouseDown = onMouseDown
 	
-	return control
 
 def SongDisplayView_MouseClickCallback(x):
 	from State import state
