@@ -104,13 +104,14 @@ struct PlayerObject::InStream : InStreamRawPOD {
 	std::string debugName;
 	Buffer outBuffer;
 	bool readerHitEnd; // this will be set by audio_decode_frame()
+	bool playerStartedPlaying; // this would be set by readOutStream()
 	bool playerHitEnd; // this would be set by readOutStream()
 	
 	InStream() {
 		memset(this, 0, sizeof(InStreamRawPOD));
 		timeLen = -1;
 		readerHitEnd = false;
-		playerHitEnd = false;
+		playerStartedPlaying = playerHitEnd = false;
 	}
 	~InStream();
 	bool open(PlayerObject* player, PyObject* song);
@@ -1096,6 +1097,7 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 		PlayerObject::InStream* is = this->inStream.get();
 		if(!is) break;
 		
+		is->playerStartedPlaying = true;
 		size_t popCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);
 		popCount /= 2; // because they are in bytes but we want number of samples
 		
