@@ -628,6 +628,12 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	
 	debugName = objAttrStr(song, "url"); // the url is just for debugging, the song object provides its own IO
 	{
+		size_t f = debugName.rfind('/');
+		if(f != std::string::npos)
+			debugName = debugName.substr(f + 1);
+	}
+	
+	{
 		ret = avformat_open_input(&formatCtx, debugName.c_str(), NULL, NULL);
 		
 		if(ret != 0) {
