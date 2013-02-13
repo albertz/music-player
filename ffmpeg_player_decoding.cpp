@@ -298,13 +298,13 @@ void PlayerObject::resetBuffers() {
 
 int PlayerObject::seekRel(double incr) {
 	PlayerObject* pl = this;
-	boost::shared_ptr<PlayerObject::InStream> player(pl->inStream);
-	if(!player.get()) return -1;
+	boost::shared_ptr<PlayerObject::InStream> is(pl->inStream);
+	if(!is.get()) return -1;
 	
 	PyScopedUnlock unlock(pl->lock);
-	PyScopedLock lock(player->lock);
+	PyScopedLock lock(is->lock);
 	
-	player->resetBuffers();
+	is->resetBuffers();
 	
 	double pos = 0;
 	/*
@@ -321,9 +321,9 @@ int PlayerObject::seekRel(double incr) {
 		pos += incr;
 	}
 	else*/ {
-		pos = player->timePos;
+		pos = is->timePos;
 		pos += incr;
-		player->timePos = pos;
+		is->timePos = pos;
 		
 		pos *= AV_TIME_BASE;
 		incr *= AV_TIME_BASE;
@@ -337,38 +337,38 @@ int PlayerObject::seekRel(double incr) {
 		
 	int ret =
 	avformat_seek_file(
-					   player->ctx, /*player->audio_stream*/ -1,
+					   is->ctx, /*player->audio_stream*/ -1,
 					   seek_min,
 					   seek_target,
 					   seek_max,
 					   seek_flags
 					   );
-	player.reset(); // must be reset in unlocked scope	
+	is.reset(); // must be reset in unlocked scope
 	return ret;
 }
 
 int PlayerObject::seekAbs(double pos) {
 	PlayerObject* pl = this;
-	boost::shared_ptr<PlayerObject::InStream> player(pl->inStream);
-	if(!player.get()) return -1;
+	boost::shared_ptr<PlayerObject::InStream> is(pl->inStream);
+	if(!is.get()) return -1;
 
 	PyScopedUnlock unlock(pl->lock);
-	PyScopedLock lock(player->lock);
+	PyScopedLock lock(is->lock);
 
-	player->resetBuffers();
+	is->resetBuffers();
 	
 	int seek_by_bytes = 0;
-	if(player->timeLen <= 0)
+	if(is->timeLen <= 0)
 		seek_by_bytes = 1;
 	
-	player->timePos = pos;
+	is->timePos = pos;
 
 	int seek_flags = 0;
 	if(seek_by_bytes) seek_flags |= AVSEEK_FLAG_BYTE;
 	
 	if(seek_by_bytes) {
-		if (player->ctx->bit_rate)
-			pos *= player->ctx->bit_rate / 8.0;
+		if (is->ctx->bit_rate)
+			pos *= is->ctx->bit_rate / 8.0;
 		else
 			pos *= 180000.0;
 	}
@@ -378,14 +378,14 @@ int PlayerObject::seekAbs(double pos) {
 	
 	int ret =
 	avformat_seek_file(
-					   player->ctx, /*player->audio_stream*/ -1,
+					   is->ctx, /*player->audio_stream*/ -1,
 					   INT64_MIN,
 					   (int64_t) pos,
 					   INT64_MAX,
 					   seek_flags
 					   );
 
-	player.reset(); // must be reset in unlocked scope
+	is.reset(); // must be reset in unlocked scope
 	return ret;	
 }
 
