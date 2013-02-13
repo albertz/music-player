@@ -50,7 +50,9 @@ class Song(object):
 	def __nonzero__(self): # this is mostly for noninited Song objects
 		return bool(self.url)
 	def __eq__(self, other):
-		return hasattr(other, "url") and self.url == other.url
+		if hasattr(self, "url") and hasattr(other, "url") and self.url == other.url: return True
+		if hasattr(self, "_id") and hasattr(other, "_id") and self._id == other._id: return True
+		return False
 	def __ne__(self, other):
 		return not self == other
 	def selectUrlById(self):
