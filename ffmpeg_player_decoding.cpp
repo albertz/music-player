@@ -101,6 +101,7 @@ struct InStreamRawPOD {
 struct PlayerObject::InStream : InStreamRawPOD {
 	PyMutex lock;
 	
+	std::string debugName;
 	Buffer outBuffer;
 	bool readerHitEnd; // this will be set by audio_decode_frame()
 	bool playerHitEnd; // this would be set by readOutStream()
@@ -585,7 +586,6 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	
 	InStream* player = this;
 	int ret = 0;
-	char* urlStr = NULL;
 	
 	AVFormatContext* formatCtx = initFormatCtx(this);
 	if(!formatCtx) {
@@ -593,18 +593,18 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		goto final;
 	}
 	
-	urlStr = objAttrStrDup(song, "url"); // the url is just for debugging, the song object provides its own IO
+	debugName = objAttrStr(song, "url"); // the url is just for debugging, the song object provides its own IO
 	{
-		ret = avformat_open_input(&formatCtx, urlStr, NULL, NULL);
+		ret = avformat_open_input(&formatCtx, debugName.c_str(), NULL, NULL);
 		
 		if(ret != 0) {
-			printf("avformat_open_input failed\n");
+			printf("(%s) avformat_open_input failed\n", debugName.c_str());
 			goto final;
 		}
 
 		ret = avformat_find_stream_info(formatCtx, NULL);
 		if(ret < 0) {
-			printf("avformat_find_stream_info failed\n");
+			printf("(%s) avformat_find_stream_info failed\n", debugName.c_str());
 			goto final;
 		}
 		
@@ -614,7 +614,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		
 		ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
 		if(ret < 0) {
-			printf("no audio stream found in song\n");
+			printf("(%s) no audio stream found in song\n", debugName.c_str());
 			goto final;
 		}
 		player->audio_stream = ret;
@@ -622,7 +622,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 
 	ret = stream_component_open(player, formatCtx, player->audio_stream);
 	if(ret < 0) {
-		printf("no audio stream found in song\n");
+		printf("(%s) cannot open audio stream\n", debugName.c_str());
 		goto final;
 	}
 	
@@ -650,7 +650,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 			if(gainObj) {
 				float gain = 0;
 				if(!PyArg_Parse(gainObj, "f", &gain))
-					printf("song.gain is not a float");
+					printf("(%s) song.gain is not a float\n", debugName.c_str());
 				else
 					this->gainFactor = pow(10, gain / 20);
 				Py_DECREF(gainObj);
@@ -665,7 +665,6 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	}
 	
 final:
-	if(urlStr) free(urlStr);
 	if(formatCtx) closeInputStream(formatCtx);
 	if(this->ctx) return true;
 	return false;
