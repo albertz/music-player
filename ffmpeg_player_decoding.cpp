@@ -620,11 +620,7 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	InStream* player = this;
 	int ret = 0;
 	
-	AVFormatContext* formatCtx = initFormatCtx(this);
-	if(!formatCtx) {
-		printf("initFormatCtx failed\n");
-		goto final;
-	}
+	AVFormatContext* formatCtx = NULL;
 	
 	debugName = objAttrStr(song, "url"); // the url is just for debugging, the song object provides its own IO
 	{
@@ -632,25 +628,45 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		if(f != std::string::npos)
 			debugName = debugName.substr(f + 1);
 	}
-	
+	const char* fileExt = NULL;
 	{
-		AVInputFormat* fmt = NULL;
+		size_t f = debugName.rfind('.');
+		if(f != std::string::npos)
+			fileExt = &debugName[f+1];
+	}
+	
+	AVInputFormat* fmts[] = {
+		fileExt ? av_find_input_format(fileExt) : NULL,
+		NULL,
+		av_find_input_format("mp3")
+	};
+	for(AVInputFormat* fmt : fmts) {
+		if(formatCtx) {
+			closeInputStream(formatCtx);
+			player_seek(this, 0, 0);
+		}
+		formatCtx = initFormatCtx(this);
+		if(!formatCtx) {
+			printf("(%s) initFormatCtx failed\n", debugName.c_str());
+			goto final;
+		}
+		
 		ret = av_probe_input_buffer(formatCtx->pb, &fmt, debugName.c_str(), NULL, 0, formatCtx->probesize);
 		if(ret < 0) {
 			printf("(%s) av_probe_input_buffer failed\n", debugName.c_str());
-			goto final;
+			continue;
 		}
 		
 		ret = avformat_open_input(&formatCtx, debugName.c_str(), fmt, NULL);
 		if(ret != 0) {
-			printf("(%s) avformat_open_input failed\n", debugName.c_str());
-			goto final;
+			printf("(%s) avformat_open_input (%s) failed\n", debugName.c_str(), fmt->name);
+			continue;
 		}
 
 		ret = avformat_find_stream_info(formatCtx, NULL);
 		if(ret < 0) {
-			printf("(%s) avformat_find_stream_info failed\n", debugName.c_str());
-			goto final;
+			printf("(%s) avformat_find_stream_info (%s) failed\n", debugName.c_str(), fmt->name);
+			continue;
 		}
 		
 	#ifdef DEBUG
@@ -658,8 +674,8 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 	#endif
 		
 		if(formatCtx->nb_streams == 0) {
-			printf("(%s) no streams found in song\n", debugName.c_str());
-			goto final;
+			printf("(%s) no streams found in song (%s)\n", debugName.c_str(), fmt->name);
+			continue;
 		}
 		
 		ret = av_find_best_stream(formatCtx, AVMEDIA_TYPE_AUDIO, -1, -1, 0, 0);
@@ -667,16 +683,20 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 			const char* errorMsg = "unkown error";
 			if(ret == AVERROR_STREAM_NOT_FOUND) errorMsg = "stream not found";
 			else if(ret == AVERROR_DECODER_NOT_FOUND) errorMsg = "decoder not found";
-			printf("(%s) no audio stream found in song: %s\n", debugName.c_str(), errorMsg);
+			printf("(%s) no audio stream found in song (%s): %s\n", debugName.c_str(), fmt->name, errorMsg);
 			int oldloglevel = av_log_get_level();
 			av_log_set_level(AV_LOG_INFO);
 			av_dump_format(formatCtx, 0, debugName.c_str(), 0);
 			av_log_set_level(oldloglevel);
-			goto final;
+			continue;
 		}
 		player->audio_stream = ret;
+		
+		goto success;
 	}
-
+	goto final;
+	
+success:
 	ret = stream_component_open(player, formatCtx, player->audio_stream);
 	if(ret < 0) {
 		printf("(%s) cannot open audio stream\n", debugName.c_str());
