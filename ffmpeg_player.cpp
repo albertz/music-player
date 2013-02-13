@@ -189,8 +189,12 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
 	
 	{
-		PyScopedLock lock(player->lock);
+		// We have the Python GIL here. For setAudioTgt, we need the Player lock.
+		// For performance reasons, just disable the lock and do it without locking.
+		// This is safe because we have the only reference here.
+		player->lock.enabled = false;
 		player->setAudioTgt(SAMPLERATE, NUMCHANNELS);
+		player->lock.enabled = true;
 	}
 	
 	player->workerThread.func = boost::bind(&PlayerObject::workerProc, player, _1, _2);
