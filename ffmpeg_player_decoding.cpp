@@ -460,7 +460,7 @@ static int stream_component_open(PlayerObject::InStream *is, AVFormatContext* ic
 	
 	codec = avcodec_find_decoder(avctx->codec_id);
 	if (!codec) {
-		printf("(%s) avcodec_find_decoder failed\n", is->debugName.c_str());
+		printf("(%s) avcodec_find_decoder failed (%s)\n", is->debugName.c_str(), ic->iformat->name);
 		return -1;
 	}
 	
@@ -483,7 +483,7 @@ static int stream_component_open(PlayerObject::InStream *is, AVFormatContext* ic
 		avctx->flags |= CODEC_FLAG_EMU_EDGE;
 	
 	if (avcodec_open2(avctx, codec, NULL /*opts*/) < 0) {
-		printf("(%s) avcodec_open2 failed\n", is->debugName.c_str());
+		printf("(%s) avcodec_open2 failed (%s) (%s)\n", is->debugName.c_str(), ic->iformat->name, codec->name);
 		return -1;
 	}
 	
@@ -640,7 +640,10 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 		NULL,
 		av_find_input_format("mp3")
 	};
-	for(AVInputFormat* fmt : fmts) {
+	for(size_t i = 0; i < sizeof(fmts)/sizeof(fmts[0]); ++i) {
+		if(i == 1 && fmts[0] == NULL) continue; // we already tried NULL
+		AVInputFormat* fmt = fmts[i];
+		
 		if(formatCtx) {
 			closeInputStream(formatCtx);
 			player_seek(this, 0, 0);
@@ -691,18 +694,21 @@ bool PlayerObject::InStream::open(PlayerObject* pl, PyObject* song) {
 			continue;
 		}
 		player->audio_stream = ret;
+
+		ret = stream_component_open(player, formatCtx, player->audio_stream);
+		if(ret < 0) {
+			printf("(%s) cannot open audio stream (%s)\n", debugName.c_str(), fmt->name);
+			continue;
+		}
 		
+		if(i > 0)
+			printf("(%s) fallback open succeeded (%s)\n", debugName.c_str(), fmt->name);
 		goto success;
 	}
+	printf("(%s) opening failed\n", debugName.c_str());
 	goto final;
 	
 success:
-	ret = stream_component_open(player, formatCtx, player->audio_stream);
-	if(ret < 0) {
-		printf("(%s) cannot open audio stream\n", debugName.c_str());
-		goto final;
-	}
-	
 	player->ctx = formatCtx;
 	formatCtx = NULL;
 	
