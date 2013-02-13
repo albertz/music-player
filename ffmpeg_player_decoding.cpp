@@ -978,6 +978,8 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 		while(1) {
 			int ret = av_read_frame(is->ctx, pkt);
 			if (ret < 0) {
+				if(is->readerTimePos == 0)
+					printf("(%s) av_read_frame error at pos 0\n", is->debugName.c_str());
 				//if (ic->pb && ic->pb->error)
 				//	printf("av_read_frame error\n");
 				//if (ret == AVERROR_EOF || url_feof(is->ctx->pb))
