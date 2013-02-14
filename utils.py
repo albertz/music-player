@@ -267,8 +267,8 @@ class UserAttrib(object):
 
 def iterUserAttribs(obj):
 	attribs = []
-	for attrib in dir(obj.__class__):
-		attrib = getattr(obj.__class__, attrib)
+	for attribName in dir(obj.__class__):
+		attrib = getattr(obj.__class__, attribName)
 		if attrib.__class__.__name__ == "UserAttrib":
 			attribs += [attrib]
 	attribs.sort(key = lambda attr: attr.index)
