@@ -411,7 +411,7 @@ def buildControlList(control):
 
 		def delayedBuild():
 			_buildControlObject_post(subCtr)		
-			#subCtr.updateContent(None,None,None)
+			subCtr.updateContent(None,None,None)
 		
 			if subCtr.size[1] != presetSize[1]:
 				updater.update()
