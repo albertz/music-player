@@ -131,7 +131,7 @@ class ListWrapper: # implements the List trait
 				del self.list[index]
 				self.onRemove(index)
 			self.list.save()
-		putOnModify()		
+		putOnModify()
 	def shuffle(self):
 		import random
 		with self.lock:
@@ -140,6 +140,7 @@ class ListWrapper: # implements the List trait
 			for index,value in enumerate(self.list):
 				self.onInsert(index, value)
 			self.list.save()
+		putOnModify()
 	def __getitem__(self, index):
 		with self.lock:
 			return self.list[index]
