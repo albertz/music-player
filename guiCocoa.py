@@ -409,14 +409,15 @@ def buildControlList(control):
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 
 		def delayedBuild():
-			_buildControlObject_post(subCtr)		
+			w,h = control.setupChilds()
+			control.size = (w,h)
+
+			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
 			subCtr.updateContent(None,None,None)
 		
-			if subCtr.size[1] != presetSize[1]:
+			if h != presetSize[1]:
 				updater.update()
-		utils.daemonThreadCall(
-			lambda: utils.do_in_mainthread(delayedBuild, wait=False),
-			name="GUI list item delayed build")
+		utils.daemonThreadCall(delayedBuild, name="GUI list item delayed build")
 		
 		return subCtr
 	
@@ -632,10 +633,7 @@ def buildControlList(control):
 						f(*args)
 					return lambda *args: do_in_mainthread(lambda: handler(*args), wait=False)
 				setattr(list, ev, wrap())
-	from threading import Thread
-	t = Thread(target=doInitialFill, name="List initial fill")
-	t.daemon = True
-	t.start()	
+	utils.daemonThreadCall(doInitialFill, name="List initial fill")
 	
 	return control
 
@@ -688,7 +686,7 @@ def buildControlTable(control):
 		value = control.subjectObject
 		dataSource.data = value
 		dataSource.resort(table) # initial sort
-		table.reloadData()
+		do_in_mainthread(lambda: table.reloadData(), wait=False)
 	control.updateContent = update
 	update() # initial fill
 	
@@ -717,6 +715,8 @@ def buildControlReal(control):
 
 def buildControlObject(control):
 	_buildControlObject_pre(control)
+	w,h = control.setupChilds()
+	control.size = (w,h)
 	_buildControlObject_post(control)
 	return control
 
@@ -725,12 +725,10 @@ def _buildControlObject_pre(control):
 	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), presetSize))
 	subview.control = control
 	control.nativeGuiObject = subview
+	control.OuterSpace = (0,0)
 	
 def _buildControlObject_post(control):
 	subview = control.nativeGuiObject
-	control.OuterSpace = (0,0)
-	w,h = control.setupChilds()
-	control.size = (w,h)
 
 	if control.attr.canHaveFocus:
 		subview.setDrawsBackground_(True)
@@ -799,7 +797,7 @@ def buildControlSongDisplay(control):
 					x = float(location.x) / self.bounds().size.width
 					if x < 0 or x > 1: return
 					SongDisplayView_MouseClickCallback(x)
-	except:
+	except Exception:
 		SongDisplayView = objc.lookUpClass("SongDisplayView") # already defined earlier
 
 	subview = SongDisplayView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
@@ -934,12 +932,11 @@ def buildControlSongDisplay(control):
 				do_in_mainthread(lambda: imgview.setImage_(None), wait=False)
 				return
 
-			from threading import Thread
-			Thread(target=self.getBmpData, name="GUI song bitmap loader").start()
+			utils.daemonThreadCall(self.getBmpData, name="GUI song bitmap loader")
 
 	songDisplay = SongDisplay()
 	songDisplay.initSongCursorImg()
-	Thread(target=songDisplay.playCursorUpdater, name="GUI play cursor updater").start()
+	utils.daemonThreadCall(songDisplay.playCursorUpdater, name="GUI play cursor updater")
 
 	control.nativeGuiObject = subview
 	control.updateContent = songDisplay.update	
@@ -974,21 +971,28 @@ class CocoaGuiObject(object):
 	nativeGuiObject = None
 	
 	@property
+	@DoInMainthreadDecorator
 	def pos(self): return (self.nativeGuiObject.frame().origin.x, self.nativeGuiObject.frame().origin.y)	
 	@pos.setter
+	@DoInMainthreadDecorator
 	def pos(self, value): self.nativeGuiObject.setFrameOrigin_(value)
 	@property
+	@DoInMainthreadDecorator
 	def size(self): return (self.nativeGuiObject.frame().size.width, self.nativeGuiObject.frame().size.height)
 	@size.setter
+	@DoInMainthreadDecorator
 	def size(self, value): self.nativeGuiObject.setFrameSize_(value)
 	@property
+	@DoInMainthreadDecorator
 	def innerSize(self): return (self.nativeGuiObject.bounds().size.width, self.nativeGuiObject.bounds().size.height)
 
 	@property
+	@DoInMainthreadDecorator
 	def autoresize(self):
 		flags = self.nativeGuiObject.autoresizingMask()
 		return (flags & NSViewMinXMargin, flags & NSViewMinYMargin, flags & NSViewWidthSizable, flags & NSViewHeightSizable)
 	@autoresize.setter
+	@DoInMainthreadDecorator
 	def autoresize(self, value):
 		flags = 0
 		if value[0]: flags |= NSViewMinXMargin
@@ -997,6 +1001,7 @@ class CocoaGuiObject(object):
 		if value[3]: flags |= NSViewHeightSizable
 		self.nativeGuiObject.setAutoresizingMask_(flags)
 		
+	@DoInMainthreadDecorator
 	def addChild(self, child):
 		self.nativeGuiObject.addSubview_(child.nativeGuiObject)
 		

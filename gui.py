@@ -87,7 +87,7 @@ class GuiObject:
 			if control.attr and control.attr.updateHandler:
 				try:
 					control.attr.updateHandler(self.subjectObject, control.attr, ev, args, kwargs)
-				except:
+				except Exception:
 					sys.excepthook(*sys.exc_info())
 			control.updateContent(ev, args, kwargs)
 	
@@ -206,7 +206,7 @@ class GuiObject:
 		lastControl = None
 		
 		for attr in iterUserAttribs(self.subjectObject):
-			control = buildControl(attr, self)
+			control = do_in_mainthread(lambda: buildControl(attr, self), wait=True)
 			if not self.firstChildGuiObject:
 				self.firstChildGuiObject = control
 			if attr.hasUpdateEvent():

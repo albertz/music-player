@@ -608,6 +608,11 @@ def do_in_mainthread(f, wait=True):
 		raise helper.exc
 	return helper.ret
 
+def DoInMainthreadDecorator(func):
+	def decoratedFunc(*args, **kwargs):
+		return do_in_mainthread(func(*args, **kwargs), wait=True)
+	return decoratedFunc
+
 def ObjCClassAutorenamer(name, bases, dict):
 	def lookUpClass(name):
 		try: return objc.lookUpClass(name)
