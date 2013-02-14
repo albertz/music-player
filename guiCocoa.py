@@ -417,7 +417,7 @@ def buildControlList(control):
 		
 			if h != presetSize[1]:
 				updater.update()
-		utils.daemonThreadCall(delayedBuild, name="GUI list item delayed build")
+		utils.daemonThreadCall(delayedBuild, name="GUI list item delayed build", queue="GUI-list-item-delayed-build")
 		
 		return subCtr
 	
