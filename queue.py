@@ -233,8 +233,7 @@ class MainQueue:
 		
 	@UserAttrib(type=Traits.Action, alignRight=True, variableWidth=False)
 	def shuffle(self):
-		with self.lock:
-			self.queue.shuffle()
+		self.queue.shuffle()
 
 queue = MainQueue()
 
