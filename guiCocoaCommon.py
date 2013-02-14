@@ -200,8 +200,7 @@ try:
 			return self
 		def click(self, sender):
 			attr = self.userAttr.__get__(self.inst)
-			from threading import Thread
-			Thread(target=attr, name="click handler").start()
+			utils.daemonThreadCall(attr, name="%r click handler" % (self.userAttr))
 except:
 	ButtonActionHandler = objc.lookUpClass("ButtonActionHandler") # already defined earlier
 
