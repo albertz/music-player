@@ -404,11 +404,14 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 		if a in attribs.keys(): continue
 		class WrapProp(object):
 			def __get__(self, inst, type=None, attrib=a):
-				load()
-				return object.__getattribute__(obj.value, attrib)
+				if inst is lazyObjInst:
+					load()
+					return object.__getattribute__(obj.value, attrib)
+				return getattr(baseType, attrib)					
 		attribs[a] = WrapProp()
 	LazyObject = type("LazyObject", (object,), attribs)
-	return LazyObject()
+	lazyObjInst = LazyObject()
+	return lazyObjInst
 
 def PersistentObject(baseType, filename, defaultArgs=(), persistentRepr = False, namespace = None):
 	import appinfo
