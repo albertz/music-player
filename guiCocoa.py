@@ -412,9 +412,11 @@ def buildControlList(control):
 			if control.root.nativeGuiObject.window() is None:
 				return None # window was closed
 
-			w,h = subCtr.setupChilds()
-			subCtr.size = (w,h)
-
+			w,h = subCtr.setupChilds()			
+			def setSize():
+				w = scrollview.contentSize().width
+				subCtr.size = (w, h)
+			do_in_mainthread(setSize, wait=False)
 			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
 			do_in_mainthread(lambda: subCtr.updateContent(None,None,None), wait=False)
 			do_in_mainthread(lambda: scrollview.documentView().addSubview_(subCtr.nativeGuiObject), wait=False)
