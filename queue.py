@@ -199,7 +199,7 @@ class MainQueue:
 	def clear(self):
 		self.queue.clear()
 			
-	@UserAttrib(type=Traits.Action, alignRight=True)
+	# no point really to make this an UserAttrib
 	def fillUpTo(self, n=10):
 		while True:
 			with self.lock:
