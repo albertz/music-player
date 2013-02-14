@@ -55,6 +55,8 @@ class Song(object):
 		return False
 	def __ne__(self, other):
 		return not self == other
+	def __hash__(self):
+		return self.id
 	def selectUrlById(self):
 		assert self._useDb, "Song.selectUrl: need to use the songdb"
 		id = getattr(self, "_id", None)
