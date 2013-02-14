@@ -34,6 +34,7 @@ except Exception:
 class GuiObject:
 	"This defines the protocol we must support"
 	
+	root = None
 	parent = None
 	attr = None # if this is a child of something, this is the access attrib of the parent.subjectObject
 	pos = (0,0)

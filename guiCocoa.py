@@ -395,6 +395,7 @@ def buildControlList(control):
 	def buildControlForIndex(index, value):
 		subCtr = CocoaGuiObject()
 		subCtr.subjectObject = value
+		subCtr.root = control.root
 		subCtr.parent = control
 		subCtr.attr = AttrWrapper(index, value, control)
 		presetSize = (scrollview.contentSize().width, 80)
@@ -408,6 +409,9 @@ def buildControlList(control):
 		subCtr.nativeGuiObject.setDrawsBackground_(True)
 
 		def delayedBuild():
+			if control.root.nativeGuiObject.window() is None:
+				return None # window was closed
+
 			w,h = subCtr.setupChilds()
 			subCtr.size = (w,h)
 
@@ -949,6 +953,7 @@ def buildControlSongDisplay(control):
 @DoInMainthreadDecorator
 def buildControl(userAttr, parent):
 	control = CocoaGuiObject()
+	control.root = parent.root
 	control.parent = parent
 	control.attr = userAttr
 	control.subjectObject = userAttr.__get__(parent.subjectObject)
@@ -1035,8 +1040,10 @@ def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	win.setTitle_(title)
 
 	window = CocoaGuiObject()
+	window.root = window
 	window.subjectObject = subjectObject
 	window.nativeGuiObject = win.contentView()
+	assert window.root.nativeGuiObject.window() is not None
 	w,h = window.setupChilds()
 
 	win.setContentMinSize_((w,h))
