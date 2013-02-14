@@ -228,7 +228,7 @@ class MainQueue:
 			self.queue.append(nextSong)
 
 	@UserAttrib(type=Traits.Action, alignRight=True, variableWidth=False)
-	def unique(self, n=10):
+	def unique(self):
 		self.queue.unique()
 		
 	@UserAttrib(type=Traits.Action, alignRight=True, variableWidth=False)
