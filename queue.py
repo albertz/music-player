@@ -118,6 +118,20 @@ class ListWrapper: # implements the List trait
 			self.onClear()
 			self.list.save()
 		putOnModify()
+	def unique(self):
+		with self.lock:
+			listCopy = list(self.list)
+			listSet = set()
+			index = 0
+			for value in listCopy:
+				if value not in listSet:
+					listSet.add(value)
+					index += 1
+					continue
+				del self.list[index]
+				self.onRemove(index)
+			self.list.save()
+		putOnModify()		
 	def shuffle(self):
 		import random
 		with self.lock:
@@ -213,6 +227,10 @@ class MainQueue:
 			nextSong = self.getNextSong_auto()
 			self.queue.append(nextSong)
 
+	@UserAttrib(type=Traits.Action, alignRight=True, variableWidth=False)
+	def unique(self, n=10):
+		self.queue.unique()
+		
 	@UserAttrib(type=Traits.Action, alignRight=True, variableWidth=False)
 	def shuffle(self):
 		with self.lock:
