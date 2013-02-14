@@ -943,6 +943,7 @@ def buildControlSongDisplay(control):
 	return control
 
 
+@DoInMainthreadDecorator
 def buildControl(userAttr, parent):
 	control = CocoaGuiObject()
 	control.parent = parent

@@ -206,7 +206,7 @@ class GuiObject:
 		lastControl = None
 		
 		for attr in iterUserAttribs(self.subjectObject):
-			control = do_in_mainthread(lambda: buildControl(attr, self), wait=True)
+			control = buildControl(attr, self)
 			if not self.firstChildGuiObject:
 				self.firstChildGuiObject = control
 			if attr.hasUpdateEvent():
