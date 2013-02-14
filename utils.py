@@ -1040,8 +1040,67 @@ def WarnMustNotBeInForkDecorator(func):
 		return func(*args, **kwargs)
 	return decoratedFunc
 
-def daemonThreadCall(func, name=None):
-	from threading import Thread
+
+class QueuedDaemonThread:
+	def __init__(self):
+		self.lock = RLock()
+		self.cond = Condition(self.lock)
+		self.queues = {}
+		self.thread = None
+		self.quit = False
+	def _getHandler(self, queueItem):
+		def handle():
+			try:
+				queueItem["func"]()
+			except (ForwardedKeyboardInterrupt, KeyboardInterrupt, SystemExit):
+				return # just ignore
+			except BaseException:
+				print "Exception in QueuedDaemonThread", queueItem["name"]
+				sys.excepthook(*sys.exc_info())
+			finally:
+				with self.lock:
+					queueItem["finished"] = True
+					self.cond.notifyAll()
+		return handle
+	def _threadMain(self):
+		while True:
+			with self.lock:
+				if self.quit:
+					self.thread = None
+					return
+				for queueId,queue in self.queues.items():
+					while queue:
+						queueItem = queue[0]
+						if queueItem.get("finished", False):
+							queue.pop(0)
+							continue
+						if not queueItem.get("started", False):
+							queueItem["started"] = True
+							handler = self._getHandler(queueItem)
+							daemonThreadCall(handler, name=queueItem["name"])
+						break
+					if not queue:
+						del self.queues[queueId]
+				self.cond.wait()
+	def _maybeStart(self):
+		if not self.thread:
+			self.thread = daemonThreadCall(self._threadMain, name="queued daemon thread")
+	def push(self, func, name=None, queue=None):
+		assert queue
+		with self.lock:
+			self.queues.setdefault(queue, []).append({"func":func, "name":name})
+			self.cond.notifyAll()
+			self._maybeStart()
+	def quit(self):
+		with self.lock:
+			self.quit = True
+			self.cond.notifyAll()
+queuedDaemonThread = QueuedDaemonThread()
+
+def daemonThreadCall(func, name=None, queue=None):
+	if queue:
+		queuedDaemonThread.push(func, name=name, queue=queue)
+		return
 	def doCall():
 		try:
 			func()
@@ -1053,6 +1112,8 @@ def daemonThreadCall(func, name=None):
 	thread = Thread(target = doCall, name = name)
 	thread.daemon = True
 	thread.start()
+	return thread
+
 
 def killMeHard():
 	import sys, os, signal
