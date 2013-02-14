@@ -610,7 +610,7 @@ def do_in_mainthread(f, wait=True):
 
 def DoInMainthreadDecorator(func):
 	def decoratedFunc(*args, **kwargs):
-		return do_in_mainthread(func(*args, **kwargs), wait=True)
+		return do_in_mainthread(lambda: func(*args, **kwargs), wait=True)
 	return decoratedFunc
 
 def ObjCClassAutorenamer(name, bases, dict):
