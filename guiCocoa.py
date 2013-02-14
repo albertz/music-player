@@ -406,18 +406,21 @@ def buildControlList(control):
 		subCtr.autoresize = (False,False,True,False)
 		subCtr.pos = (0,-subCtr.size[1]) # so that there isn't any flickering
 		subCtr.nativeGuiObject.setDrawsBackground_(True)
-		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 
 		def delayedBuild():
 			w,h = subCtr.setupChilds()
 			subCtr.size = (w,h)
 
 			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
-			subCtr.updateContent(None,None,None)
-		
+			do_in_mainthread(lambda: subCtr.updateContent(None,None,None), wait=False)
+			do_in_mainthread(lambda: scrollview.documentView().addSubview_(subCtr.nativeGuiObject), wait=False)
+	
 			if h != presetSize[1]:
 				updater.update()
-		utils.daemonThreadCall(delayedBuild, name="GUI list item delayed build", queue="GUI-list-item-delayed-build")
+		utils.daemonThreadCall(
+			delayedBuild, name="GUI list item delayed build",
+			queue="GUI-list-item-delayed-build-%i" % (index % 5)
+			)
 		
 		return subCtr
 	
