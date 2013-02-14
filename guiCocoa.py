@@ -409,8 +409,8 @@ def buildControlList(control):
 		scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
 
 		def delayedBuild():
-			w,h = control.setupChilds()
-			control.size = (w,h)
+			w,h = subCtr.setupChilds()
+			subCtr.size = (w,h)
 
 			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
 			subCtr.updateContent(None,None,None)
