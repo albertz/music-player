@@ -1105,7 +1105,7 @@ def guiMain():
 				w.updateContent(ev,args,kwargs)
 			if ev is PlayerEventCallbacks.onPlayingStateChange or ev is PlayerEventCallbacks.onSongChange:
 				updateControlMenu()
-		except:
+		except Exception:
 			sys.excepthook(*sys.exc_info())
 	del pool
 
