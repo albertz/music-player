@@ -397,10 +397,9 @@ def buildControlList(control):
 		subCtr.subjectObject = value
 		subCtr.parent = control
 		subCtr.attr = AttrWrapper(index, value, control)
+		presetSize = (scrollview.contentSize().width, 80)
 		if len(control.guiObjectList) > 0:
-			presetSize = control.guiObjectList[0].size
-		else:
-			presetSize = (80,80)
+			presetSize = (presetSize[0], control.guiObjectList[0].size[1])
 		subCtr.presetSize = presetSize
 		_buildControlObject_pre(subCtr)
 		
