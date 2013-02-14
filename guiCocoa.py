@@ -1091,7 +1091,7 @@ def reloadModuleHandling():
 
 	try:
 		setupAfterAppFinishedLaunching(appDelegate)
-	except:
+	except Exception:
 		sys.excepthook(*sys.exc_info())
 
 def guiMain():
