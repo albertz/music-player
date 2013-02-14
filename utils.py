@@ -616,6 +616,7 @@ def DoInMainthreadDecorator(func):
 		return do_in_mainthread(lambda: func(*args, **kwargs), wait=True)
 	return decoratedFunc
 
+
 def ObjCClassAutorenamer(name, bases, dict):
 	def lookUpClass(name):
 		try: return objc.lookUpClass(name)
@@ -1041,6 +1042,16 @@ def WarnMustNotBeInForkDecorator(func):
 				Ctx.didWarn = True
 			return None
 		return func(*args, **kwargs)
+	return decoratedFunc
+
+
+def ExceptionCatcherDecorator(func):
+	def decoratedFunc(*args, **kwargs):
+		try:
+			ret = func(*args, **kwargs)
+		except Exception:
+			sys.excepthook(*sys.exc_info())			
+		return ret
 	return decoratedFunc
 
 

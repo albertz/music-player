@@ -409,9 +409,9 @@ def buildControlList(control):
 		subCtr.nativeGuiObject.setDrawsBackground_(True)
 
 		def delayedBuild():
-			if control.root.nativeGuiObject.window() is None:
-				return None # window was closed
-
+			if control.root.nativeGuiObject.window() is None: return # window was closed
+			if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
+			
 			w,h = subCtr.setupChilds()			
 			def setSize():
 				w = scrollview.contentSize().width
@@ -419,10 +419,13 @@ def buildControlList(control):
 			do_in_mainthread(setSize, wait=False)
 			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
 			do_in_mainthread(lambda: subCtr.updateContent(None,None,None), wait=False)
-			do_in_mainthread(lambda: scrollview.documentView().addSubview_(subCtr.nativeGuiObject), wait=False)
+			def addView():
+				if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
+				scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
+				if h != presetSize[1]:
+					updater.update()
+			do_in_mainthread(addView, wait=False)
 	
-			if h != presetSize[1]:
-				updater.update()
 		utils.daemonThreadCall(
 			delayedBuild, name="GUI list item delayed build",
 			queue="GUI-list-item-delayed-build-%i" % (index % 5)
@@ -442,10 +445,12 @@ def buildControlList(control):
 				elif index == self.index: self.deselect()
 			def onClear(self):
 				self.index = None
+			@ExceptionCatcherDecorator
 			def deselect(self):
 				if self.index is not None:
 					control.guiObjectList[self.index].nativeGuiObject.setBackgroundColor_(NSColor.textBackgroundColor())
 					self.index = None
+			@ExceptionCatcherDecorator
 			def select(self, index=None):
 				self.deselect()
 				if index is None:
@@ -476,6 +481,7 @@ def buildControlList(control):
 				view.setDrawsFocusRing_(True)
 			def onLostFocus(self):
 				view.setDrawsFocusRing_(False)
+			@ExceptionCatcherDecorator
 			def onKeyDown(self, ev):
 				# see HIToolbox/Events.h for keycodes
 				if ev.keyCode() == 125: # down
@@ -504,6 +510,7 @@ def buildControlList(control):
 							self.select(self.index + 1)
 						list.remove(index)
 						return True
+			@ExceptionCatcherDecorator
 			def onMouseDown(self, ev):
 				view.window().makeFirstResponder_(view)
 				mouseLoc = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
@@ -511,6 +518,7 @@ def buildControlList(control):
 					if NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
 						self.select(index)
 						return True
+			@ExceptionCatcherDecorator
 			def onInternalDrag(self, sourceControl, index, filenames):
 				if sourceControl.parent is control: # internal drag to myself
 					oldIndex = self.index
@@ -536,6 +544,7 @@ def buildControlList(control):
 				view.setBackgroundColor_(NSColor.blackColor())
 				self.guiCursor = view
 				scrollview.documentView().addSubview_(view)
+			@ExceptionCatcherDecorator
 			def onDraggingUpdated(self, sender):
 				self.guiCursor.setDrawsBackground_(True)
 				scrollview.documentView().addSubview_positioned_relativeTo_(self.guiCursor, NSWindowAbove, None)
@@ -571,6 +580,7 @@ def buildControlList(control):
 			def onDraggingExited(self, sender):
 				self.guiCursor.setDrawsBackground_(False)
 				self.index = None
+			@ExceptionCatcherDecorator
 			def onPerformDragOperation(self, sender):
 				self.guiCursor.setDrawsBackground_(False)
 				import __builtin__
@@ -597,6 +607,7 @@ def buildControlList(control):
 				except:
 					sys.excepthook(*sys.exc_info())
 					return False
+			@ExceptionCatcherDecorator
 			def onInternalDrag(self, *args):
 				# Note: This doesn't work if we don't have attr.canHaveFocus. Should be fixed later...
 				control.select.onInternalDrag(*args)
@@ -625,12 +636,14 @@ def buildControlList(control):
 				control.guiObjectList.insert(index, buildControlForIndex(index, value))
 				updater.update()
 			def list_onRemove(index):
+				control.guiObjectList[index].obsolete = True
 				control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
 				del control.guiObjectList[index]
 				updater.update()
 			def list_onClear():
 				for subCtr in control.guiObjectList:
 					subCtr.nativeGuiObject.removeFromSuperview()
+					subCtr.obsolete = True
 				del control.guiObjectList[:]
 				updater.update()
 			
@@ -748,9 +761,11 @@ def _buildControlObject_post(control):
 		subview.setDrawsBackground_(True)
 		subview.setBackgroundColor_(backgroundColor(control))
 	
+	@ExceptionCatcherDecorator
 	def onInternalDrag(target, listindex, filenames):
 		attrChain(target, "dragHandler", "onInternalDrag")(control, listindex, filenames)
 	
+	@ExceptionCatcherDecorator
 	def onMouseDragged(ev):
 		guiObj = control
 		subjectObj = guiObj.subjectObject
@@ -778,6 +793,7 @@ def _buildControlObject_post(control):
 		return True		
 	subview.onMouseDragged = onMouseDragged
 	
+	@ExceptionCatcherDecorator
 	def onMouseDown(ev):
 		subjectObj = control.subjectObject
 		# special handling for gui.ctx().curSelectedSong
