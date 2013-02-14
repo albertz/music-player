@@ -875,7 +875,9 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 			int len1 = avcodec_decode_audio4(dec, is->frame, &got_frame, pkt_temp);
 			if (len1 < 0) {
 				pkt_temp->size = 0;
-				printf("(%s) avcodec_decode_audio4 error (pos %lf)\n", is->debugName.c_str(), is->readerTimePos);
+				// warning only at pos 0. this seems too common and i don't like a spammy log...
+				if(is->readerTimePos == 0)
+					printf("(%s) avcodec_decode_audio4 error at pos 0\n", is->debugName.c_str());
 				// earlier, we just breaked. but I encountered some audio files
 				// which only have garbage following and the user should never
 				// listen to that.
