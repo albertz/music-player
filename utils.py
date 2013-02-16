@@ -1129,6 +1129,19 @@ def daemonThreadCall(func, name=None, queue=None):
 	return thread
 
 
+def raiseExceptionInThread(threadId, exc=KeyboardInterrupt):
+	import ctypes
+	ret = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+		ctypes.c_long(threadId),
+		ctypes.py_object(exc))
+	# returns the count of threads where we set the exception
+	#if ret > 1:
+		# strange - should not happen.
+		# try to reset
+		#ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(threadId), None)
+	return ret == 1
+
+
 def killMeHard():
 	import sys, os, signal
 	os.kill(0, signal.SIGKILL)
