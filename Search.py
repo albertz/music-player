@@ -32,7 +32,7 @@ class Search:
 						self.searchResults_updateEvent.push()
 				with self._lock:
 					self._runningSearches.discard(thread.get_ident())
-			except AsyncInterrupt:
+			except utils.AsyncInterrupt:
 				pass
 		with self._lock:
 			self._searchText = txt
