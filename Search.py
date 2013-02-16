@@ -22,8 +22,8 @@ class Search:
 		def search():
 			try:
 				import thread
-				self._runningSearches.add(thread.get_ident())
 				with self._lock:
+					self._runningSearches.add(thread.get_ident())
 					if self._searchText != txt: return
 				res = songdb.search(txt)
 				with self._lock:
