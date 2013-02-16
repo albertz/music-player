@@ -11,15 +11,39 @@ import songdb
 
 class Search:
 	Keys = ("artist", "title", "duration", "rating")
-	_searchText = ""
-	_searchResults = []
+	def __init__(self):
+		self._searchText = ""
+		self._searchResults = []
+		import threading
+		self._lock = threading.RLock()
+		self._runningSearches = set()
 	
+	def _startSearch(self, txt):
+		def search():
+			try:
+				res = songdb.search(txt)
+				with self._lock:
+					if self._searchText == txt:
+						self._searchResults = res
+						self.searchResults_updateEvent.push()
+			except KeyboardInterrupt:
+				pass
+			import thread
+			with self._lock:
+				self._runningSearches.discard(thread.get_ident())
+		with self._lock:
+			self._searchText = txt
+			for tid in self._runningSearches:
+				utils.raiseExceptionInThread(tid)
+			self._runningSearches.clear()
+			t = utils.daemonThreadCall(search, name="Song DB search")
+			self._runningSearches.add(t.ident)
+
 	@UserAttrib(type=Traits.EditableText, searchLook=True)
 	def searchText(self, updateText=None):
-		if updateText is not None and self._searchText != updateText:
-			self._searchText = updateText
-			self._searchResults = songdb.search(updateText)
-			self.searchResults_updateEvent.push()
+		with self._lock:
+			if updateText is not None and self._searchText != updateText:
+				self._startSearch(updateText)
 		return self._searchText
 	
 	@UserAttrib(type=Traits.Table(keys=Keys,
