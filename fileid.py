@@ -35,7 +35,12 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 	@NSAutoreleasePoolDecorator
 	def getPathByNativeId(fileid):
 		nsdata = AppKit.NSData.alloc().initWithBytes_length_(fileid, len(fileid))
-		url, _, _ = AppKit.NSURL.URLByResolvingBookmarkData_options_relativeToURL_bookmarkDataIsStale_error_(nsdata, AppKit.NSURLBookmarkResolutionWithoutUI, None,None,None)
+		url, _, _ = AppKit.NSURL.URLByResolvingBookmarkData_options_relativeToURL_bookmarkDataIsStale_error_(
+			nsdata,
+			# mounting can take long. i don't know about the timeout but it is more than 30 seconds.
+			# this is not acceptable here.
+			AppKit.NSURLBookmarkResolutionWithoutUI | AppKit.NSURLBookmarkResolutionWithoutMounting,
+			None,None,None)
 		
 		if not url: return None
 		
