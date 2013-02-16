@@ -1137,11 +1137,12 @@ def raiseExceptionInThread(threadId, exc=AsyncInterrupt):
 		ctypes.c_long(threadId),
 		ctypes.py_object(exc))
 	# returns the count of threads where we set the exception
-	#if ret > 1:
+	if ret > 1:
 		# strange - should not happen.
-		# try to reset
-		#ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(threadId), None)
-	return ret == 1
+		print "Error: PyThreadState_SetAsyncExc returned >1"
+		# try to reset - although this is similar unsafe...
+		ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(threadId), None)
+	return ret > 0
 
 
 def killMeHard():
