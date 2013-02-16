@@ -1131,6 +1131,12 @@ def daemonThreadCall(func, name=None, queue=None):
 
 class AsyncInterrupt(BaseException): pass
 
+# Note that there are places where an exception should never occur -
+# eg inside an Lock.aquire(), Lock.__enter__(), Lock.__exit__().
+# Otherwise we might end up with a non-unlocked mutex.
+# We can never know if this is the case for the thread or not -
+# so this is unsafe and should not be used!
+# At least for now, I don't really see a way to overcome this.
 def raiseExceptionInThread(threadId, exc=AsyncInterrupt):
 	import ctypes
 	ret = ctypes.pythonapi.PyThreadState_SetAsyncExc(
