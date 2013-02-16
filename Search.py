@@ -16,28 +16,18 @@ class Search:
 		self._searchResults = []
 		import threading
 		self._lock = threading.RLock()
-		self._runningSearches = set()
 	
 	def _startSearch(self, txt):
 		def search():
-			try:
-				import thread
-				with self._lock:
-					if self._searchText != txt: return
-				self._runningSearches.add(thread.get_ident())
-				res = songdb.search(txt)
-				self._runningSearches.discard(thread.get_ident())
-				with self._lock:
-					if self._searchText == txt:
-						self._searchResults = res
-						self.searchResults_updateEvent.push()
-			except utils.AsyncInterrupt:
-				pass
+			with self._lock:
+				if self._searchText != txt: return
+			res = songdb.search(txt)
+			with self._lock:
+				if self._searchText == txt:
+					self._searchResults = res
+					self.searchResults_updateEvent.push()
 		with self._lock:
 			self._searchText = txt
-			for tid in list(self._runningSearches):
-				utils.raiseExceptionInThread(tid)
-			self._runningSearches.clear()
 			utils.daemonThreadCall(search, name="Song DB search")
 
 	@UserAttrib(type=Traits.EditableText, searchLook=True)
