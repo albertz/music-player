@@ -1129,7 +1129,9 @@ def daemonThreadCall(func, name=None, queue=None):
 	return thread
 
 
-def raiseExceptionInThread(threadId, exc=KeyboardInterrupt):
+class AsyncInterrupt(BaseException): pass
+
+def raiseExceptionInThread(threadId, exc=AsyncInterrupt):
 	import ctypes
 	ret = ctypes.pythonapi.PyThreadState_SetAsyncExc(
 		ctypes.c_long(threadId),

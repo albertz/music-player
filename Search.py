@@ -21,23 +21,25 @@ class Search:
 	def _startSearch(self, txt):
 		def search():
 			try:
+				import thread
+				self._runningSearches.add(thread.get_ident())
+				with self._lock:
+					if self._searchText != txt: return
 				res = songdb.search(txt)
 				with self._lock:
 					if self._searchText == txt:
 						self._searchResults = res
 						self.searchResults_updateEvent.push()
-			except KeyboardInterrupt:
+				with self._lock:
+					self._runningSearches.discard(thread.get_ident())
+			except AsyncInterrupt:
 				pass
-			import thread
-			with self._lock:
-				self._runningSearches.discard(thread.get_ident())
 		with self._lock:
 			self._searchText = txt
 			for tid in self._runningSearches:
 				utils.raiseExceptionInThread(tid)
 			self._runningSearches.clear()
-			t = utils.daemonThreadCall(search, name="Song DB search")
-			self._runningSearches.add(t.ident)
+			utils.daemonThreadCall(search, name="Song DB search")
 
 	@UserAttrib(type=Traits.EditableText, searchLook=True)
 	def searchText(self, updateText=None):
