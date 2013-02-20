@@ -201,9 +201,24 @@ class MainQueue:
 		scores += [self.calcContextMatchScore(song) * random.gauss(1, 0.5)]
 		return sum(scores) + random.gauss(1, 0.5)
 
+	def filterCriteria(self, song):
+		tags = [tag for tag,v in song.tags.items() if v >= 0.1]
+		tags = map(unicode.lower, tags)
+		if "books" in tags: return False
+		if "spoken" in tags: return False
+		if "podcast" in tags: return False
+		if song.duration > 20 * 60: return False # more than 20min should probably not automatically selected
+		return True
+	
 	def getNextSong_auto(self):
-		filenames = takeN(self.generator, self.checkNextNForBest)
-		songs = map(Song, filenames)
+		repeatNum = 3
+		while repeatNum > 0:
+			filenames = takeN(self.generator, self.checkNextNForBest)
+			songs = map(Song, filenames)
+			songs = filter(self.filterCriteria, songs)
+			if songs: break
+			repeatNum -= 1
+		assert songs, "no songs found"
 		scores = map(lambda song: (self.calcScore(song), song), songs)
 		best = max(scores)
 		song = best[1]
