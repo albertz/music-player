@@ -78,6 +78,7 @@ class SongEdit:
 			("artist",None),
 			("title",None),
 			("album",None),
+			("duration",utils.formatTime),
 			("url",None),
 			("rating",None),
 			("tags",self._convertTagsToText),
