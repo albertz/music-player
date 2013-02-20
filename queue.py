@@ -203,13 +203,19 @@ class MainQueue:
 		return sum(scores) + random.gauss(1, 0.5)
 
 	def filterCriteria(self, song):
-		tags = [tag for tag,v in song.tags.items() if v >= 0.1]
+		try:
+			tags = [tag for tag,v in song.tags.items() if v >= 0.1]
+		except AttributeError:
+			tags = []
 		tags = map(utils.convertToUnicode, tags)
 		tags = map(unicode.lower, tags)
 		if "books" in tags: return False
 		if "spoken" in tags: return False
 		if "podcast" in tags: return False
-		if song.duration > 20 * 60: return False # more than 20min should probably not automatically selected
+		try:
+			if song.duration > 20 * 60:
+				return False # more than 20min should probably not automatically selected
+		except AttributeError: pass
 		return True
 	
 	def getNextSong_auto(self):
