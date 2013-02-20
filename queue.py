@@ -5,6 +5,7 @@
 from Song import Song
 from State import state
 from player import PlayerEventCallbacks
+import utils
 from utils import *
 import Traits
 import math, random
@@ -203,7 +204,8 @@ class MainQueue:
 
 	def filterCriteria(self, song):
 		tags = [tag for tag,v in song.tags.items() if v >= 0.1]
-		tags = map(str.lower, tags)
+		tags = map(utils.convertToUnicode, tags)
+		tags = map(unicode.lower, tags)
 		if "books" in tags: return False
 		if "spoken" in tags: return False
 		if "podcast" in tags: return False
