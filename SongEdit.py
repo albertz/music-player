@@ -4,6 +4,7 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+import utils
 from utils import UserAttrib, Event, initBy
 import Traits
 
@@ -64,13 +65,33 @@ class SongEdit:
 			return self._convertTagsToText(self.song.tags)
 		return ""
 
+	@staticmethod
+	def _formatGain(gain):
+		factor = 10.0 ** (gain / 20.0)
+		return "%f dB (factor %f)" % (gain, factor)
+
 	@UserAttrib(type=Traits.Table(keys=("key", "value")), variableHeight=True)
 	@property
 	def metadata(self):
 		d = dict(self.song.metadata)
-		for key in ("artist","title","url","rating","tags","album","gain"):
-			try: d[key] = unicode(getattr(self.song, key))
-			except AttributeError: pass			
+		for (key,func) in (
+			("artist",None),
+			("title",None),
+			("album",None),
+			("url",None),
+			("rating",None),
+			("tags",self._convertTagsToText),
+			("gain",self._formatGain),
+			("completedCount",None),
+			("skipCount",None),
+			("lastPlayedDate",utils.formatDate),
+			("id",repr),
+		):
+			try: value = getattr(self.song, key)
+			except AttributeError: pass
+			else:
+				if func: value = func(value)
+				d[key] = unicode(value)
 		l = []
 		for key,value in d.items():
 			l += [{"key": key, "value": value}]
