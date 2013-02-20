@@ -159,6 +159,10 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 		}
 		player->inStreamBuffer()->clear();
 	}
+	if(windowCount == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "replaygain: too less data");
+		goto final;
+	}
 	{
 		double songDuration = (double)totalFrameCount / SAMPLERATE;
 		
