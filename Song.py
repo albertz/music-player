@@ -366,7 +366,7 @@ class Song(object):
 	# dict from tag to value [0,1] (weighted tagmap, tag fuzzy set)
 	def _estimate_tags(self):
 		import re
-		taglist = re.split("\s*(?:,|/|;)?\s*", self.metadata.get("genre", ""))
+		taglist = re.split("\s*(?:,|/|;|+)?\s*", self.metadata.get("genre", ""))
 		taglist = filter(None, taglist)
 		#if not taglist: return None, 0
 		# We want to have it saved in the DB, so use accuracy=1.
