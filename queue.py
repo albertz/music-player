@@ -203,7 +203,7 @@ class MainQueue:
 
 	def filterCriteria(self, song):
 		tags = [tag for tag,v in song.tags.items() if v >= 0.1]
-		tags = map(unicode.lower, tags)
+		tags = map(str.lower, tags)
 		if "books" in tags: return False
 		if "spoken" in tags: return False
 		if "podcast" in tags: return False
