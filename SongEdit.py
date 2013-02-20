@@ -94,7 +94,7 @@ class SongEdit:
 				if func: value = func(value)
 				d[key] = unicode(value)
 		l = []
-		for key,value in d.items():
+		for key,value in sorted(d.items()):
 			l += [{"key": key, "value": value}]
 		return l
 	@metadata.setUpdateEvent
