@@ -62,6 +62,12 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		}
 		player->inStreamBuffer()->clear();
 	}
+	// If we have too less data -> fail. chromaprint_finish will print a warning/error but wont fail.
+	// 16 seems like a good lower limit. It is also the limit of the default Chromaprint Fingerprint algorithm.
+	if(totalFrameCount < 16) {
+		fprintf(stderr, "ERROR: too less data for fingerprint\n");
+		goto final;
+	}
 	{
 		double songDuration = (double)totalFrameCount / player->outSamplerate;
 		char* fingerprint = NULL;
