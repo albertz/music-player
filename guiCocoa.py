@@ -9,6 +9,7 @@ if sys.platform != "darwin":
 
 from guiCocoaCommon import *
 from utils import *
+from weakref import ref
 import Traits
 
 try:
@@ -339,7 +340,7 @@ def buildControlList(control):
 	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
 	view.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	view.addSubview_(scrollview)
-	view.control = control
+	view.control = ref(control)
 	
 	control.nativeGuiObject = view
 	control.guiObjectList = [] # all access on this list is done in the main thread
@@ -670,7 +671,7 @@ def buildControlTable(control):
 	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
 	view.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
 	view.addSubview_(scrollview)
-	view.control = control
+	view.control = ref(control)
 	control.nativeGuiObject = view
 
 	table = NSTableView.alloc().initWithFrame_(((0,0),(80,80)))
@@ -745,7 +746,7 @@ def buildControlObject(control):
 def _buildControlObject_pre(control):
 	presetSize = getattr(control, "presetSize", (80.0,80.0))	
 	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), presetSize))
-	subview.control = control
+	subview.control = ref(control)
 	control.nativeGuiObject = subview
 	control.OuterSpace = (0,0)
 	
