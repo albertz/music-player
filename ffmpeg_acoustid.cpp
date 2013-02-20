@@ -56,7 +56,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 			totalFrameCount += it.size() / player->outNumChannels / 2 /* S16 */;
 		
 			if (!chromaprint_feed(chromaprint_ctx, it.pt(), it.size() / 2)) {
-				fprintf(stderr, "ERROR: fingerprint feed calculation failed\n");
+				PyErr_SetString(PyExc_RuntimeError, "fingerprint feed calculation failed");
 				goto final;
 			}
 		}
@@ -65,7 +65,7 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	// If we have too less data -> fail. chromaprint_finish will print a warning/error but wont fail.
 	// 16 seems like a good lower limit. It is also the limit of the default Chromaprint Fingerprint algorithm.
 	if(totalFrameCount < 16) {
-		fprintf(stderr, "ERROR: too less data for fingerprint\n");
+		PyErr_SetString(PyExc_RuntimeError, "too less data for fingerprint");
 		goto final;
 	}
 	{
@@ -73,12 +73,12 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		char* fingerprint = NULL;
 		
 		if (!chromaprint_finish(chromaprint_ctx)) {
-			fprintf(stderr, "ERROR: fingerprint finish calculation failed\n");
+			PyErr_SetString(PyExc_RuntimeError, "fingerprint finish calculation failed");
 			goto final;
 		}
 
 		if (!chromaprint_get_fingerprint(chromaprint_ctx, &fingerprint)) {
-			fprintf(stderr, "ERROR: unable to calculate fingerprint, get_fingerprint failed\n");
+			PyErr_SetString(PyExc_RuntimeError, "unable to calculate fingerprint, get_fingerprint failed");
 			goto final;
 		}
 		
