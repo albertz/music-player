@@ -51,6 +51,7 @@ from Song import Song
 import appinfo
 import utils
 from utils import safe_property
+from weakref import ref
 
 # see <https://github.com/albertz/binstruct/> for documentation
 import binstruct
@@ -74,19 +75,46 @@ class DB(object):
 			self.removeOldDb()
 			self.initNew()
 
+		class LocalConnection:
+			refs = set()
+			lock = threading.RLock()			
+			def __init__(self, conn):
+				self.conn = conn
+				with self.lock:
+					self.refs.add(ref(self))
+					assert ref(self) in self.refs
+			def get(self):
+				with self.lock:
+					return self.conn
+			def reset(self):
+				with self.lock:
+					self.refs.discard(ref(self))
+					self.conn = None
+			def __del__(self): self.reset()
+			@classmethod
+			def Reset(clazz):
+				with clazz.lock:
+					for l in list(clazz.refs):
+						l = l()
+						if not l: continue
+						l.reset()
+		self.LocalConnection = LocalConnection
+
 	@property
 	def _connection(self):
 		if not getattr(self, "_threadLocal", None):
 			import threading
 			self._threadLocal = threading.local()
-		return getattr(self._threadLocal, "connection", None)
-
+		conn = getattr(self._threadLocal, "connection", None)
+		if conn: return conn.get()
+		return None
+	
 	@_connection.setter
 	def _connection(self, v):
 		if not getattr(self, "_threadLocal", None):
 			import threading
 			self._threadLocal = threading.local()
-		setattr(self._threadLocal, "connection", v)
+		setattr(self._threadLocal, "connection", self.LocalConnection(v))
 
 	def test(self):
 		# Some of these may throw an OperationalError.
@@ -101,14 +129,14 @@ class DB(object):
 		
 	def removeOldDb(self):
 		# Maybe we really should do some backuping...?
-		self._threadLocal = None
+		self.disconnectAll()
 		import shutil, os
 		shutil.rmtree(self.path, ignore_errors=True)
 		try: os.remove(self.path)
 		except OSError: pass
 	
 	def initNew(self):
-		self._connection = None
+		self.disconnectAll()
 		conn = sqlite3.connect(self.path)
 		with conn:
 			conn.execute(self.create_command % "data")
@@ -154,10 +182,14 @@ class DB(object):
 			self[key] = value
 			return self[key]
 		
+	def disconnectAll(self):
+		self.LocalConnection.Reset()
+		self._threadLocal = None
+		
 	def flush(self):
 		# Not sure if needed, I guess the commit already is the flush.
 		# Closing all connections should in any case force the flush.
-		self._threadLocal = None
+		self.disconnectAll()
 
 DBs = {
 	"songDb": lambda: DB("songs.db"),
