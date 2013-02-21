@@ -51,7 +51,6 @@ from Song import Song
 import appinfo
 import utils
 from utils import safe_property
-from weakref import ref
 
 # see <https://github.com/albertz/binstruct/> for documentation
 import binstruct
@@ -79,6 +78,7 @@ class DB(object):
 			refs = set()
 			lock = threading.RLock()			
 			def __init__(self, conn):
+				from weakref import ref
 				self.conn = conn
 				with self.lock:
 					self.refs.add(ref(self))
@@ -87,12 +87,14 @@ class DB(object):
 				with self.lock:
 					return self.conn
 			def reset(self):
+				from weakref import ref
 				with self.lock:
 					self.refs.discard(ref(self))
 					self.conn = None
 			def __del__(self): self.reset()
 			@classmethod
 			def Reset(clazz):
+				from weakref import ref
 				with clazz.lock:
 					for l in list(clazz.refs):
 						l = l()
