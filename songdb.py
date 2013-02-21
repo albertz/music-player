@@ -74,6 +74,9 @@ class DB(object):
 			self.removeOldDb()
 			self.initNew()
 
+		# We need a workaround wrapper for SQLite connection objects
+		# because Python might crash in their tp_dealloc.
+		# See <http://bugs.python.org/issue17263> for details.
 		class LocalConnection:
 			refs = set()
 			lock = threading.RLock()			
