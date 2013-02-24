@@ -215,7 +215,9 @@ def fallback_findfile(filename):
 	return altfn
 
 def print_traceback(tb, allLocals=None, allGlobals=None):
-	assert tb is not None
+	if tb is None:
+		print "print_traceback: tb is None"
+		return
 	import inspect
 	isframe = inspect.isframe
 	if isframe(tb): output('Traceback (most recent call first)')
