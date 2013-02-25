@@ -33,7 +33,8 @@ try: os.makedirs(PYDIR)
 except OSError: pass
 
 open(PYDIR + "/appinfo_build.py", "w").write(
-	"buildTime = %r\n" % time.strftime("%Y-%m-%d %H:%M:%S +0000", time.gmtime())
+	"buildTime = %r\n" % time.strftime("%Y-%m-%d %H:%M:%S +0000", time.gmtime()) +
+	"gitRef = %r\n" % open(env["PROJECT_DIR"] + "/../.git/refs/heads/master").read().strip()
 )
 
 for f in ("ffmpeg.so","faulthandler.so","_guiCocoaCommon.dylib"):

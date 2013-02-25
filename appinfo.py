@@ -12,6 +12,7 @@ try:
 	from appinfo_build import *
 except ImportError:
 	buildTime = "<unknown>"
+	gitRef = "<unknown>"
 
 userdir = "~/." + appid
 platform = None

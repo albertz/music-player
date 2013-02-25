@@ -22,7 +22,7 @@ import utils
 utils.ExecingProcess.checkExec()
 
 import sys, time
-print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "on", appinfo.platform, "(%s)" % sys.platform
+print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
 print "startup on", utils.formatDate(time.time())
 
 from State import state, modules
