@@ -65,8 +65,8 @@ def handleConnection(conn):
 def socketcontrolMain():	
 	import tempfile
 	tmpdir = tempfile.gettempdir() or "/tmp"
-	global sockfilename
 	sockfilename = "%s/%s-%i-socketcontrol" % (tmpdir, appinfo.appid, os.getpid())
+	globals()["socketfile"] = sockfilename # copy
 	
 	import socket
 	s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -93,3 +93,5 @@ def socketcontrolMain():
 	try: s.close()
 	except Exception: pass
 
+	try: os.unlink(sockfilename)
+	except Exception: pass
