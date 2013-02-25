@@ -54,9 +54,9 @@ def handleConnection(conn):
 			else:
 				if ret is not None:
 					try:
-						ret = str(ret)
+						ret = repr(ret)
 					except Exception as e:
-						ret = "<str-cast exception: %s: %s>" % (e.__class__.__name__, str(e))
+						ret = "<repr exception: %s: %s>" % (e.__class__.__name__, str(e))
 				answer = (idx, "return", ret)
 		
 		f.write(binstruct.varEncode(answer).tostring())

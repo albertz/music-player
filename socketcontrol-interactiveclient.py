@@ -70,6 +70,6 @@ while True:
 		print("Exception %s : %s" % (answerret[0], answerret[1]))
 	elif answertype == "return":
 		if answerret is not None:
-			print(repr(answerret))
+			print(answerret)
 	else:
 		assert False, "%s unknown" % answertype
