@@ -15,8 +15,14 @@ def handleConnection(conn):
 	f = conn.makefile()
 
 	binstruct.write(f, (appinfo.appid, "SocketControl", 0.1))
-	clientappid,clientname,clientver,status = binstruct.read(f)
-	assert status == "ok"
+	try:
+		clientappid,clientname,clientver,clientstatus = binstruct.read(f)
+	except binstruct.FormatError:
+		print "socketcontrol.handleConnection: wrong signature"
+		return	
+	if clientstatus != "ok":
+		print "socketcontrol.handleConnection: status returned %s" % status
+		return
 	
 	from State import state
 	from queue import queue
@@ -25,6 +31,7 @@ def handleConnection(conn):
 		"queue": queue,
 		}
 	globals = locals = shellGlobals
+	COMPILE_STRING_FN = "<socketcontrol input>"
 	
 	while True:
 		idx,s = binstruct.varDecode(f)
@@ -48,7 +55,8 @@ def handleConnection(conn):
 				answer = (idx, "return", ret)
 		
 		f.write(binstruct.varEncode(answer).tostring())
-
+		f.flush()
+		
 def socketcontrolMain():	
 	import tempfile
 	tmpdir = tempfile.gettempdir() or "/tmp"
@@ -74,6 +82,8 @@ def socketcontrolMain():
 	for ev,args,kwargs in state.updates.read():
 		pass
 	
-	s.shutdown(socket.SHUT_RDWR)
-	s.close()
-	
+	try: s.shutdown(socket.SHUT_RDWR)
+	except Exception: pass
+	try: s.close()
+	except Exception: pass
+
