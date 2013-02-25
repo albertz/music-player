@@ -1248,7 +1248,8 @@ def interactive_py_compile(source, filename="<interactive>"):
 	#   LOAD_CONST
 	#   RETURN_VALUE   	
 	import dis
-	assert ord(c.co_code[-5]) == dis.opmap["PRINT_EXPR"]
+	if ord(c.co_code[-5]) != dis.opmap["PRINT_EXPR"]:
+		return c
 	assert ord(c.co_code[-4]) == dis.opmap["LOAD_CONST"]
 	assert ord(c.co_code[-1]) == dis.opmap["RETURN_VALUE"]
 	
