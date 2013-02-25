@@ -15,6 +15,7 @@ def handleConnection(conn):
 	f = conn.makefile()
 
 	binstruct.write(f, (appinfo.appid, "SocketControl", 0.1))
+	f.flush()
 	try:
 		clientappid,clientname,clientver,clientstatus = binstruct.read(f)
 	except binstruct.FormatError:
@@ -32,13 +33,17 @@ def handleConnection(conn):
 		}
 	globals = locals = shellGlobals
 	COMPILE_STRING_FN = "<socketcontrol input>"
-	
+		
 	while True:
-		idx,s = binstruct.varDecode(f)
+		try:
+			idx,s = binstruct.varDecode(f)
+		except Exception:
+			# probably closed
+			return
 		assert isinstance(s, (str,unicode))
 		
 		try:
-			c = compile(s, COMPILE_STRING_FN, "single")
+			c = utils.interactive_py_compile(s, COMPILE_STRING_FN)
 		except Exception as e:
 			answer = (idx, "compile-exception", (e.__class__.__name__, str(e)))
 		else:

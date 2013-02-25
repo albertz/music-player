@@ -4,22 +4,39 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+import better_exchook
+better_exchook.install()
+
 import binstruct
 import socket
 import appinfo
 import tempfile
 from glob import glob
 
-import better_exchook
-better_exchook.install()
-
-tmpdir = tempfile.gettempdir()
-files = glob("%s/%s-*-socketcontrol" % (tmpdir, appinfo.appid))
-assert files
-sockfile = files[0]
-
 s = socket.socket(socket.AF_UNIX)
-s.connect(sockfile)
+
+import os,sys
+if len(sys.argv) > 1:
+	sockfile = sys.argv[1]
+	assert os.path.exists(sockfile)
+
+	s.connect(sockfile)
+
+else:
+	tmpdir = tempfile.gettempdir()
+	files = glob("%s/%s-*-socketcontrol" % (tmpdir, appinfo.appid))
+	assert files
+	
+	for fn in files:
+		sockfile = fn
+		try:
+			s.connect(sockfile)
+		except socket.error:
+			pass
+		else:
+			break
+	assert s
+	
 s.setblocking(True)
 f = s.makefile()
 
@@ -29,22 +46,28 @@ assert serverappid == appinfo.appid
 assert serverver == 0.1
 
 binstruct.write(f, (appinfo.appid, "SocketControl-InteractiveClient", 0.1, "ok"))
+f.flush()
 
 try: import readline
 except ImportError: pass # ignore
 
 idx = 0
 while True:
-	s = raw_input("> ")
+	try: s = raw_input("> ")
+	except (KeyboardInterrupt,EOFError):
+		print("")
+		sys.exit(0)
+	
+	if s.strip() == "": continue
 	f.write(binstruct.varEncode((idx, s)).tostring())
 	f.flush()
 	
 	answeridx,answertype,answerret = binstruct.varDecode(f)
 	assert answeridx == idx
 	if answertype == "compile-exception":
-		print("%s in %r" % (answerret, s))
+		print("%s : %s in %r" % (answerret[0], answerret[1], s))
 	elif answertype == "eval-exception":
-		print("Exception %s" % answerret)
+		print("Exception %s : %s" % (answerret[0], answerret[1]))
 	elif answertype == "return":
 		if answerret is not None:
 			print(repr(answerret))
