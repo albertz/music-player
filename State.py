@@ -183,6 +183,7 @@ for modname in [
 	"mediakeys",
 	"gui",
 	"stdinconsole",
+	"socketcontrol",
 	"notifications",
 	"preloader",
 	"songdb",
