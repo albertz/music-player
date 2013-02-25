@@ -34,6 +34,7 @@ else:
 		except socket.error:
 			pass
 		else:
+			print "socket:", sockfile
 			break
 	assert s
 	
