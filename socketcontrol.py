@@ -65,13 +65,14 @@ def handleConnection(conn):
 def socketcontrolMain():	
 	import tempfile
 	tmpdir = tempfile.gettempdir() or "/tmp"
+	global sockfilename
 	sockfilename = "%s/%s-%i-socketcontrol" % (tmpdir, appinfo.appid, os.getpid())
 	
 	import socket
 	s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 	s.bind(sockfilename)
+	os.chmod(sockfilename, 0700)
 	s.listen(1)
-	#s.settimeout(1)
 		
 	def listenThread():
 		print "socketcontrol: listening on", sockfilename
