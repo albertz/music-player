@@ -114,12 +114,12 @@ def set_linecache(filename, source):
 
 def simple_debug_shell(globals, locals):
 	try: import readline
-	except: pass # ignore
+	except ImportError: pass # ignore
 	COMPILE_STRING_FN = "<simple_debug_shell input>"
 	while True:
 		try:
 			s = raw_input("> ")
-		except:
+		except (KeyboardInterrupt, EOFError):
 			print("breaked debug shell: " + sys.exc_info()[0].__name__)
 			break
 		if s.strip() == "": continue
@@ -134,7 +134,7 @@ def simple_debug_shell(globals, locals):
 			except (KeyboardInterrupt, SystemExit):
 				print("debug shell exit: " + sys.exc_info()[0].__name__)
 				break
-			except:
+			except Exception:
 				print("Error executing %r" % s)
 				better_exchook(*sys.exc_info(), autodebugshell=False)
 			else:
@@ -152,7 +152,7 @@ def debug_shell(user_ns, user_global_ns, execWrapper=None):
 			from IPython.Shell import IPShellEmbed,IPShell
 			ipshell = IPShell(argv=[], user_ns=user_ns, user_global_ns=user_global_ns)
 			ipshell = ipshell.mainloop
-		except: pass
+		except Exception: pass
 	if not ipshell:
 		try:
 			import IPython
@@ -162,7 +162,7 @@ def debug_shell(user_ns, user_global_ns, execWrapper=None):
 			module.__name__ = "DummyMod"
 			ipshell = IPython.frontend.terminal.embed.InteractiveShellEmbed(
 				user_ns=user_ns, user_module=module)
-		except: pass
+		except Exception: pass
 		else:
 			if execWrapper:
 				old = ipshell.run_code
@@ -215,7 +215,9 @@ def fallback_findfile(filename):
 	return altfn
 
 def print_traceback(tb, allLocals=None, allGlobals=None):
-	assert tb is not None
+	if tb is None:
+		print "print_traceback: tb is None"
+		return
 	import inspect
 	isframe = inspect.isframe
 	if isframe(tb): output('Traceback (most recent call first)')
@@ -296,7 +298,7 @@ def better_exchook(etype, value, tb, debugshell=False, autodebugshell=True):
 	import types
 	def _some_str(value):
 		try: return str(value)
-		except: return '<unprintable %s object>' % type(value).__name__
+		except Exception: return '<unprintable %s object>' % type(value).__name__
 	def _format_final_exc_line(etype, value):
 		valuestr = _some_str(value)
 		if value is None or not valuestr:
@@ -331,13 +333,13 @@ if __name__ == "__main__":
 			y = "foo"
 			x, 42, sys.stdin.__class__, sys.exc_info, y, z
 		f()
-	except:
+	except Exception:
 		better_exchook(*sys.exc_info())
 
 	try:
 		f = lambda x: None
 		f(x, y)
-	except:
+	except Exception:
 		better_exchook(*sys.exc_info())
 
 	# use this to overwrite the global exception handler
