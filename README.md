@@ -44,10 +44,9 @@ About the database:
 TODO / possible additional missing features:
 
 * BPM determination and clever DJ-like fading
-* echoprint.me or similar song determination (mostly for metadata, esp. if missing)
 * use tags given by Last.fm (mostly more tags)
-* Last.fm streaming support
 * watch music directory for changes (e.g. new files added)
+* other GUI implementations
 
 Installation:
 
@@ -64,6 +63,19 @@ Then call `./compile.py` to build the Python modules (it will build the Python m
 To start the player, just call `./main.py`.
 
 The current GUI is Cocoa only. Additional Qt support is planned. The music player also works without any GUI.
+
+You can also control the player via an interactive Python shell. You can get the shell directly by passing `--shell` to `main.py` or you can use `socketcontrol-interactiveclient.py`. Via the shell, you can do just anything. By default, the shell exports already the two main objects `state` and `queue`. Here some useful actions:
+
+* `import utils`: common imports you might need for the other commands
+* `state.curSong`: returns the current song
+* `state.player.playing = True`: start playing. or start/stop via `state.playPause()`
+* `state.nextSong()`: skips to next song
+* `state.queue.shuffle()`: shuffles the queue
+* `utils.formatTime(sum([s.get("duration", accuracy=0, fastOnly=True)[0] or 0 for s in queue.queue.list]))`: get the amount of time of all songs in the queue
+
+You can use `dir` to get a list of attributes of an object. E.g. `dir(state)` returns list of all `state`-attributes. This might be useful if you want to figure out what you can do. But it might be easier to just look at the source.
+
+Also, don't hesitate to play around with the code. You might be interested in the [automatic queue handling code](https://github.com/albertz/music-player/blob/master/queue.py).
 
 Authors:
 
