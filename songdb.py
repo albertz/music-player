@@ -493,7 +493,7 @@ def getSongFilenameById(songId):
 	try: dbEntry = songDb[songId]
 	except KeyError: return None
 	filesDict = dbEntry.get("files",{})
-	return getBestSongFileFromList(filesDict)
+	return getBestSongFileFromDict(filesDict)
 
 def getSongById(songId):
 	f = getSongFilenameById(songId)
