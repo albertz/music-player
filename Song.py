@@ -65,6 +65,14 @@ class Song(object):
 		url = songdb.getSongFilenameById(id)
 		if url: self.url = url
 		return url
+	def testUrl(self):
+		import os
+		if not self.url or not os.path.exists(self.url):
+			if hasattr(self, "_id") and self._useDb:
+				self.selectUrlById()
+		if self.url and os.path.exists(self.url):
+			return True
+		return False
 	def openFile(self):
 		if not self.f:
 			if not self.url and hasattr(self, "_id") and self._useDb:
@@ -132,6 +140,7 @@ class Song(object):
 				# try to read the metadata manually
 				try:
 					# make a new songObj. this prevents any multithreading issues
+					assert self.testUrl()
 					songObj = Song(url=self.url, _useDb=False)
 					songObj.openFile()
 					import ffmpeg
@@ -408,6 +417,7 @@ class Song(object):
 		
 	def calcAndSet(self, attrib):
 		from utils import asyncCall, ForwardedKeyboardInterrupt
+		assert self.testUrl()
 		try:
 			res = asyncCall(
 				func = getattr(self, "_calc_" + attrib),
