@@ -72,6 +72,7 @@ You can also control the player via an interactive Python shell. You can get the
 * `state.nextSong()`: skips to next song
 * `state.queue.shuffle()`: shuffles the queue
 * `utils.formatTime(sum([s.get("duration", accuracy=0, fastOnly=True)[0] or 0 for s in queue.queue.list]))`: get the amount of time of all songs in the queue
+* `import guiCocoa; reload(guiCocoa)`: reload Cocoa GUI. this might be useful if it crashed (which shouldn't happen, though)
 
 You can use `dir` to get a list of attributes of an object. E.g. `dir(state)` returns list of all `state`-attributes. This might be useful if you want to figure out what you can do. But it might be easier to just look at the source.
 
