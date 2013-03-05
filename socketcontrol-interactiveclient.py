@@ -54,6 +54,7 @@ except ImportError: pass # ignore
 
 idx = 0
 while True:
+	idx += 1
 	try: s = raw_input("> ")
 	except (KeyboardInterrupt,EOFError):
 		print("")
