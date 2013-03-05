@@ -31,7 +31,8 @@ class MpdException(Exception):
 class Session:
 	def __init__(self, f):
 		self.f = f
-		self.curSong = None
+		self.playlist = None
+		self.playlistIdx = 0
 		self.baseIdx = 0
 		self.Commands = {}
 		from types import MethodType
@@ -54,17 +55,24 @@ class Session:
 	def cmdStatus(self):
 		# see mpd_getStatus in https://github.com/TheStalwart/Theremin/blob/master/libmpdclient-0.18.96/src/libmpdclient.c
 		f = self.f
-		if self.curSong and self.curSong != state.curSong:
-			self.baseIdx += 1
-			self.curSong = None
-		if not self.curSong:
-			self.curSong = state.curSong.__get__(None)
 		if state.player.playing:
 			f.write("state: play\n")
 		else:
 			f.write("state: pause\n")
-		f.write("playlist: 0\n")
-		f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
+		if self.playlist is not None:
+			while self.baseIdx < len(self.playlist):
+				if self.playlist[self.baseIdx] == state.curSong:
+					break
+				self.baseIdx += 1
+			if self.baseIdx >= len(self.playlist):
+				self.baseIdx = 0
+				self.playlist = None
+				self.playlistIdx += 1 # we need a reload
+		f.write("playlist: %i\n" % self.playlistIdx)
+		if self.playlist is None:
+			f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
+		else:
+			f.write("playlistlength: %i\n" % len(self.playlist))
 		f.write("volume: -1\n") # whatever that means
 		f.write("song: %i\n" % self.baseIdx)
 		f.write("songid: %i\n" % self.baseIdx)
@@ -115,6 +123,7 @@ class Session:
 		state.player.nextSong()
 	
 	def cmdPrevious(f):
+		# not even supported in the main state controller (yet)
 		pass
 	
 	def dumpSong(self, songid, song):
@@ -122,30 +131,47 @@ class Session:
 		f.write("file: %s\n" % getattr(song, "url", "").encode("utf8"))
 		f.write("Artist: %s\n" % getattr(song, "artist", "<unknown>").encode("utf8"))
 		f.write("Title: %s\n" % getattr(song, "title", "<unknown>").encode("utf8"))
+		f.write("Album: %s\n" % getattr(song, "album", "").encode("utf8"))
+		f.write("Genre: %s\n" % ", ".join([key for (key,value) in sorted(getattr(song, "tags", {}).items()) if value > 0.8]).encode("utf8"))
 		f.write("Time: %i\n" % getattr(song, "duration", 0))
 		f.write("Pos: %i\n" % songid)
 		f.write("Id: %i\n" % songid)
 	
 	def cmdPlaylistId(self, listid):
 		listid = int(listid)
-		if listid == self.baseIdx:
-			song = state.curSong
-		elif listid > self.baseIdx:
-			relidx = listid - self.baseIdx - 1
-			try:
-				song = state.queue.queue.list[relidx]
-			except IndexError:
-				raise MpdException(errNum=ACK_ERROR_NO_EXIST, msg="No such song")
-		else:
-			# TODO: or recently played...
-			song = None
+		if self.playlist is None:
+			self._initPlaylist()
+		try:
+			song = self.playlist[listid]
+		except IndexError:
+			raise MpdException(errNum=ACK_ERROR_NO_EXIST, msg="No such song (id %i, listlen %i)" % (listid, len(self.playlist)))
 		self.dumpSong(listid, song)
 	
+	def _initPlaylist(self):
+		self.playlist = []
+		self.playlist += [state.curSong.__get__(None)]
+		self.playlist += list(state.queue.queue.list)
+		self.baseIdx = 0
+		
 	def cmdPlChanges(self, version):
-		self.dumpSong(0, state.curSong)
-		for idx,song in enumerate(list(state.queue.queue.list)):
-			self.dumpSong(idx + 1, song)
+		self._initPlaylist()
+		for idx,song in enumerate(self.playlist):
+			self.dumpSong(idx, song)
 
+	def cmdSeek(self, songPos, songTime):
+		songPos = int(songPos)
+		if songPos != self.baseIdx: return # only seeking of current song supported
+		self.cmdSeekCur(songTime)
+		
+	def cmdSeekId(self, songId, songTime):
+		songId = int(songId)
+		if songId != self.baseIdx: return # only seeking of current song supported
+		self.cmdSeekCur(songTime)
+	
+	def cmdSeekCur(self, songTime):
+		songTime = int(songTime)
+		state.player.seekAbs(songTime)
+	
 def parseInputLine(l):
 	args = []
 	state = 0
