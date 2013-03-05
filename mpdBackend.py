@@ -219,34 +219,35 @@ def handleConnection(conn, addr):
 		input = parseInputLine(l)
 		if input not in [["status"],["outputs"]]: # clients tend to spam these, so dont print these
 			print "mpd conn:", input
+		cmdListIdx = 0
 		if not input:
-			f.write("ACK [%i@0] {} No command given\n" % ACK_ERROR_UNKNOWN)
+			f.write("ACK [%i@%i] {} No command given\n" % (ACK_ERROR_UNKNOWN, cmdListIdx))
 			f.flush()
 			continue
 		cmdName = input[0].lower()
 		cmd = session.Commands.get(cmdName)
 		if not cmd:
-			f.write("ACK [%i@0] {} unknown command %r\n" % (ACK_ERROR_UNKNOWN, cmdName))
+			f.write("ACK [%i@%i] {} unknown command %r\n" % (ACK_ERROR_UNKNOWN, cmdListIdx, cmdName))
 			f.flush()
 			continue
 		argspec = inspect.getargspec(cmd)
 		minArgCount = len(argspec.args) - 1 - len(argspec.defaults or [])
 		maxArgCount = float("inf") if argspec.varargs else len(argspec.args) - 1
 		if len(input) - 1 < minArgCount:
-			f.write("ACK [%i@0] {%s} too few arguments for %r (min: %s)\n" % (ACK_ERROR_ARG, cmdName, cmdName, minArgCount))
+			f.write("ACK [%i@%i] {%s} too few arguments for %r (min: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, minArgCount))
 			f.flush()
 			continue	
 		if len(input) - 1 > maxArgCount is None:
-			f.write("ACK [%i@0] {%s} too many arguments for %r (max: %s)\n" % (ACK_ERROR_ARG, cmdName, cmdName, maxArgCount))
+			f.write("ACK [%i@%i] {%s} too many arguments for %r (max: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, maxArgCount))
 			f.flush()
 			continue	
 		try:
 			cmd(*input[1:])
 			f.write("OK\n")
 		except MpdException as e:
-			f.write("ACK [%i@0] {%s} %s\n" % (e.errNum, cmdName, e.msg))			
+			f.write("ACK [%i@%i] {%s} %s\n" % (e.errNum, cmdListIdx, cmdName, e.msg))			
 		except Exception as e:
-			f.write("ACK [%i@0] {%s} unknown exception %s : %s\n" % (ACK_ERROR_SYSTEM, cmdName, e.__class__.__name__, str(e)))
+			f.write("ACK [%i@%i] {%s} unknown exception %s : %s\n" % (ACK_ERROR_SYSTEM, cmdListIdx, cmdName, e.__class__.__name__, str(e)))
 		finally:	
 			f.flush()
 		
