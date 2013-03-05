@@ -44,6 +44,13 @@ def cmdStatus(f):
 		f.write("state: pause\n")
 	f.write("playlist: 0\n")
 	f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
+	f.write("volume: -1\n") # whatever that means
+	f.write("song: 0\n")
+	f.write("songid: 0\n")
+	f.write("nextsong: 1\n")
+	f.write("nextsongid: 1\n")
+	f.write("time: %i:%03i\n" % (state.player.curSongPos, state.player.curSongPos % 1000))
+	f.write("elapsed: %f\n" % state.player.curSongPos)
 	
 def cmdOutputs(f):
 	f.write("outputs\n")
