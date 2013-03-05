@@ -264,8 +264,9 @@ def listenThread(s):
 
 def mpdBackendMain():
 	import appinfo
-	host = appinfo.config.mpdHost
-	port = appinfo.config.mpdPort
+	if not appinfo.config.mpdBackend: return
+	host = appinfo.config.mpdBindHost
+	port = appinfo.config.mpdBindPort
 	
 	import socket
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
