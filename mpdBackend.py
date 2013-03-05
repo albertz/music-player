@@ -42,6 +42,8 @@ def cmdStatus(f):
 		f.write("state: play\n")
 	else:
 		f.write("state: pause\n")
+	f.write("playlist: 0\n")
+	f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
 	
 def cmdOutputs(f):
 	f.write("outputs\n")
@@ -77,6 +79,36 @@ def cmdPause(f, *args):
 def cmdStop(f, *args):
 	state.player.playing = False
 
+def cmdNext(f):
+	state.player.nextSong()
+
+def cmdPrevious(f):
+	pass
+
+def dumpSong(f, songid, song):
+	f.write("file: %s\n" % getattr(song, "url", "").encode("utf8"))
+	f.write("Artist: %s\n" % getattr(song, "artist", "<unknown>").encode("utf8"))
+	f.write("Title: %s\n" % getattr(song, "title", "<unknown>").encode("utf8"))
+	f.write("Time: %i\n" % getattr(song, "duration", 0))
+	f.write("Pos: %i\n" % songid)
+	f.write("Id: %i\n" % songid)
+
+def cmdPlaylistId(f, listid):
+	listid = int(listid)
+	if listid == 0:
+		song = state.curSong
+	else:
+		assert listid > 0
+		try:
+			song = state.queue.queue.list[listid - 1]
+		except IndexError:
+			raise MpdException(errNum=ACK_ERROR_NO_EXIST, msg="No such song")
+	dumpSong(f, listid, song)
+
+def cmdPlChanges(f, version):
+	dumpSong(f, 0, state.curSong)
+	for idx,song in enumerate(list(state.queue.queue.list)):
+		dumpSong(f, idx + 1, song)
 
 Commands = {}
 from types import FunctionType
