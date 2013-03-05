@@ -184,6 +184,7 @@ for modname in [
 	"gui",
 	"stdinconsole",
 	"socketcontrol",
+	"mpdBackend",
 	"notifications",
 	"preloader",
 	"songdb",
