@@ -237,7 +237,7 @@ def handleConnection(conn, addr):
 			f.write("ACK [%i@%i] {%s} too few arguments for %r (min: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, minArgCount))
 			f.flush()
 			continue	
-		if len(input) - 1 > maxArgCount is None:
+		if len(input) - 1 > maxArgCount:
 			f.write("ACK [%i@%i] {%s} too many arguments for %r (max: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, maxArgCount))
 			f.flush()
 			continue	
