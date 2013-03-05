@@ -31,6 +31,8 @@ class MpdException(Exception):
 class Session:
 	def __init__(self, f):
 		self.f = f
+		self.curSong = None
+		self.baseIdx = 0
 		self.Commands = {}
 		from types import MethodType
 		for fname in dir(self):
@@ -52,6 +54,11 @@ class Session:
 	def cmdStatus(self):
 		# see mpd_getStatus in https://github.com/TheStalwart/Theremin/blob/master/libmpdclient-0.18.96/src/libmpdclient.c
 		f = self.f
+		if self.curSong and self.curSong != state.curSong:
+			self.baseIdx += 1
+			self.curSong = None
+		if not self.curSong:
+			self.curSong = state.curSong.__get__(None)
 		if state.player.playing:
 			f.write("state: play\n")
 		else:
@@ -59,11 +66,11 @@ class Session:
 		f.write("playlist: 0\n")
 		f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
 		f.write("volume: -1\n") # whatever that means
-		f.write("song: 0\n")
-		f.write("songid: 0\n")
-		f.write("nextsong: 1\n")
-		f.write("nextsongid: 1\n")
-		f.write("time: %i:%03i\n" % (state.player.curSongPos, state.player.curSongPos % 1000))
+		f.write("song: %i\n" % self.baseIdx)
+		f.write("songid: %i\n" % self.baseIdx)
+		f.write("nextsong: %i\n" % (self.baseIdx + 1))
+		f.write("nextsongid: %i\n" % (self.baseIdx + 1))
+		f.write("time: %i:%i\n" % (state.player.curSongPos, state.player.curSongLen))
 		f.write("elapsed: %f\n" % state.player.curSongPos)
 		
 	def cmdOutputs(self):
@@ -94,10 +101,12 @@ class Session:
 		state.player.playing = True
 	
 	def cmdPlayId(f, playid):
+		# we ignore playid by purpose. we don't want the 'skip-to-random-song' behavior
+		# in this music-player.
 		state.player.playing = True
 	
-	def cmdPause(f, *args):
-		state.player.playing = False
+	def cmdPause(f, pause=True):
+		state.player.playing = not pause
 	
 	def cmdStop(f, *args):
 		state.player.playing = False
@@ -119,14 +128,17 @@ class Session:
 	
 	def cmdPlaylistId(self, listid):
 		listid = int(listid)
-		if listid == 0:
+		if listid == self.baseIdx:
 			song = state.curSong
-		else:
-			assert listid > 0
+		elif listid > self.baseIdx:
+			relidx = listid - self.baseIdx - 1
 			try:
-				song = state.queue.queue.list[listid - 1]
+				song = state.queue.queue.list[relidx]
 			except IndexError:
 				raise MpdException(errNum=ACK_ERROR_NO_EXIST, msg="No such song")
+		else:
+			# TODO: or recently played...
+			song = None
 		self.dumpSong(listid, song)
 	
 	def cmdPlChanges(self, version):
@@ -192,12 +204,14 @@ def handleConnection(conn, addr):
 			f.flush()
 			continue
 		argspec = inspect.getargspec(cmd)
-		if len(argspec.args) > len(input):
-			f.write("ACK [%i@0] {%s} too few arguments for %r\n" % (ACK_ERROR_ARG, cmdName, cmdName))
+		minArgCount = len(argspec.args) - 1 - len(argspec.defaults or [])
+		maxArgCount = float("inf") if argspec.varargs else len(argspec.args) - 1
+		if len(input) - 1 < minArgCount:
+			f.write("ACK [%i@0] {%s} too few arguments for %r (min: %s)\n" % (ACK_ERROR_ARG, cmdName, cmdName, minArgCount))
 			f.flush()
 			continue	
-		if len(argspec.args) < len(input) and argspec.varargs is None:
-			f.write("ACK [%i@0] {%s} too many arguments for %r\n" % (ACK_ERROR_ARG, cmdName, cmdName))
+		if len(input) - 1 > maxArgCount is None:
+			f.write("ACK [%i@0] {%s} too many arguments for %r (max: %s)\n" % (ACK_ERROR_ARG, cmdName, cmdName, maxArgCount))
 			f.flush()
 			continue	
 		try:
