@@ -28,7 +28,7 @@ class MpdException(Exception):
 		self.errNum = errNum
 		self.msg = msg
 
-class Session:
+class Session(object):
 	def __init__(self, f):
 		self.f = f
 		self.playlist = None
