@@ -81,6 +81,7 @@ def socketcontrolMain():
 			conn, address = s.accept()
 			print "socketcontrol: accepted", address
 			utils.daemonThreadCall(lambda: handleConnection(conn), name="socketcontrol.handleConnection")
+			conn, address = None, None # remove refs here
 		
 	utils.daemonThreadCall(listenThread, name="socketcontrol.listen")
 	
