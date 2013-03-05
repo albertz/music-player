@@ -54,8 +54,8 @@ class Session:
 	
 	@property
 	def _volumeMax(self):
-		assert state.__class__.volume.min == 0
-		return float(state.__class__.volume.max)
+		assert state.__class__.volume.type.min == 0
+		return float(state.__class__.volume.type.max)
 
 	@property
 	def _volume(self):
