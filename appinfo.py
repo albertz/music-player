@@ -47,6 +47,8 @@ import utils
 
 class Config:
 	lastFm = True
+	mpdHost = '127.0.0.1'
+	mpdPort = 6600
 	def __init__(self, **kwargs):
 		for k in dir(self):
 			if k.startswith("_"): continue
