@@ -475,6 +475,7 @@ class Module:
 	def mainFuncName(self): return self.name + "Main"
 	@property
 	def moduleName(self): return self.name
+	def __repr__(self): return "<Module %s %r>" % (self.name, self.thread)
 	def start(self):
 		self.thread = Thread(target = self.threadMain, name = self.name + " main")
 		self.thread.waitQueue = None
