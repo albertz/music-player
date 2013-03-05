@@ -52,6 +52,27 @@ class Session:
 	def cmdNotCommands(self):
 		pass # nothing
 	
+	@property
+	def _volumeMax(self):
+		assert state.__class__.volume.min == 0
+		return float(state.__class__.volume.max)
+
+	@property
+	def _volume(self):
+		return float(state.volume)
+
+	@property
+	def volume(self):
+		return int((self._volume / self._volumeMax) * 100.0)
+
+	@volume.setter
+	def volume(self, v):
+		state.volume = (float(v) / 100.0) * self._volumeMax
+
+	def cmdSetVol(self, vol):
+		vol = int(vol)
+		self.volume = vol
+
 	def cmdStatus(self):
 		# see mpd_getStatus in https://github.com/TheStalwart/Theremin/blob/master/libmpdclient-0.18.96/src/libmpdclient.c
 		f = self.f
@@ -73,7 +94,7 @@ class Session:
 			f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
 		else:
 			f.write("playlistlength: %i\n" % len(self.playlist))
-		f.write("volume: -1\n") # whatever that means
+		f.write("volume: %i\n" % self.volume)
 		f.write("song: %i\n" % self.baseIdx)
 		f.write("songid: %i\n" % self.baseIdx)
 		f.write("nextsong: %i\n" % (self.baseIdx + 1))
