@@ -28,102 +28,111 @@ class MpdException(Exception):
 		self.errNum = errNum
 		self.msg = msg
 
-def cmdCommands(f):
-	f.write("commands\n")
-	for cmdName in Commands.keys():
-		f.write("command: %s\n" % cmdName)
+class Session:
+	def __init__(self, f):
+		self.f = f
+		self.Commands = {}
+		from types import MethodType
+		for fname in dir(self):
+			f = getattr(self, fname)
+			if not isinstance(f, MethodType): continue
+			if fname[:3] != "cmd": continue
+			cmdName = fname[3:].lower()
+			self.Commands[cmdName] = f
 
-def cmdNotCommands(f):
-	pass # nothing
-
-def cmdStatus(f):
-	# see mpd_getStatus in https://github.com/TheStalwart/Theremin/blob/master/libmpdclient-0.18.96/src/libmpdclient.c
-	if state.player.playing:
-		f.write("state: play\n")
-	else:
-		f.write("state: pause\n")
-	f.write("playlist: 0\n")
-	f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
-	f.write("volume: -1\n") # whatever that means
-	f.write("song: 0\n")
-	f.write("songid: 0\n")
-	f.write("nextsong: 1\n")
-	f.write("nextsongid: 1\n")
-	f.write("time: %i:%03i\n" % (state.player.curSongPos, state.player.curSongPos % 1000))
-	f.write("elapsed: %f\n" % state.player.curSongPos)
+	def cmdCommands(self):
+		f = self.f
+		f.write("commands\n")
+		for cmdName in self.Commands.keys():
+			f.write("command: %s\n" % cmdName)
 	
-def cmdOutputs(f):
-	f.write("outputs\n")
-	f.write("outputid: 0\n")
-	f.write("outputname: default detected output\n")
-	f.write("outputenabled: 1\n")
-
-def cmdStats(f):
-	# some fake stats to keep the clients happy
-	f.write("artists: 2064\n")
-	f.write("albums: 1621\n")
-	f.write("songs: 12461\n")
-	f.write("uptime: %i\n" % (time.time() - 1362508783))
-	f.write("playtime: 100\n")
-	f.write("db_playtime: 3266651\n")
-	f.write("db_update: %i\n" % time.time())
-
-def cmdListAllInfo(f, dir):
-	pass
-
-def cmdLsInfo(f, dir):
-	pass
-
-def cmdPlay(f, *args):
-	state.player.playing = True
-
-def cmdPlayId(f, playid):
-	state.player.playing = True
-
-def cmdPause(f, *args):
-	state.player.playing = False
-
-def cmdStop(f, *args):
-	state.player.playing = False
-
-def cmdNext(f):
-	state.player.nextSong()
-
-def cmdPrevious(f):
-	pass
-
-def dumpSong(f, songid, song):
-	f.write("file: %s\n" % getattr(song, "url", "").encode("utf8"))
-	f.write("Artist: %s\n" % getattr(song, "artist", "<unknown>").encode("utf8"))
-	f.write("Title: %s\n" % getattr(song, "title", "<unknown>").encode("utf8"))
-	f.write("Time: %i\n" % getattr(song, "duration", 0))
-	f.write("Pos: %i\n" % songid)
-	f.write("Id: %i\n" % songid)
-
-def cmdPlaylistId(f, listid):
-	listid = int(listid)
-	if listid == 0:
-		song = state.curSong
-	else:
-		assert listid > 0
-		try:
-			song = state.queue.queue.list[listid - 1]
-		except IndexError:
-			raise MpdException(errNum=ACK_ERROR_NO_EXIST, msg="No such song")
-	dumpSong(f, listid, song)
-
-def cmdPlChanges(f, version):
-	dumpSong(f, 0, state.curSong)
-	for idx,song in enumerate(list(state.queue.queue.list)):
-		dumpSong(f, idx + 1, song)
-
-Commands = {}
-from types import FunctionType
-for fname,f in globals().items():
-	if not isinstance(f, FunctionType): continue
-	if fname[:3] != "cmd": continue
-	cmdName = fname[3:].lower()
-	Commands[cmdName] = f
+	def cmdNotCommands(self):
+		pass # nothing
+	
+	def cmdStatus(self):
+		# see mpd_getStatus in https://github.com/TheStalwart/Theremin/blob/master/libmpdclient-0.18.96/src/libmpdclient.c
+		f = self.f
+		if state.player.playing:
+			f.write("state: play\n")
+		else:
+			f.write("state: pause\n")
+		f.write("playlist: 0\n")
+		f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
+		f.write("volume: -1\n") # whatever that means
+		f.write("song: 0\n")
+		f.write("songid: 0\n")
+		f.write("nextsong: 1\n")
+		f.write("nextsongid: 1\n")
+		f.write("time: %i:%03i\n" % (state.player.curSongPos, state.player.curSongPos % 1000))
+		f.write("elapsed: %f\n" % state.player.curSongPos)
+		
+	def cmdOutputs(self):
+		f = self.f
+		f.write("outputs\n")
+		f.write("outputid: 0\n")
+		f.write("outputname: default detected output\n")
+		f.write("outputenabled: 1\n")
+	
+	def cmdStats(self):
+		# some fake stats to keep the clients happy
+		f = self.f
+		f.write("artists: 2064\n")
+		f.write("albums: 1621\n")
+		f.write("songs: 12461\n")
+		f.write("uptime: %i\n" % (time.time() - 1362508783))
+		f.write("playtime: 100\n")
+		f.write("db_playtime: 3266651\n")
+		f.write("db_update: %i\n" % time.time())
+	
+	def cmdListAllInfo(f, dir):
+		pass
+	
+	def cmdLsInfo(f, dir):
+		pass
+	
+	def cmdPlay(f, *args):
+		state.player.playing = True
+	
+	def cmdPlayId(f, playid):
+		state.player.playing = True
+	
+	def cmdPause(f, *args):
+		state.player.playing = False
+	
+	def cmdStop(f, *args):
+		state.player.playing = False
+	
+	def cmdNext(f):
+		state.player.nextSong()
+	
+	def cmdPrevious(f):
+		pass
+	
+	def dumpSong(self, songid, song):
+		f = self.f
+		f.write("file: %s\n" % getattr(song, "url", "").encode("utf8"))
+		f.write("Artist: %s\n" % getattr(song, "artist", "<unknown>").encode("utf8"))
+		f.write("Title: %s\n" % getattr(song, "title", "<unknown>").encode("utf8"))
+		f.write("Time: %i\n" % getattr(song, "duration", 0))
+		f.write("Pos: %i\n" % songid)
+		f.write("Id: %i\n" % songid)
+	
+	def cmdPlaylistId(self, listid):
+		listid = int(listid)
+		if listid == 0:
+			song = state.curSong
+		else:
+			assert listid > 0
+			try:
+				song = state.queue.queue.list[listid - 1]
+			except IndexError:
+				raise MpdException(errNum=ACK_ERROR_NO_EXIST, msg="No such song")
+		self.dumpSong(listid, song)
+	
+	def cmdPlChanges(self, version):
+		self.dumpSong(0, state.curSong)
+		for idx,song in enumerate(list(state.queue.queue.list)):
+			self.dumpSong(idx + 1, song)
 
 def parseInputLine(l):
 	args = []
@@ -160,7 +169,8 @@ def handleConnection(conn, addr):
 
 	conn.setblocking(True)
 	f = conn.makefile()
-
+	session = Session(f)
+	
 	f.write("OK MPD %s\n" % MpdVersion)
 	f.flush()
 	
@@ -176,7 +186,7 @@ def handleConnection(conn, addr):
 			f.flush()
 			continue
 		cmdName = input[0].lower()
-		cmd = Commands.get(cmdName)
+		cmd = session.Commands.get(cmdName)
 		if not cmd:
 			f.write("ACK [%i@0] {} unknown command %r\n" % (ACK_ERROR_UNKNOWN, cmdName))
 			f.flush()
@@ -191,7 +201,7 @@ def handleConnection(conn, addr):
 			f.flush()
 			continue	
 		try:
-			cmd(f, *input[1:])
+			cmd(*input[1:])
 			f.write("OK\n")
 		except MpdException as e:
 			f.write("ACK [%i@0] {%s} %s\n" % (e.errNum, cmdName, e.msg))			
