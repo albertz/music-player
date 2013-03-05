@@ -499,7 +499,7 @@ class Module:
 			try:
 				mainFunc()
 			except Exception:
-				print "Exception in thread", thread.name
+				print "Exception in module", self.name
 				sys.excepthook(*sys.exc_info())
 			if not thread.reload: break
 			sys.stdout.write("reloading module %s\n" % self.name)
@@ -1112,13 +1112,13 @@ class QueuedDaemonThread:
 			self.cond.notifyAll()
 queuedDaemonThread = QueuedDaemonThread()
 
-def daemonThreadCall(func, name=None, queue=None):
+def daemonThreadCall(func, args=(), name=None, queue=None):
 	if queue:
 		queuedDaemonThread.push(func, name=name, queue=queue)
 		return
 	def doCall():
 		try:
-			func()
+			func(*args)
 		except (ForwardedKeyboardInterrupt, KeyboardInterrupt):
 			return # just ignore
 		except BaseException:
