@@ -165,6 +165,9 @@ class Session(object):
 		f.write("Pos: %i\n" % songid)
 		f.write("Id: %i\n" % songid)
 	
+	def cmdCurrentSong(self):
+		self.dumpSong(self.baseIdx, state.curSong)
+		
 	def cmdPlaylistId(self, listid):
 		listid = int(listid)
 		if self.playlist is None:
@@ -199,6 +202,16 @@ class Session(object):
 	def cmdSeekCur(self, songTime):
 		songTime = int(songTime)
 		state.player.seekAbs(songTime)
+	
+	def cmdIdle(self, subsystems=None):
+		# this is not really supported. just dummy output:
+		time.sleep(0.1)
+		for subsystem in ["playlist", "player"]:
+			self.f.write("changed: %s\n" % subsystem)
+	
+	def cmdClearError(self):
+		# there aren't any errors (yet)
+		pass
 	
 def parseInputLine(l):
 	args = []
@@ -246,7 +259,7 @@ def handleConnection(conn, addr):
 			l = f.readline()
 			if l == "": break
 			input = parseInputLine(l)
-			if input not in [["status"],["outputs"]]: # clients tend to spam these, so dont print these
+			if input not in [["status"],["outputs"],["idle"],["noidle"]]: # clients tend to spam these, so dont print these
 				print "mpd conn:", input
 			cmdListIdx = 0
 			if not input:
@@ -254,6 +267,7 @@ def handleConnection(conn, addr):
 				f.flush()
 				continue
 			cmdName = input[0].lower()
+			if cmdName == "noidle": continue # special handling. there must be no "OK" here
 			cmd = session.Commands.get(cmdName)
 			if not cmd:
 				f.write("ACK [%i@%i] {} unknown command %r\n" % (ACK_ERROR_UNKNOWN, cmdListIdx, cmdName))
