@@ -23,6 +23,7 @@ Features of this player:
 * [Last.fm](http://last.fm) scrobbling
 * [AcoustID](http://acoustid.org) fingerprint
 * [Gapless playback](http://en.wikipedia.org/wiki/Gapless_playback)
+* [MPD backend](https://github.com/albertz/music-player/blob/master/mpdBackend.readme.md)
 
 ![MusicPlayer screenshot](https://github.com/albertz/music-player/raw/master/screenshot.png)
 
