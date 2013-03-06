@@ -131,9 +131,22 @@ class Session(object):
 	def cmdListAllInfo(f, dir):
 		pass
 	
-	def cmdLsInfo(f, dir):
-		pass
-	
+	def cmdLsInfo(self, dir):
+		import os, appinfo
+		from Song import Song
+		basedir = appinfo.musicdirs[0]
+		for fn in os.listdir(basedir + "/" + dir):
+			fullfn = basedir + "/" + dir + "/" + fn
+			if os.path.isdir(fullfn):
+				self.f.write("directory: %s\n" % ((dir + "/" + fn).strip("/")))
+			elif os.path.isfile(fullfn):
+				ext = os.path.splitext(fn)[1].lower()
+				if ext[:1] == ".": ext = ext[1:]
+				if ext in appinfo.formats:
+					song = Song(url=fullfn)
+					if song:
+						self.dumpSong(song=song)
+
 	def cmdPlay(f, *args):
 		state.player.playing = True
 	
@@ -155,7 +168,7 @@ class Session(object):
 		# not even supported in the main state controller (yet)
 		pass
 	
-	def dumpSong(self, songid, song):
+	def dumpSong(self, song, songid=None):
 		f = self.f
 		f.write("file: %s\n" % getattr(song, "url", "").encode("utf8"))
 		f.write("Artist: %s\n" % getattr(song, "artist", "<unknown>").encode("utf8"))
@@ -163,11 +176,12 @@ class Session(object):
 		f.write("Album: %s\n" % getattr(song, "album", "").encode("utf8"))
 		f.write("Genre: %s\n" % ", ".join([key for (key,value) in sorted(getattr(song, "tags", {}).items()) if value > 0.8]).encode("utf8"))
 		f.write("Time: %i\n" % getattr(song, "duration", 0))
-		f.write("Pos: %i\n" % songid)
-		f.write("Id: %i\n" % songid)
+		if songid is not None:
+			f.write("Pos: %i\n" % songid)
+			f.write("Id: %i\n" % songid)
 	
 	def cmdCurrentSong(self):
-		self.dumpSong(self.baseIdx, state.curSong)
+		self.dumpSong(song=state.curSong, songid=self.baseIdx)
 		
 	def cmdPlaylistId(self, listid):
 		listid = int(listid)
@@ -177,7 +191,7 @@ class Session(object):
 			song = self.playlist[listid]
 		except IndexError:
 			raise MpdException(errNum=ACK_ERROR_NO_EXIST, msg="No such song (id %i, listlen %i)" % (listid, len(self.playlist)))
-		self.dumpSong(listid, song)
+		self.dumpSong(songid=listid, song=song)
 	
 	def _initPlaylist(self):
 		self.playlist = []
@@ -188,7 +202,7 @@ class Session(object):
 	def cmdPlChanges(self, version):
 		self._initPlaylist()
 		for idx,song in enumerate(self.playlist):
-			self.dumpSong(idx, song)
+			self.dumpSong(songid=idx, song=song)
 
 	def cmdSeek(self, songPos, songTime):
 		songPos = int(songPos)
@@ -213,6 +227,32 @@ class Session(object):
 	def cmdClearError(self):
 		# there aren't any errors (yet)
 		pass
+	
+	def cmdDecoders(self):
+		import appinfo
+		for suffix in appinfo.formats:
+			self.f.write("suffix: %s\n" % suffix)
+	
+	def cmdAddId(self, url, position=None):
+		if url.startswith("file://"):
+			url = url[len("file://"):]
+		import os
+		assert os.path.exists(url), "%s not found" % url
+		from Song import Song
+		song = Song(url=url)
+		assert song, "cannot load song"
+		with state.queue.queue.lock:
+			if position is None:
+				position = len(state.queue.queue)
+			else:
+				position = int(position)
+				position -= self.baseIdx + 1
+				if position > len(state.queue.queue):
+					position = len(state.queue.queue)
+				elif position < 0:
+					position = 0
+			state.queue.queue.insert(position, song)
+		self.f.write("Id: %i\n" % (self.baseIdx + position + 1))
 	
 def parseInputLine(l):
 	args = []
