@@ -136,8 +136,12 @@ class Session(object):
 		f.write("db_playtime: 3266651\n")
 		f.write("db_update: %i\n" % time.time())
 	
-	def cmdListAllInfo(f, dir=None):
-		pass
+	def cmdListAllInfo(self, dir=None):
+		# this is a hack for some clients.
+		# some clients seem to need some data here.
+		# just list the songs from the queue.		
+		for song in list(state.queue.queue.list):
+			self.dumpSong(song=song)
 	
 	def cmdLsInfo(self, dir):
 		import os, appinfo
@@ -183,6 +187,7 @@ class Session(object):
 		basedir = appinfo.musicdirs[0] + "/"
 		if url.startswith(basedir):
 			url = url[len(basedir):]
+		assert url
 		f.write("file: %s\n" % url)
 		#f.write("Last-Modified: 2013-02-12T01:44:17Z\n") # dummy
 		d = []
@@ -271,6 +276,10 @@ class Session(object):
 	def cmdAddId(self, url, position=None):
 		if url.startswith("file://"):
 			url = url[len("file://"):]
+		if url[:1] != "/":
+			import appinfo
+			basedir = appinfo.musicdirs[0] + "/"
+			url = basedir + url
 		import os
 		assert os.path.exists(url), "%s not found" % url
 		from Song import Song
@@ -427,13 +436,15 @@ def handleConnection(conn, addr):
 					f.write("ACK [%i@%i] {%s} %s\n" % (e.errNum, cmdListIdx, cmdName, e.msg))
 					break
 				except Exception as e:
+					if Debug:
+						print "mdpBackend: exception: %s : %s" % (e.__class__.__name__, str(e))
 					f.write("ACK [%i@%i] {%s} unknown exception %s : %s\n" % (ACK_ERROR_SYSTEM, cmdListIdx, cmdName, e.__class__.__name__, str(e)))
 					break
 			if isOk:
 				f.write("OK\n")
 			f.flush()
 		except socket.error as e:
-			print e
+			print "mpdBackend: socket.error: %s" % e
 			break
 
 	conn.close()
