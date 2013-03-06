@@ -18,3 +18,9 @@ Some of the functions supported so far (high-level list):
 
 More details can be found in the [source](https://github.com/albertz/music-player/blob/master/mpdBackend.py).
 
+Tested clients:
+
+* [ncmpcpp](http://mpd.wikia.com/wiki/Client:Ncmpcpp)
+* [Theremin (Mac)](https://github.com/TheStalwart/Theremin)
+
+
