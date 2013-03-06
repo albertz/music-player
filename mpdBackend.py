@@ -89,6 +89,13 @@ class Session(object):
 				self.baseIdx = 0
 				self.playlist = None
 				self.playlistIdx += 1 # we need a reload
+			else:
+				curQueueList = list(state.queue.queue.list)
+				if self.playlist[self.baseIdx+1:] != curQueueList:
+					# the list was changed -> we need a reload
+					self.baseIdx = 0
+					self.playlist = None
+					self.playlistIdx += 1 # we need a reload					
 		f.write("playlist: %i\n" % self.playlistIdx)
 		if self.playlist is None:
 			f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
