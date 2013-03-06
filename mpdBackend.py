@@ -139,8 +139,15 @@ class Session(object):
 	def cmdListAllInfo(self, dir=None):
 		# this is a hack for some clients.
 		# some clients seem to need some data here.
-		# just list the songs from the queue.		
-		for song in list(state.queue.queue.list):
+		# just list the songs from the queue.
+		self._checkPlaylist()
+		if self.playlist is None:
+			self._initPlaylist()
+		import os
+		for song in list(self.playlist):
+			url = self._songUrl(song)
+			if not url: continue
+			self.f.write("directory: %s\n" % os.path.dirname(url))
 			self.dumpSong(song=song)
 	
 	def cmdLsInfo(self, dir):
@@ -180,13 +187,17 @@ class Session(object):
 		# not even supported in the main state controller (yet)
 		pass
 	
-	def dumpSong(self, song, songid=None):
-		f = self.f
+	def _songUrl(self, song):
 		url = getattr(song, "url", "").encode("utf8")
 		import appinfo
 		basedir = appinfo.musicdirs[0] + "/"
 		if url.startswith(basedir):
 			url = url[len(basedir):]
+		return url
+	
+	def dumpSong(self, song, songid=None):
+		f = self.f
+		url = self._songUrl(song)
 		assert url
 		f.write("file: %s\n" % url)
 		#f.write("Last-Modified: 2013-02-12T01:44:17Z\n") # dummy
