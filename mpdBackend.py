@@ -332,41 +332,62 @@ def handleConnection(conn, addr):
 			l = f.readline()
 			if l == "": break
 			input = parseInputLine(l)
-			if Debug:
-				if input not in [["status"],["outputs"],["idle"],["noidle"]]: # clients tend to spam these, so dont print these
-					print "mpd conn:", input
+			if input == ["noidle"]: continue # special handling. there must be no "OK" here
 			cmdListIdx = 0
-			if not input:
-				f.write("ACK [%i@%i] {} No command given\n" % (ACK_ERROR_UNKNOWN, cmdListIdx))
-				f.flush()
-				continue
-			cmdName = input[0].lower()
-			if cmdName == "noidle": continue # special handling. there must be no "OK" here
-			cmd = session.Commands.get(cmdName)
-			if not cmd:
-				f.write("ACK [%i@%i] {} unknown command %r\n" % (ACK_ERROR_UNKNOWN, cmdListIdx, cmdName))
-				f.flush()
-				continue
-			argspec = inspect.getargspec(cmd)
-			minArgCount = len(argspec.args) - 1 - len(argspec.defaults or [])
-			maxArgCount = float("inf") if argspec.varargs else len(argspec.args) - 1
-			if len(input) - 1 < minArgCount:
-				f.write("ACK [%i@%i] {%s} too few arguments for %r (min: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, minArgCount))
-				f.flush()
-				continue	
-			if len(input) - 1 > maxArgCount:
-				f.write("ACK [%i@%i] {%s} too many arguments for %r (max: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, maxArgCount))
-				f.flush()
-				continue	
-			try:
-				cmd(*input[1:])
+			listinput = []
+			listtype = 0
+			if input == ["command_list_begin"]:
+				listtype = 1
+			elif input == ["command_list_ok_begin"]:
+				listtype = 2
+			else:
+				listinput = [input]
+			if listtype:
+				while True:
+					l = f.readline()
+					assert l != ""
+					input = parseInputLine(l)
+					if input == ["command_list_end"]: break
+					listinput += [input]
+			isOk = True
+			for cmdListIdx,input in enumerate(listinput):
+				if Debug:
+					if input not in [["status"],["outputs"],["idle"]]: # clients tend to spam these, so dont print these
+						print "mpd conn:", input
+				isOk = False
+				if not input:
+					f.write("ACK [%i@%i] {} No command given\n" % (ACK_ERROR_UNKNOWN, cmdListIdx))
+					break
+				cmdName = input[0].lower()
+				if cmdName == "noidle": continue 
+				cmd = session.Commands.get(cmdName)
+				if not cmd:
+					f.write("ACK [%i@%i] {} unknown command %r\n" % (ACK_ERROR_UNKNOWN, cmdListIdx, cmdName))
+					break
+				argspec = inspect.getargspec(cmd)
+				minArgCount = len(argspec.args) - 1 - len(argspec.defaults or [])
+				maxArgCount = float("inf") if argspec.varargs else len(argspec.args) - 1
+				if len(input) - 1 < minArgCount:
+					f.write("ACK [%i@%i] {%s} too few arguments for %r (min: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, minArgCount))
+					break	
+				if len(input) - 1 > maxArgCount:
+					f.write("ACK [%i@%i] {%s} too many arguments for %r (max: %s)\n" % (ACK_ERROR_ARG, cmdListIdx, cmdName, cmdName, maxArgCount))
+					break	
+				try:
+					cmd(*input[1:])
+					isOk = True
+					if listtype == 2:
+						f.write("list_OK\n")
+						f.flush()
+				except MpdException as e:
+					f.write("ACK [%i@%i] {%s} %s\n" % (e.errNum, cmdListIdx, cmdName, e.msg))
+					break
+				except Exception as e:
+					f.write("ACK [%i@%i] {%s} unknown exception %s : %s\n" % (ACK_ERROR_SYSTEM, cmdListIdx, cmdName, e.__class__.__name__, str(e)))
+					break
+			if isOk:
 				f.write("OK\n")
-			except MpdException as e:
-				f.write("ACK [%i@%i] {%s} %s\n" % (e.errNum, cmdListIdx, cmdName, e.msg))			
-			except Exception as e:
-				f.write("ACK [%i@%i] {%s} unknown exception %s : %s\n" % (ACK_ERROR_SYSTEM, cmdListIdx, cmdName, e.__class__.__name__, str(e)))
-			finally:	
-				f.flush()
+			f.flush()
 		except socket.error as e:
 			print e
 			break
