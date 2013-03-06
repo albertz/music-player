@@ -73,6 +73,25 @@ class Session(object):
 	def cmdSetVol(self, vol):
 		vol = int(vol)
 		self.volume = vol
+	
+	def _resetPlaylist(self):
+		self.baseIdx = 0
+		self.playlist = None
+		self.playlistIdx += 1 # force a reload
+		
+	def _checkPlaylist(self):
+		if self.playlist is not None:
+			while self.baseIdx < len(self.playlist):
+				if self.playlist[self.baseIdx] == state.curSong:
+					break
+				self.baseIdx += 1
+			if self.baseIdx >= len(self.playlist):
+				self._resetPlaylist() # we need a reload
+			else:
+				curQueueList = list(state.queue.queue.list)
+				if self.playlist[self.baseIdx+1:] != curQueueList:
+					# the list was changed -> we need a reload
+					self._resetPlaylist()
 
 	def cmdStatus(self):
 		# see mpd_getStatus in https://github.com/TheStalwart/Theremin/blob/master/libmpdclient-0.18.96/src/libmpdclient.c
@@ -81,22 +100,7 @@ class Session(object):
 			f.write("state: play\n")
 		else:
 			f.write("state: pause\n")
-		if self.playlist is not None:
-			while self.baseIdx < len(self.playlist):
-				if self.playlist[self.baseIdx] == state.curSong:
-					break
-				self.baseIdx += 1
-			if self.baseIdx >= len(self.playlist):
-				self.baseIdx = 0
-				self.playlist = None
-				self.playlistIdx += 1 # we need a reload
-			else:
-				curQueueList = list(state.queue.queue.list)
-				if self.playlist[self.baseIdx+1:] != curQueueList:
-					# the list was changed -> we need a reload
-					self.baseIdx = 0
-					self.playlist = None
-					self.playlistIdx += 1 # we need a reload					
+		self._checkPlaylist()
 		f.write("playlist: %i\n" % self.playlistIdx)
 		if self.playlist is None:
 			f.write("playlistlength: %i\n" % (len(state.queue.queue.list) + 1))
@@ -253,7 +257,35 @@ class Session(object):
 					position = 0
 			state.queue.queue.insert(position, song)
 		self.f.write("Id: %i\n" % (self.baseIdx + position + 1))
-	
+		# songids are messed up now. force reload
+		self._resetPlaylist()
+
+	def cmdDeleteId(self, songid):
+		with state.queue.queue.lock:
+			self._checkPlaylist()
+			if self.playlist is None: return # songid might be wrong
+			songid = int(songid)
+			songid -= self.baseIdx + 1
+			if songid < 0: return
+			if songid > len(state.queue.queue): return
+			state.queue.queue.remove(songid)
+		# songids are messed up now. force reload
+		self._resetPlaylist()
+			
+	def cmdSearch(self, type, what):
+		# ignore type. assume "any". anything else anyway not supported yet
+		what = what.strip()
+		if not what: return
+		import songdb
+		res = songdb.search(what)
+		from Song import Song
+		import os
+		for entry in res:
+			url = entry["url"]
+			if not os.path.exists(url): continue
+			song = Song(url=url)
+			self.dumpSong(song=song)
+		
 def parseInputLine(l):
 	args = []
 	state = 0
