@@ -5,6 +5,7 @@
 
 # This is an implementation of the [MPD protocol](http://www.musicpd.org/doc/protocol/).
 
+Debug = False
 MpdVersion = "0.17.0"
 
 import utils, time, State
@@ -259,8 +260,9 @@ def handleConnection(conn, addr):
 			l = f.readline()
 			if l == "": break
 			input = parseInputLine(l)
-			if input not in [["status"],["outputs"],["idle"],["noidle"]]: # clients tend to spam these, so dont print these
-				print "mpd conn:", input
+			if Debug:
+				if input not in [["status"],["outputs"],["idle"],["noidle"]]: # clients tend to spam these, so dont print these
+					print "mpd conn:", input
 			cmdListIdx = 0
 			if not input:
 				f.write("ACK [%i@%i] {} No command given\n" % (ACK_ERROR_UNKNOWN, cmdListIdx))
