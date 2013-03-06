@@ -78,7 +78,7 @@ class Session(object):
 		self.baseIdx = 0
 		self.playlist = None
 		self.playlistIdx += 1 # force a reload
-		
+
 	def _checkPlaylist(self):
 		if self.playlist is not None:
 			while self.baseIdx < len(self.playlist):
@@ -87,12 +87,16 @@ class Session(object):
 				self.baseIdx += 1
 			if self.baseIdx >= len(self.playlist):
 				self._resetPlaylist() # we need a reload
+				return False
 			else:
 				curQueueList = list(state.queue.queue.list)
 				if self.playlist[self.baseIdx+1:] != curQueueList:
 					# the list was changed -> we need a reload
 					self._resetPlaylist()
-
+					return False
+			return True
+		return False
+	
 	def cmdStatus(self):
 		# see mpd_getStatus in https://github.com/TheStalwart/Theremin/blob/master/libmpdclient-0.18.96/src/libmpdclient.c
 		f = self.f
@@ -132,7 +136,7 @@ class Session(object):
 		f.write("db_playtime: 3266651\n")
 		f.write("db_update: %i\n" % time.time())
 	
-	def cmdListAllInfo(f, dir):
+	def cmdListAllInfo(f, dir=None):
 		pass
 	
 	def cmdLsInfo(self, dir):
@@ -174,12 +178,22 @@ class Session(object):
 	
 	def dumpSong(self, song, songid=None):
 		f = self.f
-		f.write("file: %s\n" % getattr(song, "url", "").encode("utf8"))
-		f.write("Artist: %s\n" % getattr(song, "artist", "<unknown>").encode("utf8"))
-		f.write("Title: %s\n" % getattr(song, "title", "<unknown>").encode("utf8"))
-		f.write("Album: %s\n" % getattr(song, "album", "").encode("utf8"))
-		f.write("Genre: %s\n" % ", ".join([key for (key,value) in sorted(getattr(song, "tags", {}).items()) if value > 0.8]).encode("utf8"))
-		f.write("Time: %i\n" % getattr(song, "duration", 0))
+		url = getattr(song, "url", "").encode("utf8")
+		import appinfo
+		basedir = appinfo.musicdirs[0] + "/"
+		if url.startswith(basedir):
+			url = url[len(basedir):]
+		f.write("file: %s\n" % url)
+		#f.write("Last-Modified: 2013-02-12T01:44:17Z\n") # dummy
+		d = []
+		d += [("Time", str(int(getattr(song, "duration", 0))))]
+		d += [("Artist", getattr(song, "artist", "<unknown>").encode("utf8"))]
+		d += [("Title", getattr(song, "title", "<unknown>").encode("utf8"))]
+		d += [("Album", getattr(song, "album", "").encode("utf8"))]
+		d += [("Genre", ", ".join([key for (key,value) in sorted(getattr(song, "tags", {}).items()) if value > 0.8]).encode("utf8"))]
+		for (key,value) in d:
+			if not value: continue
+			f.write("%s: %s\n" % (key,value))		
 		if songid is not None:
 			f.write("Pos: %i\n" % songid)
 			f.write("Id: %i\n" % songid)
@@ -208,6 +222,12 @@ class Session(object):
 		for idx,song in enumerate(self.playlist):
 			self.dumpSong(songid=idx, song=song)
 
+	def cmdPlaylistInfo(self, songpos=None):
+		if self.playlist is None:
+			self._initPlaylist()
+		for idx,song in enumerate(self.playlist):
+			self.dumpSong(songid=idx, song=song)		
+
 	def cmdSeek(self, songPos, songTime):
 		songPos = int(songPos)
 		if songPos != self.baseIdx: return # only seeking of current song supported
@@ -222,10 +242,21 @@ class Session(object):
 		songTime = int(songTime)
 		state.player.seekAbs(songTime)
 	
+	_oldBaseIdx = 0
+	_oldPlayState = None
 	def cmdIdle(self, subsystems=None):
 		# this is not really supported. just dummy output:
 		time.sleep(0.1)
-		for subsystem in ["playlist", "player"]:
+		changedSubsystems = set()
+		if self._oldBaseIdx != self.baseIdx:
+			changedSubsystems.add("player")
+		self._oldBaseIdx = self.baseIdx
+		if self._oldPlayState != state.player.playing:
+			changedSubsystems.add("player")
+		self._oldPlayState = state.player.playing
+		if not self._checkPlaylist():
+			changedSubsystems.add("playlist")
+		for subsystem in changedSubsystems:
 			self.f.write("changed: %s\n" % subsystem)
 	
 	def cmdClearError(self):
@@ -271,7 +302,12 @@ class Session(object):
 			state.queue.queue.remove(songid)
 		# songids are messed up now. force reload
 		self._resetPlaylist()
-			
+	
+	def cmdClear(self):
+		# we don't allow that to avoid some accidental missue
+		# however, the client probably should update its playlist
+		self._resetPlaylist()
+		
 	def cmdSearch(self, type, what):
 		# ignore type. assume "any". anything else anyway not supported yet
 		what = what.strip()
@@ -285,7 +321,15 @@ class Session(object):
 			if not os.path.exists(url): continue
 			song = Song(url=url)
 			self.dumpSong(song=song)
-		
+	
+	def cmdListPlaylists(self):
+		# not supported yet
+		pass
+
+	def cmdSticker(self, *args):
+		# not supported yet
+		pass
+	
 def parseInputLine(l):
 	args = []
 	state = 0
