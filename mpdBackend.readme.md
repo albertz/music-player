@@ -3,7 +3,7 @@ Music-Player-Daemon backend
 
 The [`mpdBackend`](https://github.com/albertz/music-player/blob/master/mpdBackend.py) module is a basic implementation of the backend of the [MPD protocol](http://www.musicpd.org/doc/protocol/) for this music player. It means that any [MPD client](http://mpd.wikia.com/wiki/Clients) can connect to this music player and control it.
 
-Note that MPD and this music player have a fundamental different design, thus not all MPD functions can perfectly be mapped as functions in this player. But for many basic functions, good mappings exist.
+Note that MPD and this music player have a fundamental different design (see [here](https://github.com/albertz/music-player/blob/master/Compare_to_MPD.md)), thus not all MPD functions can perfectly be mapped as functions in this player. But for many basic functions, good mappings exist.
 
 This backend tries to emulate MPD 0.17.0.
 

@@ -49,6 +49,10 @@ TODO / possible additional missing features:
 * watch music directory for changes (e.g. new files added)
 * other GUI implementations
 
+Comparison to other music players:
+
+* [Music Player Daemon (MPD)](https://github.com/albertz/music-player/blob/master/Compare_to_MPD.md)
+
 Installation:
 
 So far, there is a prebuild MacOSX app bundle in the download section which should just work. Otherwise, to get the source working, you need these requirements (e.g. install on MacOSX via Homebrew):
