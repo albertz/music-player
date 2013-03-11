@@ -4,6 +4,9 @@
 // All rights reserved.
 // This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+// INT64_MIN and co
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 
 #include "ffmpeg.h"
 
