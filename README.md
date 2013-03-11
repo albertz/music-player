@@ -61,7 +61,7 @@ So far, there is a prebuild MacOSX app bundle in the download section which shou
 * portaudio
 * chromaprint
 
-(Debian/Ubuntu: `apt-get install python-dev libsnappy-dev libtool yasm libchromaprint-dev portaudio19-dev`. FFmpeg in Debian/Ubuntu is too old (lacks libswresample), so either do `add-apt-repository ppa:jon-severinsson/ffmpeg && apt-get update && apt-get install libavformat-dev libswresample-dev` or install it from source. [Chromaprint](http://acoustid.org/chromaprint) depends on FFmpeg, so if you have a custom FFmpeg install, you might also want to install that manually. `./configure && make && sudo make install` should work for FFmpeg and PortAudio. You might also want to use `--enable-shared` for FFmpeg. `cmake . && sudo make install` for Chromaprint.)
+(Debian/Ubuntu: `apt-get install python-dev libsnappy-dev libtool yasm libchromaprint-dev portaudio19-dev libboost-dev`. FFmpeg in Debian/Ubuntu is too old (lacks libswresample), so either do `add-apt-repository ppa:jon-severinsson/ffmpeg && apt-get update && apt-get install libavformat-dev libswresample-dev` or install it from source. [Chromaprint](http://acoustid.org/chromaprint) depends on FFmpeg, so if you have a custom FFmpeg install, you might also want to install that manually. `./configure && make && sudo make install` should work for FFmpeg and PortAudio. You might also want to use `--enable-shared` for FFmpeg. `cmake . && sudo make install` for Chromaprint.)
 
 Then call `./compile.py` to build the Python modules (it will build the Python modules `ffmpeg.so` and `leveldb.so`).
 
