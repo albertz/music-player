@@ -28,20 +28,20 @@ def event_filter(ev):
 	if ev is PlayerEventCallbacks.onSongFinished: return True
 	return False
 
+def stateUpdates_append_wrapper(self, value):
+	value = ev,args,kwargs
+	if not event_filter(ev): return
+	self.__get__(None).append(value)
+	self.save()
+
 def tracker_lastfmMain():
 	if not appinfo.config.lastFm: return
 
 	assert "append" in OnRequestQueue.ListUsedModFunctions
 	
-	def append_wrapper(self, value):
-		value = ev,args,kwargs
-		if not event_filter(ev): return
-		self.__get__(None).append(value)
-		self.save()
-
 	queueList = PersistentObject(
 		deque, "lastfm-queue.dat", namespace=globals(),
-		customAttribs = {"append": append_wrapper},
+		customAttribs = {"append": stateUpdates_append_wrapper},
 		)
 	
 	stateUpdateStream = state.updates.read(queueList=queueList)
