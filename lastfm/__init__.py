@@ -128,7 +128,7 @@ class Client:
 
 	@staticmethod
 	def doWebAction(action):
-		import threading
+		import threading, time
 		curThread = threading.currentThread()
 		while True:
 			if getattr(curThread, "cancel", False):
@@ -139,25 +139,22 @@ class Client:
 				print "Last.fm error: ErrorResponse %d" % exc.status
 				# last.fm server busy or so
 				# wait a bit and retry
-				import time
 				time.sleep(1)
 			except rest.RESTSocketError:
 				# maybe no internet connection
 				# dont print an error, dont spam	
 				# wait a bit and retry
-				import time
 				time.sleep(1)
 			except ssl.SSLError:
 				# timeout or so
 				# dont print an error, dont spam	
 				# wait a bit and retry
-				import time
 				time.sleep(1)
 			except Exception:
 				import sys
 				sys.excepthook(*sys.exc_info())
-				import time
-				time.sleep(1) # wait a bit and retry
+				# wait a bit and retry
+				time.sleep(1)
 		
 	def login(self):
 		def action():
