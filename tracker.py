@@ -30,5 +30,5 @@ def trackerMain():
 	for ev,args,kwargs in state.updates.read():
 		try:
 			track(ev, args, kwargs)
-		except:
+		except Exception:
 			sys.excepthook(*sys.exc_info())
