@@ -1226,6 +1226,7 @@ def debugWarn(msg):
 	
 
 def debugFindThread(threadName):
+	import threading
 	for th in threading.enumerate():
 		if th.name == threadName: return th
 	return None
