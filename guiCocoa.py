@@ -707,9 +707,17 @@ def buildControlTable(control):
 	def update(ev=None, args=None, kwargs=None):
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		value = control.subjectObject
-		dataSource.data = value
-		dataSource.resort(table) # initial sort
-		do_in_mainthread(lambda: table.reloadData(), wait=False)
+		def setData():
+			with dataSource.lock:
+				# Do this in main thread to workaround the problem that
+				# the tableView knows the wrong number of rows. This could
+				# happen otherwise because it checks the number of rows in
+				# its redrawing code and that is not covered by this lock.
+				# See also the related comment in TableViewDataSource.
+				dataSource.data = value
+				dataSource.resort(table) # initial sort
+			table.reloadData()
+		do_in_mainthread(setData, wait=False)
 	control.updateContent = update
 	update() # initial fill
 	

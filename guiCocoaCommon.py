@@ -131,14 +131,43 @@ try:
 	class TableViewDataSource(NSObject):
 		data = ()
 		formaters = {}
+		lock = None
+		def init(self):
+			import threading
+			self.lock = threading.RLock()
+			return self
 		def numberOfRowsInTableView_(self, tableView):
-			return len(self.data)
+			try:
+				with self.lock:
+					return len(self.data)
+			except Exception:
+				import sys
+				sys.excepthook(*sys.exc_info())
+			return 0
 		def tableView_objectValueForTableColumn_row_(self, tableView, tableColumn, rowIndex):
-			key = str(tableColumn.identifier())
-			v = self.data[rowIndex].get(key, None)
-			if key in self.formaters: v = self.formaters[key](v)
-			if isinstance(v, str): v = utils.convertToUnicode(v)
-			return v
+			try:
+				with self.lock:
+					if rowIndex >= len(self.data):
+						# This can happen if the data has changed in the middle
+						# of a tableView.redraw().
+						# Note that wrapping tableView.reloadData() doesn't work
+						# because that doesn't reload it internally - it just delays
+						# a redraw and inside the redraw, it reloads the data.
+						# So, overriding redraw with locking might work.
+						# But anyway, it doesn't really matter as we should have delayed
+						# a further reloadData().
+						# Also, in guiCocoa, there is another further workaround
+						# which probably makes this obsolete.
+						return None
+					key = str(tableColumn.identifier())
+					v = self.data[rowIndex].get(key, None)
+					if key in self.formaters: v = self.formaters[key](v)
+					if isinstance(v, str): v = utils.convertToUnicode(v)
+					return v
+			except Exception:
+				import sys
+				sys.excepthook(*sys.exc_info())
+			return None
 		def resort(self, tableView):
 			sortDescs = list(tableView.sortDescriptors())
 			def itemIter(item):
@@ -155,18 +184,29 @@ try:
 			else:
 				# sort descriptors hasn't been set yet
 				firstAsc = True
-			self.data.sort(key=key, reverse=not firstAsc)
-			tableView.reloadData()
+			with self.lock:
+				self.data.sort(key=key, reverse=not firstAsc)
 		def tableView_sortDescriptorsDidChange_(self, tableView, oldDescriptors):
-			self.resort(tableView)
+			try:
+				with self.lock:
+					self.resort(tableView)
+					tableView.reloadData()
+			except Exception:
+				import sys
+				sys.excepthook(*sys.exc_info())
 		def tableView_writeRowsWithIndexes_toPasteboard_(self, tableView, rowIndexes, pboard):
 			possibleSources = []
 			def handleRowIndex(index, stop):
-				url = self.data[index].get("url", None)
-				if url:
-					url = utils.convertToUnicode(url)
-					possibleSources.append(url)
-			rowIndexes.enumerateIndexesUsingBlock_(handleRowIndex)
+				try:
+					url = self.data[index].get("url", None)
+					if url:
+						url = utils.convertToUnicode(url)
+						possibleSources.append(url)
+				except Exception:
+					import sys
+					sys.excepthook(*sys.exc_info())						
+			with self.lock:
+				rowIndexes.enumerateIndexesUsingBlock_(handleRowIndex)
 			if not possibleSources: return False
 
 			pboard.declareTypes_owner_([NSFilenamesPboardType], None)
@@ -190,7 +230,11 @@ try:
 						import sys
 						sys.excepthook(*sys.exc_info())						
 				tableView.selectedRowIndexes().enumerateIndexesUsingBlock_(handleRowIndex)
-				self.onSelectionChange(selection)
+				try:
+					self.onSelectionChange(selection)
+				except Exception:
+					import sys
+					sys.excepthook(*sys.exc_info())						
 except:
 	TableViewDelegate = objc.lookUpClass("TableViewDelegate")
 
