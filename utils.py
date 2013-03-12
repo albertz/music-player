@@ -470,7 +470,8 @@ def PersistentObject(
 	def makeWrapper(funcAttrib):
 		def wrapped(self, *args, **kwargs):
 			save(self)
-			f = getattr(self, funcAttrib)
+			obj = self.__get__(None)
+			f = getattr(obj, funcAttrib)
 			return f(*args, **kwargs)
 		return wrapped
 	for attr in installAutosaveWrappersOn:
@@ -492,8 +493,21 @@ def test_ObjectProxy():
 	proxy = ObjectProxy(Test)
 	expectedLoad = True
 	assert proxy.obj1 is Test.obj1
-	
 
+	class Test(object):
+		def __init__(self): assert expectedLoad
+		obj1 = object()
+		obj2 = object()
+	proxy = ObjectProxy(Test, customAttribs = {"obj1": 42})
+	expectedLoad = True
+	assert proxy.obj1 is 42
+	assert proxy.obj2 is Test.obj2
+	
+	from collections import deque
+	proxy = ObjectProxy(deque, customAttribs = {"append": 42})
+	assert proxy.append is 42
+	
+	
 class DictObj(dict):
 	def __getattr__(self, item): return self[item]
 	def __setattr__(self, key, value): self[key] = value
