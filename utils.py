@@ -1224,6 +1224,30 @@ def debugWarn(msg):
 	better_exchook.print_traceback(f)
 	
 
+def debugFindThread(threadName):
+	for th in threading.enumerate():
+		if th.name == threadName: return th
+	return None
+
+def debugGetThreadStack(threadName):
+	th = debugFindThread(threadName)
+	assert th, "thread not found"
+	stack = sys._current_frames()[th.ident]
+	return th, stack
+
+def debugGetLocalVarFromThread(threadName, funcName, varName):
+	th, stack = debugGetThreadStack(threadName)
+	_tb = stack
+	limit = None
+	while _tb is not None and (limit is None or n < limit):
+		if isframe(_tb): f = _tb
+		else: f = _tb.tb_frame
+		if f.f_code.co_name == funcName:
+			if varName in f.f_locals:
+				return f, f.f_locals[varName]
+	return None, None
+
+
 def test_AsyncTask():
 	AsyncTask.test()
 	
