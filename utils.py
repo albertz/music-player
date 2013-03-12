@@ -413,7 +413,10 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	lazyObjInst = LazyObject()
 	return lazyObjInst
 
-def PersistentObject(baseType, filename, defaultArgs=(), persistentRepr = False, namespace = None):
+def PersistentObject(
+		baseType, filename, defaultArgs=(),
+		persistentRepr = False, namespace = None,
+		installAutosaveWrappersOn = ()):
 	betterRepr = globals()["betterRepr"] # save local copy
 	import appinfo
 	fullfn = appinfo.userdir + "/" + filename
@@ -451,15 +454,24 @@ def PersistentObject(baseType, filename, defaultArgs=(), persistentRepr = False,
 		return betterRepr(obj.__get__(None))
 	def obj_del(obj):
 		save(obj)
+	custom_attribs = {
+		"save": save,
+		"_isPersistentObject": True,
+		"_filename": filename,
+		"_persistentRepr": persistentRepr,
+		"__repr__": obj_repr,
+		"__del__": obj_del,
+		}
+	def makeWrapper(funcAttrib):
+		def wrapped(self, *args, **kwargs):
+			save(self)
+			f = getattr(self, funcAttrib)
+			return f(*args, **kwargs)
+		return wrapped
+	for attr in installAutosaveWrappersOn:
+		custom_attribs[attr] = makeWrapper(attr)
 	return ObjectProxy(load, baseType=baseType,
-		custom_attribs={
-			"save": save,
-			"_isPersistentObject": True,
-			"_filename": filename,
-			"_persistentRepr": persistentRepr,
-			"__repr__": obj_repr,
-			"__del__": obj_del,
-			})
+		custom_attribs=custom_attribs)
 
 
 def test_ObjectProxy():
