@@ -368,10 +368,10 @@ def attrChain(base, *attribs, **kwargs):
 	if obj is None: return default
 	return obj
 
-def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object, typeName="ObjectProxy"):
+def ObjectProxy(lazyLoader, customAttribs={}, baseType=object, typeName="ObjectProxy"):
 	class Value: pass
 	obj = Value()
-	attribs = custom_attribs.copy()
+	attribs = customAttribs.copy()
 	def load():
 		if not hasattr(obj, "value"):
 			obj.value = lazyLoader()
@@ -459,7 +459,7 @@ def PersistentObject(
 		return betterRepr(obj.__get__(None))
 	def obj_del(obj):
 		save(obj)
-	custom_attribs = {
+	customAttribs = {
 		"save": save,
 		"_isPersistentObject": True,
 		"_filename": filename,
@@ -474,11 +474,11 @@ def PersistentObject(
 			return f(*args, **kwargs)
 		return wrapped
 	for attr in installAutosaveWrappersOn:
-		custom_attribs[attr] = makeWrapper(attr)
+		customAttribs[attr] = makeWrapper(attr)
 	return ObjectProxy(
 		load,
 		baseType = baseType,
-		custom_attribs = custom_attribs,
+		customAttribs = customAttribs,
 		typeName = "PersistentObject(%s)" % filename
 	)
 
