@@ -34,7 +34,8 @@ def tracker_lastfmMain():
 	assert "append" in OnRequestQueue.ListUsedModFunctions
 	
 	def append_wrapper(self, value):
-		if not event_filter(value): return
+		value = ev,args,kwargs
+		if not event_filter(ev): return
 		self.__get__(None).append(value)
 		self.save()
 
