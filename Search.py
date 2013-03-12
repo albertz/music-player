@@ -42,7 +42,8 @@ class Search:
 		format_rating=lambda r: "★" * int(round(r * 5))))
 	@property
 	def searchResults(self):
-		return list(self._searchResults)
+		with self._lock:
+			return list(self._searchResults)
 
 	@searchResults.setUpdateEvent
 	@initBy
