@@ -84,6 +84,7 @@ class OnRequestQueue:
 				if not l:
 					q.cond.wait()
 			for item in l:
+				if q.cancel: break
 				yield item
 		for reqqu in reqQueues: reqqu.queues.remove(q)
 
