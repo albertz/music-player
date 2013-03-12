@@ -148,9 +148,9 @@ class Client:
 		if not self.sess.is_linked():
 			try:			
 				self.sess.link()
-			except rest.ErrorResponse, e:
+			except rest.ErrorResponse as e:
 				import sys
-				sys.stdout.write('Error: %s\n' % str(e))
+				sys.stdout.write('Last.fm login error: %s\n' % str(e))
 				raise
 	
 	def apiCall(self, apiFuncName, **kwargs):
