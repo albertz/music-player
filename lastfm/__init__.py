@@ -120,53 +120,20 @@ class StoredSession(session.LastfmSession):
 import threading
 
 class Client:
-	def __init__(self):
-		from threading import Thread
-		from Queue import Queue
-		self.execQueue = Queue()
-		self.execThread = Thread(target = self._threadMain, name = "Lastfm client")
-		self.execThread.start()
-		
+	def __init__(self):		
 		self.sess = StoredSession(APP_KEY, APP_SECRET)
 		self.api_client = client.LastfmClient(self.sess)
 		self.sess.load_creds()
 
-	def _threadMain(self):
+	@staticmethod
+	def doWebAction(action):
+		import threading
+		curThread = threading.currentThread()
 		while True:
-			item = self.execQueue.get()
-			if item is SystemExit: return
+			if getattr(curThread, "cancel", False):
+				raise KeyboardInterrupt
 			try:
-				item()
-			except Exception:
-				import sys
-				sys.excepthook(*sys.exc_info())
-	
-	def quit(self): self.execQueue.put(SystemExit)
-	def __del__(self): self.quit()
-	
-	def login(self):
-		if not self.sess.is_linked():
-			try:			
-				self.sess.link()
-			except rest.ErrorResponse as e:
-				import sys
-				sys.stdout.write('Last.fm login error: %s\n' % str(e))
-				raise
-	
-	def apiCall(self, apiFuncName, **kwargs):
-		if not self.sess.is_linked(): return # silently ignore
-		#print "lastfm", apiFuncName, kwargs
-		
-		f = getattr(_client.api_client, apiFuncName)
-		while True:
-			try:
-				ret = f(**kwargs)
-				assert ret is not None # either we get sth or we raise some exception
-				if "error" in ret:
-					print "Last.fm API", apiFuncName, kwargs, "returned error", ret
-					# This is an API error, we would very likely get the same error again, so just stop
-					return
-				return ret
+				return action()
 			except rest.ErrorResponse as exc:
 				print "Last.fm error: ErrorResponse %d" % exc.status
 				# last.fm server busy or so
@@ -185,6 +152,27 @@ class Client:
 				import time
 				time.sleep(1) # wait a bit and retry
 		
+	def login(self):
+		def action():
+			if self.sess.is_linked(): return True
+			self.sess.link()
+			return self.sess.is_linked()
+		return self.doWebAction(action)
+
+	def apiCall(self, apiFuncName, **kwargs):
+		assert self.sess.is_linked()
+		#print "lastfm", apiFuncName, kwargs
+		
+		def action():
+			f = getattr(_client.api_client, apiFuncName)
+			ret = f(**kwargs)
+			assert ret is not None # either we get sth or we raise some exception
+			if "error" in ret:
+				print "Last.fm API", apiFuncName, kwargs, "returned error", ret
+				# This is an API error, we would very likely get the same error again, so just stop
+				return
+			return ret
+		return self.doWebAction(action)
 		
 _client = None
 
@@ -196,7 +184,6 @@ def login():
 def quit():
 	global _client
 	if not _client: return
-	_client.quit()
 	_client = None
 	
 def onSongChange(newSong):
