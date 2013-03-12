@@ -72,15 +72,19 @@ class OnRequestQueue:
 		for reqqu in reqQueues: reqqu.queues.add(q)
 		while True:
 			with q.cond:
+				# Note on cancel-behavior:
+				# Earlier, we always still yielded all left items in the queue
+				# before breaking out here. This behavior doesn't fit if you
+				# want to cancel as fast as possible and when you have a
+				# persistent queue anyway - while you might hang at some entry.
+				if q.cancel: break
 				l = []
 				if len(q.q) > 0:
 					l += [q.q.popleft()]
-				cancel = q.cancel
-				if not l and not cancel:
+				if not l:
 					q.cond.wait()
 			for item in l:
 				yield item
-			if cancel: break
 		for reqqu in reqQueues: reqqu.queues.remove(q)
 
 class EventCallback:
