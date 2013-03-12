@@ -23,14 +23,27 @@ def track(event, args, kwargs):
 		timestamp = kwargs["timestamp"]
 		lastfm.onSongFinished(song, timestamp=timestamp)
 
+def event_filter(ev):
+	if ev is PlayerEventCallbacks.onSongChange: return True
+	if ev is PlayerEventCallbacks.onSongFinished: return True
+	return False
+
 def tracker_lastfmMain():
 	if not appinfo.config.lastFm: return
 
-	stateUpdateStream = state.updates.read(
-		listType = lambda: PersistentObject(
-			deque, "lastfm-queue.dat", namespace=globals(),
-			installAutosaveWrappersOn=OnRequestQueue.ListUsedFunctions)
-	)
+	assert "append" in OnRequestQueue.ListUsedModFunctions
+	
+	def append_wrapper(self, value):
+		if not event_filter(value): return
+		self.__get__(None).append(value)
+		self.save()
+
+	queueList = PersistentObject(
+		deque, "lastfm-queue.dat", namespace=globals(),
+		customAttribs = {"append": append_wrapper},
+		)
+	
+	stateUpdateStream = state.updates.read(queueList=queueList)
 
 	lastfm.login()
 	for ev,args,kwargs in stateUpdateStream:
@@ -38,4 +51,6 @@ def tracker_lastfmMain():
 			track(ev, args, kwargs)
 		except Exception:
 			sys.excepthook(*sys.exc_info())
+		else:
+			queueList.save()			
 	lastfm.quit()
