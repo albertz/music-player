@@ -26,11 +26,13 @@ def track(event, args, kwargs):
 def tracker_lastfmMain():
 	if not appinfo.config.lastFm: return
 
-	lastfm.login()
-	for ev,args,kwargs in state.updates.read(
+	stateUpdateStream = state.updates.read(
 		listType = lambda: PersistentObject(
 			deque, "lastfm-queue.dat", namespace=globals(), installAutosaveWrappersOn=("append"))
-	):
+	)
+
+	lastfm.login()
+	for ev,args,kwargs in stateUpdateStream:
 		try:
 			track(ev, args, kwargs)
 		except Exception:
