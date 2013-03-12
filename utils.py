@@ -1241,6 +1241,7 @@ def debugGetLocalVarFromThread(threadName, funcName, varName):
 	th, stack = debugGetThreadStack(threadName)
 	_tb = stack
 	limit = None
+	n = 0
 	from inspect import isframe
 	while _tb is not None and (limit is None or n < limit):
 		if isframe(_tb): f = _tb
@@ -1248,6 +1249,9 @@ def debugGetLocalVarFromThread(threadName, funcName, varName):
 		if f.f_code.co_name == funcName:
 			if varName in f.f_locals:
 				return f, f.f_locals[varName]
+		if isframe(_tb): _tb = _tb.f_back
+		else: _tb = _tb.tb_next
+		n += 1		
 	return None, None
 
 
