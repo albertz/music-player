@@ -35,10 +35,13 @@ class Id:
 		return "<Id %i>" % id(self)
 
 class OnRequestQueue:
-	ListUsedFunctions = ("append", "popleft")
+	ListUsedModFunctions = ("append", "popleft")
 	class QueueEnd:
-		def __init__(self, listType=deque):
-			self.q = listType()
+		def __init__(self, queueList=None):
+			if queueList is not None:
+				self.q = queueList
+			else:
+				self.q = deque()
 			self.cond = Condition()
 			self.cancel = False
 		def put(self, item):
@@ -79,14 +82,15 @@ class OnRequestQueue:
 				# want to cancel as fast as possible and when you have a
 				# persistent queue anyway - while you might hang at some entry.
 				if q.cancel: break
-				l = []
-				if len(q.q) > 0:
-					l += [q.q.popleft()]
+				l = list(q.q)
 				if not l:
 					q.cond.wait()
 			for item in l:
 				if q.cancel: break
 				yield item
+				with q.cond:
+					popitem = q.q.popleft()
+					assert popitem is item
 		for reqqu in reqQueues: reqqu.queues.remove(q)
 
 class EventCallback:
@@ -422,7 +426,9 @@ def ObjectProxy(lazyLoader, customAttribs={}, baseType=object, typeName="ObjectP
 def PersistentObject(
 		baseType, filename, defaultArgs=(),
 		persistentRepr = False, namespace = None,
-		installAutosaveWrappersOn = ()):
+		installAutosaveWrappersOn = (),
+		autosaveOnDel = True,
+		customAttribs = {}):
 	betterRepr = globals()["betterRepr"] # save local copy
 	import appinfo
 	fullfn = appinfo.userdir + "/" + filename
@@ -458,16 +464,16 @@ def PersistentObject(
 		if persistentRepr:
 			return "PersistentObject(%s, %r, persistentRepr=True)" % (baseType.__name__, filename)
 		return betterRepr(obj.__get__(None))
-	def obj_del(obj):
-		save(obj)
-	customAttribs = {
+	_customAttribs = {
 		"save": save,
 		"_isPersistentObject": True,
 		"_filename": filename,
 		"_persistentRepr": persistentRepr,
 		"__repr__": obj_repr,
-		"__del__": obj_del,
 		}
+	if autosaveOnDel:
+		def obj_del(obj): save(obj)
+		_customAttribs["__del__"] = obj_del
 	def makeWrapper(funcAttrib):
 		def wrapped(self, *args, **kwargs):
 			obj = self.__get__(None)
@@ -477,11 +483,12 @@ def PersistentObject(
 			return ret
 		return wrapped
 	for attr in installAutosaveWrappersOn:
-		customAttribs[attr] = makeWrapper(attr)
+		_customAttribs[attr] = makeWrapper(attr)
+	_customAttribs.update(customAttribs)
 	return ObjectProxy(
 		load,
 		baseType = baseType,
-		customAttribs = customAttribs,
+		customAttribs = _customAttribs,
 		typeName = "PersistentObject(%s)" % filename
 	)
 
