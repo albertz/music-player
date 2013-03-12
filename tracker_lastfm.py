@@ -29,7 +29,7 @@ def event_filter(ev):
 	return False
 
 def stateUpdates_append_wrapper(self, value):
-	value = ev,args,kwargs
+	ev,args,kwargs = value
 	if not event_filter(ev): return
 	self.__get__(None).append(value)
 	self.save()
