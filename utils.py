@@ -456,7 +456,12 @@ def PersistentObject(
 				g.update([(varname,getattr(m,varname)) for varname in dir(m)])
 		else:
 			g.update(namespace)
-		obj = eval(f.read(), g)
+		try:
+			obj = eval(f.read(), g)
+		except Exception:
+			sys.excepthook(*sys.exc_info())
+			return baseType(*defaultArgs)
+			
 		# Try to convert.
 		if not isinstance(obj, baseType):
 			obj = baseType(obj)
