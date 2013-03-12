@@ -475,8 +475,12 @@ def PersistentObject(
 		return wrapped
 	for attr in installAutosaveWrappersOn:
 		custom_attribs[attr] = makeWrapper(attr)
-	return ObjectProxy(load, baseType=baseType,
-		custom_attribs=custom_attribs)
+	return ObjectProxy(
+		load,
+		baseType = baseType,
+		custom_attribs = custom_attribs,
+		typeName = "PersistentObject(%s)" % filename
+	)
 
 
 def test_ObjectProxy():
