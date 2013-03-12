@@ -60,7 +60,7 @@ def loadPlayer(state):
 	player = ffmpeg.createPlayer()
 	player.outSamplerate = 48000 # higher quality! :)
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
-		cb = EventCallback(targetQueue=state.updates, name=e)
+		cb = EventCallback(targetQueue=state.updates, name=e, reprname="PlayerEventCallbacks.%s" % e)
 		if e == "onSongChange":
 			cb.extraCall = onSongChange
 		setattr(PlayerEventCallbacks, e, cb)

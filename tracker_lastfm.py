@@ -9,6 +9,7 @@ import sys
 
 from State import state
 from player import PlayerEventCallbacks
+from Song import Song
 
 import appinfo
 import lastfm

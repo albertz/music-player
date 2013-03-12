@@ -97,9 +97,10 @@ class OnRequestQueue:
 		for reqqu in reqQueues: reqqu.queues.remove(q)
 
 class EventCallback:
-	def __init__(self, targetQueue, name=None, extraCall=None):
+	def __init__(self, targetQueue, name=None, reprname=None, extraCall=None):
 		self.targetQueue = targetQueue
 		self.name = name
+		self.reprname = reprname
 		self.extraCall = extraCall
 	def __call__(self, *args, **kwargs):
 		if not "timestamp" in kwargs:
@@ -108,7 +109,10 @@ class EventCallback:
 			self.extraCall(*args, **kwargs)
 		self.targetQueue.put((self, args, kwargs))
 	def __repr__(self):
-		return "<EventCallback %s>" % self.name
+		if self.reprname:
+			return self.reprname
+		else:
+			return "<EventCallback %s>" % self.name
 
 class Event:
 	def __init__(self):
