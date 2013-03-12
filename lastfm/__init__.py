@@ -144,15 +144,6 @@ class Client:
 	def quit(self): self.execQueue.put(SystemExit)
 	def __del__(self): self.quit()
 	
-	def threadedmethod(f):
-		def newFunc(self, *args, **kwargs):
-			if threading.currentThread() != self.execThread:
-				self.execQueue.put(lambda: f(self, *args, **kwargs))
-			else:
-				f(self, *args, **kwargs)
-		return newFunc
-
-	@threadedmethod
 	def login(self):
 		if not self.sess.is_linked():
 			try:			
@@ -162,7 +153,6 @@ class Client:
 				sys.stdout.write('Error: %s\n' % str(e))
 				raise
 	
-	@threadedmethod
 	def apiCall(self, apiFuncName, **kwargs):
 		if not self.sess.is_linked(): return # silently ignore
 		#print "lastfm", apiFuncName, kwargs
