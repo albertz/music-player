@@ -28,7 +28,7 @@ def tracker_lastfmMain():
 
 	stateUpdateStream = state.updates.read(
 		listType = lambda: PersistentObject(
-			deque, "lastfm-queue.dat", namespace=globals(), installAutosaveWrappersOn=("append"))
+			deque, "lastfm-queue.dat", namespace=globals(), installAutosaveWrappersOn=("append",))
 	)
 
 	lastfm.login()
