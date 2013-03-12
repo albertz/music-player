@@ -469,10 +469,11 @@ def PersistentObject(
 		}
 	def makeWrapper(funcAttrib):
 		def wrapped(self, *args, **kwargs):
-			save(self)
 			obj = self.__get__(None)
 			f = getattr(obj, funcAttrib)
-			return f(*args, **kwargs)
+			ret = f(*args, **kwargs)
+			save(self)
+			return ret
 		return wrapped
 	for attr in installAutosaveWrappersOn:
 		customAttribs[attr] = makeWrapper(attr)
