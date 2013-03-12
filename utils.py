@@ -459,6 +459,7 @@ def PersistentObject(
 		try:
 			obj = eval(f.read(), g)
 		except Exception:
+			import sys
 			sys.excepthook(*sys.exc_info())
 			return baseType(*defaultArgs)
 			
