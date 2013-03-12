@@ -28,7 +28,8 @@ def tracker_lastfmMain():
 
 	lastfm.login()
 	for ev,args,kwargs in state.updates.read(
-		listType = lambda: PersistentObject(deque, "lastfm-queue.dat", namespace=globals())
+		listType = lambda: PersistentObject(
+			deque, "lastfm-queue.dat", namespace=globals(), installAutosaveWrappersOn=("append"))
 	):
 		try:
 			track(ev, args, kwargs)
