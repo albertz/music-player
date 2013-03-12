@@ -184,7 +184,11 @@ try:
 				tableView = notif.object()
 				selection = []
 				def handleRowIndex(index, stop):
-					selection.append(tableView.dataSource().data[index])
+					try:
+						selection.append(tableView.dataSource().data[index])
+					except Exception:
+						import sys
+						sys.excepthook(*sys.exc_info())						
 				tableView.selectedRowIndexes().enumerateIndexesUsingBlock_(handleRowIndex)
 				self.onSelectionChange(selection)
 except:
