@@ -414,6 +414,7 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 	return lazyObjInst
 
 def PersistentObject(baseType, filename, defaultArgs=(), persistentRepr = False, namespace = None):
+	betterRepr = globals()["betterRepr"] # save local copy
 	import appinfo
 	fullfn = appinfo.userdir + "/" + filename
 	def load():
