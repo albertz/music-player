@@ -104,6 +104,7 @@ def create_connection(address):
         sock = None
         try:
             sock = socket.socket(af, socktype, proto)
+            sock.settimeout(5)
             sock.connect(sa)
             return sock
 
