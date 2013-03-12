@@ -462,6 +462,17 @@ def PersistentObject(baseType, filename, defaultArgs=(), persistentRepr = False,
 			})
 
 
+def test_ObjectProxy():
+	expectedLoad = False
+	class Test:
+		def __init__(self): assert expectedLoad
+		obj1 = object()
+		obj2 = object()
+	proxy = ObjectProxy(Test)
+	expectedLoad = True
+	assert proxy.obj1 is Test.obj1
+	
+
 class DictObj(dict):
 	def __getattr__(self, item): return self[item]
 	def __setattr__(self, key, value): self[key] = value
