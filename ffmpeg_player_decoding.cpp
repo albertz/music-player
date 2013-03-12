@@ -23,8 +23,31 @@ extern "C" {
 #define BUFFER_FILL_SIZE	(48000 * 2 * 2 * 10) // 10secs for 48kHz,stereo - around 2MB
 #define PEEKSTREAM_NUM		3
 
+
+static int ffmpeg_lockmgr(void **mtx, enum AVLockOp op) {
+	switch(op) {
+	case AV_LOCK_CREATE:
+		*mtx = new PyMutex;
+		if(!*mtx)
+			return 1;
+		return 0;
+	case AV_LOCK_OBTAIN:
+		static_cast<PyMutex*>(*mtx)->lock();
+		return 0;
+	case AV_LOCK_RELEASE:
+		static_cast<PyMutex*>(*mtx)->unlock();
+		return 0;
+	case AV_LOCK_DESTROY:
+		delete static_cast<PyMutex*>(*mtx);
+		return 0;
+	}
+	return 1;
+}
+
 int initPlayerDecoder() {
 	av_log_set_level(0);
+	
+	av_lockmgr_register(ffmpeg_lockmgr);
 	avcodec_register_all();
 	av_register_all();
 	return 0;
