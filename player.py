@@ -55,15 +55,24 @@ def onSongChange(**kwargs):
 	from State import state
 	state.curSong = kwargs["newSong"]
 
+def initEventCallbacks():
+	from State import state
+	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
+		if getattr(PlayerEventCallbacks, e): continue
+		cb = EventCallback(targetQueue=state.updates, name=e, reprname="PlayerEventCallbacks.%s" % e)
+		if e == "onSongChange":
+			cb.extraCall = onSongChange
+		setattr(PlayerEventCallbacks, e, cb)
+
+initEventCallbacks()
+
 def loadPlayer(state):
 	import ffmpeg
 	player = ffmpeg.createPlayer()
 	player.outSamplerate = 48000 # higher quality! :)
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
-		cb = EventCallback(targetQueue=state.updates, name=e, reprname="PlayerEventCallbacks.%s" % e)
-		if e == "onSongChange":
-			cb.extraCall = onSongChange
-		setattr(PlayerEventCallbacks, e, cb)
+		cb = getattr(PlayerEventCallbacks, e)
+		assert cb
 		setattr(player, e, cb)
 	player.queue = songsQueue(state)
 	player.peekQueue = songsPeekQueue()
