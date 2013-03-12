@@ -14,6 +14,7 @@
 
 import appinfo
 from . import client, rest, session
+import ssl
 
 # i don't really know how to make these secure...
 APP_KEY = '29d301e504af323d6246d9c652c227fa'
@@ -142,6 +143,12 @@ class Client:
 				time.sleep(1)
 			except rest.RESTSocketError:
 				# maybe no internet connection
+				# dont print an error, dont spam	
+				# wait a bit and retry
+				import time
+				time.sleep(1)
+			except ssl.SSLError:
+				# timeout or so
 				# dont print an error, dont spam	
 				# wait a bit and retry
 				import time
