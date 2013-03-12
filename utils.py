@@ -35,6 +35,7 @@ class Id:
 		return "<Id %i>" % id(self)
 
 class OnRequestQueue:
+	ListUsedFunctions = ("append", "popleft")
 	class QueueEnd:
 		def __init__(self, listType=deque):
 			self.q = listType()
