@@ -137,7 +137,7 @@ class Client:
 			if item is SystemExit: return
 			try:
 				item()
-			except:
+			except Exception:
 				import sys
 				sys.excepthook(*sys.exc_info())
 	
