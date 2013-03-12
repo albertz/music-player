@@ -44,11 +44,11 @@ class OnRequestQueue:
 			with self.cond:
 				if self.cancel: return False
 				self.q.append(item)
-				self.cond.notify()
+				self.cond.notifyAll()
 		def setCancel(self):
 			with self.cond:
 				self.cancel = True
-				self.cond.notify()
+				self.cond.notifyAll()
 	def __init__(self):
 		self.queues = set()
 	def put(self, item):
