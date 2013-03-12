@@ -368,7 +368,7 @@ def attrChain(base, *attribs, **kwargs):
 	if obj is None: return default
 	return obj
 
-def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
+def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object, typeName="ObjectProxy"):
 	class Value: pass
 	obj = Value()
 	attribs = custom_attribs.copy()
@@ -414,7 +414,7 @@ def ObjectProxy(lazyLoader, custom_attribs={}, baseType=object):
 					return object.__getattribute__(obj.value, attrib)
 				return getattr(baseType, attrib)					
 		attribs[a] = WrapProp()
-	LazyObject = type("LazyObject", (object,), attribs)
+	LazyObject = type(typeName, (object,), attribs)
 	lazyObjInst = LazyObject()
 	return lazyObjInst
 
