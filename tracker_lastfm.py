@@ -39,10 +39,13 @@ def tracker_lastfmMain():
 	if not appinfo.config.lastFm: return
 
 	assert "append" in OnRequestQueue.ListUsedModFunctions
+	assert PlayerEventCallbacks.onSongChange is not None
+	assert PlayerEventCallbacks.onSongFinished is not None
 	
 	queueList = PersistentObject(
 		deque, "lastfm-queue.dat", namespace=globals(),
 		customAttribs = {"append": stateUpdates_append_wrapper},
+		installAutosaveWrappersOn = OnRequestQueue.ListUsedModFunctions,
 		)
 	
 	stateUpdateStream = state.updates.read(queueList=queueList)
