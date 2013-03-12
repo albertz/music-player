@@ -1224,7 +1224,7 @@ def debugWarn(msg):
 	better_exchook.print_traceback(f)
 	
 
-def test():
+def test_AsyncTask():
 	AsyncTask.test()
 	
 
