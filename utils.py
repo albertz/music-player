@@ -44,6 +44,9 @@ class OnRequestQueue:
 				self.q = deque()
 			self.cond = Condition()
 			self.cancel = False
+		def __repr__(self):
+			with self.cond:
+				return "<QueueEnd %r>" % self.q
 		def put(self, item):
 			with self.cond:
 				if self.cancel: return False
