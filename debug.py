@@ -14,6 +14,7 @@
 # After being connected, just run `import debug` and use the functions from here.
 
 import sys, os
+import utils
 
 def getDevelPath():
 	def check(path):
@@ -87,14 +88,11 @@ def createCocoaKeyEvent(keyCode, down=True):
 		keyCode # keyCode
 	)
 	
-def testCocoaKeyEvent(obj, keyCode):
+def testCocoaPlaylistUpDown():
 	# keyCode: 125 - down / 126 - up
-	# or use CGPostKeyboardEvent ?
-	if not obj:
-		from AppKit import NSApplication
-		obj = NSApplication.sharedApplication()
-	obj.postEvent_atStart_(createCocoaKeyEvent(keyCode, True), True)
-	obj.postEvent_atStart_(createCocoaKeyEvent(keyCode, False), True)
+	obj = cocoaGetPlaylistObj()
+	utils.do_in_mainthread(lambda: obj.keyDown_(createCocoaKeyEvent(125,True)), wait=True)
+	utils.do_in_mainthread(lambda: obj.keyDown_(createCocoaKeyEvent(126,True)), wait=True)
 
 def cocoaGetPlaylistObj():
 	import guiCocoa
