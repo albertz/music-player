@@ -1118,10 +1118,9 @@ def WarnMustNotBeInForkDecorator(func):
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
 		try:
-			ret = func(*args, **kwargs)
+			return func(*args, **kwargs)
 		except Exception:
 			sys.excepthook(*sys.exc_info())			
-		return ret
 	return decoratedFunc
 
 
