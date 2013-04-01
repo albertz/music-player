@@ -54,4 +54,51 @@ def addEggPaths():
 		if egg not in sys.path:
 			sys.path += [egg]
 
+
+# Profiling run traces.
+# sys.{setprofile/settrace} is not really a good fit in multi-threading envs.
+# There is [yappi](https://code.google.com/p/yappi/).
+
+class ProfileCtx:
+	def __enter__(self,*args):
+		import yappi
+		yappi.start()
+	def __exit__(self,*args):
+		import yappi
+		yappi.stop()
+		yappi.print_stats()
+		yappi.clear_stats()
+		
+def profile(func):
+	with ProfileCtx():
+		func()
+
+def createCocoaKeyEvent(keyCode, down=True):
+	from AppKit import NSEvent, NSApplication, NSKeyDown, NSKeyUp, NSDate
+	modifierFlags = 0
+	return NSEvent.keyEventWithType_location_modifierFlags_timestamp_windowNumber_context_characters_charactersIgnoringModifiers_isARepeat_keyCode_(
+		NSKeyDown if down else NSKeyUp, (0, 0), modifierFlags,
+		NSDate.timeIntervalSinceReferenceDate(), #theEvent.timestamp(),
+		0, #theEvent.windowNumber(),
+		None, # context
+		None, # characters
+		None, # charactersIgnoringModifiers
+		False, # isARepeat
+		keyCode # keyCode
+	)
 	
+def testCocoaKeyEvent(obj, keyCode):
+	# keyCode: 125 - down / 126 - up
+	# or use CGPostKeyboardEvent ?
+	if not obj:
+		from AppKit import NSApplication
+		obj = NSApplication.sharedApplication()
+	obj.postEvent_atStart_(createCocoaKeyEvent(keyCode, True), True)
+	obj.postEvent_atStart_(createCocoaKeyEvent(keyCode, False), True)
+
+def cocoaGetPlaylistObj():
+	import guiCocoa
+	w = guiCocoa.windows["mainWindow"]
+	q = w.childs["queue"]	
+	ql = q.childs["queue"]
+	return ql.nativeGuiObject
