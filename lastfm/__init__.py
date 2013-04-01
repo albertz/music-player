@@ -79,7 +79,7 @@ class StoredSession(session.LastfmSession):
 		try:
 			stored_creds = open(self.TOKEN_FILE).read()
 			self.set_token(stored_creds)
-			print "* loaded access token"
+			print "Last.fm: loaded access token"
 		except IOError:
 			pass # don't worry if it's not there
 	
@@ -101,12 +101,12 @@ class StoredSession(session.LastfmSession):
 		url = self.build_authorize_url(
 			None, oauth_callback = oauthreturnhandler.oauth_callback_url)
 		
-		print "* open oauth login page"
+		print "Last.fm: open oauth login page"
 		import webbrowser; webbrowser.open(url)
 		
-		print "* waiting for redirect callback ...",
+		print "Last.fm: waiting for redirect callback ...",
 		httpd_access_token_callback = oauthreturnhandler.wait_callback_response()
-		print "done"
+		print "Last.fm: done login"
 		from urlparse import parse_qs
 		token = parse_qs(httpd_access_token_callback)
 		token = token["token"][0]
