@@ -1215,6 +1215,8 @@ static bool loopFrame(PlayerObject* player) {
 					if(player->curSong)
 						PyDict_SetItemString(kwargs, "song", player->curSong);
 					
+					PyDict_SetItemString_retain(kwargs, "finalTimePos", PyFloat_FromDouble(player->inStream->playerTimePos));
+					
 					PyObject* retObj = PyEval_CallObjectWithKeywords(onSongFinished, NULL, kwargs);
 					Py_XDECREF(retObj);
 					
