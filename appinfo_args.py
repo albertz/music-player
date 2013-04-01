@@ -8,7 +8,8 @@ try:
 	argParser = argparse.ArgumentParser()
 except ImportError:
 	import sys
-	if len(sys.argv) > 1:
+	if len(sys.argv) > 1 and \
+	not sys.argv[1].startswith("-psn"): # -psn... is added by Mac when run by launchd
 		print "Error, argparse not available. This needs Python >=2.7."
 	# Dummy fallback
 	class DummyArgParser:
