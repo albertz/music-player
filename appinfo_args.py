@@ -7,7 +7,8 @@ try:
 	import argparse
 	argParser = argparse.ArgumentParser()
 except ImportError:
-	print "Error, argparse not available. This needs Python >=2.7."
+	if len(sys.argv) > 1:
+		print "Error, argparse not available. This needs Python >=2.7."
 	# Dummy fallback
 	class DummyArgParser:
 		def add_argument(self, key, **kwargs):
