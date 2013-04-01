@@ -38,3 +38,20 @@ def addDevelSysPath():
 	assert path, "devel path not found"
 	sys.path = [path] + sys.path
 
+def iterEggPaths():
+	from glob import glob
+	versionStr = ".".join(map(str, sys.version_info[0:2]))
+	for path in [
+		sys.prefix, # = /System/Library/Frameworks/Python.framework/Versions/..
+		# mac specific. you might want to make that more generic.
+		"/Library/Python/%s/site-packages" % versionStr,
+	]:
+		for egg in glob(path + "/*.egg"):
+			yield egg
+
+def addEggPaths():
+	for egg in iterEggPaths():
+		if egg not in sys.path:
+			sys.path += [egg]
+
+	
