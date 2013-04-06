@@ -1300,7 +1300,7 @@ void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
 }
 
 
-bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
+bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum, size_t* sampleNumOut) {
 	// We expect to have the PlayerObject lock here.
 	
 	PlayerObject* player = this;
@@ -1349,12 +1349,14 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 		is->playerHitEnd = true;
 	}
 	
-	if(sampleNum > 0) {
+	if(sampleNum > 0 && sampleNumOut == NULL) {
 		// silence
 		printf("readOutStream: we have %zu too less samples available (requested %zu)\n", sampleNum, origSampleNum);
 		memset((uint8_t*)samples, 0, sampleNum*2);
 	}
 	
+	if(sampleNumOut)
+		*sampleNumOut = origSampleNum - sampleNum;
 	return sampleNum == 0;
 }
 

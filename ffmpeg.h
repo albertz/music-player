@@ -222,12 +222,14 @@ struct PlayerObject {
 	double curSongLen();
 	float curSongGainFactor();
 	
-	// returns the data read by the inStream. no matter what, it will fill the requested samples, though (with silence if nothing else is possible).
+	// returns the data read by the inStream.
+	// if sampleNumOut==NULL, it will fill the requested samples with silence.
+	// otherwise, it will say how much samples have been returned.
 	// the outStream will call this. data read here is supposed to go without delay to the soundcard. it will update the timePos.
 	// it is supposed to be fast. if no data is available, it will not wait for it but it will fill silence.
 	// this returns the internal format, i.e. SINT16, outSamplerate and outNumChannels.
 	// it might also issue the callbacks like song finished, or proceed to the next song - but it wont call them itself (for performance reasons).
-	bool readOutStream(int16_t* samples, size_t sampleNum);
+	bool readOutStream(int16_t* samples, size_t sampleNum, size_t* sampleNumOut);
 	
 	struct OutStream;
 	boost::shared_ptr<OutStream> outStream;

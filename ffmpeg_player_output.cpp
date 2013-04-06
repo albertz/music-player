@@ -75,7 +75,7 @@ int paStreamCallback(
 		setRealtime();
 	}
 
-	player->readOutStream((int16_t*) output, frameCount * player->outNumChannels);
+	player->readOutStream((int16_t*) output, frameCount * player->outNumChannels, NULL);
 	return paContinue;
 }
 
