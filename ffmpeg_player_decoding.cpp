@@ -1304,7 +1304,8 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 	// We expect to have the PlayerObject lock here.
 	
 	PlayerObject* player = this;
-
+	size_t origSampleNum = sampleNum;
+	
 	PlayerObject::InStream* iss[] = {player->inStream.get(), NULL};
 	if(!peekInStreams.empty())
 		iss[1] = peekInStreams.front().get();
@@ -1350,6 +1351,7 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum) {
 	
 	if(sampleNum > 0) {
 		// silence
+		printf("readOutStream: we have %zu too less samples available (requested %zu)\n", sampleNum, origSampleNum);
 		memset((uint8_t*)samples, 0, sampleNum*2);
 	}
 	
