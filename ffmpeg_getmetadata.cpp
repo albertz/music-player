@@ -18,8 +18,8 @@ pyGetMetadata(PyObject* self, PyObject* args) {
 	PlayerObject* player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->lock.enabled = false;
-	player->nextSongOnEof = 0;
-	player->skipPyExceptions = 0;
+	player->nextSongOnEof = false;
+	player->skipPyExceptions = false;
 	Py_INCREF(songObj);
 	player->curSong = songObj;
 	player->openInStream();

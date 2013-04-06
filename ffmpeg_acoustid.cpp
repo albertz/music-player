@@ -21,10 +21,10 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->lock.enabled = false;
-	player->nextSongOnEof = 0;
-	player->skipPyExceptions = 0;
-	player->playing = 1; // otherwise audio_decode_frame() wont read
-	player->volume = 1; player->volumeSmoothClip.setX(1, 1); // avoid volume adjustments
+	player->nextSongOnEof = false;
+	player->skipPyExceptions = false;
+	player->playing = true; // otherwise audio_decode_frame() wont read
+	player->volumeAdjustEnabled = false; // avoid volume adjustments
 	Py_INCREF(songObj);
 	player->curSong = songObj;
 	if(!player->openInStream()) goto final;

@@ -186,6 +186,7 @@ struct PlayerObject {
 	int setPlaying(bool playing);
 	float volume;
 	SmoothClipCalc volumeSmoothClip; // see smoothClip()
+	bool volumeAdjustEnabled;
 	bool volumeAdjustNeeded() const;
 	int outSamplerate;
 	int outNumChannels;

@@ -108,7 +108,7 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	player->nextSongOnEof = 0;
 	player->skipPyExceptions = 0;
 	player->playing = true; // otherwise audio_decode_frame() wont read
-	player->volume = 1; player->volumeSmoothClip.setX(1, 1); // avoid volume adjustments
+	player->volumeAdjustEnabled = false; // avoid volume adjustments
 	assert(!player->volumeAdjustNeeded());
 	Py_INCREF(songObj);
 	player->curSong = songObj;

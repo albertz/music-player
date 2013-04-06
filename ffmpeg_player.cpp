@@ -195,6 +195,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->nextSongOnEof = 1;
 	player->skipPyExceptions = 1;
 	player->needRealtimeReset = false;
+	player->volumeAdjustEnabled = true;
 	player->volume = 0.9f;
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
 	
@@ -394,23 +395,27 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		PyObject* mlist = PyList_New(16);
-		PyList_SetItem(mlist, 0, PyString_FromString("queue"));
-		PyList_SetItem(mlist, 1, PyString_FromString("peekQueue"));
-		PyList_SetItem(mlist, 2, PyString_FromString("playing"));
-		PyList_SetItem(mlist, 3, PyString_FromString("curSong"));
-		PyList_SetItem(mlist, 4, PyString_FromString("curSongPos"));
-		PyList_SetItem(mlist, 5, PyString_FromString("curSongLen"));
-		PyList_SetItem(mlist, 6, PyString_FromString("curSongMetadata"));
-		PyList_SetItem(mlist, 7, PyString_FromString("curSongGainFactor"));
-		PyList_SetItem(mlist, 8, PyString_FromString("seekAbs"));
-		PyList_SetItem(mlist, 9, PyString_FromString("seekRel"));
-		PyList_SetItem(mlist, 10, PyString_FromString("nextSong"));
-		PyList_SetItem(mlist, 11, PyString_FromString("reloadPeekStreams"));
-		PyList_SetItem(mlist, 12, PyString_FromString("volume"));
-		PyList_SetItem(mlist, 13, PyString_FromString("volumeSmoothClip"));
-		PyList_SetItem(mlist, 14, PyString_FromString("outSamplerate"));
-		PyList_SetItem(mlist, 15, PyString_FromString("outNumChannels"));
+		const Py_ssize_t C = 17;
+		PyObject* mlist = PyList_New(C);
+		int i = 0;
+		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
+		PyList_SetItem(mlist, i++, PyString_FromString("peekQueue"));
+		PyList_SetItem(mlist, i++, PyString_FromString("playing"));
+		PyList_SetItem(mlist, i++, PyString_FromString("curSong"));
+		PyList_SetItem(mlist, i++, PyString_FromString("curSongPos"));
+		PyList_SetItem(mlist, i++, PyString_FromString("curSongLen"));
+		PyList_SetItem(mlist, i++, PyString_FromString("curSongMetadata"));
+		PyList_SetItem(mlist, i++, PyString_FromString("curSongGainFactor"));
+		PyList_SetItem(mlist, i++, PyString_FromString("seekAbs"));
+		PyList_SetItem(mlist, i++, PyString_FromString("seekRel"));
+		PyList_SetItem(mlist, i++, PyString_FromString("nextSong"));
+		PyList_SetItem(mlist, i++, PyString_FromString("reloadPeekStreams"));
+		PyList_SetItem(mlist, i++, PyString_FromString("volume"));
+		PyList_SetItem(mlist, i++, PyString_FromString("volumeSmoothClip"));
+		PyList_SetItem(mlist, i++, PyString_FromString("volumeAdjustEnabled"));
+		PyList_SetItem(mlist, i++, PyString_FromString("outSamplerate"));
+		PyList_SetItem(mlist, i++, PyString_FromString("outNumChannels"));
+		assert(i == C);
 		return mlist;
 	}
 	
@@ -495,6 +500,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		return t;
 	}
 	
+	if(strcmp(key, "volumeAdjustEnabled") == 0) {
+		return PyBool_FromLong(player->volumeAdjustEnabled);
+	}
+	
 	if(strcmp(key, "outSamplerate") == 0) {
 		return PyInt_FromLong(player->outSamplerate);
 	}
@@ -557,6 +566,11 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 		if(!PyArg_ParseTuple(value, "ff", &x1, &x2))
 			return -1;
 		player->volumeSmoothClip.setX(x1, x2);
+		return 0;
+	}
+
+	if(strcmp(key, "volumeAdjustEnabled") == 0) {
+		player->volumeAdjustEnabled = PyObject_IsTrue(value);
 		return 0;
 	}
 	

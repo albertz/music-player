@@ -841,6 +841,7 @@ static int synchronize_audio(PlayerObject::InStream *is, int nb_samples)
 }
 
 bool PlayerObject::volumeAdjustNeeded() const {
+	if(!volumeAdjustEnabled) return false;
 	if(this->volume != 1) return true;
 	if(this->volumeSmoothClip.x1 != this->volumeSmoothClip.x2) return true;
 	if(inStream.get() && inStream->gainFactor != 1) return true;

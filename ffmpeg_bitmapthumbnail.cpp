@@ -141,7 +141,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 		"timelineSecInterval",
 		"procCallback",
 		"volume",
-		"volumeSmootClip",
+		"volumeSmoothClip",
 		NULL};
 	if(!PyArg_ParseTupleAndKeywords(args, kws, "O|ii(bbb)(bbb)iOf(ff):calcBitmapThumbnail", (char**)kwlist,
 									&songObj,
@@ -170,11 +170,11 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	player = (PlayerObject*) pyCreatePlayer(NULL);
 	if(!player) goto final;
 	player->lock.enabled = false;
-	player->nextSongOnEof = 0;
-	player->skipPyExceptions = 0;
+	player->nextSongOnEof = false;
+	player->skipPyExceptions = false;
 	player->volume = volume;
 	player->volumeSmoothClip.setX(volumeSmoothClipX1, volumeSmoothClipX2);
-	player->playing = 1; // otherwise audio_decode_frame() wont read
+	player->playing = true; // otherwise audio_decode_frame() wont read
 	Py_INCREF(songObj);
 	player->curSong = songObj;
 	if(!player->openInStream()) goto final;
