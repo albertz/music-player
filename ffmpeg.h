@@ -183,6 +183,7 @@ struct PlayerObject {
 	PyObject* peekQueue;
 	PyObject* curSong;
 	bool playing;
+	bool soundcardOutputEnabled; // if enabled, uses PortAudio to play on soundcard. otherwise call readStreamOut manually
 	int setPlaying(bool playing);
 	float volume;
 	SmoothClipCalc volumeSmoothClip; // see smoothClip()

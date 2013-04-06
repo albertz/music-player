@@ -91,30 +91,34 @@ int PlayerObject::setPlaying(bool playing) {
 		if(!player->outStream.get())
 			player->outStream.reset(new OutStream(this));
 		assert(player->outStream.get() != NULL);
-		if(playing && !player->outStream->stream) {
-			PaError ret;
-			ret = Pa_OpenDefaultStream(
-									   &player->outStream->stream,
-									   0,
-									   player->outNumChannels, // numOutputChannels
-									   paInt16, // sampleFormat
-									   player->outSamplerate, // sampleRate
-									   AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
-									   &paStreamCallback,
-									   player //void *userData
-									   );
-			if(ret != paNoError) {
-				PyErr_SetString(PyExc_RuntimeError, "Pa_OpenDefaultStream failed");
-				if(player->outStream->stream)
-					player->outStream->close();
-				playing = 0;
+		
+		if(soundcardOutputEnabled) {
+			if(playing && !player->outStream->stream) {
+				PaError ret;
+				ret = Pa_OpenDefaultStream(
+										   &player->outStream->stream,
+										   0,
+										   player->outNumChannels, // numOutputChannels
+										   paInt16, // sampleFormat
+										   player->outSamplerate, // sampleRate
+										   AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
+										   &paStreamCallback,
+										   player //void *userData
+										   );
+				if(ret != paNoError) {
+					PyErr_SetString(PyExc_RuntimeError, "Pa_OpenDefaultStream failed");
+					if(player->outStream->stream)
+						player->outStream->close();
+					playing = 0;
+				}
 			}
+			if(playing) {
+				player->needRealtimeReset = 1;
+				Pa_StartStream(player->outStream->stream);
+			} else
+				player->outStream->stop();
 		}
-		if(playing) {
-			player->needRealtimeReset = 1;
-			Pa_StartStream(player->outStream->stream);
-		} else
-			player->outStream->stop();
+		
 		oldplayingstate = player->playing;
 		player->playing = playing;
 	}

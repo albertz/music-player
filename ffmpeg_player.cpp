@@ -198,6 +198,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->volumeAdjustEnabled = true;
 	player->volume = 0.9f;
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
+	player->soundcardOutputEnabled = true;
 	
 	player->openStreamLock = player->openPeekInStreamsLock = player->getNextSongLock = false;
 	
@@ -395,7 +396,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		const Py_ssize_t C = 17;
+		const Py_ssize_t C = 18;
 		PyObject* mlist = PyList_New(C);
 		int i = 0;
 		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
@@ -415,6 +416,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, i++, PyString_FromString("volumeAdjustEnabled"));
 		PyList_SetItem(mlist, i++, PyString_FromString("outSamplerate"));
 		PyList_SetItem(mlist, i++, PyString_FromString("outNumChannels"));
+		PyList_SetItem(mlist, i++, PyString_FromString("soundcardOutputEnabled"));
 		assert(i == C);
 		return mlist;
 	}
@@ -511,6 +513,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	if(strcmp(key, "outNumChannels") == 0) {
 		return PyInt_FromLong(player->outNumChannels);
 	}
+
+	if(strcmp(key, "soundcardOutputEnabled") == 0) {
+		return PyBool_FromLong(player->soundcardOutputEnabled);
+	}
 	
 	{
 		PyObject* dict = player_getdict(player);
@@ -603,6 +609,15 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 			PyScopedLock lock(player->lock);
 			player->setAudioTgt(player->outSamplerate, numchannels);
 		}
+		return 0;
+	}
+
+	if(strcmp(key, "soundcardOutputEnabled") == 0) {
+		if(player->playing) {
+			PyErr_SetString(PyExc_RuntimeError, "cannot set soundcardOutputEnabled while playing");
+			return -1;
+		}
+		player->soundcardOutputEnabled = PyObject_IsTrue(value);
 		return 0;
 	}
 	
