@@ -3,11 +3,11 @@ Development notes
 
 In here are a few notes about how the code is organized, used concepts, etc.
 
-The main code is all pure Python. It is highly modular. The main playing engine is implemented in C as a Python module ([`ffmpeg.c`](ffmpeg.c)). It uses FFmpeg for decoding and PortAudio for output.
+The main code is all pure Python. It is highly modular. The main playing engine is implemented in C/C++ as a Python module ([`ffmpeg.c`](https://github.com/albertz/music-player/blob/master/ffmpeg.c) and related). It uses [FFmpeg](http://ffmpeg.org/) for decoding and [PortAudio](http://www.portaudio.com/) for output.
 
 A basic principle is to keep the code as simple as possible so that it works. I really want to avoid to overcomplicate things.
 
-The main entry point is [`main`](main.py). It initializes all the modules. The list of modules is defined in [`State.modules`](State.py). It contains for example `queue`, `tracker`, `mediakeys`, `gui`, etc.
+The main entry point is [`main`](https://github.com/albertz/music-player/blob/master/main.py). It initializes all the modules. The list of modules is defined in [`State.modules`](https://github.com/albertz/music-player/blob/master/State.py). It contains for example `queue`, `tracker`, `mediakeys`, `gui`, etc.
 
 
 ## Module
@@ -26,7 +26,7 @@ The whole code makes heavy use of multithreading and multiprocessing. Every modu
 
 ## Playing engine
 
-This is all the [Python native-C module `ffmpeg`](ffmpeg.c). It provides a player object which represents the player. It needs a generator `player.queue` which yields `Song` objects which provide a way to read file data and seek in the file. See the source code for further detailed reference.
+This is all the [Python native-C module `ffmpeg`](https://github.com/albertz/music-player/blob/master/ffmpeg.c). It provides a player object which represents the player. It needs a generator `player.queue` which yields `Song` objects which provide a way to read file data and seek in the file. See the source code for further detailed reference.
 
 It has the following functionality:
 
@@ -45,12 +45,12 @@ The `player` module creates the player object as `State.state.player`. It setups
 
 The basic idea is that Python objects are directly represented in the GUI. The main window corresponds to the `State.state` object. Attributes of an object which should be shown in the GUI are marked via the `utils.UserAttrib` decorator. There, you can specify some further information to specify more concretely how an attribute should be displayed.
 
-The GUI has its own module [`gui`](gui.py). At the moment, only an OSX Cocoa interface ([`guiCocoa`](guiCocoa.py)) is implemented but a PyQt implementation is planned. There is some special handling for this module as it needs to be run in the main thread in most cases. See `main` for further reference.
+The GUI has its own module [`gui`](https://github.com/albertz/music-player/blob/master/gui.py). At the moment, only an OSX Cocoa interface ([`guiCocoa`](https://github.com/albertz/music-player/blob/master/guiCocoa.py)) is implemented but a PyQt implementation is planned. There is some special handling for this module as it needs to be run in the main thread in most cases. See `main` for further reference.
 
 
 ## Database
 
-This is the module [`songdb`](songdb.py).
+This is the module [`songdb`](https://github.com/albertz/music-player/blob/master/songdb.py).
 
 The database is intended to be an optional system which stores some extra data/statistics about a song and also caches some data which is heavy to calculate (e.g. the fingerprint).
 
@@ -62,14 +62,14 @@ It provides several ways to identify a song:
 
 This is so that the database stays robust in case the user moves a song file around or changes its metadata.
 
-It uses [LevelDB](http://code.google.com/p/leveldb/) as its backend via [py-leveldb](http://code.google.com/p/py-leveldb/).
+It uses [SQLite](http://www.sqlite.org/) as its backend. (As it is used mostly as a key/value store with optional external indexing, a complex SQL-like DB is not strictly needed. Earlier, I tried other DBs. For a history, see the [comment in the source](https://github.com/albertz/music-player/blob/master/songdb.py).)
 
 It uses [binstruct](https://github.com/albertz/binstruct) for the serialization.
 
 
 ## Song attribute knowledge system
 
-Some of the initial ideas are presented `attribs.txt`. This is implemented now mostly for the [`Song` class](Song.py).
+Some of the initial ideas are presented in [`attribs.txt`](https://github.com/albertz/music-player/blob/master/attribs.txt). This is implemented now mostly for the [`Song` class](https://github.com/albertz/music-player/blob/master/Song.py).
 
 There are several sources where we can get some song attribute from:
 
@@ -88,12 +88,12 @@ For each attrib, there might be functions:
 - `Song._estimate_<attrib>`, which is supposed to be fast. This is called no matter what the `timeout` is, in case we did not get it from the database.
 - `Song._calc_<attrib>`, which is supposed to return the exact value but is heavy to call. If this is needed, it will be executed in a seperate process.
 
-See [`Song`](Song.py) for further reference.
+See [`Song`](https://github.com/albertz/music-player/blob/master/Song.py) for further reference.
 
 
 ## Playlist queue
 
-The playlist queue is managed by the [`queue`](queue.py) module. It has the logic to autofill the queue if there are too less songs in it. The algorithm to automatically select a new song uses the random file queue generator. This is a lazy directory unfolder and random picker, implemented in [`RandomFileQueue`](RandomFileQueue.py). Every time, it looks at a few songs and selects some song based on
+The playlist queue is managed by the [`queue`](https://github.com/albertz/music-player/blob/master/queue.py) module. It has the logic to autofill the queue if there are too less songs in it. The algorithm to automatically select a new song uses the random file queue generator. This is a lazy directory unfolder and random picker, implemented in [`RandomFileQueue`](https://github.com/albertz/music-player/blob/master/RandomFileQueue.py). Every time, it looks at a few songs and selects some song based on
 
 - the song rating,
 - the current recently played context (mostly the song genre / tag map).
