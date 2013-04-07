@@ -371,7 +371,7 @@ static
 PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* kws) {
 	PlayerObject* player = (PlayerObject*) self;
 
-	long num = player->outSamplerate; // buffer for one second
+	long num = player->outSamplerate * player->outNumChannels; // buffer for one second
 	static const char *kwlist[] = {"num", NULL};
 	if(!PyArg_ParseTupleAndKeywords(args, kws, "|i:readOutStream", (char**)kwlist, &num))
 		return NULL;
@@ -386,7 +386,7 @@ PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* 
 		return NULL;
 	}
 	
-	size_t size = num * player->outNumChannels * /* int16_t's */ 2;
+	size_t size = num * /* int16_t's */ 2;
 	PyObject* buffer = PyString_FromStringAndSize(NULL, size);
 	if(!buffer) return NULL;
 	memset(PyString_AS_STRING(buffer), 0, size);
@@ -402,7 +402,7 @@ PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* 
 	Py_DECREF(self);
 
 	// if _PyString_Resize fails, it sets buffer=NULL, so we have the correct error behavior
-	_PyString_Resize(&buffer, sampleOutNum / player->outNumChannels / /*int16*/ 2);
+	_PyString_Resize(&buffer, sampleOutNum / /*int16*/ 2);
 	return buffer;
 }
 
