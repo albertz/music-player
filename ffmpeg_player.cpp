@@ -402,7 +402,7 @@ PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* 
 	Py_DECREF(self);
 
 	// if _PyString_Resize fails, it sets buffer=NULL, so we have the correct error behavior
-	_PyString_Resize(&buffer, sampleOutNum / /*int16*/ 2);
+	_PyString_Resize(&buffer, sampleOutNum * /*int16*/ 2);
 	return buffer;
 }
 
