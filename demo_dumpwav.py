@@ -6,6 +6,9 @@
 import better_exchook
 better_exchook.install()
 
+PrintProgress = True
+
+
 import sys, os, time
 import ffmpeg
 player = ffmpeg.createPlayer()
@@ -104,7 +107,9 @@ def printPos():
 # Start the encoder thread.
 player.playing = True
 
-printPos()
+
+wholebuf = ""
+if PrintProgress: printPos()
 while not finished:
 	buf = player.readOutStream()
 	if len(buf) == 0:
@@ -112,8 +117,42 @@ while not finished:
 		time.sleep(0.1)
 		continue
 	#print len(buf), repr(buf[0:20])
+	wholebuf += buf
+	
+	if PrintProgress:
+		sys.stdout.write("\r\033[K") # clear line
+		printPos()
+if PrintProgress: print
 
-	sys.stdout.write("\r\033[K") # clear line
-	printPos()
-print
 print "song finished"
+
+
+def write_wavheader(stream, datalen):
+	from struct import pack
+
+	chunksize = 36 + datalen
+	stream.write(pack("<4sI4s", "RIFF", chunksize, "WAVE"))
+
+	stream.write("fmt ")
+	stream.write(pack("<L", 16)) # Subchunk1Size. 16 for PCM
+	stream.write(pack("<H", 1)) # format tag. 1 for PCM
+	
+	numChannels = player.outNumChannels
+	samplerate = player.outSamplerate
+	bitsPerSample = 16
+	byteRate = samplerate * numChannels * bitsPerSample / 8
+	blockAlign = numChannels * bitsPerSample/8
+	stream.write(pack("<H", numChannels))
+	stream.write(pack("<L", samplerate))
+	stream.write(pack("<L", byteRate))
+	stream.write(pack("<H", blockAlign))
+	stream.write(pack("<H", bitsPerSample))
+	
+	stream.write("data")
+	stream.write(pack("<L", datalen))
+
+
+f = open("dump.wav", "w")
+write_wavheader(f, len(wholebuf))
+f.write(wholebuf)
+f.close()
