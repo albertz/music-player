@@ -100,3 +100,53 @@ def cocoaGetPlaylistObj():
 	q = w.childs["queue"]	
 	ql = q.childs["queue"]
 	return ql.nativeGuiObject
+
+
+def dump10Secs():
+	from State import state
+	player = state.player
+
+	def write_wavheader(stream, datalen):
+		from struct import pack
+	
+		chunksize = 36 + datalen
+		stream.write(pack("<4sI4s", "RIFF", chunksize, "WAVE"))
+	
+		stream.write("fmt ")
+		stream.write(pack("<L", 16)) # Subchunk1Size. 16 for PCM
+		stream.write(pack("<H", 1)) # format tag. 1 for PCM
+		
+		numChannels = player.outNumChannels
+		samplerate = player.outSamplerate
+		bitsPerSample = 16
+		byteRate = samplerate * numChannels * bitsPerSample / 8
+		blockAlign = numChannels * bitsPerSample/8
+		stream.write(pack("<H", numChannels))
+		stream.write(pack("<L", samplerate))
+		stream.write(pack("<L", byteRate))
+		stream.write(pack("<H", blockAlign))
+		stream.write(pack("<H", bitsPerSample))
+		
+		stream.write("data")
+		stream.write(pack("<L", datalen))
+	
+	player.playing = False
+	player.soundcardOutputEnabled = False
+	player.playing = True
+	
+	wholebuf = ""
+	# read up to 10 secs
+	while len(wholebuf) < player.outNumChannels * player.outSamplerate * 2 * 10:
+		wholebuf += player.readOutStream(player.outNumChannels * player.outSamplerate)
+
+	player.playing = False
+	player.soundcardOutputEnabled = True
+
+	import appinfo
+	wavfn = appinfo.userdir + "/debugdump.wav"
+	f = open(wavfn, "w")
+	write_wavheader(f, len(wholebuf))
+	f.write(wholebuf)
+	f.close()
+	
+	return wavfn
