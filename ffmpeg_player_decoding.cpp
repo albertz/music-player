@@ -905,12 +905,19 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 				// warning only at pos 0. this seems too common and i don't like a spammy log...
 				if(is->readerTimePos == 0)
 					printf("(%s) avcodec_decode_audio4 error at pos 0\n", is->debugName.c_str());
-				// earlier, we just breaked. but I encountered some audio files
+				// Earlier, we just breaked. but I encountered some audio files
 				// which only have garbage following and the user should never
 				// listen to that.
-				// other musicplayers also skip that part.
-				is->readerHitEnd = true;
-				return count;
+				// Other musicplayers also skip that part.
+				// TODO: what files? examples...
+				// However, there are other files which have a decode error right at the beginning, e.g. ~/rpi-issue-62/sofa.mp3.
+				// see https://github.com/albertz/music-player/issues/32
+				// That file even has errors after that, so we cannot
+				// break just at readerTimePos>0.
+				//if(is->readerTimePos > 0) {
+				//	is->readerHitEnd = true;
+				//	return count;
+				//}
 				break;
 			}
 			//printf("avcodec_decode_audio4: %i\n", len1);
