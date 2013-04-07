@@ -8,6 +8,11 @@
 
 #include <portaudio.h>
 
+#ifdef __APPLE__
+// PortAudio specific Mac stuff
+#include "pa_mac_core.h"
+#endif
+
 // For setting the thread priority to realtime on MacOSX.
 #ifdef __APPLE__
 #include <mach/mach_init.h>
@@ -95,18 +100,43 @@ int PlayerObject::setPlaying(bool playing) {
 		if(soundcardOutputEnabled) {
 			if(playing && !player->outStream->stream) {
 				PaError ret;
-				ret = Pa_OpenDefaultStream(
-										   &player->outStream->stream,
-										   0,
-										   player->outNumChannels, // numOutputChannels
-										   paInt16, // sampleFormat
-										   player->outSamplerate, // sampleRate
-										   AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
-										   &paStreamCallback,
-										   player //void *userData
-										   );
+				
+				PaStreamParameters outputParameters;
+
+#ifdef __APPLE__
+				PaMacCoreStreamInfo macInfo;
+				PaMacCore_SetupStreamInfo( &macInfo,
+					paMacCorePlayNice | paMacCorePro );
+				
+#endif
+
+				outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
+				//if (outputParameters.device == paNoDevice) {
+				// is this handled anyway by Pa_OpenStream?
+				//}
+				outputParameters.channelCount = player->outNumChannels;
+				outputParameters.sampleFormat = paInt16;
+				outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
+
+#ifdef __APPLE__
+				outputParameters.hostApiSpecificStreamInfo = &macInfo;
+#else
+				outputParameters.hostApiSpecificStreamInfo = NULL;
+#endif
+
+				ret = Pa_OpenStream(
+					&player->outStream->stream,
+					NULL, // no input
+					&outputParameters,
+					player->outSamplerate, // sampleRate
+					AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
+					paClipOff | paDitherOff,
+					&paStreamCallback,
+					player //void *userData
+					);
+
 				if(ret != paNoError) {
-					PyErr_SetString(PyExc_RuntimeError, "Pa_OpenDefaultStream failed");
+					PyErr_Format(PyExc_RuntimeError, "Pa_OpenDefaultStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
 					if(player->outStream->stream)
 						player->outStream->close();
 					playing = 0;
