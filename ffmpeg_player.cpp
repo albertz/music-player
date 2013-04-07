@@ -367,6 +367,52 @@ static PyMethodDef md_reloadPeekStreams = {
 	NULL
 };
 
+static
+PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* kws) {
+	PlayerObject* player = (PlayerObject*) self;
+
+	long num = SAMPLERATE * NUMCHANNELS; // buffer for one second
+	static const char *kwlist[] = {"num", NULL};
+	if(!PyArg_ParseTupleAndKeywords(args, kws, "O|i:readOutStream", (char**)kwlist, &num))
+		return NULL;
+
+	if(player->soundcardOutputEnabled) {
+		PyErr_SetString(PyExc_RuntimeError, "cannot use readOutStream with soundcardOutputEnabled");
+		return NULL;
+	}
+
+	if(!player->playing) {
+		PyErr_SetString(PyExc_RuntimeError, "cannot use readOutStream while not playing");
+		return NULL;
+	}
+	
+	size_t size = num * 2; // int16_t's
+	PyObject* buffer = PyString_FromStringAndSize(NULL, size);
+	if(!buffer) return NULL;
+	memset(PyString_AS_STRING(buffer), 0, size);
+	size_t sampleOutNum = 0;
+
+	Py_INCREF(self);
+	Py_BEGIN_ALLOW_THREADS
+	{
+		PyScopedLock lock(player->lock);
+		player->readOutStream((int16_t*)PyString_AS_STRING(buffer), num, &sampleOutNum);
+	}
+	Py_END_ALLOW_THREADS
+	Py_DECREF(self);
+
+	// if _PyString_Resize fails, it sets buffer=NULL, so we have the correct error behavior
+	_PyString_Resize(&buffer, sampleOutNum/2);
+	return buffer;
+}
+
+static PyMethodDef md_readOutStream = {
+	"readOutStream",
+	(PyCFunction) player_method_readOutStream,
+	METH_VARARGS|METH_KEYWORDS,
+	NULL
+};
+
 
 static
 PyObject* player_getdict(PlayerObject* player) {
@@ -396,7 +442,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		const Py_ssize_t C = 18;
+		const Py_ssize_t C = 19;
 		PyObject* mlist = PyList_New(C);
 		int i = 0;
 		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
@@ -411,6 +457,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, i++, PyString_FromString("seekRel"));
 		PyList_SetItem(mlist, i++, PyString_FromString("nextSong"));
 		PyList_SetItem(mlist, i++, PyString_FromString("reloadPeekStreams"));
+		PyList_SetItem(mlist, i++, PyString_FromString("readOutStream"));
 		PyList_SetItem(mlist, i++, PyString_FromString("volume"));
 		PyList_SetItem(mlist, i++, PyString_FromString("volumeSmoothClip"));
 		PyList_SetItem(mlist, i++, PyString_FromString("volumeAdjustEnabled"));
@@ -489,6 +536,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	
 	if(strcmp(key, "reloadPeekStreams") == 0) {
 		return PyCFunction_New(&md_reloadPeekStreams, (PyObject*) player);
+	}
+
+	if(strcmp(key, "readOutStream") == 0) {
+		return PyCFunction_New(&md_readOutStream, (PyObject*) player);
 	}
 	
 	if(strcmp(key, "volume") == 0) {
