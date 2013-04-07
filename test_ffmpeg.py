@@ -37,7 +37,6 @@ class Song:
 files = [
 	"~/Music/Classic/Glenn Gould Plays Bach/Two- & Three-Part Inventions - Gould/19 Bach - Invention 13 in a (BWV 784).mp3",
 	"~/Music/Rock/Tool/Lateralus/09 Lateralus.flac",
-	"~/Music/Cults - Cults 7/Cults - Cults 7- - 03 The Curse.flac",
 	"~/Music/Special/zorba/(01) - Theme From Zorba The Greek.ogg",
 	"~/Music/Classic/Glenn Gould Plays Bach/French Suites, BWV812-7 - Gould/Bach, French Suite 5 in G, BWV816 - 5 Bourree.mp3",
 	"~/Music/Electronic/Von Paul Kalkbrenner - Aaron.mp3",
