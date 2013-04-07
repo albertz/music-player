@@ -442,7 +442,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		const Py_ssize_t C = 19;
+		const Py_ssize_t C = 20;
 		PyObject* mlist = PyList_New(C);
 		int i = 0;
 		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
@@ -464,6 +464,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, i++, PyString_FromString("outSamplerate"));
 		PyList_SetItem(mlist, i++, PyString_FromString("outNumChannels"));
 		PyList_SetItem(mlist, i++, PyString_FromString("soundcardOutputEnabled"));
+		PyList_SetItem(mlist, i++, PyString_FromString("nextSongOnEof"));
 		assert(i == C);
 		return mlist;
 	}
@@ -568,6 +569,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	if(strcmp(key, "soundcardOutputEnabled") == 0) {
 		return PyBool_FromLong(player->soundcardOutputEnabled);
 	}
+
+	if(strcmp(key, "nextSongOnEof") == 0) {
+		return PyBool_FromLong(player->nextSongOnEof);
+	}
 	
 	{
 		PyObject* dict = player_getdict(player);
@@ -669,6 +674,11 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 			return -1;
 		}
 		player->soundcardOutputEnabled = PyObject_IsTrue(value);
+		return 0;
+	}
+
+	if(strcmp(key, "nextSongOnEof") == 0) {
+		player->nextSongOnEof = PyObject_IsTrue(value);
 		return 0;
 	}
 	

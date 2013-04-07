@@ -1201,7 +1201,7 @@ static bool loopFrame(PlayerObject* player) {
 			didSomething = true;
 		}
 		
-		else if(player->isInStreamOpened() && player->inStream->playerHitEnd && player->nextSongOnEof)
+		else if(player->isInStreamOpened() && player->inStream->playerHitEnd)
 		{
 			if(player->dict) {
 				PyScopedGIL gstate;
@@ -1231,40 +1231,47 @@ static bool loopFrame(PlayerObject* player) {
 				Py_DECREF(player->dict);
 			}
 			
-			std::vector<boost::shared_ptr<PlayerObject::InStream> > peekInStreams(player->peekInStreams.begin(), player->peekInStreams.end());
-			
-			// switch to next song
-			if(!player->getNextSong(false)) {
-				fprintf(stderr, "cannot switch to next song: getNextSong failed\n");
-				PyScopedGIL gstate;
-				if(PyErr_Occurred())
-					PyErr_Print();
-			}
-
-			for(size_t i = 0; i < peekInStreams.size(); ++i) {
-				PlayerObject::InStream* is = peekInStreams[i].get();
-				if(!is->playerStartedPlaying) continue;
-				if(player->inStream.get() == is) continue;
-
-				const char* inStreamDebugName = "<NULL>";
-				if(player->inStream.get())
-					inStreamDebugName = player->inStream->debugName.c_str();
-				printf("warning: peeked stream (%zu/%zu) (%s) is not the real next stream (%s)\n", i, peekInStreams.size(), is->debugName.c_str(), inStreamDebugName);
+			if(player->nextSongOnEof) {
+				std::vector<boost::shared_ptr<PlayerObject::InStream> > peekInStreams(player->peekInStreams.begin(), player->peekInStreams.end());
 				
+				// switch to next song
+				if(!player->getNextSong(false)) {
+					fprintf(stderr, "cannot switch to next song: getNextSong failed\n");
+					PyScopedGIL gstate;
+					if(PyErr_Occurred())
+						PyErr_Print();
+				}
+
+				for(size_t i = 0; i < peekInStreams.size(); ++i) {
+					PlayerObject::InStream* is = peekInStreams[i].get();
+					if(!is->playerStartedPlaying) continue;
+					if(player->inStream.get() == is) continue;
+
+					const char* inStreamDebugName = "<NULL>";
+					if(player->inStream.get())
+						inStreamDebugName = player->inStream->debugName.c_str();
+					printf("warning: peeked stream (%zu/%zu) (%s) is not the real next stream (%s)\n", i, peekInStreams.size(), is->debugName.c_str(), inStreamDebugName);
+					
+					{
+						PyScopedUnlock unlock(player->lock);
+						PyScopedLock lock(is->lock);
+						is->seekToStart();
+					}
+				}
+				
+				// InStream reset must always be in unlocked scope
 				{
 					PyScopedUnlock unlock(player->lock);
-					PyScopedLock lock(is->lock);
-					is->seekToStart();
+					peekInStreams.clear();
 				}
-			}
-			
-			// InStream reset must always be in unlocked scope
-			{
-				PyScopedUnlock unlock(player->lock);
-				peekInStreams.clear();
-			}
 
-			didSomething = true;
+				didSomething = true;
+			}
+			else { // !player->nextSongOnEof
+				// InStream reset must always be in unlocked scope
+				PyScopedUnlock unlock(player->lock);
+				player->inStream.reset();
+			}
 		}
 	}
 	
