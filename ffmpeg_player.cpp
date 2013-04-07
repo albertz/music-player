@@ -387,23 +387,23 @@ PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* 
 	}
 	
 	size_t size = num * /* int16_t's */ 2;
-	PyObject* buffer = PyString_FromStringAndSize(NULL, size);
+	int16_t* buffer = (int16_t*) malloc(size);
 	if(!buffer) return NULL;
-	memset(PyString_AS_STRING(buffer), 0, size);
+	memset(buffer, 0, size);
 	size_t sampleOutNum = 0;
 
 	Py_INCREF(self);
 	Py_BEGIN_ALLOW_THREADS
 	{
 		PyScopedLock lock(player->lock);
-		player->readOutStream((int16_t*)PyString_AS_STRING(buffer), num, &sampleOutNum);
+		player->readOutStream(buffer, num, &sampleOutNum);
 	}
 	Py_END_ALLOW_THREADS
 	Py_DECREF(self);
 
-	// if _PyString_Resize fails, it sets buffer=NULL, so we have the correct error behavior
-	_PyString_Resize(&buffer, sampleOutNum / /*int16*/ 2);
-	return buffer;
+	PyObject* pyBuf = PyString_FromStringAndSize((char*)buffer, sampleOutNum * 2);
+	free(buffer);
+	return pyBuf;
 }
 
 static PyMethodDef md_readOutStream = {
