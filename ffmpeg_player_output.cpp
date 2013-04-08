@@ -39,9 +39,78 @@ int initPlayerOutput() {
 struct PlayerObject::OutStream {
 	PlayerObject* const player;
 	PaStream* stream;
-	OutStream(PlayerObject* p) : player(p), stream(NULL) {}
+	bool needRealtimeReset; // PortAudio callback thread must set itself to realtime
+
+	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false) {}
 	~OutStream() { close(); }
+
+	static int paStreamCallback(
+		const void *input, void *output,
+		unsigned long frameCount,
+		const PaStreamCallbackTimeInfo* timeInfo,
+		PaStreamCallbackFlags statusFlags,
+		void *userData )
+	{
+		OutStream* outStream = (OutStream*) userData;
+		
+		// We must not hold the PyGIL here!
+		PyScopedLock lock(outStream->player->lock);
+		
+		if(outStream->needRealtimeReset) {
+			outStream->needRealtimeReset = false;
+			setRealtime();
+		}
+		
+		outStream->player->readOutStream((int16_t*) output, frameCount * outStream->player->outNumChannels, NULL);
+		return paContinue;
+	}
+	
+	bool open() {
+		if(stream) close();
+		assert(stream == NULL);
+				
+		PaStreamParameters outputParameters;
+		
+#ifdef __APPLE__
+		PaMacCoreStreamInfo macInfo;
+		PaMacCore_SetupStreamInfo( &macInfo,
+			paMacCorePlayNice | paMacCorePro );
+		outputParameters.hostApiSpecificStreamInfo = &macInfo;
+#else
+		outputParameters.hostApiSpecificStreamInfo = NULL;
+#endif
+		
+		outputParameters.device = Pa_GetDefaultOutputDevice();
+		if (outputParameters.device == paNoDevice) {
+			PyErr_SetString(PyExc_RuntimeError, "Pa_GetDefaultOutputDevice didn't returned a device");
+			return false;
+		}
+		outputParameters.channelCount = player->outNumChannels;
+		outputParameters.sampleFormat = paInt16;
+		outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
+				
+		PaError ret = Pa_OpenStream(
+			&stream,
+			NULL, // no input
+			&outputParameters,
+			player->outSamplerate, // sampleRate
+			AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
+			paClipOff | paDitherOff,
+			&paStreamCallback,
+			this //void *userData
+			);
+		
+		if(ret != paNoError) {
+			PyErr_Format(PyExc_RuntimeError, "Pa_OpenStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
+			if(stream)
+				close();
+			return false;
+		}
+		return true;
+	}
+	
 	void close() {
+		if(this->stream == NULL) return;
 		// we expect that we have the player lock here.
 		// we must release the lock so that any thread-join can be done.
 		PaStream* stream = NULL;
@@ -49,7 +118,15 @@ struct PlayerObject::OutStream {
 		PyScopedUnlock unlock(player->lock);
 		Pa_CloseStream(stream);
 	}
+	
+	void start() {
+		assert(stream != NULL);
+		needRealtimeReset = true;
+		Pa_StartStream(stream);
+	}
+
 	void stop() {
+		if(this->stream == NULL) return;
 		// we expect that we have the lock here.
 		// we must release the lock so that any thread-join can be done.
 		PaStream* stream = this->stream; // buffer for unlock-scope
@@ -61,28 +138,6 @@ struct PlayerObject::OutStream {
 
 
 
-
-static
-int paStreamCallback(
-					 const void *input, void *output,
-					 unsigned long frameCount,
-					 const PaStreamCallbackTimeInfo* timeInfo,
-					 PaStreamCallbackFlags statusFlags,
-					 void *userData )
-{
-	PlayerObject* player = (PlayerObject*) userData;
-
-	// We must not hold the PyGIL here!
-	PyScopedLock lock(player->lock);
-	
-	if(player->needRealtimeReset) {
-		player->needRealtimeReset = 0;
-		setRealtime();
-	}
-
-	player->readOutStream((int16_t*) output, frameCount * player->outNumChannels, NULL);
-	return paContinue;
-}
 
 
 int PlayerObject::setPlaying(bool playing) {
@@ -99,53 +154,12 @@ int PlayerObject::setPlaying(bool playing) {
 		
 		if(soundcardOutputEnabled) {
 			if(playing && !player->outStream->stream) {
-				PaError ret;
-				
-				PaStreamParameters outputParameters;
-
-#ifdef __APPLE__
-				PaMacCoreStreamInfo macInfo;
-				PaMacCore_SetupStreamInfo( &macInfo,
-					paMacCorePlayNice | paMacCorePro );
-				
-#endif
-
-				outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
-				//if (outputParameters.device == paNoDevice) {
-				// is this handled anyway by Pa_OpenStream?
-				//}
-				outputParameters.channelCount = player->outNumChannels;
-				outputParameters.sampleFormat = paInt16;
-				outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
-
-#ifdef __APPLE__
-				outputParameters.hostApiSpecificStreamInfo = &macInfo;
-#else
-				outputParameters.hostApiSpecificStreamInfo = NULL;
-#endif
-
-				ret = Pa_OpenStream(
-					&player->outStream->stream,
-					NULL, // no input
-					&outputParameters,
-					player->outSamplerate, // sampleRate
-					AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
-					paClipOff | paDitherOff,
-					&paStreamCallback,
-					player //void *userData
-					);
-
-				if(ret != paNoError) {
-					PyErr_Format(PyExc_RuntimeError, "Pa_OpenDefaultStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
-					if(player->outStream->stream)
-						player->outStream->close();
-					playing = 0;
-				}
+				if(!player->outStream->open())
+					playing = false;
 			}
-			if(playing) {
-				player->needRealtimeReset = 1;
-				Pa_StartStream(player->outStream->stream);
-			} else
+			if(playing)
+				player->outStream->start();
+			else
 				player->outStream->stop();
 		}
 		

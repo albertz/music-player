@@ -199,7 +199,6 @@ struct PlayerObject {
 
 	bool nextSongOnEof;
 	bool skipPyExceptions; // for all callbacks, mainly song.readPacket
-	bool needRealtimeReset; // PortAudio callback thread must set itself to realtime
 	
 	int seekRel(double incr);
 	int seekAbs(double pos);

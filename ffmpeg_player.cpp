@@ -194,7 +194,6 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	
 	player->nextSongOnEof = 1;
 	player->skipPyExceptions = 1;
-	player->needRealtimeReset = false;
 	player->volumeAdjustEnabled = true;
 	player->volume = 0.9f;
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
