@@ -256,15 +256,19 @@ void player_dealloc(PyObject* obj) {
 
 void PlayerObject::setAudioTgt(int samplerate, int numchannels) {
 	if(this->playing) return;
-	// we must reopen the output stream
-	this->resetBuffers();
-	
+
 	// TODO: error checkking for samplerate or numchannels?
 	// No idea how to check what libswresample supports.
-	
+
 	// see also player_setplaying where we init the PaStream (with same params)
 	this->outSamplerate = samplerate;
 	this->outNumChannels = numchannels;
+
+	// reset the outstream (PortAudio). we must force a reopen.
+	this->outStream.reset();
+
+	// we must reopen the output stream
+	this->resetBuffers();
 }
 
 
