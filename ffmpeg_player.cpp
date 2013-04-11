@@ -445,7 +445,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		const Py_ssize_t C = 20;
+		const Py_ssize_t C = 21;
 		PyObject* mlist = PyList_New(C);
 		int i = 0;
 		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
@@ -464,6 +464,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, i++, PyString_FromString("volume"));
 		PyList_SetItem(mlist, i++, PyString_FromString("volumeSmoothClip"));
 		PyList_SetItem(mlist, i++, PyString_FromString("volumeAdjustEnabled"));
+		PyList_SetItem(mlist, i++, PyString_FromString("outSampleFormat"));		
 		PyList_SetItem(mlist, i++, PyString_FromString("outSamplerate"));
 		PyList_SetItem(mlist, i++, PyString_FromString("outNumChannels"));
 		PyList_SetItem(mlist, i++, PyString_FromString("soundcardOutputEnabled"));
@@ -561,6 +562,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		return PyBool_FromLong(player->volumeAdjustEnabled);
 	}
 	
+	if(strcmp(key, "outSampleFormat") == 0) {
+		return PyString_FromString("int16");
+	}
+	
 	if(strcmp(key, "outSamplerate") == 0) {
 		return PyInt_FromLong(player->outSamplerate);
 	}
@@ -637,6 +642,11 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 	if(strcmp(key, "volumeAdjustEnabled") == 0) {
 		player->volumeAdjustEnabled = PyObject_IsTrue(value);
 		return 0;
+	}
+	
+	if(strcmp(key, "outSampleFormat") == 0) {
+		PyErr_SetString(PyExc_AttributeError, "outSampleFormat is readonly (hardcoded) for now");
+		return -1;
 	}
 	
 	if(strcmp(key, "outSamplerate") == 0) {
