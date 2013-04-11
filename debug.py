@@ -106,26 +106,56 @@ def dump10Secs():
 	from State import state
 	player = state.player
 
+	fmtTagStr,bitsPerSample = getattr(player, "outSampleFormat", ("int",16))
+	bytesPerSample = bitsPerSample / 8
+
 	def write_wavheader(stream, datalen):
+		# http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
 		from struct import pack
 	
-		chunksize = 36 + datalen
-		stream.write(pack("<4sI4s", "RIFF", chunksize, "WAVE"))
+		numSamples = datalen / bytesPerSample
+		
+		assert bitsPerSample in [8,16,24,32]
+		if fmtTagStr == "int":
+			fmttag = 1 # PCM format. integers
+			fmtchunksize = 16 # for PCM
+			needExtendedSection = False
+			needFactChunk = False
+		elif fmtTagStr == "float":
+			# IEEE format has always extended section (which is empty), thus 18 bytes long
+			fmttag = 3 # IEEE float
+			fmtchunksize = 18
+			needExtendedSection = True
+			needFactChunk = True
+			factchunksize = 4
+
+		#wavechunksize = 36 + datalen # PCM
+		wavechunksize = 20 + fmtchunksize + datalen
+		if needFactChunk:
+			wavechunksize += factchunksize + 8
+
+		stream.write(pack("<4sI4s", "RIFF", wavechunksize, "WAVE"))
 	
 		stream.write("fmt ")
-		stream.write(pack("<L", 16)) # Subchunk1Size. 16 for PCM
-		stream.write(pack("<H", 1)) # format tag. 1 for PCM
+		stream.write(pack("<L", fmtchunksize))
+		stream.write(pack("<H", fmttag))
 		
 		numChannels = player.outNumChannels
 		samplerate = player.outSamplerate
-		bitsPerSample = 16
-		byteRate = samplerate * numChannels * bitsPerSample / 8
-		blockAlign = numChannels * bitsPerSample/8
+		byteRate = samplerate * numChannels * bytesPerSample
+		blockAlign = numChannels * bytesPerSample
 		stream.write(pack("<H", numChannels))
 		stream.write(pack("<L", samplerate))
 		stream.write(pack("<L", byteRate))
 		stream.write(pack("<H", blockAlign))
 		stream.write(pack("<H", bitsPerSample))
+		if needExtendedSection:
+			stream.write(pack("<H", 0)) # size of extended section
+		
+		if needFactChunk:
+			stream.write("fact")
+			stream.write(pack("<L", factchunksize))
+			stream.write(pack("<L", numChannels * numSamples))		
 		
 		stream.write("data")
 		stream.write(pack("<L", datalen))
@@ -136,7 +166,7 @@ def dump10Secs():
 	
 	wholebuf = ""
 	# read up to 10 secs
-	while len(wholebuf) < player.outNumChannels * player.outSamplerate * 2 * 10:
+	while len(wholebuf) < player.outNumChannels * player.outSamplerate * bytesPerSample * 10:
 		wholebuf += player.readOutStream(player.outNumChannels * player.outSamplerate)
 
 	player.playing = False
