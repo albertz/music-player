@@ -71,11 +71,16 @@ struct PlayerObject::OutStream {
 				
 		PaStreamParameters outputParameters;
 		
-#ifdef __APPLE__
+#if defined(__APPLE__)
 		PaMacCoreStreamInfo macInfo;
 		PaMacCore_SetupStreamInfo( &macInfo,
 			paMacCorePlayNice | paMacCorePro );
 		outputParameters.hostApiSpecificStreamInfo = &macInfo;
+#elif defined(__LINUX__)
+		// TODO: if we have PaAlsa_EnableRealtimeScheduling in portaudio,
+		// we can call that to enable RT priority with ALSA.
+		// We could check dynamically via dsym.
+		outputParameters.hostApiSpecificStreamInfo = NULL;
 #else
 		outputParameters.hostApiSpecificStreamInfo = NULL;
 #endif
