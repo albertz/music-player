@@ -1,8 +1,14 @@
+// compile:
+//   c++ portaudio-wavplay-demo.cpp -lportaudio
 
 #include <stdio.h>
 #include <portaudio.h>
 #include <string>
 #include <stdint.h>
+
+#define CHECK(x) { if(!(x)) { \
+fprintf(stderr, "%s:%i: failure at: %s\n", __FILE__, __LINE__, #x); \
+_exit(1); } }
 
 const int FramesPerBuffer = 1024;
 PaStream* stream;
@@ -25,13 +31,13 @@ int paStreamCallback(
 }
 
 bool portAudioOpen() {
+	CHECK(Pa_Initialize() == paNoError);
+
 	PaStreamParameters outputParameters;
-		
+
 	outputParameters.device = Pa_GetDefaultOutputDevice();
-	if (outputParameters.device == paNoDevice) {
-		fprintf(stderr, "Pa_GetDefaultOutputDevice didn't returned a device");
-		return false;
-	}
+	CHECK(outputParameters.device != paNoDevice);
+	
 	outputParameters.channelCount = numChannels;
 	outputParameters.sampleFormat = sampleFormat;
 	outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
@@ -40,17 +46,17 @@ bool portAudioOpen() {
 		&stream,
 		NULL, // no input
 		&outputParameters,
-		outSamplerate, // sampleRate
-		FramesPerBuffer, // framesPerBuffer,
+		sampleRate,
+		FramesPerBuffer,
 		0, // flags
 		&paStreamCallback,
 		NULL //void *userData
 		);
 	
 	if(ret != paNoError) {
-		fprintf(stderr, "Pa_OpenStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
+		fprintf(stderr, "Pa_OpenStream failed: (err %i) %s\n", ret, Pa_GetErrorText(ret));
 		if(stream)
-			close();
+			Pa_CloseStream(stream);
 		return false;
 	}
 	
@@ -59,19 +65,20 @@ bool portAudioOpen() {
 
 std::string freadStr(FILE* f, size_t len) {
 	std::string s(len, '\0');
-	assert(fread(&s[0], 1, len, f) == len);
+	CHECK(fread(&s[0], 1, len, f) == len);
 	return s;
 }
 
 
 int main(int argc, char** argv) {
-	assert(argc > 1);
+	CHECK(argc > 1);
 	wavfile = fopen(argv[1], "r");
-	assert(wavfile != NULL);
+	CHECK(wavfile != NULL);
 	
-	assert(freadStr(wavfile, 4) == "RIFF");
-	assert(portAudioOpen());
+	CHECK(freadStr(wavfile, 4) == "RIFF");
+	CHECK(portAudioOpen());
 	
-	fclose(f);
+	fclose(wavfile);
+	Pa_CloseStream(stream);
 }
 
