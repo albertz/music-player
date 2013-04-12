@@ -39,6 +39,10 @@ template<typename T> struct OutPaSampleFormat{};
 template<> struct OutPaSampleFormat<int16_t> {
 	static const PaSampleFormat format = paInt16;
 };
+template<> struct OutPaSampleFormat<float32_t> {
+	static const PaSampleFormat format = paFloat32;
+};
+
 
 struct PlayerObject::OutStream {
 	PlayerObject* const player;

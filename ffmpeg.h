@@ -12,6 +12,7 @@
 #include <pythread.h>
 
 #include <stddef.h>
+#include <stdint.h>
 #include <assert.h>
 
 /* Some confusion about Python functions and their reference counting:
@@ -191,20 +192,39 @@ template<typename T> _Value<T> _makeValue(const T& v) { return _Value<T>(v); }
 #define TypedClamp(T, value, lowerLimit, upperLimit) \
 	(_makeValue(value).clamp<T>(lowerLimit, upperLimit))
 
+typedef float float32_t;
+static_assert(sizeof(float32_t) == 4, "float32_t declaration is wrong");
+
+#define _FloatToPCM_raw(sample) (sample * ((double) 0x8000))
+#define _FloatToPCM_clampFloat(sample) \
+	(_makeValue(_FloatToPCM_raw(sample)).clamp<>(-1., 1.))
+#define FloatToPCM16(s) \
+	((int16_t)TypedClamp(int32_t, _FloatToOutSample_clampFloat(s), -0x8000, 0x7fff))
+
+#if defined(OUTSAMPLEFORMAT_INT16)
 #define OUTSAMPLE_t int16_t
 #define OUTSAMPLEFORMATSTR "int"
 #define OUTSAMPLEBITLEN 16
-#define OUTSAMPLEBYTELEN (OUTSAMPLEBITLEN / 4)
-// normed in [-1,1] range
+// normed in [-1,1] range. not clamped
 #define OutSampleAsFloat(sample) (sample / ((double) 0x8000))
-// normed in [-0x8000,0x7fff]
+// normed in [-0x8000,0x7fff]. not clamped
 #define OutSampleAsInt(sample) sample
-#define _FloatToOutSample_raw(sample) (sample * ((double) 0x8000))
-#define _FloatToOutSample_clampFloat(sample) \
-	(_makeValue(_FloatToOutSample_raw(sample)).clamp<>(-1., 1.))
-#define FloatToOutSample(s) \
-	((int16_t)TypedClamp(int32_t, _FloatToOutSample_clampFloat(s), -0x8000, 0x7fff))
+// guaranteed to be in right range
+#define FloatToOutSample(sample) FloatToPCM16(sample)
 
+#else
+#define OUTSAMPLE_t float32_t
+#define OUTSAMPLEFORMATSTR "float"
+#define OUTSAMPLEBITLEN 32
+// normed in [-1,1] range. not clamped
+#define OutSampleAsFloat(sample) (sample)
+// normed in [-0x8000,0x7fff]. not clamped
+#define OutSampleAsInt(sample) (sample * ((double) 0x8000))
+// guaranteed to be in right range
+#define FloatToOutSample(sample) (_makeValue(sample).clamp<OUTSAMPLE_t>(-1., 1.))
+#endif
+
+#define OUTSAMPLEBYTELEN (OUTSAMPLEBITLEN / 4)
 
 // The player structure. Create by ffmpeg.createPlayer().
 // This struct is initialized in player_init().
