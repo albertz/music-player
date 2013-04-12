@@ -842,6 +842,7 @@ static int synchronize_audio(PlayerObject::InStream *is, int nb_samples)
 
 bool PlayerObject::volumeAdjustNeeded() const {
 	if(!volumeAdjustEnabled) return false;
+	if(fader.inc != 0) return true;
 	if(this->volume != 1) return true;
 	if(this->volumeSmoothClip.x1 != this->volumeSmoothClip.x2) return true;
 	if(inStream.get() && inStream->gainFactor != 1) return true;
@@ -1323,6 +1324,54 @@ void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
 }
 
 
+
+Fader::Fader() {
+	cur = limit = 0;
+	inc = 0;
+}
+
+#define FADE_TIME 50 // in ms
+
+void Fader::init(int8_t _inc, int Samplerate) {
+	inc = _inc;
+	uint16_t newLimit = Samplerate * FADE_TIME / 1000;
+	if(limit != newLimit || finished()) {
+		limit = newLimit;
+		if(inc >= 0) cur = 0;
+		else cur = limit;
+	}
+}
+
+void Fader::frameTick() {
+	if(finished()) return;
+	cur += inc;
+}
+
+void Fader::finish() {
+	if(inc < 0) cur = 0;
+	else cur = limit;
+}
+
+bool Fader::finished() {
+	if(inc == 0) return true;
+	if(inc > 0) return cur >= limit;
+	if(inc < 0) return cur == 0;
+	assert(false); return false;
+}
+
+double Fader::sampleFactor() {
+	if(limit == 0) return 1;
+	return double(cur) / limit;
+}
+
+void Fader::wait(PlayerObject* player) {
+	// We expect to have the PlayerObject lock here.
+	while(!finished()) {
+		PyScopedUnlock(player->lock);
+		usleep(10000);
+	}
+}
+
 bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t* sampleNumOut) {
 	// We expect to have the PlayerObject lock here.
 	PlayerObject* player = this;
@@ -1332,7 +1381,7 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 	if(!peekInStreams.empty())
 		iss[1] = peekInStreams.front().get();
 	
-	if(player->playing)
+	if(player->playing || !fader.finished())
 	for(auto is : iss) {
 		if(!is) continue;
 	
@@ -1346,12 +1395,16 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 				OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
 				double sampleFloat = OutSampleAsFloat(sample);
 				
+				sampleFloat *= fader.sampleFactor();
 				sampleFloat *= player->volume;
 				sampleFloat *= is->gainFactor;
 				sampleFloat = player->volumeSmoothClip.get(sampleFloat);
 
 				sample = (OUTSAMPLE_t) FloatToOutSample(sampleFloat);
 				*sampleAddr = sample; // TODO: endian swap?
+				
+				if(i % player->outNumChannels == 0)
+					fader.frameTick();
 			}
 		}
 		

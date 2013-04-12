@@ -133,12 +133,16 @@ struct PlayerObject::OutStream {
 	void close() {
 		if(this->stream == NULL) return;
 		// we expect that we have the player lock here.
-		// we must release the lock so that any thread-join can be done.
+		// reset fader.
+		player->fader.init(0,0);
+		// we must release the player lock so that any thread-join can be done.
 		PaStream* stream = NULL;
 		std::swap(stream, this->stream);
 		PyScopedUnlock unlock(player->lock);
 		Pa_CloseStream(stream);
 	}
+	
+	bool isOpen() const { return stream != NULL; }
 	
 };
 
@@ -167,6 +171,8 @@ int PlayerObject::setPlaying(bool playing) {
 		}
 		
 		oldplayingstate = player->playing;
+		if(soundcardOutputEnabled && player->outStream.get() && player->outStream->isOpen() && oldplayingstate != playing)
+			fader.init(playing ? 1 : -1, outSamplerate);
 		player->playing = playing;
 	}
 	

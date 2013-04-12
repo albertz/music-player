@@ -28,6 +28,8 @@
  */
 
 #ifdef __cplusplus
+struct PlayerObject;
+
 extern "C" {
 #endif
 
@@ -174,6 +176,19 @@ struct SmoothClipCalc {
 	double get(double x);
 };
 
+struct Fader {
+	uint16_t cur;
+	uint16_t limit;
+	int8_t inc; // -1 or 1 or 0
+	Fader();
+	void init(int8_t inc /* 1 for fading in, -1 for fading out */, int Samplerate);
+	void frameTick();
+	void finish();
+	bool finished();
+	double sampleFactor();
+	void wait(PlayerObject* player);
+};
+
 
 template<typename ValueT>
 struct _Value {
@@ -245,6 +260,7 @@ struct PlayerObject {
 	int outNumChannels;
 	void setAudioTgt(int samplerate, int numchannels);
 	double timeDelay(size_t sampleNum) { return double(sampleNum)/outSamplerate/outNumChannels; }
+	Fader fader;
 	
 	// private
 	PyObject* dict;
