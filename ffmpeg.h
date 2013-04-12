@@ -224,7 +224,7 @@ static_assert(sizeof(float32_t) == 4, "float32_t declaration is wrong");
 #define FloatToOutSample(sample) (_makeValue(sample).clamp<OUTSAMPLE_t>(-1., 1.))
 #endif
 
-#define OUTSAMPLEBYTELEN (OUTSAMPLEBITLEN / 4)
+#define OUTSAMPLEBYTELEN (OUTSAMPLEBITLEN / 8)
 
 // The player structure. Create by ffmpeg.createPlayer().
 // This struct is initialized in player_init().
