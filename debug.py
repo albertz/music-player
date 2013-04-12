@@ -106,7 +106,7 @@ def dump10Secs():
 	from State import state
 	player = state.player
 
-	fmtTagStr,bitsPerSample = getattr(player, "outSampleFormat", ("int",16))
+	fmtTagStr,bitsPerSample = player.outSampleFormat
 	bytesPerSample = bitsPerSample / 8
 
 	def write_wavheader(stream, datalen):
