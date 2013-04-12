@@ -28,7 +28,8 @@ int paStreamCallback(
 
 	//(OUTSAMPLE_t*) output, frameCount * outStream->player->outNumChannels
 	
-	return paContinue;
+	return paComplete;
+//	return paContinue;
 }
 
 bool portAudioOpen() {
@@ -61,6 +62,7 @@ bool portAudioOpen() {
 		return false;
 	}
 	
+	CHECK(Pa_StartStream(stream) == paNoError);
 	return true;
 }
 
@@ -141,7 +143,13 @@ int main(int argc, char** argv) {
 	printf("start playing...\n");
 	CHECK(portAudioOpen());
 	
+	// wait until stream has finished playing
+	while(Pa_IsStreamActive(stream) > 0)
+		usleep(1000);
+	
+	printf("finished\n");
 	fclose(wavfile);
 	Pa_CloseStream(stream);
+	Pa_Terminate();
 }
 
