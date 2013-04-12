@@ -17,7 +17,6 @@
 fprintf(stderr, "%s:%i: failure at: %s\n", __FILE__, __LINE__, #x); \
 _exit(1); } }
 
-const int FramesPerBuffer = 1024;
 PaStream* stream;
 FILE* wavfile;
 int numChannels;
@@ -61,7 +60,7 @@ bool portAudioOpen() {
 		NULL, // no input
 		&outputParameters,
 		sampleRate,
-		FramesPerBuffer,
+		2048 * 5 * bytesPerSample, // framesPerBuffer
 		0, // flags
 		&paStreamCallback,
 		NULL //void *userData
