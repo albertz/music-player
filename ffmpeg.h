@@ -173,6 +173,39 @@ struct SmoothClipCalc {
 	double get(double x);
 };
 
+
+template<typename ValueT>
+struct _Value {
+	ValueT value;
+	_Value(const ValueT& _v) : value(_v) {}
+	
+	template<typename T=ValueT>
+	T clamp(T lowerLimit, T upperLimit) {
+		T res = value;
+		if(res < lowerLimit) res = lowerLimit;
+		if(res > upperLimit) res = upperLimit;
+		return res;
+	}
+};
+template<typename T> _Value<T> _makeValue(const T& v) { return _Value<T>(v); }
+#define TypedClamp(T, value, lowerLimit, upperLimit) \
+	(_makeValue(value).clamp<T>(lowerLimit, upperLimit))
+
+#define OUTSAMPLE_t int16_t
+#define OUTSAMPLEFORMATSTR "int"
+#define OUTSAMPLEBITLEN 16
+#define OUTSAMPLEBYTELEN (OUTSAMPLEBITLEN / 4)
+// normed in [-1,1] range
+#define OutSampleAsFloat(sample) (sample / ((double) 0x8000))
+// normed in [-0x8000,0x7fff]
+#define OutSampleAsInt(sample) sample
+#define _FloatToOutSample_raw(sample) (sample * ((double) 0x8000))
+#define _FloatToOutSample_clampFloat(sample) \
+	(_makeValue(_FloatToOutSample_raw(sample)).clamp<>(-1., 1.))
+#define FloatToOutSample(s) \
+	((int16_t)TypedClamp(int32_t, _FloatToOutSample_clampFloat(s), -0x8000, 0x7fff))
+
+
 // The player structure. Create by ffmpeg.createPlayer().
 // This struct is initialized in player_init().
 struct PlayerObject {
@@ -228,9 +261,9 @@ struct PlayerObject {
 	// otherwise, it will say how much samples have been returned.
 	// the outStream will call this. data read here is supposed to go without delay to the soundcard. it will update the timePos.
 	// it is supposed to be fast. if no data is available, it will not wait for it but it will fill silence.
-	// this returns the internal format, i.e. SINT16, outSamplerate and outNumChannels.
+	// this returns the internal format, e.g. SINT16, outSamplerate and outNumChannels.
 	// it might also issue the callbacks like song finished, or proceed to the next song - but it wont call them itself (for performance reasons).
-	bool readOutStream(int16_t* samples, size_t sampleNum, size_t* sampleNumOut);
+	bool readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t* sampleNumOut);
 	
 	struct OutStream;
 	boost::shared_ptr<OutStream> outStream;

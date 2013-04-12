@@ -269,9 +269,9 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			
 			for(auto& it : player->inStreamBuffer()->chunks) {
 				for(size_t i = 0; i < it.size() / 2; ++i) {
-					int16_t* sampleAddr = (int16_t*) it.pt() + i;
-					int16_t sample = *sampleAddr; // TODO: endian swap?
-					float sampleFloat = sample / ((double) 0x8000);
+					OUTSAMPLE_t* sampleAddr = (OUTSAMPLE_t*) it.pt() + i;
+					OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
+					float sampleFloat = OutSampleAsFloat(sample);
 					
 					if(sampleFloat < peakMin) peakMin = sampleFloat;
 					if(sampleFloat > peakMax) peakMax = sampleFloat;
@@ -282,7 +282,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 					if(i % 2 == 1) samplesBufIndex++;
 				}
 				
-				frame += it.size() / player->outNumChannels / 2 /* S16 */;
+				frame += it.size() / player->outNumChannels / OUTSAMPLEBYTELEN;
 			}
 			player->inStreamBuffer()->clear();
 		}

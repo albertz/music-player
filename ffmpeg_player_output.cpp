@@ -35,6 +35,10 @@ int initPlayerOutput() {
 	return 0;
 }
 
+template<typename T> struct OutPaSampleFormat{};
+template<> struct OutPaSampleFormat<int16_t> {
+	static const PaSampleFormat format = paInt16;
+};
 
 struct PlayerObject::OutStream {
 	PlayerObject* const player;
@@ -61,7 +65,7 @@ struct PlayerObject::OutStream {
 			setRealtime();
 		}
 		
-		outStream->player->readOutStream((int16_t*) output, frameCount * outStream->player->outNumChannels, NULL);
+		outStream->player->readOutStream((OUTSAMPLE_t*) output, frameCount * outStream->player->outNumChannels, NULL);
 		return paContinue;
 	}
 	
@@ -91,7 +95,7 @@ struct PlayerObject::OutStream {
 			return false;
 		}
 		outputParameters.channelCount = player->outNumChannels;
-		outputParameters.sampleFormat = paInt16;
+		outputParameters.sampleFormat = OutPaSampleFormat<OUTSAMPLE_t>::format;
 		outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
 				
 		PaError ret = Pa_OpenStream(
@@ -99,7 +103,7 @@ struct PlayerObject::OutStream {
 			NULL, // no input
 			&outputParameters,
 			player->outSamplerate, // sampleRate
-			AUDIO_BUFFER_SIZE / 2, // framesPerBuffer,
+			AUDIO_BUFFER_SIZE / OUTSAMPLEBYTELEN, // framesPerBuffer,
 			paClipOff | paDitherOff,
 			&paStreamCallback,
 			this //void *userData

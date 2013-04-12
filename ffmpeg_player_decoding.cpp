@@ -1315,7 +1315,7 @@ void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
 }
 
 
-bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum, size_t* sampleNumOut) {
+bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t* sampleNumOut) {
 	// We expect to have the PlayerObject lock here.
 	
 	PlayerObject* player = this;
@@ -1330,25 +1330,20 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum, size_t* sam
 	
 		is->playerStartedPlaying = true;
 		size_t popCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);
-		popCount /= 2; // because they are in bytes but we want number of samples
+		popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
 		
 		if(player->volumeAdjustNeeded()) {
 			for(size_t i = 0; i < popCount; ++i) {
-				int16_t* sampleAddr = samples + i;
-				int32_t sample = *sampleAddr; // TODO: endian swap?
-				double sampleFloat = sample / ((double) 0x8000);
+				OUTSAMPLE_t* sampleAddr = samples + i;
+				OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
+				double sampleFloat = OutSampleAsFloat(sample);
 				
 				sampleFloat *= player->volume;
 				sampleFloat *= is->gainFactor;
-				
 				sampleFloat = player->volumeSmoothClip.get(sampleFloat);
-				if(sampleFloat < -1) sampleFloat = -1;
-				if(sampleFloat > 1) sampleFloat = 1;
-				
-				sample = sampleFloat * (double) 0x8000;
-				if(sample < -0x8000) sample = -0x8000;
-				if(sample > 0x7fff) sample = 0x7fff;
-				*sampleAddr = (int16_t) sample; // TODO: endian swap?
+
+				sample = (OUTSAMPLE_t) FloatToOutSample(sampleFloat);
+				*sampleAddr = sample; // TODO: endian swap?
 			}
 		}
 		
@@ -1367,7 +1362,7 @@ bool PlayerObject::readOutStream(int16_t* samples, size_t sampleNum, size_t* sam
 	if(sampleNum > 0 && sampleNumOut == NULL) {
 		// silence
 		printf("readOutStream: we have %zu too less samples available (requested %zu)\n", sampleNum, origSampleNum);
-		memset((uint8_t*)samples, 0, sampleNum*2);
+		memset((uint8_t*)samples, 0, sampleNum*OUTSAMPLEBYTELEN);
 	}
 	
 	if(sampleNumOut)

@@ -389,7 +389,7 @@ PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* 
 		return NULL;
 	}
 	
-	size_t size = num * /* int16_t's */ 2;
+	size_t size = num * OUTSAMPLEBYTELEN;
 	PyObject* buffer = PyString_FromStringAndSize(NULL, size);
 	if(!buffer) return NULL;
 	memset(PyString_AS_STRING(buffer), 0, size);
@@ -399,13 +399,13 @@ PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* 
 	Py_BEGIN_ALLOW_THREADS
 	{
 		PyScopedLock lock(player->lock);
-		player->readOutStream((int16_t*)PyString_AS_STRING(buffer), num, &sampleOutNum);
+		player->readOutStream((OUTSAMPLE_t*)PyString_AS_STRING(buffer), num, &sampleOutNum);
 	}
 	Py_END_ALLOW_THREADS
 	Py_DECREF(self);
 
 	// if _PyString_Resize fails, it sets buffer=NULL, so we have the correct error behavior
-	_PyString_Resize(&buffer, sampleOutNum * /*int16*/ 2);
+	_PyString_Resize(&buffer, sampleOutNum * OUTSAMPLEBYTELEN);
 	return buffer;
 }
 

@@ -128,11 +128,11 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 			
 			short channel = 0;
 			for(size_t i = 0; i < it.size() / 2; ++i) {
-				int16_t* sampleAddr = (int16_t*) it.pt() + i;
-				int16_t sample = *sampleAddr; // TODO: endian swap?
+				OUTSAMPLE_t* sampleAddr = (OUTSAMPLE_t*) it.pt() + i;
+				OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
 				// It is by purpose that we don't normalize to [-1,1] but stay in the range [-0x8000,0x7fff].
 				// That is because it was originially based on CD data, which is 16-bit signed integers.
-				float sampleFloat = sample;
+				float sampleFloat = OutSampleAsInt(sample);
 				
 				buffer->channels[channel].stages[0].data[samplePos + MAX_FILTER_ORDER] = sampleFloat;
 				
