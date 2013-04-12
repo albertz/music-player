@@ -5,6 +5,7 @@
 #include <portaudio.h>
 #include <string>
 #include <stdint.h>
+#include <unistd.h>
 
 #define CHECK(x) { if(!(x)) { \
 fprintf(stderr, "%s:%i: failure at: %s\n", __FILE__, __LINE__, #x); \
@@ -25,11 +26,16 @@ int paStreamCallback(
 	PaStreamCallbackFlags statusFlags,
 	void *userData )
 {
-
-	//(OUTSAMPLE_t*) output, frameCount * outStream->player->outNumChannels
+	size_t numRead = fread(output, bytesPerSample * numChannels, frameCount, wavfile);
+	output = (uint8_t*)output + numRead * numChannels * bytesPerSample;
+	frameCount -= numRead;
 	
-	return paComplete;
-//	return paContinue;
+	if(frameCount > 0) {
+		memset(output, 0, frameCount * numChannels * bytesPerSample);
+		return paComplete;
+	}
+	
+	return paContinue;
 }
 
 bool portAudioOpen() {
