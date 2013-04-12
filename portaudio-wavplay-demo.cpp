@@ -60,7 +60,7 @@ bool portAudioOpen() {
 		NULL, // no input
 		&outputParameters,
 		sampleRate,
-		2048 * 5 * bytesPerSample, // framesPerBuffer
+		paFramesPerBufferUnspecified, // framesPerBuffer
 		0, // flags
 		&paStreamCallback,
 		NULL //void *userData
