@@ -268,7 +268,8 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 			if(PyErr_Occurred()) goto final;
 			
 			for(auto& it : player->inStreamBuffer()->chunks) {
-				for(size_t i = 0; i < it.size() / 2; ++i) {
+				assert(it.size() % OUTSAMPLEBYTELEN == 0);
+				for(size_t i = 0; i < it.size() / OUTSAMPLEBYTELEN; ++i) {
 					OUTSAMPLE_t* sampleAddr = (OUTSAMPLE_t*) it.pt() + i;
 					OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
 					float sampleFloat = OutSampleAsFloat(sample);

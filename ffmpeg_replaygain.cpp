@@ -124,10 +124,11 @@ pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws) {
 	while (player->processInStream()) {
 		if(PyErr_Occurred()) goto final;
 		for(auto& it : player->inStreamBuffer()->chunks) {		
-			totalFrameCount += it.size() / NUMCHANNELS / 2 /* S16 */;
+			totalFrameCount += it.size() / NUMCHANNELS / OUTSAMPLEBYTELEN;
 			
 			short channel = 0;
-			for(size_t i = 0; i < it.size() / 2; ++i) {
+			assert(it.size() % OUTSAMPLEBYTELEN == 0);
+			for(size_t i = 0; i < it.size() / OUTSAMPLEBYTELEN; ++i) {
 				OUTSAMPLE_t* sampleAddr = (OUTSAMPLE_t*) it.pt() + i;
 				OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
 				// It is by purpose that we don't normalize to [-1,1] but stay in the range [-0x8000,0x7fff].

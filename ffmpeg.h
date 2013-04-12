@@ -189,8 +189,6 @@ struct _Value {
 	}
 };
 template<typename T> _Value<T> _makeValue(const T& v) { return _Value<T>(v); }
-#define TypedClamp(T, value, lowerLimit, upperLimit) \
-	(_makeValue(value).clamp<T>(lowerLimit, upperLimit))
 
 typedef float float32_t;
 static_assert(sizeof(float32_t) == 4, "float32_t declaration is wrong");
@@ -198,8 +196,9 @@ static_assert(sizeof(float32_t) == 4, "float32_t declaration is wrong");
 #define _FloatToPCM_raw(sample) (sample * ((double) 0x8000))
 #define _FloatToPCM_clampFloat(sample) \
 	(_makeValue(_FloatToPCM_raw(sample)).clamp<>(-1., 1.))
+// guaranteed to be in right range of right type (int16_t)
 #define FloatToPCM16(s) \
-	((int16_t)TypedClamp(int32_t, _FloatToOutSample_clampFloat(s), -0x8000, 0x7fff))
+	((int16_t)_makeValue(_FloatToPCM_clampFloat(s)).clamp<int32_t>(-0x8000, 0x7fff))
 
 #if defined(OUTSAMPLEFORMAT_INT16)
 #define OUTSAMPLE_t int16_t
@@ -209,7 +208,7 @@ static_assert(sizeof(float32_t) == 4, "float32_t declaration is wrong");
 #define OutSampleAsFloat(sample) (sample / ((double) 0x8000))
 // normed in [-0x8000,0x7fff]. not clamped
 #define OutSampleAsInt(sample) sample
-// guaranteed to be in right range
+// guaranteed to be in right range of type OUTSAMPLE_t
 #define FloatToOutSample(sample) FloatToPCM16(sample)
 
 #else
@@ -220,7 +219,7 @@ static_assert(sizeof(float32_t) == 4, "float32_t declaration is wrong");
 #define OutSampleAsFloat(sample) (sample)
 // normed in [-0x8000,0x7fff]. not clamped
 #define OutSampleAsInt(sample) (sample * ((double) 0x8000))
-// guaranteed to be in right range
+// guaranteed to be in right range of type OUTSAMPLE_t
 #define FloatToOutSample(sample) (_makeValue(sample).clamp<OUTSAMPLE_t>(-1., 1.))
 #endif
 
