@@ -82,6 +82,7 @@ void readFmtChunk(uint32_t chunkLen) {
 	uint16_t fmttag = freadNum<uint16_t>(wavfile); // 1: PCM (int). 3: IEEE float
 	CHECK(fmttag == 1 || fmttag == 3);
 	numChannels = freadNum<uint16_t>(wavfile);
+	CHECK(numChannels > 0);
 	printf("%i channels\n", numChannels);
 	sampleRate = freadNum<uint32_t>(wavfile);
 	printf("%i Hz\n", sampleRate);
@@ -125,15 +126,19 @@ int main(int argc, char** argv) {
 		uint32_t chunkLen = freadNum<uint32_t>(wavfile);
 		if(chunkName == "fmt ")
 			readFmtChunk(chunkLen);
-		else if(chunkName == "data")
+		else if(chunkName == "data") {
+			CHECK(sampleRate != 0);
+			CHECK(numChannels > 0);
+			CHECK(bytesPerSample > 0);
+			printf("len: %.0f secs\n", double(chunkLen) / sampleRate / numChannels / bytesPerSample);
 			break; // start playing now
-		else {
+		} else {
 			// skip chunk
 			CHECK(fseek(wavfile, chunkLen, SEEK_CUR) == 0);
 		}
 	}
 	
-	printf("start playing...");
+	printf("start playing...\n");
 	CHECK(portAudioOpen());
 	
 	fclose(wavfile);
