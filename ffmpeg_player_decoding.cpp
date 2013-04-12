@@ -848,7 +848,14 @@ bool PlayerObject::volumeAdjustNeeded() const {
 	return false;
 }
 
-static const enum AVSampleFormat outFormat = AV_SAMPLE_FMT_S16;
+template<typename T> struct AVOutFormat{};
+template<> struct AVOutFormat<int16_t> {
+	static const enum AVSampleFormat format = AV_SAMPLE_FMT_S16;
+};
+template<> struct AVOutFormat<float32_t> {
+	static const enum AVSampleFormat format = AV_SAMPLE_FMT_FLT;
+};
+
 
 // called from PlayerObject::workerProc()
 // decode one audio frame and returns its uncompressed size
@@ -948,7 +955,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 				is->audio_tgt.channels != outNumChannels) {
 				swr_free(&is->swr_ctx);
 				
-				is->audio_tgt.fmt = outFormat;
+				is->audio_tgt.fmt = AVOutFormat<OUTSAMPLE_t>::format;
 				is->audio_tgt.freq = outSamplerate;
 				is->audio_tgt.channels = outNumChannels;
 				is->audio_tgt.channel_layout = av_get_default_channel_layout(player->outNumChannels);
@@ -956,13 +963,13 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 				is->swr_ctx = swr_alloc_set_opts
 				(
 					NULL,
-					is->audio_tgt.channel_layout, outFormat, outSamplerate,
+					is->audio_tgt.channel_layout, AVOutFormat<OUTSAMPLE_t>::format, outSamplerate,
 					 dec_channel_layout,           dec->sample_fmt,   dec->sample_rate,
 					 0, NULL);
 				if (!is->swr_ctx || swr_init(is->swr_ctx) < 0) {
 					fprintf(stderr, "Cannot create sample rate converter for conversion of %d Hz %s %d channels to %d Hz %s %d channels!\n",
 							dec->sample_rate,   av_get_sample_fmt_name(dec->sample_fmt),   dec->channels,
-							outSamplerate, av_get_sample_fmt_name(outFormat), outNumChannels);
+							outSamplerate, av_get_sample_fmt_name(AVOutFormat<OUTSAMPLE_t>::format), outNumChannels);
 					break;
 				}
 				is->audio_src.channel_layout = dec_channel_layout;
@@ -977,7 +984,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 			if (is->swr_ctx) {
 				const uint8_t **in = (const uint8_t **)is->frame->extended_data;
 				uint8_t *out[] = {is->audio_buf2};
-				int out_count = sizeof(is->audio_buf2) / outNumChannels / av_get_bytes_per_sample(outFormat);
+				int out_count = sizeof(is->audio_buf2) / outNumChannels / av_get_bytes_per_sample(AVOutFormat<OUTSAMPLE_t>::format);
 				if (wanted_nb_samples != is->frame->nb_samples) {
 					if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - is->frame->nb_samples) * outSamplerate / dec->sample_rate,
 											 wanted_nb_samples * outSamplerate / dec->sample_rate) < 0) {
@@ -995,7 +1002,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 					swr_init(is->swr_ctx);
 				}
 				is->audio_buf = is->audio_buf2;
-				resampled_data_size = len2 * outNumChannels * av_get_bytes_per_sample(outFormat);
+				resampled_data_size = len2 * outNumChannels * av_get_bytes_per_sample(AVOutFormat<OUTSAMPLE_t>::format);
 			} else {
 				is->audio_buf = is->frame->data[0];
 				resampled_data_size = data_size;
