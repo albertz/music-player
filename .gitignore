@@ -4,6 +4,7 @@
 *.so
 *.dylib
 *.o
+a.out
 *.db
 *~
 xcuserdata
