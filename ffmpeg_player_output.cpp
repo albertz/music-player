@@ -25,7 +25,7 @@
 static void setRealtime();
 
 
-#define AUDIO_BUFFER_SIZE	(2048 * 10) // soundcard buffer
+#define AUDIO_BUFFER_SIZE	(2048 * 5 * OUTSAMPLEBYTELEN) // soundcard buffer
 
 
 int initPlayerOutput() {

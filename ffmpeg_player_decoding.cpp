@@ -20,7 +20,7 @@ extern "C" {
 #include <vector>
 
 #define PROCESS_SIZE		(BUFFER_CHUNK_SIZE * 10) // how much data to proceed in processInStream()
-#define BUFFER_FILL_SIZE	(48000 * 2 * 2 * 10) // 10secs for 48kHz,stereo - around 2MB
+#define BUFFER_FILL_SIZE	(48000 * 2 * OUTSAMPLEBYTELEN * 10) // 10secs for 48kHz,stereo - around 2MB
 #define PEEKSTREAM_NUM		3
 
 
@@ -112,7 +112,7 @@ struct InStreamRawPOD {
 	int audio_stream;
 	double audio_clock;
 	AVStream *audio_st;
-	DECLARE_ALIGNED(16,uint8_t,audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
+	DECLARE_ALIGNED(OUTSAMPLEBITLEN,uint8_t,audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
 	uint8_t *audio_buf;
 	AVPacket audio_pkt_temp;
 	AVPacket audio_pkt;
@@ -869,6 +869,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 	if(is->ctx == NULL) return -1;
 	if(is->audio_st == NULL) return -1;
 	if(is->readerHitEnd) return -1;
+	assert(av_get_bytes_per_sample(AVOutFormat<OUTSAMPLE_t>::format) == OUTSAMPLEBYTELEN);
 	
 	PyScopedGIUnlock gunlock; // be sure that we don't have it. the av-callbacks (read/seek) must not have it.
 	
@@ -984,7 +985,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 			if (is->swr_ctx) {
 				const uint8_t **in = (const uint8_t **)is->frame->extended_data;
 				uint8_t *out[] = {is->audio_buf2};
-				int out_count = sizeof(is->audio_buf2) / outNumChannels / av_get_bytes_per_sample(AVOutFormat<OUTSAMPLE_t>::format);
+				int out_count = sizeof(is->audio_buf2) / outNumChannels / OUTSAMPLEBYTELEN;
 				if (wanted_nb_samples != is->frame->nb_samples) {
 					if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - is->frame->nb_samples) * outSamplerate / dec->sample_rate,
 											 wanted_nb_samples * outSamplerate / dec->sample_rate) < 0) {
@@ -1002,7 +1003,7 @@ static long audio_decode_frame(PlayerObject* player, PlayerObject::InStream *is,
 					swr_init(is->swr_ctx);
 				}
 				is->audio_buf = is->audio_buf2;
-				resampled_data_size = len2 * outNumChannels * av_get_bytes_per_sample(AVOutFormat<OUTSAMPLE_t>::format);
+				resampled_data_size = len2 * outNumChannels * OUTSAMPLEBYTELEN;
 			} else {
 				is->audio_buf = is->frame->data[0];
 				resampled_data_size = data_size;
@@ -1336,7 +1337,7 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 		if(!is) continue;
 	
 		is->playerStartedPlaying = true;
-		size_t popCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*2);
+		size_t popCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN);
 		popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
 		
 		if(player->volumeAdjustNeeded()) {
