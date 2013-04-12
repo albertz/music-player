@@ -16,6 +16,7 @@ FILE* wavfile;
 int numChannels;
 int sampleRate;
 PaSampleFormat sampleFormat;
+int bytesPerSample, bitsPerSample;
 
 int paStreamCallback(
 	const void *input, void *output,
@@ -69,6 +70,43 @@ std::string freadStr(FILE* f, size_t len) {
 	return s;
 }
 
+template<typename T>
+T freadNum(FILE* f) {
+	T value;
+	CHECK(fread(&value, sizeof(value), 1, f) == 1);
+	return value; // no endian-swap for now... WAV is LE anyway...
+}
+
+void readFmtChunk(uint32_t chunkLen) {
+	CHECK(chunkLen >= 16);
+	uint16_t fmttag = freadNum<uint16_t>(wavfile); // 1: PCM (int). 3: IEEE float
+	CHECK(fmttag == 1 || fmttag == 3);
+	numChannels = freadNum<uint16_t>(wavfile);
+	sampleRate = freadNum<uint32_t>(wavfile);
+	uint32_t byteRate = freadNum<uint32_t>(wavfile);
+	uint16_t blockAlign = freadNum<uint16_t>(wavfile);
+	bitsPerSample = freadNum<uint16_t>(wavfile);
+	bytesPerSample = bitsPerSample / 8;
+	CHECK(byteRate == sampleRate * numChannels * bytesPerSample);
+	CHECK(blockAlign == numChannels * bytesPerSample);
+	if(fmttag == 1 /*PCM*/) {
+		switch(bitsPerSample) {
+			case 8: sampleFormat = paInt8; break;
+			case 16: sampleFormat = paInt16; break;
+			case 32: sampleFormat = paInt32; break;
+			default: CHECK(false);
+		}
+	} else {
+		CHECK(fmttag == 3 /* IEEE float */);
+		CHECK(bitsPerSample == 32);
+		sampleFormat = paFloat32;
+	}
+	if(chunkLen > 16) {
+		uint16_t extendedSize = freadNum<uint16_t>(wavfile);
+		CHECK(chunkLen == 18 + extendedSize);
+		fseek(wavfile, extendedSize, SEEK_CUR);
+	}
+}
 
 int main(int argc, char** argv) {
 	CHECK(argc > 1);
@@ -76,6 +114,21 @@ int main(int argc, char** argv) {
 	CHECK(wavfile != NULL);
 	
 	CHECK(freadStr(wavfile, 4) == "RIFF");
+	uint32_t wavechunksize = freadNum<uint32_t>(wavfile);
+	CHECK(freadStr(wavfile, 4) == "WAVE");
+	while(true) {
+		std::string chunkName = freadStr(wavfile, 4);
+		uint32_t chunkLen = freadNum<uint32_t>(wavfile);
+		if(chunkName == "fmt ")
+			readFmtChunk(chunkLen);
+		else if(chunkName == "data")
+			break; // start playing now
+		else {
+			// skip chunk
+			CHECK(fseek(wavfile, chunkLen, SEEK_CUR) == 0);
+		}
+	}
+	
 	CHECK(portAudioOpen());
 	
 	fclose(wavfile);
