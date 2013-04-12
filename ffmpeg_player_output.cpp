@@ -124,6 +124,9 @@ struct PlayerObject::OutStream {
 				close();
 			return false;
 		}
+
+		needRealtimeReset = true;
+		Pa_StartStream(stream);
 		return true;
 	}
 	
@@ -137,20 +140,6 @@ struct PlayerObject::OutStream {
 		Pa_CloseStream(stream);
 	}
 	
-	void start() {
-		assert(stream != NULL);
-		needRealtimeReset = true;
-		Pa_StartStream(stream);
-	}
-
-	void stop() {
-		if(this->stream == NULL) return;
-		// we expect that we have the lock here.
-		// we must release the lock so that any thread-join can be done.
-		PaStream* stream = this->stream; // buffer for unlock-scope
-		PyScopedUnlock unlock(player->lock);
-		Pa_StopStream(stream);
-	}
 };
 
 
@@ -175,10 +164,6 @@ int PlayerObject::setPlaying(bool playing) {
 				if(!player->outStream->open())
 					playing = false;
 			}
-			if(playing)
-				player->outStream->start();
-			else
-				player->outStream->stop();
 		}
 		
 		oldplayingstate = player->playing;
