@@ -25,7 +25,6 @@
 static void setRealtime();
 
 
-#define AUDIO_BUFFER_SIZE	(2048 * 5 * OUTSAMPLEBYTELEN) // soundcard buffer
 
 
 int initPlayerOutput() {
@@ -101,13 +100,19 @@ struct PlayerObject::OutStream {
 		outputParameters.channelCount = player->outNumChannels;
 		outputParameters.sampleFormat = OutPaSampleFormat<OUTSAMPLE_t>::format;
 		outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
-				
+		
+		// Note about framesPerBuffer:
+		// Earlier, we used (2048 * 5 * OUTSAMPLEBYTELEN) which caused
+		// some random more or less rare cracking noises.
+		// See here: https://github.com/albertz/music-player/issues/35
+		// This doesn't seem to happen with paFramesPerBufferUnspecified.
+		
 		PaError ret = Pa_OpenStream(
 			&stream,
 			NULL, // no input
 			&outputParameters,
 			player->outSamplerate, // sampleRate
-			AUDIO_BUFFER_SIZE / OUTSAMPLEBYTELEN, // framesPerBuffer,
+			paFramesPerBufferUnspecified, // framesPerBuffer,
 			paClipOff | paDitherOff,
 			&paStreamCallback,
 			this //void *userData
