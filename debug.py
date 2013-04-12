@@ -39,6 +39,12 @@ def addDevelSysPath():
 	assert path, "devel path not found"
 	sys.path = [path] + sys.path
 
+def reloadMe():
+	"Because this is so common, handy shortcut."
+	addDevelSysPath()
+	import debug
+	return reload(debug)
+
 def iterEggPaths():
 	from glob import glob
 	versionStr = ".".join(map(str, sys.version_info[0:2]))
@@ -171,7 +177,8 @@ def dump10Secs():
 
 	player.playing = False
 	player.soundcardOutputEnabled = True
-
+	player.seekRel(-10) # seek back 10 secs
+	
 	import appinfo
 	wavfn = appinfo.userdir + "/debugdump.wav"
 	f = open(wavfn, "w")
