@@ -564,8 +564,8 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	
 	if(strcmp(key, "outSampleFormat") == 0) {
 		PyObject* t = PyTuple_New(2);
-		PyTuple_SetItem(t, 0, PyString_FromString("int"));
-		PyTuple_SetItem(t, 1, PyInt_FromLong(16));
+		PyTuple_SetItem(t, 0, PyString_FromString(OUTSAMPLEFORMATSTR));
+		PyTuple_SetItem(t, 1, PyInt_FromLong(OUTSAMPLEBITLEN));
 		return t;
 	}
 	
