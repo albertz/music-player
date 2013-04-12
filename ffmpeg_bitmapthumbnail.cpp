@@ -184,7 +184,7 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	while(player->processInStream()) {
 		if(PyErr_Occurred()) goto final;
 		
-		totalFrameCount += player->inStreamBuffer()->size() / player->outNumChannels / 2 /* S16 */;
+		totalFrameCount += player->inStreamBuffer()->size() / player->outNumChannels / OUTSAMPLEBYTELEN;
 		player->inStreamBuffer()->clear();
 	}
 	songDuration = (double)totalFrameCount / player->outSamplerate;
