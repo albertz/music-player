@@ -1,3 +1,9 @@
+// Simple demo to play wav-file with PortAudio.
+// Part of MusicPlayer, https://github.com/albertz/music-player
+// Copyright (c) 2013, Albert Zeyer, www.az2000.de
+// All rights reserved.
+// This code is under the 2-clause BSD license.
+
 // compile:
 //   c++ portaudio-wavplay-demo.cpp -lportaudio
 
