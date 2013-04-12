@@ -82,7 +82,9 @@ void readFmtChunk(uint32_t chunkLen) {
 	uint16_t fmttag = freadNum<uint16_t>(wavfile); // 1: PCM (int). 3: IEEE float
 	CHECK(fmttag == 1 || fmttag == 3);
 	numChannels = freadNum<uint16_t>(wavfile);
+	printf("%i channels\n", numChannels);
 	sampleRate = freadNum<uint32_t>(wavfile);
+	printf("%i Hz\n", sampleRate);
 	uint32_t byteRate = freadNum<uint32_t>(wavfile);
 	uint16_t blockAlign = freadNum<uint16_t>(wavfile);
 	bitsPerSample = freadNum<uint16_t>(wavfile);
@@ -96,10 +98,12 @@ void readFmtChunk(uint32_t chunkLen) {
 			case 32: sampleFormat = paInt32; break;
 			default: CHECK(false);
 		}
+		printf("PCM %ibit int\n", bitsPerSample);
 	} else {
 		CHECK(fmttag == 3 /* IEEE float */);
 		CHECK(bitsPerSample == 32);
 		sampleFormat = paFloat32;
+		printf("32bit float\n");
 	}
 	if(chunkLen > 16) {
 		uint16_t extendedSize = freadNum<uint16_t>(wavfile);
@@ -129,6 +133,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
+	printf("start playing...");
 	CHECK(portAudioOpen());
 	
 	fclose(wavfile);
