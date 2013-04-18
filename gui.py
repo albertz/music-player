@@ -126,7 +126,7 @@ class GuiObject:
 		if not varWidthControl:
 			varWidthControl = line[-1]
 			if varWidthControl.attr.variableWidth is False:
-				# It explicitely doesn't want to be of variable size.
+				# It explicitly doesn't want to be of variable size.
 				return
 		x = self.parent.innerSize[0] - self.parent.OuterSpace[0]
 		for control in reversed(line):
