@@ -62,24 +62,13 @@ class DB(object):
 	def __init__(self, name, create_command = "create table %s(key blob primary key unique, value blob)"):
 		import threading
 		self.writelock = threading.Lock()
-		self.name = name
-		self.path = appinfo.userdir + "/" + name
-		self.create_command = create_command
-		try:
-			self.test()
-		except Exception as exc:
-			# Maybe we had an old LevelDB or some other corruption.
-			# Not much we can do for recovering...
-			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.name, exc)
-			self.removeOldDb()
-			self.initNew()
 
 		# We need a workaround wrapper for SQLite connection objects
 		# because Python might crash in their tp_dealloc.
 		# See <http://bugs.python.org/issue17263> for details.
 		class LocalConnection:
 			refs = set()
-			lock = threading.RLock()			
+			lock = threading.RLock()
 			def __init__(self, conn):
 				from weakref import ref
 				self.conn = conn
@@ -104,6 +93,19 @@ class DB(object):
 						if not l: continue
 						l.reset()
 		self.LocalConnection = LocalConnection
+
+		self.name = name
+		self.path = appinfo.userdir + "/" + name
+		self.create_command = create_command
+
+		try:
+			self.test()
+		except Exception as exc:
+			# Maybe we had an old LevelDB or some other corruption.
+			# Not much we can do for recovering...
+			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.name, exc)
+			self.removeOldDb()
+			self.initNew()
 
 	@property
 	def _connection(self):
