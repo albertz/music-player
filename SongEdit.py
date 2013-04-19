@@ -92,7 +92,7 @@ class SongEdit:
 			except AttributeError: pass
 			else:
 				if func: value = func(value)
-				d[key] = unicode(value)
+				d[key] = utils.convertToUnicode(value)
 		l = []
 		for key,value in sorted(d.items()):
 			l += [{"key": key, "value": value}]
