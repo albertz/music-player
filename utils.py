@@ -741,6 +741,9 @@ def intersectFuzzySets(*fuzzySets):
 
 
 def convertToUnicode(value):
+	"""
+	:rtype : unicode
+	"""
 	if isinstance(value, unicode): return value
 	assert isinstance(value, str)
 	try:
