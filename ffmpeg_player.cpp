@@ -192,6 +192,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	PlayerObject* player = (PlayerObject*) self;
 	//printf("%p player init\n", player);
 	
+	mlock(player, sizeof(*player));
 	player->nextSongOnEof = 1;
 	player->skipPyExceptions = 1;
 	player->volumeAdjustEnabled = true;

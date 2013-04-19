@@ -54,6 +54,9 @@ PyObject* pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args);
 PyObject* pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws);
 PyObject* pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws);
 
+// this is defined in <sys/mman.h>. systems which don't have that should provide a dummy/wrapper
+int mlock(const void *addr, size_t len);
+
 #ifdef __cplusplus
 }
 
@@ -152,12 +155,12 @@ struct Buffer {
 		uint16_t size() const { assert(start <= end); return end - start; }
 		static uint16_t BufferSize() { return BUFFER_CHUNK_SIZE; }
 		uint16_t freeDataAvailable() { return BufferSize() - end; }
-		Chunk() : start(0), end(0) {}
+		Chunk() : start(0), end(0) { mlock(this, sizeof(*this)); }
 	};
 	std::list<Chunk> chunks;
 	size_t _size;
 	
-	Buffer() : _size(0) {}
+	Buffer() : _size(0) { mlock(this, sizeof(*this)); }
 	size_t size() { PyScopedLock lock(mutex); return _size; }
 	void clear() { PyScopedLock lock(mutex); chunks.clear(); _size = 0; }
 	bool empty() { return size() == 0; }

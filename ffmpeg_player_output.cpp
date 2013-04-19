@@ -48,7 +48,9 @@ struct PlayerObject::OutStream {
 	PaStream* stream;
 	bool needRealtimeReset; // PortAudio callback thread must set itself to realtime
 
-	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false) {}
+	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false) {
+		mlock(this, sizeof(*this));
+	}
 	~OutStream() { close(); }
 
 	static int paStreamCallback(

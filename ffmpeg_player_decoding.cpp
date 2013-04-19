@@ -136,6 +136,7 @@ struct PlayerObject::InStream : InStreamRawPOD {
 	bool playerHitEnd; // this would be set by readOutStream()
 	
 	InStream() {
+		mlock(this, sizeof(*this));
 		memset(this, 0, sizeof(InStreamRawPOD));
 		timeLen = -1;
 		readerHitEnd = false;
