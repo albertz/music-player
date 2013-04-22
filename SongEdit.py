@@ -92,6 +92,8 @@ class SongEdit:
 			except AttributeError: pass
 			else:
 				if func: value = func(value)
+				if not isinstance(value, (str,unicode)):
+					value = str(value)
 				d[key] = utils.convertToUnicode(value)
 		l = []
 		for key,value in sorted(d.items()):
