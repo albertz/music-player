@@ -187,13 +187,11 @@ if __name__ == "__main__":
 		import atexit
 		atexit.register(readline.write_history_file, histfile)
 
-		readline.parse_and_bind('tab: complete')
-
 		def completer(text, state):
 			try:
 				options = _getPyCompletions(text)
 			except Exception as e:
-				print("\r%s" % e)
+				print("\n%s" % e)
 				sys.stdout.write("> %s" % text)
 				sys.stdout.flush()
 				readline.redisplay()
@@ -202,6 +200,9 @@ if __name__ == "__main__":
 				return options[state]
 			else:
 				return None
+
+		readline.parse_and_bind('tab: complete')
+		readline.set_completer_delims("") # see <http://stackoverflow.com/q/16175515/133374>
 		readline.set_completer(completer)
 
 	except ImportError: pass # ignore
