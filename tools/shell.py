@@ -67,8 +67,8 @@ def latestPyStatement(execStr):
 		if ttype in ["op","id"]: return tstr
 		if ttype == "str": return repr(tstr)
 		assert False, "tokenToStr(%r, %r)" % (ttype, tstr)
-	for i,(ttype,tstr) in reversed(enumerate(tokens)):
-		if bracketDepth > 1:
+	for i,(ttype,tstr) in reversed(list(enumerate(tokens))):
+		if bracketDepth >= 1:
 			if ttype == "op" and tstr in "({[":
 				bracketDepth -= 1
 			s = tokenToStr(ttype,tstr) + s
