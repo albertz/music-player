@@ -27,6 +27,7 @@ shell.connect()
 shell.remoteExec("from Song import Song")
 i = 0
 for fn in files:
+	fn = os.path.abspath(fn)
 	assert os.path.exists(fn), "file %r does not exist" % fn
 	shell.remoteExec("state.queue.queue.insert(%i, Song(%r))" % (i, fn))
 	i += 1
