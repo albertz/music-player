@@ -4,6 +4,9 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+import sys, os
+sys.path += [os.path.dirname(__file__) + "/.."]
+
 import better_exchook
 better_exchook.install()
 
