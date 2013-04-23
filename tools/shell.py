@@ -52,7 +52,16 @@ assert serverver == 0.1
 binstruct.write(f, (appinfo.appid, "SocketControl-InteractiveClient", 0.1, "ok"))
 f.flush()
 
-try: import readline
+try:
+	import readline
+
+	histfile = appinfo.userdir + "/shell.history"
+	try: readline.read_history_file(histfile)
+	except IOError: pass
+
+	import atexit
+	atexit.register(readline.write_history_file, histfile)
+
 except ImportError: pass # ignore
 
 idx = 0
