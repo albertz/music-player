@@ -148,7 +148,14 @@ def _getPyCompletions(stmnt):
 		# not the server. But we just expect these to be mostly the same.
 		import __builtin__
 		ctx += dir(__builtin__)
-	return [contextLeft + s for s in ctx if s.lower().startswith(contextStart)]
+	if not ctx: return []
+	opts = [contextLeft + s for s in ctx if s.lower().startswith(contextStart)]
+	if opts or not contextStart: return opts
+	while contextStart:
+		opts = [contextLeft + s for s in ctx if s.lower().startswith(contextStart)]
+		if opts: return [contextLeft + contextStart]
+		contextStart = contextStart[:-1]
+	return []
 
 idx = 0
 def _remoteExec(execStr):
@@ -186,7 +193,10 @@ if __name__ == "__main__":
 			try:
 				options = _getPyCompletions(text)
 			except Exception as e:
-				print e
+				print("\r%s" % e)
+				sys.stdout.write("> %s" % text)
+				sys.stdout.flush()
+				readline.redisplay()
 				return None
 			if state < len(options):
 				return options[state]
