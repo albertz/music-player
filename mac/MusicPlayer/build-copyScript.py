@@ -43,7 +43,7 @@ for f in ("License.txt", "DevelopmentNotes.md", "WhatIsAMusicPlayer.md"):
 	cp(env["PROJECT_DIR"] + "/../" + f, PYDIR + "/" + f)
 for f in glob(env["PROJECT_DIR"] + "/../*.py"):
 	cp(f, PYDIR + "/" + os.path.basename(f))
-for d in ["lastfm"]:
+for d in ["lastfm", "tools"]:
 	if os.path.exists(PYDIR + "/" + d):
 		shutil.rmtree(PYDIR + "/" + d)
 	shutil.copytree(env["PROJECT_DIR"] + "/../" + d, PYDIR + "/" + d, symlinks=False)
