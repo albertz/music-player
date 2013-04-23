@@ -5,6 +5,7 @@
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 import sys, os
+
 importPath = os.path.join(os.path.dirname(__file__), "..")
 if importPath not in sys.path:
 	sys.path += [importPath]
@@ -58,30 +59,91 @@ def connect():
 	binstruct.write(f, (appinfo.appid, "SocketControl-InteractiveClient", 0.1, "ok"))
 	f.flush()
 
+def _parsePyString(i, s):
+	strType = s[i]
+	assert strType in "\"\'"
+	escaped = False
+	finished = False
+	while True:
+		i += 1
+		if i >= len(s): break
+		if escaped:
+			escaped = False
+			continue
+		if s[i] == "\\":
+			escaped = True
+		elif s[i] == strType:
+			finished = True
+			break
+	return locals()
 
-def latestPyStatement(execStr):
-	tokens = list(better_exchook.parse_py_statement(execStr))
-	bracketDepth = 0
-	s = ""
-	def tokenToStr(ttype,tstr):
-		if ttype in ["op","id"]: return tstr
-		if ttype == "str": return repr(tstr)
-		assert False, "tokenToStr(%r, %r)" % (ttype, tstr)
-	for i,(ttype,tstr) in reversed(list(enumerate(tokens))):
-		if bracketDepth >= 1:
-			if ttype == "op" and tstr in "({[":
-				bracketDepth -= 1
-			s = tokenToStr(ttype,tstr) + s
-			continue
-		if ttype == "op" and tstr in "]})":
-			bracketDepth += 1
-			s = tokenToStr(ttype,tstr) + s
-			continue
-		if (ttype,tstr) == ("op",".") or ttype in ["id","str"]:
-			s = tokenToStr(ttype,tstr) + s
-			continue
-		break
-	return s
+def _parsePyStatement(i, s):
+	latestPyExpStart = i
+	latestDot = None
+	suggestedCompletion = None
+	while True:
+		if i >= len(s): break
+		c = s[i]
+		if c in "({[":
+			state = _parsePyStatement(i+1, s)
+			i = state["i"]
+			if i >= len(s):
+				return state
+			assert s[i] in "]})"
+			# we have no real context. user should put dot or so
+			suggestedCompletion = ""
+		elif c in "]})":
+			break
+		elif c in "\"\'":
+			state = _parsePyString(i, s)
+			i = state["i"]
+			if not state["finished"]:
+				assert i >= len(s)
+				suggestedCompletion = ""
+				if not state["escaped"]:
+					suggestedCompletion = c
+				break
+			assert s[i] == c
+			# we have no real context. user should put dot or so
+			suggestedCompletion = ""
+		elif c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_":
+			pass
+		elif c.strip() == "":
+			pass
+		elif c == ".":
+			latestDot = i
+			suggestedCompletion = None
+		else: # it's an operation
+			return _parsePyStatement(i + 1, s)
+		i += 1
+	return locals()
+
+def _suggestPyCompletion(stmnt):
+	state = _parsePyStatement(0, stmnt)
+	suggestedCompletion = state["suggestedCompletion"]
+	if suggestedCompletion is not None: return locals()
+	if state["latestDot"] is None:
+		contextStmnt = ""
+		contextStart = stmnt[state["latestPyExpStart"]:]
+	else:
+		contextStmnt = stmnt[state["latestPyExpStart"]:state["latestDot"]]
+		contextStart = stmnt[state["latestDot"]+1:]
+	return locals()
+
+def _getPyCompletions(stmnt):
+	state = _suggestPyCompletion(stmnt)
+	suggestedCompletion = state["suggestedCompletion"]
+	if suggestedCompletion is not None: return [stmnt + suggestedCompletion]
+	contextStmnt = state["contextStmnt"]
+	contextStart = state["contextStart"]
+	ctx = remoteExec("dir(%s)" % contextStmnt)
+	assert isinstance(ctx, list)
+	if contextStmnt.strip() == "":
+		# Add builtins. Note that these are from us (the shell client),
+		# not the server. But we just expect these to be mostly the same.
+		import __builtin__
+		ctx += dir(__builtin__)
+	return [s for s in ctx if s.startswith(contextStart.strip())]
 
 idx = 0
 def _remoteExec(execStr):
@@ -94,10 +156,10 @@ def _remoteExec(execStr):
 	assert answeridx == idx
 	return answertype, answerret
 
-def remoteExec(execStr):
+def remoteExec(execStr, evalCtx=None):
 	answertype, answerret = _remoteExec(s)
 	if answertype == "return":
-		return answerret
+		return eval(answerret, evalCtx)
 	assert answertype in ["compile-exception", "eval-exception"]
 	raise Exception, "%s : %s" % (answerret[0], answerret[1])
 
@@ -115,9 +177,8 @@ if __name__ == "__main__":
 
 		readline.parse_and_bind('tab: complete')
 
-		commands = ["foo", "bar", "buz"]
 		def completer(text, state):
-			options = [i for i in commands if i.startswith(text)]
+			options = _getPyCompletions(text)
 			if state < len(options):
 				return options[state]
 			else:
