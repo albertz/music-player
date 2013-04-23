@@ -21,7 +21,7 @@ import appinfo
 import tempfile
 from glob import glob
 
-def connect():
+def connect(verbose=False):
 	global f, s
 	s = socket.socket(socket.AF_UNIX)
 
@@ -45,7 +45,7 @@ def connect():
 			except socket.error:
 				pass
 			else:
-				print "socket:", sockfile
+				if verbose: print "socket:", sockfile
 				break
 		assert s
 
@@ -53,7 +53,7 @@ def connect():
 	f = s.makefile()
 
 	serverappid,servername,serverver = binstruct.read(f)
-	print "connected to", serverappid, servername, serverver
+	if verbose: print "connected to", serverappid, servername, serverver
 	assert serverappid == appinfo.appid
 	assert serverver == 0.1
 
@@ -172,6 +172,7 @@ def _remoteExec(execStr):
 def remoteExec(execStr, evalCtx=None):
 	answertype, answerret = _remoteExec(execStr)
 	if answertype == "return":
+		if answerret is None: return None
 		return eval(answerret, evalCtx)
 	assert answertype in ["compile-exception", "eval-exception"]
 	raise Exception, "%s : %s" % (answerret[0], answerret[1])
@@ -208,7 +209,7 @@ if __name__ == "__main__":
 
 	except ImportError: pass # ignore
 
-	connect()
+	connect(verbose=True)
 
 	while True:
 		try: s = raw_input("> ")

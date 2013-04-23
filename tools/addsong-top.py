@@ -15,11 +15,15 @@ import better_exchook
 if __name__ == "__main__":
 	better_exchook.install()
 
+from appinfo_args import argParser
+argParser.parse_args = lambda: None
+
 files = sys.argv[1:]
 assert files, "usage: %s <files>" % sys.argv[0]
 assert all([os.path.exists(fn) for fn in files]), "some files do not exist"
 
 import shell
+shell.connect()
 shell.remoteExec("from Song import Song")
 i = 0
 for fn in files:
