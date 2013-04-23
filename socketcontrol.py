@@ -10,7 +10,7 @@ import utils
 import binstruct
 
 
-def handleConnection(conn):
+def _handleConnection(conn):
 	conn.setblocking(True)
 	f = conn.makefile()
 
@@ -61,7 +61,11 @@ def handleConnection(conn):
 		
 		f.write(binstruct.varEncode(answer).tostring())
 		f.flush()
-		
+
+def handleConnection(conn, address):
+	print "socketcontrol: accepted", address
+	utils.daemonThreadCall(lambda: _handleConnection(conn), name="socketcontrol.handleConnection")
+
 def socketcontrolMain():	
 	import tempfile
 	tmpdir = tempfile.gettempdir() or "/tmp"
@@ -79,10 +83,9 @@ def socketcontrolMain():
 	
 		while True:
 			conn, address = s.accept()
-			print "socketcontrol: accepted", address
-			utils.daemonThreadCall(lambda: handleConnection(conn), name="socketcontrol.handleConnection")
+			handleConnection(conn, address)
 			conn, address = None, None # remove refs here
-		
+
 	utils.daemonThreadCall(listenThread, name="socketcontrol.listen")
 	
 	from State import state
