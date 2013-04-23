@@ -149,7 +149,7 @@ idx = 0
 def _remoteExec(execStr):
 	global f, idx
 	idx += 1
-	f.write(binstruct.varEncode((idx, s)).tostring())
+	f.write(binstruct.varEncode((idx, execStr)).tostring())
 	f.flush()
 
 	answeridx,answertype,answerret = binstruct.varDecode(f)
@@ -157,7 +157,7 @@ def _remoteExec(execStr):
 	return answertype, answerret
 
 def remoteExec(execStr, evalCtx=None):
-	answertype, answerret = _remoteExec(s)
+	answertype, answerret = _remoteExec(execStr)
 	if answertype == "return":
 		return eval(answerret, evalCtx)
 	assert answertype in ["compile-exception", "eval-exception"]
@@ -178,7 +178,11 @@ if __name__ == "__main__":
 		readline.parse_and_bind('tab: complete')
 
 		def completer(text, state):
-			options = _getPyCompletions(text)
+			try:
+				options = _getPyCompletions(text)
+			except Exception as e:
+				print e
+				return None
 			if state < len(options):
 				return options[state]
 			else:
