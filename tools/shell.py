@@ -125,17 +125,22 @@ def _suggestPyCompletion(stmnt):
 	if state["latestDot"] is None:
 		contextStmnt = ""
 		contextStart = stmnt[state["latestPyExpStart"]:]
+		contextLeft = stmnt[:state["latestPyExpStart"]]
 	else:
 		contextStmnt = stmnt[state["latestPyExpStart"]:state["latestDot"]]
 		contextStart = stmnt[state["latestDot"]+1:]
+		contextLeft = stmnt[:state["latestDot"]+1]
 	return locals()
 
 def _getPyCompletions(stmnt):
+	stmnt = stmnt.rstrip()
 	state = _suggestPyCompletion(stmnt)
 	suggestedCompletion = state["suggestedCompletion"]
 	if suggestedCompletion is not None: return [stmnt + suggestedCompletion]
 	contextStmnt = state["contextStmnt"]
 	contextStart = state["contextStart"]
+	contextStart = contextStart.lower().strip()
+	contextLeft = state["contextLeft"]
 	ctx = remoteExec("dir(%s)" % contextStmnt)
 	assert isinstance(ctx, list)
 	if contextStmnt.strip() == "":
@@ -143,7 +148,7 @@ def _getPyCompletions(stmnt):
 		# not the server. But we just expect these to be mostly the same.
 		import __builtin__
 		ctx += dir(__builtin__)
-	return [s for s in ctx if s.startswith(contextStart.strip())]
+	return [contextLeft + s for s in ctx if s.lower().startswith(contextStart)]
 
 idx = 0
 def _remoteExec(execStr):
