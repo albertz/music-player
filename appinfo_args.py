@@ -10,7 +10,7 @@ except ImportError:
 	import sys
 	if len(sys.argv) > 1 and \
 	not sys.argv[1].startswith("-psn"): # -psn... is added by Mac when run by launchd
-		print "Error, argparse not available. This needs Python >=2.7."
+		print "Warning, argparse (for parsing sys.argv) not available. This needs Python >=2.7. Ignoring sys.argv."
 	# Dummy fallback
 	class DummyArgParser:
 		def add_argument(self, key, **kwargs):
