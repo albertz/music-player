@@ -53,6 +53,9 @@ template<> struct OutPaSampleFormat<float32_t> {
 };
 
 
+#define LATENCY_IN_MS 100
+
+
 struct PlayerObject::OutStream {
 	PlayerObject* const player;
 	PaStream* stream;
@@ -98,7 +101,7 @@ struct PlayerObject::OutStream {
 				setRealtime();
 			}
 			
-			OUTSAMPLE_t buffer[4800 * 2]; // 100ms stereo in 48khz
+			OUTSAMPLE_t buffer[48 * 2 * 10]; // 10ms stereo in 48khz
 			size_t frameCount = 0;
 			{
 				PyScopedLock lock(player->lock);
@@ -150,8 +153,13 @@ struct PlayerObject::OutStream {
 		}
 		outputParameters.channelCount = player->outNumChannels;
 		outputParameters.sampleFormat = OutPaSampleFormat<OUTSAMPLE_t>::format;
-		outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
 		
+		unsigned long bufferSize = (player->outSamplerate * player->outNumChannels / 1000) * LATENCY_IN_MS / 4;
+		if(bufferSize == paFramesPerBufferUnspecified)
+			outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
+		else
+			outputParameters.suggestedLatency = LATENCY_IN_MS / 1000.0;
+			
 		// Note about framesPerBuffer:
 		// Earlier, we used (2048 * 5 * OUTSAMPLEBYTELEN) which caused
 		// some random more or less rare cracking noises.
@@ -163,7 +171,7 @@ struct PlayerObject::OutStream {
 			NULL, // no input
 			&outputParameters,
 			player->outSamplerate, // sampleRate
-			paFramesPerBufferUnspecified, // framesPerBuffer,
+			bufferSize,
 			paClipOff | paDitherOff,
 #if USE_PORTAUDIO_CALLBACK
 			&paStreamCallback,
