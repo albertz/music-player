@@ -53,7 +53,7 @@ class MacMediaKeyEventsTap:
 			tap = Quartz.CGEventTapCreate(
 				Quartz.kCGSessionEventTap, # Quartz.kCGSessionEventTap or kCGHIDEventTap
 				Quartz.kCGHeadInsertEventTap, # Insert wherever, we do not filter
-				Quartz.kCGEventTapOptionDefault, #Quartz.kCGEventTapOptionListenOnly,
+				Quartz.kCGEventTapOptionDefault, # we can't listen-only because we want to consume it
 				Quartz.CGEventMaskBit(NSSystemDefined), # NSSystemDefined for media keys
 				self.eventTap,
 				None
