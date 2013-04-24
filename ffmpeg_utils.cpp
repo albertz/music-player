@@ -146,7 +146,9 @@ int PyDict_SetItemString_retain(PyObject* dict, const char* key, PyObject* value
 }
 
 PyMutex::PyMutex() {
+	mlock(this, sizeof(*this));
 	l = PyThread_allocate_lock();
+	mlock(l, sizeof(*l));
 	enabled = true;
 }
 
