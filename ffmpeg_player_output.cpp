@@ -7,6 +7,7 @@
 #include "ffmpeg.h"
 
 #include <portaudio.h>
+#include <boost/bind.hpp>
 
 #ifdef __APPLE__
 // PortAudio specific Mac stuff
@@ -24,7 +25,7 @@
 #endif
 static void setRealtime();
 
-
+#define USE_PORTAUDIO_CALLBACK 0
 
 
 int initPlayerOutput() {
@@ -53,6 +54,7 @@ struct PlayerObject::OutStream {
 	}
 	~OutStream() { close(); }
 
+#if USE_PORTAUDIO_CALLBACK
 	static int paStreamCallback(
 		const void *input, void *output,
 		unsigned long frameCount,
@@ -73,7 +75,35 @@ struct PlayerObject::OutStream {
 		outStream->player->readOutStream((OUTSAMPLE_t*) output, frameCount * outStream->player->outNumChannels, NULL);
 		return paContinue;
 	}
-	
+#else
+	PyThread audioThread;
+	void audioThreadProc(PyMutex& threadLock, bool& stopSignal) {
+		while(true) {
+			{
+				PyScopedLock l(threadLock);
+				if(stopSignal) return;
+			}
+
+			if(needRealtimeReset) {
+				needRealtimeReset = false;
+				setRealtime();
+			}
+			
+			OUTSAMPLE_t buffer[4800 * 2]; // 100ms stereo in 48khz
+			size_t sampleNumOut = 0;
+			{
+				PyScopedLock lock(player->lock);
+				if(stopSignal) return;
+				player->readOutStream(buffer, sizeof(buffer)/sizeof(OUTSAMPLE_t), NULL);
+			}
+			
+			PaError ret = Pa_WriteStream(stream, buffer, sampleNumOut);
+			if(ret == paOutputUnderflowed)
+				printf("warning: paOutputUnderflowed\n");
+		}
+	}
+#endif
+
 	bool open() {
 		if(stream) close();
 		assert(stream == NULL);
@@ -116,7 +146,11 @@ struct PlayerObject::OutStream {
 			player->outSamplerate, // sampleRate
 			paFramesPerBufferUnspecified, // framesPerBuffer,
 			paClipOff | paDitherOff,
+#if USE_PORTAUDIO_CALLBACK
 			&paStreamCallback,
+#else
+			NULL,
+#endif
 			this //void *userData
 			);
 		
@@ -129,6 +163,11 @@ struct PlayerObject::OutStream {
 
 		needRealtimeReset = true;
 		Pa_StartStream(stream);
+
+#if !USE_PORTAUDIO_CALLBACK
+		audioThread.func = boost::bind(&OutStream::audioThreadProc, this, _1, _2);
+		audioThread.start();
+#endif
 		return true;
 	}
 	
@@ -141,6 +180,7 @@ struct PlayerObject::OutStream {
 		PaStream* stream = NULL;
 		std::swap(stream, this->stream);
 		PyScopedUnlock unlock(player->lock);
+		audioThread.stop();
 		Pa_CloseStream(stream);
 	}
 	
