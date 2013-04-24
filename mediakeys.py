@@ -19,6 +19,10 @@ class MacMediaKeyEventsTap:
 		}
 
 	def eventTap(self, proxy, type_, event, refcon):
+		if type_ < 0 or type_ > 0x7fffffff:
+			# this might be kCGEventTapDisabledByTimeout
+			print "eventTrap: got", hex(type_)
+			return None
 		from AppKit import NSKeyUp, NSEvent
 		# Convert the Quartz CGEvent into something more useful
 		keyEvent = NSEvent.eventWithCGEvent_(event)
@@ -28,7 +32,8 @@ class MacMediaKeyEventsTap:
 			keyState = (data & 0xFF00) >> 8
 			if keyCode in self._keyControls:
 				if keyState == NSKeyUp:
-					self.onMediaKeyUp(self._keyControls[keyCode])
+					import utils
+					utils.daemonThreadCall(self.onMediaKeyUp, args=(self._keyControls[keyCode],), name="onMediaKeyUp")
 				return None # consume event
 		return event # pass through
 		
@@ -121,6 +126,8 @@ def mediakeysMain():
 if __name__ == '__main__':
 	tap = EventListener()
 	def onMediaKeyUp(control):
+		import time
+		time.sleep(1)
 		print "onMediaKeyUp:", control
 	tap.onMediaKeyUp = onMediaKeyUp
 	tap.start()
