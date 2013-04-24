@@ -19,9 +19,19 @@ class MacMediaKeyEventsTap:
 		}
 
 	def eventTap(self, proxy, type_, event, refcon):
+		import utils
 		if type_ < 0 or type_ > 0x7fffffff:
-			# this might be kCGEventTapDisabledByTimeout
 			print "eventTrap: got", hex(type_)
+			# This might be kCGEventTapDisabledByTimeout.
+			# If we would just pass it, we would get an exception in runEventsCapture like:
+			# error: NSInternalInconsistencyException - Invalid parameter not satisfying: cgsEvent.type > 0 && cgsEvent.type <= kCGSLastEventType
+			# See <http://stackoverflow.com/q/16190680/133374>.
+			# However, just passing None is also not a solution because this event tap
+			# is disabled from now on. Thus we must restart it.
+			def doRestart():
+				self.stop()
+				self.start()
+			utils.daemonThreadCall(doRestart)
 			return None
 		from AppKit import NSKeyUp, NSEvent
 		# Convert the Quartz CGEvent into something more useful
@@ -32,7 +42,10 @@ class MacMediaKeyEventsTap:
 			keyState = (data & 0xFF00) >> 8
 			if keyCode in self._keyControls:
 				if keyState == NSKeyUp:
-					import utils
+					# debug timeout
+					#import time
+					#time.sleep(1)
+					# We want to avoid timeouts, so do this in another thread.
 					utils.daemonThreadCall(self.onMediaKeyUp, args=(self._keyControls[keyCode],), name="onMediaKeyUp")
 				return None # consume event
 		return event # pass through
@@ -75,8 +88,6 @@ class MacMediaKeyEventsTap:
 				# and run! This won't return until we exit or are terminated.
 				Quartz.CFRunLoopRun()
 			except Exception:
-				# I got this one here once:
-				# error: NSInternalInconsistencyException - Invalid parameter not satisfying: cgsEvent.type > 0 && cgsEvent.type <= kCGSLastEventType
 				sys.excepthook(*sys.exc_info())
 				continue # rerun
 
@@ -126,8 +137,6 @@ def mediakeysMain():
 if __name__ == '__main__':
 	tap = EventListener()
 	def onMediaKeyUp(control):
-		import time
-		time.sleep(1)
 		print "onMediaKeyUp:", control
 	tap.onMediaKeyUp = onMediaKeyUp
 	tap.start()
