@@ -98,9 +98,9 @@ else:
 		def start(self): pass
 		def stop(self): pass
 
-from State import state
 
 def onMediaKeyUp(control):
+	from State import state
 	try:
 		if control == "play-pause":
 			state.playPause()
@@ -110,6 +110,7 @@ def onMediaKeyUp(control):
 		sys.excepthook(*sys.exc_info())
 
 def mediakeysMain():
+	from State import state
 	eventTap = EventListener()
 	eventTap.onMediaKeyUp = onMediaKeyUp
 	eventTap.start()
