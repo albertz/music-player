@@ -25,6 +25,15 @@
 #endif
 static void setRealtime();
 
+/*
+The implementation with the PortAudio callback was there first.
+For testing, I implemented also the blocking PortAudio interface.
+I had some issues which small hiccups in the audio output -
+maybe the blocking PortAudio implementation can avoid them better.
+For the callback, we need to minimize the locks - or better, avoid
+them fully. I'm not sure it is good to depend on thread context
+switches in case it is locked. This however needs some heavy redesign.
+*/
 #define USE_PORTAUDIO_CALLBACK 0
 
 
