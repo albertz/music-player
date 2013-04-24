@@ -124,6 +124,7 @@ class PyAppDelegate(NSObject):
 		except: pass
 		# now join all
 		for m in modules: m.stop()
+		print "Bye!"
 		return NSTerminateNow
 
 	def applicationOpenUntitledFile_(self, app):
