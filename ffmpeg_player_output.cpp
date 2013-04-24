@@ -99,30 +99,19 @@ struct PlayerObject::OutStream {
 			}
 			
 			OUTSAMPLE_t buffer[4800 * 2]; // 100ms stereo in 48khz
-			size_t bufferSize = sizeof(buffer)/sizeof(OUTSAMPLE_t);
 			size_t frameCount = 0;
 			{
 				PyScopedLock lock(player->lock);
 				if(stopSignal) return;
-				size_t sampleNumOut = 0;
-				player->readOutStream(buffer, bufferSize, &sampleNumOut);
-				if(sampleNumOut < bufferSize) {
-					// hm...
-					if(player->playing) {
-						printf("audioThreadProc: warning: too less samples\n");
-						// fill with silence
-						memset(&buffer[sampleNumOut], 0, (bufferSize - sampleNumOut) * sizeof(OUTSAMPLE_t));
-						sampleNumOut = bufferSize;
-					}
-				}
-				frameCount = sampleNumOut / player->outNumChannels;
+				player->readOutStream(buffer, sizeof(buffer)/sizeof(OUTSAMPLE_t), NULL);
+				frameCount = sizeof(buffer)/sizeof(OUTSAMPLE_t) / player->outNumChannels;
 			}
 			
 			PaError ret = Pa_WriteStream(stream, buffer, frameCount);
 			if(ret == paOutputUnderflowed)
-				printf("audioThreadProc: warning: paOutputUnderflowed\n");
+				printf("warning: paOutputUnderflowed\n");
 			else if(ret != paNoError) {
-				printf("audioThreadProc: Pa_WriteStream error %i (%s)\n", ret, Pa_GetErrorText(ret));
+				printf("Pa_WriteStream error %i (%s)\n", ret, Pa_GetErrorText(ret));
 				// sleep half a second to avoid spamming
 				for(int i = 0; i < 50; ++i) {
 					usleep(10 * 1000);
