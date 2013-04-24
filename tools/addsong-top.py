@@ -11,23 +11,28 @@ importPath = os.path.join(os.path.dirname(__file__), "..")
 if importPath not in sys.path:
 	sys.path += [importPath]
 
-import better_exchook
+def addSongsTop(files):
+	import shell
+	shell.connect()
+	shell.remoteExec("from Song import Song")
+	i = 0
+	for fn in files:
+		fn = os.path.abspath(fn)
+		assert os.path.exists(fn), "file %r does not exist" % fn
+		shell.remoteExec("state.queue.queue.insert(%i, Song(%r))" % (i, fn))
+		i += 1
+
+
 if __name__ == "__main__":
+	import better_exchook
 	better_exchook.install()
 
-from appinfo_args import argParser
-argParser.parse_args = lambda: None
+	from appinfo_args import argParser
+	argParser.parse_args = lambda: None
 
-files = sys.argv[1:]
-assert files, "usage: %s <files>" % sys.argv[0]
-assert all([os.path.exists(fn) for fn in files]), "some files do not exist"
+	files = sys.argv[1:]
+	assert files, "usage: %s <files>" % sys.argv[0]
+	assert all([os.path.exists(fn) for fn in files]), "some files do not exist"
 
-import shell
-shell.connect()
-shell.remoteExec("from Song import Song")
-i = 0
-for fn in files:
-	fn = os.path.abspath(fn)
-	assert os.path.exists(fn), "file %r does not exist" % fn
-	shell.remoteExec("state.queue.queue.insert(%i, Song(%r))" % (i, fn))
-	i += 1
+	addSongsTop(files)
+

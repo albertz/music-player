@@ -23,6 +23,7 @@ from glob import glob
 
 def connect(verbose=False):
 	global f, s
+	if f: return
 	s = socket.socket(socket.AF_UNIX)
 
 	sockfile = None
