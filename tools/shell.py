@@ -21,6 +21,7 @@ import appinfo
 import tempfile
 from glob import glob
 
+s = f = None
 def connect(verbose=False):
 	global f, s
 	if f: return
