@@ -23,10 +23,8 @@ zipfilename="$zipfilename-$i-$gitrev.zip"
 zip -9 -r $zipfilename MusicPlayer.app || exit 1
 
 dfile="download_macapp_latest.php"
-echo "<html><head><title>MusicPlayer</title></head><body>" >$dfile
-echo "<?php echo 'foo'; ?> bar</body></html>" >>$dfile
+echo "<?php header( 'Location: http://sourceforge.net/projects/az-music-player/files/${zipfilename}/download' ); ?>" >$dfile
 
-#ln -s $zipfilename MusicPlayer-MacApp-latest.zip
 popd
 
 rsync -avP build/Release/*.zip albertzeyer@frs.sourceforge.net:/home/frs/project/az-music-player/
