@@ -55,7 +55,7 @@ Comparison to other music players:
 
 Installation:
 
-So far, there is a prebuild MacOSX app bundle in the download section which should just work. Otherwise, to get the source working, you need these requirements (e.g. install on MacOSX via Homebrew):
+So far, there is a prebuild MacOSX app bundle in the [download section](https://sourceforge.net/projects/az-music-player/files/) which should just work. Otherwise, to get the source working, you need these requirements (e.g. install on MacOSX via Homebrew):
 
 * ffmpeg
 * portaudio
