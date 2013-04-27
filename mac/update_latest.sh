@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 [ -x /usr/local/bin/git ] && alias git=/usr/local/bin/git
 gitrev="$(git show HEAD  --format=format:%h | head -n1)" || exit 1
 
-#xcodebuild || exit 1
+xcodebuild || exit 1
 
 pushd build/Release || { echo "build/Release does not exist"; exit 1; }
 
@@ -19,7 +19,7 @@ for f in $zipfilename-*.zip; do
 done
 zipfilename="$zipfilename-$i-$gitrev.zip"
 
-#rm MusicPlayer-MacApp-20*.zip # toodo...
+rm MusicPlayer-MacApp-20*.zip
 zip -9 -r $zipfilename MusicPlayer.app || exit 1
 
 dfile="download_macapp_latest.php"
