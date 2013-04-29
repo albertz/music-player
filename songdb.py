@@ -188,7 +188,14 @@ class DB(object):
 		else:
 			self[key] = value
 			return self[key]
-		
+
+	def iteritems(self):
+		cur = self._selectCmd("select key,value from data")
+		for key,value in cur:
+			key = dbUnRepr(key)
+			value = dbUnRepr(value)
+			yield key,value
+
 	def disconnectAll(self):
 		self.LocalConnection.Reset()
 		self._threadLocal = None
