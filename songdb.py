@@ -58,6 +58,160 @@ def dbRepr(o): return binstruct.varEncode(o).tostring()
 def dbUnRepr(s): return binstruct.varDecode(s)
 
 
+
+class Cache:
+	CountLimit = 100
+	class Item:
+		left = None
+		right = None
+		key = None
+		value = None
+		def __init__(self):
+			self.left = self.right = self
+		def insert(self, other):
+			assert isinstance(other, self.__class__)
+			if other is self: return
+			# pop other from old position
+			other.left.right = other.right
+			other.right.left = other.left
+			# insert other right after/right to self
+			other.right = self.right
+			other.left = self
+			other.right.left = other
+			other.left.right = other
+	def __init__(self):
+		import threading
+		self.lock = threading.Lock()
+		self.clear()
+	def clear(self):
+		with self.lock:
+			self.count = 0
+			self.listLeft = None
+			self.dict = {} # key->Item
+	def __getitem__(self, key):
+		with self.lock:
+			item = self.dict[key] # fall-through for KeyError
+			assert self.listLeft is not None
+			self.listLeft.left.insert(item)
+			self.listLeft = item
+			return item.value
+	def __setitem__(self, key, value):
+		with self.lock:
+			try:
+				item = self.dict[key]
+			except KeyError:
+				pass
+			else:
+				assert self.listLeft is not None
+				item.value = value
+				self.listLeft.left.insert(item)
+				self.listLeft = item
+				return
+			if self.count >= self.CountLimit:
+				item = self.listLeft.left # the last entry
+				del self.dict[item.key] # remove it
+			else:
+				self.count += 1
+				item = self.Item()
+				if self.listLeft is None:
+					assert self.count == 1
+					self.listLeft = item
+				else:
+					assert self.count > 1
+				# place at end
+				item.left = self.listLeft.left
+				item.right = self.listLeft
+				item.left.right = item
+				item.right.left = item
+			self.dict[key] = item
+			item.key = key
+			item.value = value
+			self.listLeft.left.insert(item)
+			self.listLeft = item
+	@classmethod
+	def __test__(clazz):
+		cache = clazz()
+		cache.CountLimit = 3
+		cache[1] = 42
+		it = cache.listLeft
+		assert it is not None
+		assert it.left is cache.listLeft
+		assert it.right is cache.listLeft
+		assert it.key == 1
+		assert it.value == 42
+		cache[2] = 43
+		assert cache.count == 2
+		it1 = cache.listLeft
+		it2 = it1.right
+		assert it2.right is it1
+		assert it2.left is it1
+		assert it1.left is it2
+		assert (it1.key,it1.value) == (2,43)
+		assert (it2.key,it2.value) == (1,42)
+		cache[3] = 44
+		assert cache.count == 3
+		it1 = cache.listLeft
+		it2 = it1.right
+		it3 = it2.right
+		assert it3.left is it2
+		assert it2.left is it1
+		assert it1.left is it3
+		assert it3.right is it1
+		assert (it1.key,it1.value) == (3,44)
+		assert (it2.key,it2.value) == (2,43)
+		assert (it3.key,it3.value) == (1,42)
+		assert cache[2] == 43
+		it1 = cache.listLeft
+		it2 = it1.right
+		it3 = it2.right
+		assert it3.left is it2
+		assert it2.left is it1
+		assert it1.left is it3
+		assert it3.right is it1
+		assert (it1.key,it1.value) == (2,43)
+		assert (it2.key,it2.value) == (3,44)
+		assert (it3.key,it3.value) == (1,42)
+		assert cache[2] == 43
+		it1 = cache.listLeft
+		it2 = it1.right
+		it3 = it2.right
+		assert it3.left is it2
+		assert it2.left is it1
+		assert it1.left is it3
+		assert it3.right is it1
+		assert (it1.key,it1.value) == (2,43)
+		assert (it2.key,it2.value) == (3,44)
+		assert (it3.key,it3.value) == (1,42)
+		cache[2] = 20
+		assert cache[2] == 20
+		assert cache[1] == 42
+		it1 = cache.listLeft
+		it2 = it1.right
+		it3 = it2.right
+		assert it3.left is it2
+		assert it2.left is it1
+		assert it1.left is it3
+		assert it3.right is it1
+		assert (it1.key,it1.value) == (1,42)
+		assert (it2.key,it2.value) == (2,20)
+		assert (it3.key,it3.value) == (3,44)
+		cache[4] = 45
+		assert cache.count == 3
+		it1 = cache.listLeft
+		it2 = it1.right
+		it3 = it2.right
+		assert it3.left is it2
+		assert it2.left is it1
+		assert it1.left is it3
+		assert it3.right is it1
+		assert (it1.key,it1.value) == (4,45)
+		assert (it2.key,it2.value) == (1,42)
+		assert (it3.key,it3.value) == (2,20)
+		try: cache.__getitem__(3)
+		except KeyError: pass
+		else: assert False
+
+
 class DB(object):
 	def __init__(self, name, create_command = "create table %s(key blob primary key unique, value blob)"):
 		import threading
