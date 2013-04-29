@@ -86,7 +86,6 @@ class DB(object):
 			def __del__(self): self.reset()
 			@classmethod
 			def Reset(clazz):
-				from weakref import ref
 				with clazz.lock:
 					for l in list(clazz.refs):
 						l = l()
