@@ -735,6 +735,13 @@ def getSongAttrib(song, attrib):
 	assert value is not None, "songdb %r attrib %r is None" % (song, attrib)
 	return value
 
+
+def iterSongs():
+	global songDb
+	for key,value in songDb.iteritems():
+		yield Song(id=key)
+
+
 Search_ResultLimit = 500
 Search_SubtokenLimit = 6
 Search_PrefixPostfixStrAttrIndex = 1 # (prefix,postfix) pairs
