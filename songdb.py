@@ -363,8 +363,8 @@ def updateHashDb(song, songId):
 	maybeInitSongDbEntry(song, songId)
 	
 def calcNewSongId(song):
-	"Returns a new unique (in hopefully almost all cases) id for a song."
-	"Different files with the same song might return the same id."
+	"""Returns a new unique (in hopefully almost all cases) id for a song.
+	Different files with the same song might return the same id."""
 	# Originally, I planned to use the hash of the AcoustID fingerprint.
 	# However, as this is expensive to calculate in case we have not yet,
 	# allow some fallbacks.
