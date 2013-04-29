@@ -250,6 +250,7 @@ class DB(object):
 		self.name = name
 		self.path = appinfo.userdir + "/" + name
 		self.create_command = create_command
+		self.cache = Cache()
 
 		try:
 			self.test()
@@ -318,6 +319,8 @@ class DB(object):
 			conn.execute(cmd, args)
 
 	def __getitem__(self, key):
+		try: return self.cache[key]
+		except KeyError: pass
 		key = dbRepr(key)
 		key = buffer(key)
 		cur = self._selectCmd("select value from data where key=? limit 1", (key,))
@@ -326,9 +329,11 @@ class DB(object):
 		value = value[0]
 		value = str(value)
 		value = dbUnRepr(value)
+		self.cache[key] = value
 		return value
 	
 	def __setitem__(self, key, value):
+		self.cache[key] = value
 		key = dbRepr(key)
 		key = buffer(key)
 		value = dbRepr(value)
