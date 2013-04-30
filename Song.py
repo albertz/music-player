@@ -48,7 +48,7 @@ class Song(object):
 			self.url = utils.convertToUnicode(self.url)
 
 	def __nonzero__(self): # this is mostly for noninited Song objects
-		return bool(self.url) or hasattr(self, "_id")
+		return bool(self.url) or bool(getattr(self, "_id", None))
 	def __eq__(self, other):
 		if hasattr(self, "url") and hasattr(other, "url") and self.url == other.url: return True
 		if hasattr(self, "_id") and hasattr(other, "_id") and self._id == other._id: return True
