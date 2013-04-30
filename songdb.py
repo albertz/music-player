@@ -321,6 +321,7 @@ class DB(object):
 	def __getitem__(self, key):
 		try: return self.cache[key]
 		except KeyError: pass
+		origKey = key
 		key = dbRepr(key)
 		key = buffer(key)
 		cur = self._selectCmd("select value from data where key=? limit 1", (key,))
@@ -329,7 +330,7 @@ class DB(object):
 		value = value[0]
 		value = str(value)
 		value = dbUnRepr(value)
-		self.cache[key] = value
+		self.cache[origKey] = value
 		return value
 	
 	def __setitem__(self, key, value):
@@ -348,10 +349,10 @@ class DB(object):
 			return self[key]
 
 	def iteritems(self):
-		cur = self._selectCmd("select key,value from data")
+		cur = self._selectCmd("select key,value from data", ())
 		for key,value in cur:
-			key = dbUnRepr(key)
-			value = dbUnRepr(value)
+			key = dbUnRepr(str(key))
+			value = dbUnRepr(str(value))
 			yield key,value
 
 	def disconnectAll(self):
