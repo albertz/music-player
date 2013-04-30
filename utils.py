@@ -1369,3 +1369,37 @@ def interactive_py_compile(source, filename="<interactive>"):
 	c = types.CodeType(*[c_dict[arg] for arg in CodeArgs])
 	return c
 
+
+from contextlib import contextmanager
+
+class ReadWriteLock(object):
+	"""Classic implementation of ReadWriteLock.
+	Note that this partly supports recursive lock usage:
+	- Inside a readlock, a writelock will always block!
+	- Inside a readlock, another readlock is fine.
+	- Inside a writelock, any other writelock or readlock is fine.
+	"""
+	def __init__(self):
+		import threading
+		self.lock = threading.RLock()
+		self.writeReadyCond = threading.Condition(self.lock)
+		self.readerCount = 0
+	@property
+	@contextmanager
+	def readlock(self):
+		with self.lock:
+			self.readerCount += 1
+		try: yield
+		finally:
+			with self.lock:
+				self.readerCount -= 1
+				if self.readerCount == 0:
+					self.writeReadyCond.notifyAll()
+	@property
+	@contextmanager
+	def writelock(self):
+		with self.lock:
+			while self.readerCount > 0:
+				self.writeReadyCond.wait()
+			yield
+
