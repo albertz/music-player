@@ -353,6 +353,7 @@ class DB(object):
 		for key,value in cur:
 			key = dbUnRepr(str(key))
 			value = dbUnRepr(str(value))
+			if key is None: continue # there might be a bad entry. don't allow None
 			yield key,value
 
 	def disconnectAll(self):
