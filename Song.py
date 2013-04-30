@@ -261,8 +261,8 @@ class Song(object):
 		if getattr(self, "_recursive_id_call", False): return None
 		self._recursive_id_call = True
 		
+		import songdb
 		try:
-			import songdb
 			self._id = songdb.getSongId(self)
 			if not self._id:
 				self._id = songdb.calcNewSongId(self)
@@ -270,6 +270,7 @@ class Song(object):
 			print "errors while getting song id"
 			import sys
 			sys.excepthook(*sys.exc_info())
+			self._id = None
 			
 		self._recursive_id_call = False
 		return self._id
