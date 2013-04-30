@@ -332,9 +332,11 @@ class DB(object):
 		key = buffer(key)
 		with self.readlock:
 			cur = self._selectCmd("select value from data where key=? limit 1", (key,))
-			value, = cur.fetchall()
+			values = cur.fetchall()
 
 			del cur
+		if not values: raise KeyError
+		value = values[0]
 		if value is None: raise KeyError
 		value = value[0]
 		value = str(value)
