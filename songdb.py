@@ -214,8 +214,8 @@ class Cache:
 
 class DB(object):
 	def __init__(self, name, create_command = "create table %s(key blob primary key unique, value blob)"):
+		self.rwlock = utils.ReadWriteLock()
 		import threading
-		self.writelock = threading.Lock()
 
 		# We need a workaround wrapper for SQLite connection objects
 		# because Python might crash in their tp_dealloc.
@@ -260,6 +260,11 @@ class DB(object):
 			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.name, exc)
 			self.removeOldDb()
 			self.initNew()
+
+	@property
+	def writelock(self): return self.rwlock.writelock
+	@property
+	def readlock(self): return self.rwlock.readlock
 
 	@property
 	def _connection(self):
@@ -310,13 +315,15 @@ class DB(object):
 	
 	def _selectCmd(self, cmd, args):
 		conn = self._getConnection()
-		cur = conn.execute(cmd, args)
+		with self.readlock:
+			cur = conn.execute(cmd, args)
 		return cur
 	
 	def _actionCmd(self, cmd, args):
 		conn = self._getConnection()
-		with conn:
-			conn.execute(cmd, args)
+		with self.writelock:
+			with conn: # this automatically calls conn.commit() afterwards
+				conn.execute(cmd, args)
 
 	def __getitem__(self, key):
 		try: return self.cache[key]
