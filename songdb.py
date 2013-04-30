@@ -315,8 +315,7 @@ class DB(object):
 	
 	def _selectCmd(self, cmd, args):
 		conn = self._getConnection()
-		with self.readlock:
-			cur = conn.execute(cmd, args)
+		cur = conn.execute(cmd, args)
 		return cur
 	
 	def _actionCmd(self, cmd, args):
@@ -331,8 +330,11 @@ class DB(object):
 		origKey = key
 		key = dbRepr(key)
 		key = buffer(key)
-		cur = self._selectCmd("select value from data where key=? limit 1", (key,))
-		value = cur.fetchone()
+		with self.readlock:
+			cur = self._selectCmd("select value from data where key=? limit 1", (key,))
+			value, = cur.fetchall()
+
+			del cur
 		if value is None: raise KeyError
 		value = value[0]
 		value = str(value)
@@ -356,12 +358,14 @@ class DB(object):
 			return self[key]
 
 	def iteritems(self):
-		cur = self._selectCmd("select key,value from data", ())
-		for key,value in cur:
-			key = dbUnRepr(str(key))
-			value = dbUnRepr(str(value))
-			if key is None: continue # there might be a bad entry. don't allow None
-			yield key,value
+		"Warning: this holds the readlock as long as this iterator is alive!"
+		with self.readlock:
+			cur = self._selectCmd("select key,value from data", ())
+			for key,value in cur:
+				key = dbUnRepr(str(key))
+				value = dbUnRepr(str(value))
+				if key is None: continue # there might be a bad entry. don't allow None
+				yield key,value
 
 	def disconnectAll(self):
 		self.LocalConnection.Reset()
