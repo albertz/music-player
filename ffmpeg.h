@@ -195,7 +195,7 @@ struct Fader {
 
 template<typename ValueT>
 struct _Value {
-	ValueT value;
+	const ValueT value;
 	_Value(const ValueT& _v) : value(_v) {}
 	
 	template<typename T=ValueT>
