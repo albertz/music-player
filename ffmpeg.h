@@ -213,17 +213,17 @@ static_assert(sizeof(float32_t) == 4, "float32_t declaration is wrong");
 
 #define _FloatToPCM_raw(sample) (sample * ((double) 0x8000))
 #define _FloatToPCM_clampFloat(sample) \
-	(_makeValue(_FloatToPCM_raw(sample)).clamp<>(-1., 1.))
+	(_makeValue(sample).clamp<>(-1., 1.))
 // guaranteed to be in right range of right type (int16_t)
 #define FloatToPCM16(s) \
-	((int16_t)_makeValue(_FloatToPCM_clampFloat(s)).clamp<int32_t>(-0x8000, 0x7fff))
+	((int16_t)_makeValue(_FloatToPCM_raw(_FloatToPCM_clampFloat(s))).clamp<int32_t>(-0x8000, 0x7fff))
 
 #if defined(OUTSAMPLEFORMAT_INT16)
 #define OUTSAMPLE_t int16_t
 #define OUTSAMPLEFORMATSTR "int"
 #define OUTSAMPLEBITLEN 16
 // normed in [-1,1] range. not clamped
-#define OutSampleAsFloat(sample) (sample / ((double) 0x8000))
+#define OutSampleAsFloat(sample) (((double) sample) / ((double) 0x8000))
 // normed in [-0x8000,0x7fff]. not clamped
 #define OutSampleAsInt(sample) sample
 // guaranteed to be in right range of type OUTSAMPLE_t
