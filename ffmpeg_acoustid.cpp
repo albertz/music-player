@@ -55,12 +55,15 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 		for(auto& it : player->inStreamBuffer()->chunks) {
 			totalFrameCount += it.size() / player->outNumChannels / OUTSAMPLEBYTELEN;
 		
+			// chromaprint expects sint16 sample format.
 			int16_t pcmBuffer[BUFFER_CHUNK_SIZE/OUTSAMPLEBYTELEN];
 			uint16_t len = it.size() / OUTSAMPLEBYTELEN;
-			for(uint16_t i = 0; i < len; ++i)
-				pcmBuffer[i] = FloatToPCM16(((OUTSAMPLE_t*)it.pt())[i]);
+			for(uint16_t i = 0; i < len; ++i) {
+				OUTSAMPLE_t s = ((OUTSAMPLE_t*)it.pt())[i];
+				pcmBuffer[i] = FloatToPCM16(OutSampleAsFloat(s));
+			}
 			
-			if (!chromaprint_feed(chromaprint_ctx, it.pt(), len)) {
+			if (!chromaprint_feed(chromaprint_ctx, pcmBuffer, len)) {
 				PyErr_SetString(PyExc_RuntimeError, "fingerprint feed calculation failed");
 				goto final;
 			}
