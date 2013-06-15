@@ -95,7 +95,7 @@ def eliasGammaEncode(n):
 	assert n > 0
 	bitLen = bitsOf(n)
 	binData = [False] * (bitLen - 1) # prefix
-	bit = 2 ** (bitLen - 1)
+	bit = 1 << (bitLen - 1)
 	while bit > 0:
 		binData += [bool(n & bit)]
 		bit >>= 1
@@ -106,7 +106,7 @@ def eliasGammaDecode(stream):
 	def readBits():
 		while True:
 			byte = ord(stream.read(1))
-			bitM = 2 ** 7
+			bitM = 1 << 7
 			while bitM > 0:
 				yield bool(byte & bitM)
 				bitM >>= 1
@@ -130,7 +130,7 @@ def intToBin(x):
 	byteLen = (bitLen+7) / 8
 	bin = array("B", (0,)) * byteLen
 	if x < 0:
-		x += 256 ** byteLen
+		x += 1 << (byteLen * 8)
 		assert x > 0
 	for i in range(byteLen):
 		bin[byteLen-i-1] = (x >> (i * 8)) & 255
@@ -142,8 +142,8 @@ def binToInt(bin):
 	byteLen = len(bin)
 	for i in range(byteLen):
 		n += bin[byteLen-i-1] << (i * 8)
-	if n >= 2**(byteLen*8 - 1):
-		n -= 256 ** byteLen
+	if n >= 1 << (byteLen*8 - 1):
+		n -= 1 << (byteLen * 8)
 	return n
 
 def intEncode(x):
@@ -488,3 +488,8 @@ def target(driver, args):
 	Target function for RPython.
 	"""
 	return main, None
+
+if __name__ == '__main__':
+	test()
+	print "tests passed"
+
