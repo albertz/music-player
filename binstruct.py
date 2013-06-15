@@ -436,3 +436,15 @@ def test_crypto():
 		assert False, "signature wrongly assumed authentic (2)"
 	except FormatError: pass
 	
+
+def main(argv):
+	print "Hello!"
+	print "args:", argv
+	print "%r" % varEncode(argv)
+	print "Bye!"
+
+def target(driver, args):
+	"""
+	Target function for RPython.
+	"""
+	return main, None
