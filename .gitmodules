@@ -1,0 +1,4 @@
+[submodule "python-embedded"]
+	path = python-embedded
+	url = git@github.com:albertz/python-embedded.git
+	branch = master
