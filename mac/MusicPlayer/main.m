@@ -19,6 +19,7 @@ static void addPyPath() {
 	 Py_GetPrefix(), "/Extras/lib/python/PyObjC",
 	 [[NSBundle mainBundle] resourcePath]];
 	PySys_SetPath((char*)[pathStr UTF8String]);
+	NSLog(@"Python path: %@", pathStr);
 	[pathStr release];
 }
 
@@ -36,9 +37,9 @@ int main(int argc, char *argv[])
 		}
 	
 	NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
+	Py_SetProgramName(argv[0]);
 	if(!forkExecProc)
 		NSLog(@"Python version: %s, prefix: %s, main: %@", Py_GetVersion(), Py_GetPrefix(), mainPyFilename);
-	Py_SetProgramName((char*)[mainPyFilename UTF8String]);
 	
 	Py_Initialize();
 	PyEval_InitThreads();
