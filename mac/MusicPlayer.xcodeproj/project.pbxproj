@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		231799221651612E00F6AC7B /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
+		2303496317AC535A00C6033C /* Python.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2303496017AC522500C6033C /* Python.dylib */; };
+		2303497117AC6C4B00C6033C /* pylib.zip in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496A17AC6C2200C6033C /* pylib.zip */; };
+		2303497217AC6C6800C6033C /* exec in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496617AC6C2200C6033C /* exec */; };
+		2303497317AC6C6800C6033C /* pyconfig.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496917AC6C2200C6033C /* pyconfig.h */; };
 		231799231651613600F6AC7B /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
 		2331F83616C16B720037D148 /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
 		2331F86316C16BC40037D148 /* faulthandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86116C16BC40037D148 /* faulthandler.c */; };
@@ -89,6 +92,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2303495F17AC522500C6033C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2303494D17AC4B0F00C6033C;
+			remoteInfo = Python;
+		};
+		2303496117AC524100C6033C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 2303494C17AC4B0F00C6033C;
+			remoteInfo = Python;
+		};
 		2331F86516C16BCE0037D148 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
@@ -112,9 +129,30 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		2303496417AC6BCB00C6033C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = pylib;
+			dstSubfolderSpec = 7;
+			files = (
+				2303497117AC6C4B00C6033C /* pylib.zip in CopyFiles */,
+				2303497217AC6C6800C6033C /* exec in CopyFiles */,
+				2303497317AC6C6800C6033C /* pyconfig.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "Xcode-Python.xcodeproj"; path = "../python-embedded/Xcode-Python.xcodeproj"; sourceTree = "<group>"; };
+		2303496617AC6C2200C6033C /* exec */ = {isa = PBXFileReference; lastKnownFileType = file; name = exec; path = "../python-embedded/pylib/exec"; sourceTree = "<group>"; };
+		2303496717AC6C2200C6033C /* lib */ = {isa = PBXFileReference; lastKnownFileType = file; name = lib; path = "../python-embedded/pylib/lib"; sourceTree = "<group>"; };
+		2303496817AC6C2200C6033C /* otherlibs */ = {isa = PBXFileReference; lastKnownFileType = file; name = otherlibs; path = "../python-embedded/pylib/otherlibs"; sourceTree = "<group>"; };
+		2303496917AC6C2200C6033C /* pyconfig.h */ = {isa = PBXFileReference; lastKnownFileType = file; name = pyconfig.h; path = "../python-embedded/pylib/pyconfig.h"; sourceTree = "<group>"; };
+		2303496A17AC6C2200C6033C /* pylib.zip */ = {isa = PBXFileReference; lastKnownFileType = file; name = pylib.zip; path = "../python-embedded/pylib/pylib.zip"; sourceTree = "<group>"; };
 		231799211651612E00F6AC7B /* libpython2.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython2.6.dylib; path = usr/lib/libpython2.6.dylib; sourceTree = SDKROOT; };
-		2331F86016C16B720037D148 /* faulthandler.so.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = faulthandler.so.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		2331F86016C16B720037D148 /* faulthandler.so.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = faulthandler.so.so; path = faulthandler.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2331F86116C16BC40037D148 /* faulthandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = faulthandler.c; path = ../faulthandler/faulthandler.c; sourceTree = "<group>"; };
 		2331F86216C16BC40037D148 /* traceback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = traceback.c; path = ../faulthandler/traceback.c; sourceTree = "<group>"; };
 		233684A51600BD7F00A38E78 /* audio_consumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_consumer.h; sourceTree = "<group>"; };
@@ -225,7 +263,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				231799221651612E00F6AC7B /* libpython2.6.dylib in Frameworks */,
+				2303496317AC535A00C6033C /* Python.dylib in Frameworks */,
 				23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -241,6 +279,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2303495C17AC522500C6033C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2303496017AC522500C6033C /* Python.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2303497017AC6C3400C6033C /* pylib */ = {
+			isa = PBXGroup;
+			children = (
+				2303496617AC6C2200C6033C /* exec */,
+				2303496717AC6C2200C6033C /* lib */,
+				2303496817AC6C2200C6033C /* otherlibs */,
+				2303496917AC6C2200C6033C /* pyconfig.h */,
+				2303496A17AC6C2200C6033C /* pylib.zip */,
+			);
+			name = pylib;
+			sourceTree = "<group>";
+		};
 		2331F81616C16A750037D148 /* faulthandler */ = {
 			isa = PBXGroup;
 			children = (
@@ -326,6 +384,8 @@
 		23A14A2A15E3B2CB00376BF6 = {
 			isa = PBXGroup;
 			children = (
+				2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */,
+				2303497017AC6C3400C6033C /* pylib */,
 				2331F81616C16A750037D148 /* faulthandler */,
 				238E98621696608E00C42074 /* guiCocoaCommon.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
@@ -515,10 +575,12 @@
 				23A14A3215E3B2CC00376BF6 /* Frameworks */,
 				23A14A3315E3B2CC00376BF6 /* Resources */,
 				23BEFDDC15E3E0C40003A05B /* ShellScript */,
+				2303496417AC6BCB00C6033C /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2303496217AC524100C6033C /* PBXTargetDependency */,
 				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
 				238E9878169664E200C42074 /* PBXTargetDependency */,
 				2331F86616C16BCE0037D148 /* PBXTargetDependency */,
@@ -564,6 +626,12 @@
 			mainGroup = 23A14A2A15E3B2CB00376BF6;
 			productRefGroup = 23A14A3615E3B2CC00376BF6 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2303495C17AC522500C6033C /* Products */;
+					ProjectRef = 2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				23A14A3415E3B2CC00376BF6 /* MusicPlayer */,
@@ -573,6 +641,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2303496017AC522500C6033C /* Python.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = Python.dylib;
+			remoteRef = 2303495F17AC522500C6033C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		23A14A3315E3B2CC00376BF6 /* Resources */ = {
@@ -669,6 +747,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2303496217AC524100C6033C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Python;
+			targetProxy = 2303496117AC524100C6033C /* PBXContainerItemProxy */;
+		};
 		2331F86616C16BCE0037D148 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2331F81716C16B720037D148 /* faulthandler.so */;
