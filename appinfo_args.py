@@ -27,3 +27,11 @@ argParser.add_argument(
 	help="force Qt GUI")
 argParser.add_argument(
 	"--forkExecProc", nargs=2)
+
+# Patch to avoid exit on unknown args.
+def argParser_exit(status=0, message=None):
+	if message:
+		print "arg parser:", message
+	# dont exit
+argParser.exit = argParser_exit
+
