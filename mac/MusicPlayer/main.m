@@ -14,10 +14,12 @@
 static void addPyPath() {
 	NSString* pathStr =
 	[[NSString alloc]
-	 initWithFormat:@"%s:%s%s:%@/Python",
+	 initWithFormat:@"%s:%s%s:%@/Python:%s",
 	 Py_GetPath(),
 	 Py_GetPrefix(), "/Extras/lib/python/PyObjC",
-	 [[NSBundle mainBundle] resourcePath]];
+	 [[NSBundle mainBundle] resourcePath],
+	 "/System/Library/Frameworks/Python.framework/Versions/Current/Extras/lib/python/PyObjC"
+	 ];
 	PySys_SetPath((char*)[pathStr UTF8String]);
 	NSLog(@"Python path: %@", pathStr);
 	[pathStr release];
