@@ -25,18 +25,28 @@ static void addPyPath() {
 	[pathStr release];
 }
 
+static int sys_argc;
+static char** sys_argv;
+
+static bool haveArg(const char* arg) {
+	for(int i = 1; i < sys_argc; ++i)
+		if(strcmp(sys_argv[i], arg) == 0) {
+			return true;
+		}
+	return false;
+}
+
 int main(int argc, char *argv[])
 {
+	sys_argc = argc;
+	sys_argv = argv;
 	//return NSApplicationMain(argc, (const char **)argv);
 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	BOOL forkExecProc = NO;
-	for(int i = 1; i < argc; ++i)
-		if(strcmp(argv[i], "--forkExecProc") == 0) {
-			forkExecProc = YES;
-			break;
-		}
+	bool forkExecProc = haveArg("--forkExecProc");
+	bool shell = haveArg("--shell");
+	bool pyShell = haveArg("--pyshell");
 	
 	NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
 	Py_SetProgramName(argv[0]);
@@ -56,7 +66,7 @@ int main(int argc, char *argv[])
 	
 	PySys_SetArgvEx(argc, argv, 0);
 	
-	if(!forkExecProc) {
+	if(!forkExecProc && !pyShell && !shell) {
 		// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
 		printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
 		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
