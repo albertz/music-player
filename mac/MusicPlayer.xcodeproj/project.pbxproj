@@ -11,8 +11,6 @@
 		2303497117AC6C4B00C6033C /* pylib.zip in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496A17AC6C2200C6033C /* pylib.zip */; };
 		2303497217AC6C6800C6033C /* exec in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496617AC6C2200C6033C /* exec */; };
 		2303497317AC6C6800C6033C /* pyconfig.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496917AC6C2200C6033C /* pyconfig.h */; };
-		231799231651613600F6AC7B /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
-		2331F83616C16B720037D148 /* libpython2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 231799211651612E00F6AC7B /* libpython2.6.dylib */; };
 		2331F86316C16BC40037D148 /* faulthandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86116C16BC40037D148 /* faulthandler.c */; };
 		2331F86416C16BC40037D148 /* traceback.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86216C16BC40037D148 /* traceback.c */; };
 		233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A51600BD7F00A38E78 /* audio_consumer.h */; };
@@ -247,7 +245,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2331F83616C16B720037D148 /* libpython2.6.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,7 +269,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				231799231651613600F6AC7B /* libpython2.6.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -794,7 +790,12 @@
 			buildSettings = {
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
+				LD_DYLIB_INSTALL_NAME = "";
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
 				PRODUCT_NAME = faulthandler;
 			};
 			name = Debug;
@@ -804,7 +805,12 @@
 			buildSettings = {
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
+				LD_DYLIB_INSTALL_NAME = "";
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
 				PRODUCT_NAME = faulthandler;
 			};
 			name = Release;
@@ -819,6 +825,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				LD_DYLIB_INSTALL_NAME = "";
 				PRODUCT_NAME = "_$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -829,6 +836,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				LD_DYLIB_INSTALL_NAME = "";
 				PRODUCT_NAME = "_$(TARGET_NAME)";
 			};
 			name = Release;
@@ -912,6 +920,7 @@
 					/usr/local/include,
 					"$(PROJECT_DIR)/../chromaprint",
 				);
+				LD_DYLIB_INSTALL_NAME = "";
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
@@ -920,6 +929,8 @@
 					"-lavcodec",
 					"-lswresample",
 					"-lportaudio",
+					"-undefined",
+					dynamic_lookup,
 				);
 				PRODUCT_NAME = ffmpeg;
 			};
@@ -935,6 +946,7 @@
 					/usr/local/include,
 					"$(PROJECT_DIR)/../chromaprint",
 				);
+				LD_DYLIB_INSTALL_NAME = "";
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
@@ -943,6 +955,8 @@
 					"-lavcodec",
 					"-lswresample",
 					"-lportaudio",
+					"-undefined",
+					dynamic_lookup,
 				);
 				PRODUCT_NAME = ffmpeg;
 			};
