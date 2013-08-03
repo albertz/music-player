@@ -16,6 +16,12 @@ except ImportError:
 # Do this early to do some option parsing and maybe special handling.
 import appinfo
 
+# Early check for "--pyshell".
+# This is a simple debug shell where we don't load anything (--pyshell).
+if __name__ == '__main__' and appinfo.args.pyshell:
+	better_exchook.simple_debug_shell({}, {})
+	sys.exit(0)
+
 # This might do some init which might be important to be done in the main thread.
 import utils
 
@@ -28,11 +34,6 @@ print "startup on", utils.formatDate(time.time())
 from State import state, modules
 
 if __name__ == '__main__':
-
-	# This is a simple debug shell where we don't load anything (--pyshell).
-	if appinfo.args.pyshell:
-		better_exchook.simple_debug_shell({},{})
-		sys.exit(0)
 
 	import stdinconsole
 	import gui
