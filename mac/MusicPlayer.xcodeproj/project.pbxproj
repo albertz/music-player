@@ -11,6 +11,7 @@
 		2303497117AC6C4B00C6033C /* pylib.zip in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496A17AC6C2200C6033C /* pylib.zip */; };
 		2303497217AC6C6800C6033C /* exec in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496617AC6C2200C6033C /* exec */; };
 		2303497317AC6C6800C6033C /* pyconfig.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496917AC6C2200C6033C /* pyconfig.h */; };
+		230349AF17AD730900C6033C /* Python.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496017AC522500C6033C /* Python.dylib */; };
 		2331F86316C16BC40037D148 /* faulthandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86116C16BC40037D148 /* faulthandler.c */; };
 		2331F86416C16BC40037D148 /* traceback.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86216C16BC40037D148 /* traceback.c */; };
 		233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A51600BD7F00A38E78 /* audio_consumer.h */; };
@@ -104,6 +105,13 @@
 			remoteGlobalIDString = 2303494C17AC4B0F00C6033C;
 			remoteInfo = Python;
 		};
+		230349AC17AD72CC00C6033C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2303499E17AD724900C6033C;
+			remoteInfo = debugtracer;
+		};
 		2331F86516C16BCE0037D148 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
@@ -140,6 +148,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		230349AE17AD72ED00C6033C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				230349AF17AD730900C6033C /* Python.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -150,10 +168,7 @@
 		2303496917AC6C2200C6033C /* pyconfig.h */ = {isa = PBXFileReference; lastKnownFileType = file; name = pyconfig.h; path = "../python-embedded/pylib/pyconfig.h"; sourceTree = "<group>"; };
 		2303496A17AC6C2200C6033C /* pylib.zip */ = {isa = PBXFileReference; lastKnownFileType = file; name = pylib.zip; path = "../python-embedded/pylib/pylib.zip"; sourceTree = "<group>"; };
 		2303498F17AD646700C6033C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		2303499317AD646700C6033C /* test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "test-Info.plist"; sourceTree = "<group>"; };
-		2303499517AD646700C6033C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		2303499717AD646700C6033C /* test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "test-Prefix.pch"; sourceTree = "<group>"; };
-		231799211651612E00F6AC7B /* libpython2.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython2.6.dylib; path = usr/lib/libpython2.6.dylib; sourceTree = SDKROOT; };
+		2303499F17AD724900C6033C /* debugtracer.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = debugtracer.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2331F86016C16B720037D148 /* faulthandler.so.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = faulthandler.so.so; path = faulthandler.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2331F86116C16BC40037D148 /* faulthandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = faulthandler.c; path = ../faulthandler/faulthandler.c; sourceTree = "<group>"; };
 		2331F86216C16BC40037D148 /* traceback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = traceback.c; path = ../faulthandler/traceback.c; sourceTree = "<group>"; };
@@ -245,6 +260,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2303499C17AD724900C6033C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2331F83516C16B720037D148 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -299,22 +321,11 @@
 			name = pylib;
 			sourceTree = "<group>";
 		};
-		2303499117AD646700C6033C /* test */ = {
+		230349A017AD724900C6033C /* debugtracer */ = {
 			isa = PBXGroup;
 			children = (
-				2303499217AD646700C6033C /* Supporting Files */,
 			);
-			path = test;
-			sourceTree = "<group>";
-		};
-		2303499217AD646700C6033C /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				2303499317AD646700C6033C /* test-Info.plist */,
-				2303499417AD646700C6033C /* InfoPlist.strings */,
-				2303499717AD646700C6033C /* test-Prefix.pch */,
-			);
-			name = "Supporting Files";
+			path = debugtracer;
 			sourceTree = "<group>";
 		};
 		2331F81616C16A750037D148 /* faulthandler */ = {
@@ -405,12 +416,12 @@
 				2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */,
 				2303497017AC6C3400C6033C /* pylib */,
 				2331F81616C16A750037D148 /* faulthandler */,
+				230349A017AD724900C6033C /* debugtracer */,
 				238E98621696608E00C42074 /* guiCocoaCommon.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
-				2303499117AD646700C6033C /* test */,
 				23A14A3815E3B2CC00376BF6 /* Frameworks */,
 				23A14A3615E3B2CC00376BF6 /* Products */,
 			);
@@ -423,6 +434,7 @@
 				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
 				238E986C169664B400C42074 /* guiCocoaCommon.dylib */,
 				2331F86016C16B720037D148 /* faulthandler.so.so */,
+				2303499F17AD724900C6033C /* debugtracer.so */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -430,7 +442,6 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				231799211651612E00F6AC7B /* libpython2.6.dylib */,
 				23A14A6615E3B85C00376BF6 /* Python.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
 				2303498F17AD646700C6033C /* CoreFoundation.framework */,
@@ -492,6 +503,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		2303499D17AD724900C6033C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2331F83716C16B720037D148 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -553,6 +571,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2303499E17AD724900C6033C /* debugtracer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 230349A917AD724900C6033C /* Build configuration list for PBXNativeTarget "debugtracer" */;
+			buildPhases = (
+				2303499B17AD724900C6033C /* Sources */,
+				2303499C17AD724900C6033C /* Frameworks */,
+				2303499D17AD724900C6033C /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = debugtracer;
+			productName = debugtracer;
+			productReference = 2303499F17AD724900C6033C /* debugtracer.so */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		2331F81716C16B720037D148 /* faulthandler.so */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2331F85D16C16B720037D148 /* Build configuration list for PBXNativeTarget "faulthandler.so" */;
@@ -596,10 +631,12 @@
 				23A14A3315E3B2CC00376BF6 /* Resources */,
 				23BEFDDC15E3E0C40003A05B /* ShellScript */,
 				2303496417AC6BCB00C6033C /* CopyFiles */,
+				230349AE17AD72ED00C6033C /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				230349AD17AD72CC00C6033C /* PBXTargetDependency */,
 				2303496217AC524100C6033C /* PBXTargetDependency */,
 				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
 				238E9878169664E200C42074 /* PBXTargetDependency */,
@@ -658,6 +695,7 @@
 				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
 				238E986B169664B400C42074 /* guiCocoaCommon */,
 				2331F81716C16B720037D148 /* faulthandler.so */,
+				2303499E17AD724900C6033C /* debugtracer */,
 			);
 		};
 /* End PBXProject section */
@@ -702,6 +740,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2303499B17AD724900C6033C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2331F81816C16B720037D148 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -772,6 +817,11 @@
 			name = Python;
 			targetProxy = 2303496117AC524100C6033C /* PBXContainerItemProxy */;
 		};
+		230349AD17AD72CC00C6033C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2303499E17AD724900C6033C /* debugtracer */;
+			targetProxy = 230349AC17AD72CC00C6033C /* PBXContainerItemProxy */;
+		};
 		2331F86616C16BCE0037D148 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2331F81716C16B720037D148 /* faulthandler.so */;
@@ -790,14 +840,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		2303499417AD646700C6033C /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2303499517AD646700C6033C /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 		23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -817,10 +859,53 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		230349AA17AD724900C6033C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				LD_DYLIB_INSTALL_NAME = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		230349AB17AD724900C6033C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				LD_DYLIB_INSTALL_NAME = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		2331F85E16C16B720037D148 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = "";
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				LD_DYLIB_INSTALL_NAME = "";
@@ -836,7 +921,6 @@
 		2331F85F16C16B720037D148 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = "";
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				LD_DYLIB_INSTALL_NAME = "";
@@ -995,6 +1079,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		230349A917AD724900C6033C /* Build configuration list for PBXNativeTarget "debugtracer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				230349AA17AD724900C6033C /* Debug */,
+				230349AB17AD724900C6033C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		2331F85D16C16B720037D148 /* Build configuration list for PBXNativeTarget "faulthandler.so" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
