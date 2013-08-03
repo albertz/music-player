@@ -3,7 +3,7 @@
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 03.08.13.
-//  Copyright (c) 2013 Albert Zeyer. All rights reserved.
+//  This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 //
 
 #ifndef __MusicPlayer__debugger__
