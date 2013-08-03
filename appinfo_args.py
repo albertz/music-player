@@ -27,6 +27,10 @@ argParser.add_argument(
 	help="force Qt GUI")
 argParser.add_argument(
 	"--forkExecProc", nargs=2)
+argParser.add_argument(
+	"--pyshell", action="store_true", help="just a bare Pyton shell - no musicplayer stuff")
+argParser.add_argument(
+	"-NSDocumentRevisionsDebugMode", nargs=1, help="MacOSX debug stuff")
 
 # Patch to avoid exit on unknown args.
 def argParser_exit(status=0, message=None):

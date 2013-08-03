@@ -27,7 +27,12 @@ print "startup on", utils.formatDate(time.time())
 
 from State import state, modules
 
-if __name__ == '__main__':	
+if __name__ == '__main__':
+
+	# This is a simple debug shell where we don't load anything (--pyshell).
+	if appinfo.args.pyshell:
+		better_exchook.simple_debug_shell({},{})
+		sys.exit(0)
 
 	import stdinconsole
 	import gui
