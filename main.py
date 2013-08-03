@@ -20,7 +20,7 @@ import appinfo
 # This is a simple debug shell where we don't load anything (--pyshell).
 if __name__ == '__main__' and appinfo.args.pyshell:
 	better_exchook.simple_debug_shell({}, {})
-	sys.exit(0)
+	raise SystemExit
 
 # This might do some init which might be important to be done in the main thread.
 import utils
