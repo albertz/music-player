@@ -70,8 +70,6 @@
 		233685361600BD7F00A38E78 /* spectrum.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EE1600BD7F00A38E78 /* spectrum.h */; };
 		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
 		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
-		234C6F7217AD78E00076C577 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234C6F7017AD78E00076C577 /* debugger.cpp */; };
-		234C6F7317AD78E00076C577 /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 234C6F7117AD78E00076C577 /* debugger.h */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		238E98791696674000C42074 /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 238E98671696633000C42074 /* NSFlippedView.m */; };
 		238E987A1696674300C42074 /* NSFlippedView.h in Sources */ = {isa = PBXBuildFile; fileRef = 238E98661696633000C42074 /* NSFlippedView.h */; };
@@ -89,6 +87,8 @@
 		23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */; };
 		23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */; };
 		23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */; };
+		23B071DF17AD79DF00524C82 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B071DD17AD79DF00524C82 /* debugger.cpp */; };
+		23B071E017AD79DF00524C82 /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B071DE17AD79DF00524C82 /* debugger.h */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 /* End PBXBuildFile section */
 
@@ -230,8 +230,6 @@
 		233684EE1600BD7F00A38E78 /* spectrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectrum.h; sourceTree = "<group>"; };
 		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		234C6F7017AD78E00076C577 /* debugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = debugger.cpp; path = ../../debugger/debugger.cpp; sourceTree = "<group>"; };
-		234C6F7117AD78E00076C577 /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugger.h; path = ../../debugger/debugger.h; sourceTree = "<group>"; };
 		238E98661696633000C42074 /* NSFlippedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = MusicPlayer/NSFlippedView.h; sourceTree = "<group>"; };
 		238E98671696633000C42074 /* NSFlippedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = MusicPlayer/NSFlippedView.m; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = guiCocoaCommon.dylib; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -259,6 +257,8 @@
 		23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_player_output.cpp; path = ../ffmpeg_player_output.cpp; sourceTree = "<group>"; };
 		23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_bitmapthumbnail.cpp; path = ../ffmpeg_bitmapthumbnail.cpp; sourceTree = "<group>"; };
 		23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_utils.cpp; path = ../ffmpeg_utils.cpp; sourceTree = "<group>"; };
+		23B071DD17AD79DF00524C82 /* debugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugger.cpp; sourceTree = "<group>"; };
+		23B071DE17AD79DF00524C82 /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -323,16 +323,6 @@
 				2303496A17AC6C2200C6033C /* pylib.zip */,
 			);
 			name = pylib;
-			sourceTree = "<group>";
-		};
-		230349A017AD724900C6033C /* debugger */ = {
-			isa = PBXGroup;
-			children = (
-				234C6F7017AD78E00076C577 /* debugger.cpp */,
-				234C6F7117AD78E00076C577 /* debugger.h */,
-			);
-			name = debugger;
-			path = debugtracer;
 			sourceTree = "<group>";
 		};
 		2331F81616C16A750037D148 /* faulthandler */ = {
@@ -423,7 +413,7 @@
 				2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */,
 				2303497017AC6C3400C6033C /* pylib */,
 				2331F81616C16A750037D148 /* faulthandler */,
-				230349A017AD724900C6033C /* debugger */,
+				23B071DC17AD79DF00524C82 /* debugger */,
 				238E98621696608E00C42074 /* guiCocoaCommon.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
@@ -507,6 +497,16 @@
 			name = ffmpeg.so;
 			sourceTree = "<group>";
 		};
+		23B071DC17AD79DF00524C82 /* debugger */ = {
+			isa = PBXGroup;
+			children = (
+				23B071DD17AD79DF00524C82 /* debugger.cpp */,
+				23B071DE17AD79DF00524C82 /* debugger.h */,
+			);
+			name = debugger;
+			path = ../debugger;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -514,7 +514,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				234C6F7317AD78E00076C577 /* debugger.h in Headers */,
+				23B071E017AD79DF00524C82 /* debugger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -752,7 +752,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				234C6F7217AD78E00076C577 /* debugger.cpp in Sources */,
+				23B071DF17AD79DF00524C82 /* debugger.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
