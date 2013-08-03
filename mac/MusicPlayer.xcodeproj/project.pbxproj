@@ -70,6 +70,8 @@
 		233685361600BD7F00A38E78 /* spectrum.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EE1600BD7F00A38E78 /* spectrum.h */; };
 		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
 		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
+		234C6F7217AD78E00076C577 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234C6F7017AD78E00076C577 /* debugger.cpp */; };
+		234C6F7317AD78E00076C577 /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 234C6F7117AD78E00076C577 /* debugger.h */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		238E98791696674000C42074 /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 238E98671696633000C42074 /* NSFlippedView.m */; };
 		238E987A1696674300C42074 /* NSFlippedView.h in Sources */ = {isa = PBXBuildFile; fileRef = 238E98661696633000C42074 /* NSFlippedView.h */; };
@@ -162,13 +164,13 @@
 
 /* Begin PBXFileReference section */
 		2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "Xcode-Python.xcodeproj"; path = "../python-embedded/Xcode-Python.xcodeproj"; sourceTree = "<group>"; };
-		2303496617AC6C2200C6033C /* exec */ = {isa = PBXFileReference; lastKnownFileType = file; name = exec; path = "../python-embedded/pylib/exec"; sourceTree = "<group>"; };
-		2303496717AC6C2200C6033C /* lib */ = {isa = PBXFileReference; lastKnownFileType = file; name = lib; path = "../python-embedded/pylib/lib"; sourceTree = "<group>"; };
-		2303496817AC6C2200C6033C /* otherlibs */ = {isa = PBXFileReference; lastKnownFileType = file; name = otherlibs; path = "../python-embedded/pylib/otherlibs"; sourceTree = "<group>"; };
-		2303496917AC6C2200C6033C /* pyconfig.h */ = {isa = PBXFileReference; lastKnownFileType = file; name = pyconfig.h; path = "../python-embedded/pylib/pyconfig.h"; sourceTree = "<group>"; };
-		2303496A17AC6C2200C6033C /* pylib.zip */ = {isa = PBXFileReference; lastKnownFileType = file; name = pylib.zip; path = "../python-embedded/pylib/pylib.zip"; sourceTree = "<group>"; };
+		2303496617AC6C2200C6033C /* exec */ = {isa = PBXFileReference; lastKnownFileType = folder; name = exec; path = "../python-embedded/pylib/exec"; sourceTree = "<group>"; };
+		2303496717AC6C2200C6033C /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = "../python-embedded/pylib/lib"; sourceTree = "<group>"; };
+		2303496817AC6C2200C6033C /* otherlibs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = otherlibs; path = "../python-embedded/pylib/otherlibs"; sourceTree = "<group>"; };
+		2303496917AC6C2200C6033C /* pyconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pyconfig.h; path = "../python-embedded/pylib/pyconfig.h"; sourceTree = "<group>"; };
+		2303496A17AC6C2200C6033C /* pylib.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = pylib.zip; path = "../python-embedded/pylib/pylib.zip"; sourceTree = "<group>"; };
 		2303498F17AD646700C6033C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		2303499F17AD724900C6033C /* debugtracer.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = debugtracer.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		2303499F17AD724900C6033C /* debugger.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = debugger.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2331F86016C16B720037D148 /* faulthandler.so.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = faulthandler.so.so; path = faulthandler.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2331F86116C16BC40037D148 /* faulthandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = faulthandler.c; path = ../faulthandler/faulthandler.c; sourceTree = "<group>"; };
 		2331F86216C16BC40037D148 /* traceback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = traceback.c; path = ../faulthandler/traceback.c; sourceTree = "<group>"; };
@@ -228,6 +230,8 @@
 		233684EE1600BD7F00A38E78 /* spectrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectrum.h; sourceTree = "<group>"; };
 		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		234C6F7017AD78E00076C577 /* debugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = debugger.cpp; path = ../../debugger/debugger.cpp; sourceTree = "<group>"; };
+		234C6F7117AD78E00076C577 /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugger.h; path = ../../debugger/debugger.h; sourceTree = "<group>"; };
 		238E98661696633000C42074 /* NSFlippedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = MusicPlayer/NSFlippedView.h; sourceTree = "<group>"; };
 		238E98671696633000C42074 /* NSFlippedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = MusicPlayer/NSFlippedView.m; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = guiCocoaCommon.dylib; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -321,10 +325,13 @@
 			name = pylib;
 			sourceTree = "<group>";
 		};
-		230349A017AD724900C6033C /* debugtracer */ = {
+		230349A017AD724900C6033C /* debugger */ = {
 			isa = PBXGroup;
 			children = (
+				234C6F7017AD78E00076C577 /* debugger.cpp */,
+				234C6F7117AD78E00076C577 /* debugger.h */,
 			);
+			name = debugger;
 			path = debugtracer;
 			sourceTree = "<group>";
 		};
@@ -416,7 +423,7 @@
 				2303495B17AC522500C6033C /* Xcode-Python.xcodeproj */,
 				2303497017AC6C3400C6033C /* pylib */,
 				2331F81616C16A750037D148 /* faulthandler */,
-				230349A017AD724900C6033C /* debugtracer */,
+				230349A017AD724900C6033C /* debugger */,
 				238E98621696608E00C42074 /* guiCocoaCommon.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
@@ -434,7 +441,7 @@
 				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
 				238E986C169664B400C42074 /* guiCocoaCommon.dylib */,
 				2331F86016C16B720037D148 /* faulthandler.so.so */,
-				2303499F17AD724900C6033C /* debugtracer.so */,
+				2303499F17AD724900C6033C /* debugger.so */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -507,6 +514,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				234C6F7317AD78E00076C577 /* debugger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -571,9 +579,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2303499E17AD724900C6033C /* debugtracer */ = {
+		2303499E17AD724900C6033C /* debugger */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 230349A917AD724900C6033C /* Build configuration list for PBXNativeTarget "debugtracer" */;
+			buildConfigurationList = 230349A917AD724900C6033C /* Build configuration list for PBXNativeTarget "debugger" */;
 			buildPhases = (
 				2303499B17AD724900C6033C /* Sources */,
 				2303499C17AD724900C6033C /* Frameworks */,
@@ -583,9 +591,9 @@
 			);
 			dependencies = (
 			);
-			name = debugtracer;
+			name = debugger;
 			productName = debugtracer;
-			productReference = 2303499F17AD724900C6033C /* debugtracer.so */;
+			productReference = 2303499F17AD724900C6033C /* debugger.so */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		2331F81716C16B720037D148 /* faulthandler.so */ = {
@@ -695,7 +703,7 @@
 				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
 				238E986B169664B400C42074 /* guiCocoaCommon */,
 				2331F81716C16B720037D148 /* faulthandler.so */,
-				2303499E17AD724900C6033C /* debugtracer */,
+				2303499E17AD724900C6033C /* debugger */,
 			);
 		};
 /* End PBXProject section */
@@ -744,6 +752,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				234C6F7217AD78E00076C577 /* debugger.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -819,7 +828,7 @@
 		};
 		230349AD17AD72CC00C6033C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2303499E17AD724900C6033C /* debugtracer */;
+			target = 2303499E17AD724900C6033C /* debugger */;
 			targetProxy = 230349AC17AD72CC00C6033C /* PBXContainerItemProxy */;
 		};
 		2331F86616C16BCE0037D148 /* PBXTargetDependency */ = {
@@ -1079,13 +1088,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		230349A917AD724900C6033C /* Build configuration list for PBXNativeTarget "debugtracer" */ = {
+		230349A917AD724900C6033C /* Build configuration list for PBXNativeTarget "debugger" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				230349AA17AD724900C6033C /* Debug */,
 				230349AB17AD724900C6033C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2331F85D16C16B720037D148 /* Build configuration list for PBXNativeTarget "faulthandler.so" */ = {
 			isa = XCConfigurationList;
