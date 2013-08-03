@@ -18,9 +18,9 @@ sys.path += [env["PROJECT_DIR"] + "/.."]
 import better_exchook
 better_exchook.install()
 
-assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so")
-assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/faulthandler.so")
-assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_guiCocoaCommon.dylib")
+pylibs = ["ffmpeg", "faulthandler", "debugger", "_guiCocoaCommon"]
+for l in pylibs:
+	assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + ("/%s.so" % l))
 
 # $PROJECT_DIR : /Users/az/Programmierung/music-player/mac
 # $EXECUTABLE_FOLDER_PATH : MusicPlayer.app/Contents/MacOS
@@ -37,7 +37,8 @@ open(PYDIR + "/appinfo_build.py", "w").write(
 	"gitRef = %r\n" % open(env["PROJECT_DIR"] + "/../.git/refs/heads/master").read().strip()
 )
 
-for f in ("ffmpeg.so","faulthandler.so","_guiCocoaCommon.dylib"):
+for f in pylibs:
+	f += ".so"
 	cp(env["BUILT_PRODUCTS_DIR"] + "/" + f, PYDIR + "/" + f)
 for f in ("License.txt", "DevelopmentNotes.md", "WhatIsAMusicPlayer.md"):
 	cp(env["PROJECT_DIR"] + "/../" + f, PYDIR + "/" + f)
