@@ -149,6 +149,10 @@
 		2303496817AC6C2200C6033C /* otherlibs */ = {isa = PBXFileReference; lastKnownFileType = file; name = otherlibs; path = "../python-embedded/pylib/otherlibs"; sourceTree = "<group>"; };
 		2303496917AC6C2200C6033C /* pyconfig.h */ = {isa = PBXFileReference; lastKnownFileType = file; name = pyconfig.h; path = "../python-embedded/pylib/pyconfig.h"; sourceTree = "<group>"; };
 		2303496A17AC6C2200C6033C /* pylib.zip */ = {isa = PBXFileReference; lastKnownFileType = file; name = pylib.zip; path = "../python-embedded/pylib/pylib.zip"; sourceTree = "<group>"; };
+		2303498F17AD646700C6033C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		2303499317AD646700C6033C /* test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "test-Info.plist"; sourceTree = "<group>"; };
+		2303499517AD646700C6033C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2303499717AD646700C6033C /* test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "test-Prefix.pch"; sourceTree = "<group>"; };
 		231799211651612E00F6AC7B /* libpython2.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython2.6.dylib; path = usr/lib/libpython2.6.dylib; sourceTree = SDKROOT; };
 		2331F86016C16B720037D148 /* faulthandler.so.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = faulthandler.so.so; path = faulthandler.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2331F86116C16BC40037D148 /* faulthandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = faulthandler.c; path = ../faulthandler/faulthandler.c; sourceTree = "<group>"; };
@@ -295,6 +299,24 @@
 			name = pylib;
 			sourceTree = "<group>";
 		};
+		2303499117AD646700C6033C /* test */ = {
+			isa = PBXGroup;
+			children = (
+				2303499217AD646700C6033C /* Supporting Files */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		2303499217AD646700C6033C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2303499317AD646700C6033C /* test-Info.plist */,
+				2303499417AD646700C6033C /* InfoPlist.strings */,
+				2303499717AD646700C6033C /* test-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		2331F81616C16A750037D148 /* faulthandler */ = {
 			isa = PBXGroup;
 			children = (
@@ -388,6 +410,7 @@
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
+				2303499117AD646700C6033C /* test */,
 				23A14A3815E3B2CC00376BF6 /* Frameworks */,
 				23A14A3615E3B2CC00376BF6 /* Products */,
 			);
@@ -410,6 +433,7 @@
 				231799211651612E00F6AC7B /* libpython2.6.dylib */,
 				23A14A6615E3B85C00376BF6 /* Python.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
+				2303498F17AD646700C6033C /* CoreFoundation.framework */,
 				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -766,6 +790,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		2303499417AD646700C6033C /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2303499517AD646700C6033C /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -788,6 +820,7 @@
 		2331F85E16C16B720037D148 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = "";
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				LD_DYLIB_INSTALL_NAME = "";
@@ -803,6 +836,7 @@
 		2331F85F16C16B720037D148 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = "";
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				LD_DYLIB_INSTALL_NAME = "";
@@ -819,8 +853,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_EMPTY_BODY = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -834,8 +866,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_EMPTY_BODY = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
 				LD_DYLIB_INSTALL_NAME = "";
 				PRODUCT_NAME = "_$(TARGET_NAME)";
 			};
