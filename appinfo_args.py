@@ -3,13 +3,15 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+# Strip out MacOSX launchd -psn_... parameter.
+import sys
+sys.argv = [arg for arg in sys.argv if not arg.startswith("-psn_")]
+
 try:
 	import argparse
 	argParser = argparse.ArgumentParser()
 except ImportError:
-	import sys
-	if len(sys.argv) > 1 and \
-	not sys.argv[1].startswith("-psn"): # -psn... is added by Mac when run by launchd
+	if len(sys.argv) > 1:
 		print "Warning, argparse (for parsing sys.argv) not available. This needs Python >=2.7. Ignoring sys.argv."
 	# Dummy fallback
 	class DummyArgParser:
