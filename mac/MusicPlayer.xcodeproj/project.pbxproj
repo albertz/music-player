@@ -171,7 +171,7 @@
 		2303496A17AC6C2200C6033C /* pylib.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = pylib.zip; path = "../python-embedded/pylib/pylib.zip"; sourceTree = "<group>"; };
 		2303498F17AD646700C6033C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		2303499F17AD724900C6033C /* debugger.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = debugger.so; sourceTree = BUILT_PRODUCTS_DIR; };
-		2331F86016C16B720037D148 /* faulthandler.so.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = faulthandler.so.so; path = faulthandler.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		2331F86016C16B720037D148 /* faulthandler.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = faulthandler.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		2331F86116C16BC40037D148 /* faulthandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = faulthandler.c; path = ../faulthandler/faulthandler.c; sourceTree = "<group>"; };
 		2331F86216C16BC40037D148 /* traceback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = traceback.c; path = ../faulthandler/traceback.c; sourceTree = "<group>"; };
 		233684A51600BD7F00A38E78 /* audio_consumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_consumer.h; sourceTree = "<group>"; };
@@ -232,7 +232,7 @@
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		238E98661696633000C42074 /* NSFlippedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = MusicPlayer/NSFlippedView.h; sourceTree = "<group>"; };
 		238E98671696633000C42074 /* NSFlippedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = MusicPlayer/NSFlippedView.m; sourceTree = "<group>"; };
-		238E986C169664B400C42074 /* guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = guiCocoaCommon.dylib; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3915E3B2CC00376BF6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		23A14A3C15E3B2CC00376BF6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -247,7 +247,6 @@
 		23A14A4F15E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
-		23A14A6615E3B85C00376BF6 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = System/Library/Frameworks/Python.framework; sourceTree = SDKROOT; };
 		23ACE6FD1689E1CF00E45134 /* ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ffmpeg.h; path = ../ffmpeg.h; sourceTree = "<group>"; };
 		23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_getmetadata.cpp; path = ../ffmpeg_getmetadata.cpp; sourceTree = "<group>"; };
 		23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_acoustid.cpp; path = ../ffmpeg_acoustid.cpp; sourceTree = "<group>"; };
@@ -429,8 +428,8 @@
 			children = (
 				23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */,
 				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
-				238E986C169664B400C42074 /* guiCocoaCommon.dylib */,
-				2331F86016C16B720037D148 /* faulthandler.so.so */,
+				238E986C169664B400C42074 /* _guiCocoaCommon.dylib */,
+				2331F86016C16B720037D148 /* faulthandler.so */,
 				2303499F17AD724900C6033C /* debugger.so */,
 			);
 			name = Products;
@@ -439,7 +438,6 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				23A14A6615E3B85C00376BF6 /* Python.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
 				2303498F17AD646700C6033C /* CoreFoundation.framework */,
 				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
@@ -610,7 +608,7 @@
 			);
 			name = faulthandler.so;
 			productName = ffmpeg.so;
-			productReference = 2331F86016C16B720037D148 /* faulthandler.so.so */;
+			productReference = 2331F86016C16B720037D148 /* faulthandler.so */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		238E986B169664B400C42074 /* guiCocoaCommon */ = {
@@ -627,7 +625,7 @@
 			);
 			name = guiCocoaCommon;
 			productName = guiCocoaCommon;
-			productReference = 238E986C169664B400C42074 /* guiCocoaCommon.dylib */;
+			productReference = 238E986C169664B400C42074 /* _guiCocoaCommon.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		23A14A3415E3B2CC00376BF6 /* MusicPlayer */ = {
@@ -968,7 +966,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -981,7 +978,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Versions/2.6/Headers;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../python-embedded/CPython/Include";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -992,7 +989,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
@@ -1003,7 +999,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Python.framework/Versions/2.6/Headers;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../python-embedded/CPython/Include";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SDKROOT = macosx;
 			};
@@ -1039,7 +1035,7 @@
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				HEADER_SEARCH_PATHS = (
-					/System/Library/Frameworks/Python.framework/Headers,
+					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					/usr/local/include,
 					"$(PROJECT_DIR)/../chromaprint",
 				);
@@ -1065,7 +1061,7 @@
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				HEADER_SEARCH_PATHS = (
-					/System/Library/Frameworks/Python.framework/Headers,
+					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					/usr/local/include,
 					"$(PROJECT_DIR)/../chromaprint",
 				);

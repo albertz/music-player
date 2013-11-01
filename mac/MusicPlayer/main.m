@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <Python/Python.h>
+#import <Python.h>
 
 
 
