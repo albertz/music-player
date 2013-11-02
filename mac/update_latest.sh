@@ -8,12 +8,12 @@ xcodebuild || exit 1
 
 pushd build/Release || { echo "build/Release does not exist"; exit 1; }
 
-[ *"-$gitrev.zip" != "" ] 2>/dev/null && \
+[ "$(find . -name "*-$gitrev.zip")" != "" ] && \
 	{ echo "package exists:" *"-$gitrev.zip"; exit 1; }
 
 zipfilename="MusicPlayer-MacApp-$(date "+%Y%m%d")"
 i=1
-for f in $zipfilename-*.zip; do
+for f in $zipfilename-*.zip(N); do
 	j=$(echo $f | sed -e "s/${zipfilename}-\([0-9]*\)-.*\\.zip/\1/")
 	[[ $j -ge $i ]] && i=$(expr $j + 1)
 done
