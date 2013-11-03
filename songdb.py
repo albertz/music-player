@@ -317,7 +317,8 @@ class DB(object):
 		conn = self._getConnection()
 		cur = conn.execute(cmd, args)
 		return cur
-	
+
+	@utils.ExecInMainProcDecorator
 	def _actionCmd(self, cmd, args):
 		conn = self._getConnection()
 		with self.writelock:
