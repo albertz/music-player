@@ -12,6 +12,7 @@ try:
 	faulthandler.enable(all_threads=True)
 except ImportError:
 	print "note: faulthandler module not available"
+	faulthandler = None
 
 # Do this early to do some option parsing and maybe special handling.
 import appinfo
