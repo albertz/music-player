@@ -40,7 +40,7 @@ musicdirs = (os.path.expanduser("~/Music"),)
 
 
 try: os.makedirs(userdir)
-except: pass
+except Exception: pass
 
 
 import utils
