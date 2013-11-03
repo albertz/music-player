@@ -16,8 +16,8 @@ except ImportError:
 	# Dummy fallback
 	class DummyArgParser:
 		def add_argument(self, key, **kwargs):
-			assert key[0:2] == "--"
-			setattr(self, key[2:], False)
+			if key[0:2] == "--":
+				setattr(self, key[2:], False)
 		def parse_args(self): return self
 	argParser = DummyArgParser()
 
