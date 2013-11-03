@@ -261,6 +261,14 @@ class DB(object):
 			self.removeOldDb()
 			self.initNew()
 
+	def _findMe(self):
+		#TODO
+		pass
+
+	def __reduce__(self):
+		#TODO
+		pass
+
 	@property
 	def writelock(self): return self.rwlock.writelock
 	@property
@@ -380,8 +388,8 @@ class DB(object):
 		self.disconnectAll()
 
 DBs = {
-	"songDb": lambda: DB("songs.db"),
-	"songHashDb": lambda: DB("songHashs.db"),
+	"songDb": {"name":"songs.db"},
+	"songHashDb": {"name":"songHashs.db"},
 	}
 
 def usedDbsInCode(f):
@@ -418,7 +426,8 @@ def init():
 def initDb(db):
 	with globals()["_%s_initlock" % db]:
 		if not globals()[db]:
-			globals()[db] = DBs[db]()
+			globals()[db] = DB(**DBs[db])
+		return globals()[db]
 
 def lazyInitDb(*dbs):
 	def decorator(f):
