@@ -998,12 +998,12 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 # These are search fallbacks while our own index doesn't work good enough.
 # They use the sqlite FTS4 index.
 
-DBs["songSearchIndexDb"] = lambda: DB(
-	"songSearchIndex.db",
-	create_command="CREATE VIRTUAL TABLE %s USING fts4(content TEXT, tokenize=porter)")
-DBs["songSearchIndexRefDb"] = lambda: DB(
-	"songSearchIndexRef.db",
-	create_command="CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)")
+DBs["songSearchIndexDb"] = {
+	"name": "songSearchIndex.db",
+	"create_command": "CREATE VIRTUAL TABLE %s USING fts4(content TEXT, tokenize=porter)" }
+DBs["songSearchIndexRefDb"] = {
+	"name": "songSearchIndexRef.db",
+	"create_command": "CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)" }
 
 def insertSearchEntry_raw(songId, tokens):
 	songId = buffer(songId)
