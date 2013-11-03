@@ -980,12 +980,20 @@ class ExecingProcess_ConnectionWrapper(object):
 	def __init__(self, fd=None):
 		self.fd = fd
 		if self.fd:
-			from _multiprocessing import Connection
-			self.conn = Connection(fd)
+			self.f = os.fdopen(self.fd, "rw+")
+			self.pickler = Pickler(self.f)
+			self.unpickler = Unpickler(self.f)
 	def __getstate__(self): return self.fd
 	def __setstate__(self, state): self.__init__(state)
-	def __getattr__(self, attr): return getattr(self.conn, attr)
-		
+	def send(self, value): self.pickler.dump(value)
+	def recv(self): self.unpickler.load()
+	def close(self):
+		self.pickler = None
+		self.unpickler = None
+		if self.f: self.f.close()
+		self.f = None
+		self.fd = None
+
 def ExecingProcess_Pipe():
 	import socket
 	s1, s2 = socket.socketpair()
