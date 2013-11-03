@@ -261,13 +261,16 @@ class DB(object):
 			self.removeOldDb()
 			self.initNew()
 
-	def _findMe(self):
-		#TODO
-		pass
+	def _findGlobalSelfInit(self):
+		global DBs
+		for key,value in DBs.items():
+			if value["name"] == self.name:
+				return key
 
 	def __reduce__(self):
-		#TODO
-		pass
+		globalName = self._findGlobalSelfInit()
+		assert globalName
+		return (initDb, (globalName,))
 
 	@property
 	def writelock(self): return self.rwlock.writelock
