@@ -995,7 +995,9 @@ def ExecingProcess_Pipe():
 	s2.close()
 	return c1, c2
 
-isFork = False
+
+isFork = False  # fork() without exec()
+isMainProcess = True
 
 class AsyncTask:		
 	def __init__(self, func, name=None, mustExec=False):
@@ -1030,6 +1032,8 @@ class AsyncTask:
 		if not self.mustExec and sys.platform != "win32":
 			global isFork
 			isFork = True
+		global isMainProcess
+		isMainProcess = False
 		try:
 			self.func(self)
 		except KeyboardInterrupt:
@@ -1080,29 +1084,68 @@ class AsyncTask:
 		pass
 
 class ForwardedKeyboardInterrupt(Exception): pass
+class _AsyncCallQueue:
+	Self = None
+	class Types:
+		result = 0
+		exception = 1
+		asyncExec = 2
+	def __init__(self, queue):
+		assert not self.Self
+		self.__class__.Self = self
+		self.mutex = Lock()
+		self.queue = queue
+	def put(self, type, value):
+		self.queue.put((type, value))
+	def asyncExecClient(self, func):
+		with self.mutex:
+			self.put(self.Types.asyncExec, func)
+			t, value = self.queue.get()
+			if t == self.Types.result:
+				return value
+			elif t == self.Types.exception:
+				raise value
+			else:
+				assert False, "bad behavior of asyncCall in asyncExec (%r)" % t
+	@classmethod
+	def asyncExecHost(clazz, task, func):
+		q = task
+		name = "<unknown>"
+		try:
+			name = repr(func)
+			res = func()
+			q.put(clazz.Types.result, res)
+		except Exception as exc:
+			print "Exception in asyncExecHost", name, exc
+			q.put(clazz.Types.exception, exc)
 
 def asyncCall(func, name=None, mustExec=False):
 	def doCall(queue):
-		res = None
+		q = _AsyncCallQueue(queue)
 		try:
 			res = func()
-			queue.put((None,res))
+			q.put(q.Types.result, res)
 		except KeyboardInterrupt as exc:
 			print "Exception in asyncCall", name, ": KeyboardInterrupt"
-			queue.put((ForwardedKeyboardInterrupt(exc),None))
+			q.put(q.Types.exception, ForwardedKeyboardInterrupt(exc))
 		except BaseException as exc:
 			print "Exception in asyncCall", name
 			sys.excepthook(*sys.exc_info())
-			queue.put((exc,None))
+			q.put(q.Types.exception, exc)
 	task = AsyncTask(func=doCall, name=name, mustExec=mustExec)
-	# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
-	# this will raise an EOFError here.
-	# However, normally, we should catch all exceptions and just reraise them here.
-	exc,res = task.get()
-	if exc is not None:
-		raise exc
-	return res
-
+	while True:
+		# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
+		# this will raise an EOFError here.
+		# However, normally, we should catch all exceptions and just reraise them here.
+		t,value = task.get()
+		if t == _AsyncCallQueue.Types.result:
+			return value
+		elif t == _AsyncCallQueue.Types.exception:
+			raise value
+		elif t == _AsyncCallQueue.Types.asyncExec:
+			_AsyncCallQueue.asyncExecHost(task, value)
+		else:
+			assert False, "unknown _AsyncCallQueue type %r" % t
 
 def WarnMustNotBeInForkDecorator(func):
 	class Ctx:
@@ -1116,6 +1159,17 @@ def WarnMustNotBeInForkDecorator(func):
 			return None
 		return func(*args, **kwargs)
 	return decoratedFunc
+
+def ExecInMainProcDecorator(func):
+	def decoratedFunc(*args, **kwargs):
+		global isMainProcess
+		if isMainProcess:
+			return func(*args, **kwargs)
+		else:
+			assert _AsyncCallQueue.Self, "works only if called via asyncCall"
+			return _AsyncCallQueue.Self.asyncExecClient(lambda: func(*args, **kwargs))
+	return decoratedFunc
+
 
 
 def ExceptionCatcherDecorator(func):
