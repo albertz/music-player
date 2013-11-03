@@ -19,6 +19,7 @@ from collections import deque
 from threading import Condition, Thread, currentThread, Lock, RLock
 import sys, os, time
 import types
+from StringIO import StringIO
 
 import better_exchook
 
@@ -980,19 +981,23 @@ class ExecingProcess_ConnectionWrapper(object):
 	def __init__(self, fd=None):
 		self.fd = fd
 		if self.fd:
-			self.f = os.fdopen(self.fd, "rw+")
-			self.pickler = Pickler(self.f)
-			self.unpickler = Unpickler(self.f)
+			from _multiprocessing import Connection
+			self.conn = Connection(fd)
 	def __getstate__(self): return self.fd
 	def __setstate__(self, state): self.__init__(state)
-	def send(self, value): self.pickler.dump(value)
-	def recv(self): self.unpickler.load()
-	def close(self):
-		self.pickler = None
-		self.unpickler = None
-		if self.f: self.f.close()
-		self.f = None
-		self.fd = None
+	def __getattr__(self, attr): return getattr(self.conn, attr)
+	def send(self, value):
+		self._check_closed()
+		self._check_writable()
+		buf = StringIO()
+		Pickler(buf).dump(value)
+		self._send_bytes(buf.getvalue())
+	def recv(self):
+		self._check_closed()
+		self._check_readable()
+		buf = self._recv_bytes()
+		f = StringIO(buf)
+		return Unpickler(f).load()
 
 def ExecingProcess_Pipe():
 	import socket
