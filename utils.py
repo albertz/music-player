@@ -986,16 +986,19 @@ class ExecingProcess_ConnectionWrapper(object):
 	def __getstate__(self): return self.fd
 	def __setstate__(self, state): self.__init__(state)
 	def __getattr__(self, attr): return getattr(self.conn, attr)
+	def _check_closed(self): assert not self.conn.closed
+	def _check_writable(self): assert self.conn.writable
+	def _check_readable(self): assert self.conn.readable
 	def send(self, value):
 		self._check_closed()
 		self._check_writable()
 		buf = StringIO()
 		Pickler(buf).dump(value)
-		self._send_bytes(buf.getvalue())
+		self.conn.send_bytes(buf.getvalue())
 	def recv(self):
 		self._check_closed()
 		self._check_readable()
-		buf = self._recv_bytes()
+		buf = self.conn.recv_bytes()
 		f = StringIO(buf)
 		return Unpickler(f).load()
 
