@@ -1241,8 +1241,8 @@ class TestClass:
 def test_asyncCall2():
 	test = TestClass("test42")
 	def funcAsync():
-		res = test.testExecInMainProcDeco(1)
-		assert res == (42, "test42", (1,))
+		res = test.testExecInMainProcDeco(1, buffer("abc"))
+		assert res == (42, "test42", (1, buffer("abc")))
 	asyncCall(funcAsync, name="test", mustExec=True)
 
 def debugtest_song():
