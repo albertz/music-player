@@ -904,6 +904,12 @@ class Pickler(pickle.Pickler):
 		self.save_dict(obj)
 	dispatch[types.DictionaryType] = intellisave_dict
 
+	def save_buffer(self, obj):
+		self.save(buffer)
+		self.save((str(obj),))
+		self.write(pickle.REDUCE)
+	dispatch[types.BufferType] = save_buffer
+
 	# Some types in the types modules are not correctly referenced,
 	# such as types.FunctionType. This is fixed here.
 	def fixedsave_type(self, obj):
@@ -1246,10 +1252,13 @@ def test_asyncCall2():
 	asyncCall(funcAsync, name="test", mustExec=True)
 
 def test_picklebuffer():
+	origbuffer = buffer("123")
 	f = StringIO()
-	Pickler(f).dump(buffer("123"))
+	Pickler(f).dump(origbuffer)
 	f.seek(0)
 	b = Unpickler(f).load()
+	assert origbuffer == b
+
 
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
