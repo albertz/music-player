@@ -1204,11 +1204,15 @@ def ExecInMainProcDecorator(func):
 def test_asyncCall():
 	def funcAsync():
 		print "hello from async"
+		res = execInMainProc(funcMain)
+		print "main proc call:", res
+		return "async"
 	class ctx:
 		calledBack = False
 	def funcMain():
 		print "hello from main again"
 		ctx.calledBack = True
+		return "main"
 	asyncCall(funcAsync, name="test", mustExec=True)
 
 def ExceptionCatcherDecorator(func):
