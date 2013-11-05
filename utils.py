@@ -1228,10 +1228,15 @@ def test_asyncCall():
 
 def debugtest_indexSearch():
 	def asyncFunc():
+		dump = Pickler.dump
+		def picklerdump(pickler, obj):
+			print "picklerdump:", obj
+			dump(pickler, obj)
+		Pickler.dump = picklerdump
 		import appinfo, songdb
 		dir = appinfo.musicdirs[0]
 		songdb.indexSearchDir(dir)
-	asyncCall(asyncFunc, name="create search index", mustExec=True)
+	asyncCall(asyncFunc, name="debug test", mustExec=True)
 
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
