@@ -1226,6 +1226,19 @@ def test_asyncCall():
 	assert mod[calledBackVarName] is True
 	mod.pop(calledBackVarName)
 
+class TestClass:
+	@ExecInMainProcDecorator
+	def testExecInMainProcDeco(self):
+		return 42
+
+def test_asyncCall2():
+	test = TestClass()
+	def funcAsync():
+		res = test.testExecInMainProcDeco()
+		assert res == 42
+	res = asyncCall(funcAsync, name="test", mustExec=True)
+
+
 def debugtest_indexSearch():
 	def asyncFunc():
 		dump = Pickler.dump
