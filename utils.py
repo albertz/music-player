@@ -1230,13 +1230,18 @@ class TestClass:
 	@ExecInMainProcDecorator
 	def testExecInMainProcDeco(self):
 		return 42
+	@staticmethod
+	def getInstance():
+		return TestClass()
+	def __reduce__(self):
+		return (self.getInstance, ())
 
 def test_asyncCall2():
 	test = TestClass()
 	def funcAsync():
 		res = test.testExecInMainProcDeco()
 		assert res == 42
-	res = asyncCall(funcAsync, name="test", mustExec=True)
+	asyncCall(funcAsync, name="test", mustExec=True)
 
 
 def debugtest_indexSearch():
