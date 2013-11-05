@@ -1227,20 +1227,22 @@ def test_asyncCall():
 	mod.pop(calledBackVarName)
 
 class TestClass:
+	def __init__(self, name):
+		self.name = name
 	@ExecInMainProcDecorator
 	def testExecInMainProcDeco(self):
-		return 42
+		return 42, self.name
 	@staticmethod
-	def getInstance():
-		return TestClass()
+	def getInstance(name):
+		return TestClass(name)
 	def __reduce__(self):
-		return (self.getInstance, ())
+		return (self.getInstance, (self.name,))
 
 def test_asyncCall2():
-	test = TestClass()
+	test = TestClass("test42")
 	def funcAsync():
 		res = test.testExecInMainProcDeco()
-		assert res == 42
+		assert res == (42, "test42")
 	asyncCall(funcAsync, name="test", mustExec=True)
 
 
