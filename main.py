@@ -26,7 +26,8 @@ if __name__ == '__main__' and appinfo.args.pyshell:
 # Early check for "--pyexec".
 # This is a simple Python execution where we don't load anything.
 if __name__ == '__main__' and appinfo.args.pyexec:
-	better_exchook.simple_debug_shell({}, {})
+	sourcecode = appinfo.args.pyexec[0]
+	exec(compile(sourcecode, "<pyexec>", "exec"))
 	raise SystemExit
 
 # This might do some init which might be important to be done in the main thread.
