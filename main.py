@@ -18,8 +18,14 @@ except ImportError:
 import appinfo
 
 # Early check for "--pyshell".
-# This is a simple debug shell where we don't load anything (--pyshell).
+# This is a simple debug shell where we don't load anything.
 if __name__ == '__main__' and appinfo.args.pyshell:
+	better_exchook.simple_debug_shell({}, {})
+	raise SystemExit
+
+# Early check for "--pyexec".
+# This is a simple Python execution where we don't load anything.
+if __name__ == '__main__' and appinfo.args.pyexec:
 	better_exchook.simple_debug_shell({}, {})
 	raise SystemExit
 
