@@ -1230,8 +1230,8 @@ class TestClass:
 	def __init__(self, name):
 		self.name = name
 	@ExecInMainProcDecorator
-	def testExecInMainProcDeco(self):
-		return 42, self.name
+	def testExecInMainProcDeco(self, *args):
+		return 42, self.name, args
 	@staticmethod
 	def getInstance(name):
 		return TestClass(name)
@@ -1241,10 +1241,13 @@ class TestClass:
 def test_asyncCall2():
 	test = TestClass("test42")
 	def funcAsync():
-		res = test.testExecInMainProcDeco()
-		assert res == (42, "test42")
+		res = test.testExecInMainProcDeco(1)
+		assert res == (42, "test42", (1,))
 	asyncCall(funcAsync, name="test", mustExec=True)
 
+def debugtest_song():
+	from Song import Song
+	song = Song(url=u'/Users/az/Music/04 Seen It All.m4a')
 
 def debugtest_indexSearch():
 	def asyncFunc():
