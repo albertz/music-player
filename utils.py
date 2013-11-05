@@ -1176,14 +1176,17 @@ def WarnMustNotBeInForkDecorator(func):
 		return func(*args, **kwargs)
 	return decoratedFunc
 
+def execInMainProc(func):
+	global isMainProcess
+	if isMainProcess:
+		return func()
+	else:
+		assert _AsyncCallQueue.Self, "works only if called via asyncCall"
+		return _AsyncCallQueue.Self.asyncExecClient(func)
+
 def ExecInMainProcDecorator(func):
 	def decoratedFunc(*args, **kwargs):
-		global isMainProcess
-		if isMainProcess:
-			return func(*args, **kwargs)
-		else:
-			assert _AsyncCallQueue.Self, "works only if called via asyncCall"
-			return _AsyncCallQueue.Self.asyncExecClient(lambda: func(*args, **kwargs))
+		return execInMainProc(lambda: func(*args, **kwargs))
 	return decoratedFunc
 
 
