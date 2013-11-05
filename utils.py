@@ -1245,6 +1245,11 @@ def test_asyncCall2():
 		assert res == (42, "test42", (1, buffer("abc")))
 	asyncCall(funcAsync, name="test", mustExec=True)
 
+def test_picklebuffer():
+	f = StringIO()
+	Pickler(f).dump(buffer("123"))
+	f.seek(0)
+	b = Unpickler(f).load()
 
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
