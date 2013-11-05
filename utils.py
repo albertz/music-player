@@ -1245,23 +1245,6 @@ def test_asyncCall2():
 		assert res == (42, "test42", (1, buffer("abc")))
 	asyncCall(funcAsync, name="test", mustExec=True)
 
-def debugtest_song():
-	from Song import Song
-	song = Song(url=u'/Users/az/Music/04 Seen It All.m4a')
-
-def debugtest_indexSearch():
-	def asyncFunc():
-		dump = Pickler.dump
-		def picklerdump(pickler, obj):
-			print "picklerdump:", obj
-			import better_exchook
-			better_exchook.print_traceback()
-			dump(pickler, obj)
-		Pickler.dump = picklerdump
-		import appinfo, songdb
-		dir = appinfo.musicdirs[0]
-		songdb.indexSearchDir(dir)
-	asyncCall(asyncFunc, name="debug test", mustExec=True)
 
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
