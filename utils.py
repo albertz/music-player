@@ -1136,6 +1136,15 @@ class _AsyncCallQueue:
 			q.put(clazz.Types.exception, exc)
 
 def asyncCall(func, name=None, mustExec=False):
+	"""
+	This executes func() in another process and waits/blocks until
+	it is finished. The returned value is passed back to this process
+	and returned. Exceptions are passed back as well and will be
+	reraised here.
+
+	If `mustExec` is set, the other process must `exec()` after the `fork()`.
+	If it is not set, it might omit the `exec()`, depending on the platform.
+	"""
 	def doCall(queue):
 		q = _AsyncCallQueue(queue)
 		try:
@@ -1189,7 +1198,15 @@ def ExecInMainProcDecorator(func):
 		return execInMainProc(lambda: func(*args, **kwargs))
 	return decoratedFunc
 
-
+def test_asyncCall():
+	def funcAsync():
+		print "hello from async"
+	class ctx:
+		calledBack = False
+	def funcMain():
+		print "hello from main again"
+		ctx.calledBack = True
+	asyncCall(funcAsync, name="test", mustExec=True)
 
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
