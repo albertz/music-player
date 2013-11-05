@@ -1208,19 +1208,22 @@ def ExecInMainProcDecorator(func):
 	return decoratedFunc
 
 def test_asyncCall():
-	calledBackVarName = getTempNameInScope(globals())
-	globals()[calledBackVarName] = False
+	mod = globals()
+	calledBackVarName = getTempNameInScope(mod)
+	mod[calledBackVarName] = False
 	def funcAsync():
-		print "hello from async"
+		assert not isMainProcess
+		assert not isFork
 		res = execInMainProc(funcMain)
-		print "main proc call:", res
-		print "called back:", globals()[calledBackVarName]
+		assert res == "main"
 		return "async"
 	def funcMain():
-		print "hello from main again"
-		globals()[calledBackVarName] = True
+		mod[calledBackVarName] = True
 		return "main"
-	asyncCall(funcAsync, name="test", mustExec=True)
+	res = asyncCall(funcAsync, name="test", mustExec=True)
+	assert res == "async"
+	assert mod[calledBackVarName] is True
+	mod.pop(calledBackVarName)
 
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
