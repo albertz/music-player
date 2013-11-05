@@ -964,6 +964,7 @@ class ExecingProcess:
 			self.pickler.dump(self.target)
 			self.pickler.dump(self.args)
 			self.pipe_p2c[1].flush()
+	Verbose = False
 	@staticmethod
 	def checkExec():
 		if "--forkExecProc" in sys.argv:
@@ -974,7 +975,7 @@ class ExecingProcess:
 			writeend = os.fdopen(writeFileNo, "w")
 			unpickler = Unpickler(readend)
 			name = unpickler.load()
-			print "ExecingProcess child %s (pid %i)" % (name, os.getpid())
+			if ExecingProcess.Verbose: print "ExecingProcess child %s (pid %i)" % (name, os.getpid())
 			try:
 				target = unpickler.load()
 				args = unpickler.load()
@@ -983,7 +984,7 @@ class ExecingProcess:
 				raise SystemExit
 			ret = target(*args)
 			Pickler(writeend).dump(ret)
-			print "ExecingProcess child %s (pid %i) finished" % (name, os.getpid())
+			if ExecingProcess.Verbose: print "ExecingProcess child %s (pid %i) finished" % (name, os.getpid())
 			raise SystemExit
 
 class ExecingProcess_ConnectionWrapper(object):
