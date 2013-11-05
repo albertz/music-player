@@ -12,19 +12,26 @@
 
 
 static void addPyPath() {
+	const char* systemPythonPath = "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.6";
+	if([[NSFileManager defaultManager] fileExistsAtPath:@"/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7"])
+		systemPythonPath = "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7";
+	
 	NSString* pathStr =
 	[[NSString alloc]
-	 initWithFormat:@"%s:%s:%s:%s:%s:%s",
+	 initWithFormat:@"%s:%s:%s:%s:%s:%s:%s",
+	 // Start with system Python. I had problems where ObjC would not work otherwise (where system Python was 2.6).
+	 systemPythonPath,
+	 
 	 // these are currently needed for ObjC and other stuff.
 	 // they might be removed at some later time.
 	 // note that this is also not that future-proof because i don't think it would work with Python 3.
 	 "/System/Library/Frameworks/Python.framework/Versions/Current/Extras/lib/python",
 	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7/lib-dynload",
 	 "/System/Library/Frameworks/Python.framework/Versions/Current/Extras/lib/python/PyObjC",
+	 [[[[NSString alloc] initWithUTF8String:Py_GetPrefix()] stringByAppendingString:@"/Extras/lib/python/PyObjC"] UTF8String],
 
 	 // put the original Py_GetPath behind so that we prefer the System Python stuff if available
 	 Py_GetPath(),
-	 [[[[NSString alloc] initWithUTF8String:Py_GetPrefix()] stringByAppendingString:@"/Extras/lib/python/PyObjC"] UTF8String],
 	 
 	 // put this last
 	 [[[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python"] UTF8String]
