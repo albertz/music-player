@@ -1234,7 +1234,7 @@ class TestClassAsyncCallExecInMainProcDeco:
 		return 42, self.name, args
 	@staticmethod
 	def getInstance(name):
-		return TestClass(name)
+		return TestClassAsyncCallExecInMainProcDeco(name)
 	def __reduce__(self):
 		return (self.getInstance, (self.name,))
 
