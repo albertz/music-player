@@ -1231,6 +1231,8 @@ def debugtest_indexSearch():
 		dump = Pickler.dump
 		def picklerdump(pickler, obj):
 			print "picklerdump:", obj
+			import better_exchook
+			better_exchook.print_traceback()
 			dump(pickler, obj)
 		Pickler.dump = picklerdump
 		import appinfo, songdb
