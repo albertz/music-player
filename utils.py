@@ -941,7 +941,10 @@ class ExecingProcess:
 		if pid == 0: # child
 			self.pipe_c2p[0].close()
 			self.pipe_p2c[1].close()
-			args = sys.argv + [
+			# Copying all parameters is problematic (e.g. --pyshell).
+			# sys.argv[0] is never "python", so it might be problematic
+			# if it is not executable. However, it should be.
+			args = sys.argv[0:1] + [
 				"--forkExecProc",
 				str(self.pipe_c2p[1].fileno()),
 				str(self.pipe_p2c[0].fileno())]
