@@ -1226,6 +1226,13 @@ def test_asyncCall():
 	assert mod[calledBackVarName] is True
 	mod.pop(calledBackVarName)
 
+def debugtest_indexSearch():
+	def asyncFunc():
+		import appinfo, songdb
+		dir = appinfo.musicdirs[0]
+		songdb.indexSearchDir(dir)
+	asyncCall(asyncFunc, name="create search index", mustExec=True)
+
 def ExceptionCatcherDecorator(func):
 	def decoratedFunc(*args, **kwargs):
 		try:
