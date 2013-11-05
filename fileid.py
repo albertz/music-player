@@ -21,7 +21,7 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		filepath = unicode(filepath)
 		
 		url = AppKit.NSURL.alloc().initFileURLWithPath_(filepath)
-		bookmark, _ = url.bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_(AppKit.NSURLBookmarkCreationPreferFileIDResolution,None,None,None)
+		bookmark, _ = url.bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_(0,None,None,None)
 		
 		if not bookmark: return None
 		bytes = bookmark.bytes()
