@@ -1226,7 +1226,7 @@ def test_asyncCall():
 	assert mod[calledBackVarName] is True
 	mod.pop(calledBackVarName)
 
-class TestClass:
+class TestClassAsyncCallExecInMainProcDeco:
 	def __init__(self, name):
 		self.name = name
 	@ExecInMainProcDecorator
@@ -1239,7 +1239,7 @@ class TestClass:
 		return (self.getInstance, (self.name,))
 
 def test_asyncCall2():
-	test = TestClass("test42")
+	test = TestClassAsyncCallExecInMainProcDeco("test42")
 	def funcAsync():
 		res = test.testExecInMainProcDeco(1, buffer("abc"))
 		assert res == (42, "test42", (1, buffer("abc")))
