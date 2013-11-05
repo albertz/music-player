@@ -770,6 +770,12 @@ def fixValue(value, type):
 		return unicode(value)
 	return value
 
+def getTempNameInScope(scope):
+	import random
+	while True:
+		name = "_tmp_" + "".join([str(random.randrange(0, 10)) for _ in range(10)])
+		if name not in scope: return name
+
 
 def iterGlobalsUsedInFunc(f, fast=False, loadsOnly=True):
 	if hasattr(f, "func_code"): code = f.func_code
@@ -1133,10 +1139,10 @@ class _AsyncCallQueue:
 		try:
 			name = repr(func)
 			res = func()
-			q.put(clazz.Types.result, res)
+			q.put((clazz.Types.result, res))
 		except Exception as exc:
 			print "Exception in asyncExecHost", name, exc
-			q.put(clazz.Types.exception, exc)
+			q.put((clazz.Types.exception, exc))
 
 def asyncCall(func, name=None, mustExec=False):
 	"""
@@ -1202,16 +1208,17 @@ def ExecInMainProcDecorator(func):
 	return decoratedFunc
 
 def test_asyncCall():
+	calledBackVarName = getTempNameInScope(globals())
+	globals()[calledBackVarName] = False
 	def funcAsync():
 		print "hello from async"
 		res = execInMainProc(funcMain)
 		print "main proc call:", res
+		print "called back:", globals()[calledBackVarName]
 		return "async"
-	class ctx:
-		calledBack = False
 	def funcMain():
 		print "hello from main again"
-		ctx.calledBack = True
+		globals()[calledBackVarName] = True
 		return "main"
 	asyncCall(funcAsync, name="test", mustExec=True)
 
