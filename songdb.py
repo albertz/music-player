@@ -253,7 +253,7 @@ class DB(object):
 		self.cache = Cache()
 
 		try:
-			self.test()
+			self.sanityCheck()
 		except Exception as exc:
 			# Maybe we had an old LevelDB or some other corruption.
 			# Not much we can do for recovering...
@@ -293,7 +293,7 @@ class DB(object):
 			self._threadLocal = threading.local()
 		setattr(self._threadLocal, "connection", self.LocalConnection(v))
 
-	def test(self):
+	def sanityCheck(self):
 		# Some of these may throw an OperationalError.
 		conn = sqlite3.connect(self.path)
 		tblinfo = conn.execute("select sql from sqlite_master where type='table' and tbl_name='data'").fetchall()
