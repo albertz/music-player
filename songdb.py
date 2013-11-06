@@ -213,7 +213,7 @@ class Cache:
 
 
 class DB(object):
-	def __init__(self, name, create_command = "create table %s(key blob primary key unique, value blob)"):
+	def __init__(self, filename, create_command = "create table %s(key blob primary key unique, value blob)"):
 		self.rwlock = utils.ReadWriteLock()
 		import threading
 
@@ -247,8 +247,8 @@ class DB(object):
 						l.reset()
 		self.LocalConnection = LocalConnection
 
-		self.name = name
-		self.path = appinfo.userdir + "/" + name
+		self.name = filename
+		self.path = appinfo.userdir + "/" + filename
 		self.create_command = create_command
 		self.cache = Cache()
 
@@ -391,8 +391,8 @@ class DB(object):
 		self.disconnectAll()
 
 DBs = {
-	"songDb": {"name":"songs.db"},
-	"songHashDb": {"name":"songHashs.db"},
+	"songDb": {"filename":"songs.db"},
+	"songHashDb": {"filename":"songHashs.db"},
 	}
 
 def usedDbsInCode(f):
@@ -999,10 +999,10 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 # They use the sqlite FTS4 index.
 
 DBs["songSearchIndexDb"] = {
-	"name": "songSearchIndex.db",
+	"filename": "songSearchIndex.db",
 	"create_command": "CREATE VIRTUAL TABLE %s USING fts4(content TEXT, tokenize=porter)" }
 DBs["songSearchIndexRefDb"] = {
-	"name": "songSearchIndexRef.db",
+	"filename": "songSearchIndexRef.db",
 	"create_command": "CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)" }
 
 def insertSearchEntry_raw(songId, tokens):
