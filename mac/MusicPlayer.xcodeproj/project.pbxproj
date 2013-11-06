@@ -974,7 +974,11 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../python-embedded/CPython/Include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
+					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../external/ffmpeg/target/lib";
 				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
@@ -993,7 +997,11 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../python-embedded/CPython/Include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
+					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../external/ffmpeg/target/lib";
 				SDKROOT = macosx10.6;
 			};
 			name = Release;
@@ -1029,11 +1037,10 @@
 				EXECUTABLE_PREFIX = "";
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
-					/usr/local/include,
+					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LD_DYLIB_INSTALL_NAME = "";
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
 					"-lavformat",
@@ -1055,11 +1062,10 @@
 				EXECUTABLE_PREFIX = "";
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
-					/usr/local/include,
+					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LD_DYLIB_INSTALL_NAME = "";
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
 					"-lavformat",
