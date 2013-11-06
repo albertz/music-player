@@ -2,3 +2,6 @@
 	path = python-embedded
 	url = git@github.com:albertz/python-embedded.git
 	branch = music-player
+[submodule "external/ffmpeg"]
+	path = external/ffmpeg
+	url = git@github.com:albertz/ffmpeg-static.git
