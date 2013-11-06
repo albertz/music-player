@@ -1072,7 +1072,14 @@ def songdbMain():
 			import sys
 			sys.excepthook(*sys.exc_info())
 	flush()
-	
+
+def test_db_create():
+	for key,value in DBs.items():
+		value = value.copy()
+		value["filename"] = ":memory:"
+		db = DB(**value)
+		assert db
+
 # For debugging
 def dumpDatabases():
 	global songDb, songHashDb
