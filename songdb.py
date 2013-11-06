@@ -407,7 +407,7 @@ def usedDbsInCode(f):
 			dbs.add(name)
 	return dbs
 
-def init():
+def _init():
 	import threading
 	for db in DBs.keys():
 		globals()["_%s_initlock" % db] = threading.Lock()
@@ -1088,4 +1088,4 @@ def dumpDatabases():
 		pprint(value, indent=2)
 
 # Note: This doesn't load the DBs as earlier. This just setups the lazy loaders. See source.
-init()
+_init()
