@@ -98,6 +98,8 @@ struct AudioParams {
 	enum AVSampleFormat fmt;
 };
 
+#define MAX_AUDIO_FRAME_SIZE 192000 // 1 second of 48khz 32bit audio
+
 struct InStreamRawPOD {
 	PlayerObject* player;
 	PyObject* song;
@@ -112,7 +114,7 @@ struct InStreamRawPOD {
 	int audio_stream;
 	double audio_clock;
 	AVStream *audio_st;
-	DECLARE_ALIGNED(OUTSAMPLEBITLEN,uint8_t,audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
+	DECLARE_ALIGNED(OUTSAMPLEBITLEN,uint8_t,audio_buf2)[MAX_AUDIO_FRAME_SIZE * 4];
 	uint8_t *audio_buf;
 	AVPacket audio_pkt_temp;
 	AVPacket audio_pkt;
