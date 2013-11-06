@@ -60,7 +60,9 @@ def systemRun(cmd):
 	print cmd
 	Popen(cmd).wait()
 
-def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/","/opt/"], stripVersion = True):
+externalPath = os.path.normpath(env["PROJECT_DIR"] + "/../external")
+
+def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/","/opt/", externalPath], stripVersion = True):
 	binDir = os.path.dirname(binPath)
 	targetDylibDirFull = binDir + "/" + targetDylibDir
 
