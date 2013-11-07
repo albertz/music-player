@@ -18,7 +18,7 @@ sys.path += [env["PROJECT_DIR"] + "/.."]
 import better_exchook
 better_exchook.install()
 
-pylibs = ["ffmpeg.so", "faulthandler.so", "debugger.so", "_guiCocoaCommon.dylib", "_objc.so"]
+pylibs = ["ffmpeg.so", "faulthandler.so", "debugger.so", "_guiCocoaCommon.dylib"]
 for l in pylibs:
 	assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/" + l)
 
@@ -47,6 +47,15 @@ for d in ["lastfm", "tools"]:
 	if os.path.exists(PYDIR + "/" + d):
 		shutil.rmtree(PYDIR + "/" + d)
 	shutil.copytree(env["PROJECT_DIR"] + "/../" + d, PYDIR + "/" + d, symlinks=False)
+
+
+# PyObjC
+for d in ["objc", "PyObjCTools"]:
+	if os.path.exists(PYDIR + "/" + d):
+		shutil.rmtree(PYDIR + "/" + d)
+	shutil.copytree(env["PROJECT_DIR"] + "/pyobjc-core/Lib/" + d, PYDIR + "/" + d, symlinks=False)
+assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_objc.so")
+cp(env["BUILT_PRODUCTS_DIR"] + "/_objc.so", PYDIR + "/objc/_objc.so")
 
 
 # copy all dylibs
