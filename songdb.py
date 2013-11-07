@@ -247,8 +247,8 @@ class DB(object):
 						l.reset()
 		self.LocalConnection = LocalConnection
 
-		self.name = filename
-		if self.name[0:1] == ":":  # e.g. ":memory:"
+		self.filename = filename
+		if filename[0:1] == ":":  # e.g. ":memory:"
 			self.path = filename
 		else:
 			self.path = appinfo.userdir + "/" + filename
@@ -260,14 +260,14 @@ class DB(object):
 		except Exception as exc:
 			# Maybe we had an old LevelDB or some other corruption.
 			# Not much we can do for recovering...
-			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.name, exc)
+			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.filename, exc)
 			self.removeOldDb()
 			self.initNew()
 
 	def _findGlobalSelfInit(self):
 		global DBs
 		for key,value in DBs.items():
-			if value["filename"] == self.name:
+			if value["filename"] == self.filename:
 				return key
 
 	def __reduce__(self):
