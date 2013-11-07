@@ -11,6 +11,10 @@
 # http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
 try:
 	import objc
+	# Seems that the `objc` module is not enough. Without `AppKit`,
+	# I still get a lot of
+	#   __NSAutoreleaseNoPool(): ... autoreleased with no pool in place - just leaking
+	# errors.
 	import AppKit
 except ImportError:
 	# probably not MacOSX. doesn't matter
