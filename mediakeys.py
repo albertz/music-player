@@ -63,7 +63,7 @@ class MacMediaKeyEventsTap:
 		
 		while True:
 			# https://developer.apple.com/library/mac/#documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html
-			tap = Quartz.CGEventTapCreate(
+			args = (
 				Quartz.kCGSessionEventTap, # Quartz.kCGSessionEventTap or kCGHIDEventTap
 				Quartz.kCGHeadInsertEventTap, # Insert wherever, we do not filter
 				Quartz.kCGEventTapOptionDefault, # we can't listen-only because we want to consume it
@@ -71,6 +71,12 @@ class MacMediaKeyEventsTap:
 				self.eventTap,
 				None
 			)
+			try:
+				tap = Quartz.CGEventTapCreate(*args)
+			except TypeError:
+				# wrong number of args? I got this on MacOSX 10.6,
+				# where it expected 5 args (instead of 6).
+				tap = Quartz.CGEventTapCreate(*args[:-1])
 			assert tap
 
 			# Create a runloop source and add it to the current loop
