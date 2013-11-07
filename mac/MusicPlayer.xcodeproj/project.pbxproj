@@ -218,9 +218,6 @@
 		239D89F6182BC76E0068F287 /* varlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D896F182BC76E0068F287 /* varlist.h */; };
 		239D89F7182BC76E0068F287 /* varlist.m in Sources */ = {isa = PBXBuildFile; fileRef = 239D8970182BC76E0068F287 /* varlist.m */; };
 		239D89F8182BC76E0068F287 /* wrapper-const-table.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D8971182BC76E0068F287 /* wrapper-const-table.h */; };
-		239D89FA182BC7AC0068F287 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239D89F9182BC7AC0068F287 /* CoreFoundation.framework */; };
-		239D89FC182BC7BC0068F287 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239D89FB182BC7BC0068F287 /* Foundation.framework */; };
-		239D89FE182BC7C30068F287 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239D89FD182BC7C30068F287 /* Carbon.framework */; };
 		23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
@@ -275,6 +272,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 238E986B169664B400C42074;
 			remoteInfo = guiCocoaCommon;
+		};
+		239D8A00182BCAF90068F287 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 239D8892182BC5A10068F287;
+			remoteInfo = _objc.so;
 		};
 		23A14A7115E3DFDD00376BF6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -527,9 +531,6 @@
 		239D896F182BC76E0068F287 /* varlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = varlist.h; path = "pyobjc-core/Modules/objc/varlist.h"; sourceTree = "<group>"; };
 		239D8970182BC76E0068F287 /* varlist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = varlist.m; path = "pyobjc-core/Modules/objc/varlist.m"; sourceTree = "<group>"; };
 		239D8971182BC76E0068F287 /* wrapper-const-table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "wrapper-const-table.h"; path = "pyobjc-core/Modules/objc/wrapper-const-table.h"; sourceTree = "<group>"; };
-		239D89F9182BC7AC0068F287 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
-		239D89FB182BC7BC0068F287 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
-		239D89FD182BC7C30068F287 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = "<group>"; };
 		23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A3915E3B2CC00376BF6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		23A14A3C15E3B2CC00376BF6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -586,9 +587,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				239D89FE182BC7C30068F287 /* Carbon.framework in Frameworks */,
-				239D89FC182BC7BC0068F287 /* Foundation.framework in Frameworks */,
-				239D89FA182BC7AC0068F287 /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -924,9 +922,6 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				239D89FD182BC7C30068F287 /* Carbon.framework */,
-				239D89FB182BC7BC0068F287 /* Foundation.framework */,
-				239D89F9182BC7AC0068F287 /* CoreFoundation.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
 				2303498F17AD646700C6033C /* CoreFoundation.framework */,
 				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
@@ -1205,6 +1200,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				239D8A01182BCAF90068F287 /* PBXTargetDependency */,
 				230349AD17AD72CC00C6033C /* PBXTargetDependency */,
 				2303496217AC524100C6033C /* PBXTargetDependency */,
 				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
@@ -1505,6 +1501,11 @@
 			target = 238E986B169664B400C42074 /* guiCocoaCommon */;
 			targetProxy = 238E9877169664E200C42074 /* PBXContainerItemProxy */;
 		};
+		239D8A01182BCAF90068F287 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 239D8892182BC5A10068F287 /* _objc.so */;
+			targetProxy = 239D8A00182BCAF90068F287 /* PBXContainerItemProxy */;
+		};
 		23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 23A14A5D15E3B63C00376BF6 /* ffmpeg.so */;
@@ -1629,15 +1630,18 @@
 			buildSettings = {
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks,
-				);
+				GCC_OPTIMIZATION_LEVEL = 1;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
 				);
 				LD_DYLIB_INSTALL_NAME = "";
+				OTHER_CFLAGS = (
+					"-DPyObjC_STRICT_DEBUGGING",
+					"-fexceptions",
+					"-DMACOSX",
+					"-DPyObjC_BUILD_RELEASE=1009",
+				);
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
@@ -1656,6 +1660,12 @@
 					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
 				);
 				LD_DYLIB_INSTALL_NAME = "";
+				OTHER_CFLAGS = (
+					"-DPyObjC_STRICT_DEBUGGING",
+					"-fexceptions",
+					"-DMACOSX",
+					"-DPyObjC_BUILD_RELEASE=1009",
+				);
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
