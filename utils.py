@@ -4,6 +4,8 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+import sys
+
 # Import PyObjC here. This is because the first import of PyObjC *must* be
 # in the main thread. Otherwise, the NSAutoreleasePool created automatically
 # by PyObjC on the first import would be released at exit by the main thread
@@ -19,10 +21,14 @@ try:
 except ImportError:
 	# probably not MacOSX. doesn't matter
 	pass
+except Exception:
+	print "Error while importing PyObjC (objc, AppKit)"
+	sys.excepthook(*sys.exc_info())
 
 from collections import deque
 from threading import Condition, Thread, currentThread, Lock, RLock
-import sys, os, time
+import os
+import time
 import types
 from StringIO import StringIO
 
