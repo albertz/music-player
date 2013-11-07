@@ -229,8 +229,11 @@ def dictEncode(d):
 	return bin
 
 class Dict(dict):
-	def __getattr__(self, key): return dict.__getitem__(self, key)
-	def __setattr__(self, key, value): return dict.__setitem__(self, key, value)
+	def __getattr__(self, key):
+		try: return dict.__getitem__(self, key)
+		except KeyError: raise AttributeError
+	def __setattr__(self, key, value):
+		return dict.__setitem__(self, key, value)
 
 def dictDecode(stream):
 	dictLen = intDecode(stream)
