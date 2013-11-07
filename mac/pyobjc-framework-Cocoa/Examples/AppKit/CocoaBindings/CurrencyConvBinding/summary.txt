@@ -1,0 +1,7 @@
+A rewrite of the :doc:`CurrencyConverter example </examples/Cocoa/AppKit/CurrencyConverter/index>` using Cocoa Bindings.
+
+Originally from `Introduction to Developing Cocoa Applications Using Bindings`, converted to PyObjC by u.fiedler.
+
+.. http://developer.apple.com/documentation/Cocoa/Conceptual/CurrencyConverterBindings/index.html
+
+   NOTE: The link above is dead
