@@ -1,0 +1,361 @@
+LICENSE.txt
+MANIFEST.in
+README.txt
+distribute_setup.py
+pyobjc_setup.py
+setup.py
+Doc/api-notes-CoreGraphics.txt
+Doc/api-notes-Quartz.txt
+Doc/context-managers.txt
+Examples/Core Graphics/CGRotation/CGImageUtils.py
+Examples/Core Graphics/CGRotation/CGImageView.py
+Examples/Core Graphics/CGRotation/Controller.py
+Examples/Core Graphics/CGRotation/demo.png
+Examples/Core Graphics/CGRotation/main.py
+Examples/Core Graphics/CGRotation/setup.py
+Examples/Core Graphics/CGRotation/summary.txt
+Examples/Core Graphics/CGRotation/English.lproj/MainMenu.nib/classes.nib
+Examples/Core Graphics/CGRotation/English.lproj/MainMenu.nib/info.nib
+Examples/Core Graphics/CGRotation/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/Core Graphics/CGShading Demo/MyQuartzView.py
+Examples/Core Graphics/CGShading Demo/main.py
+Examples/Core Graphics/CGShading Demo/setup.py
+Examples/Core Graphics/CGShading Demo/summary.txt
+Examples/Core Graphics/CGShading Demo/English.lproj/MainMenu.nib/classes.nib
+Examples/Core Graphics/CGShading Demo/English.lproj/MainMenu.nib/info.nib
+Examples/Core Graphics/CGShading Demo/English.lproj/MainMenu.nib/objects.nib
+Examples/Core Graphics/Quartz2DBasics/AppDrawing.py
+Examples/Core Graphics/Quartz2DBasics/MyAppController.py
+Examples/Core Graphics/Quartz2DBasics/MyView.py
+Examples/Core Graphics/Quartz2DBasics/UIHandling.py
+Examples/Core Graphics/Quartz2DBasics/main.py
+Examples/Core Graphics/Quartz2DBasics/setup.py
+Examples/Core Graphics/Quartz2DBasics/summary.txt
+Examples/Core Graphics/Quartz2DBasics/English.lproj/InfoPlist.strings
+Examples/Core Graphics/Quartz2DBasics/English.lproj/MainMenu.nib/classes.nib
+Examples/Core Graphics/Quartz2DBasics/English.lproj/MainMenu.nib/info.nib
+Examples/Core Graphics/Quartz2DBasics/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/Core Graphics/Quartz2DBasics/GraphicsFiles/ptlobos.tif
+Examples/Core Image/00ReadMe.txt
+Examples/Core Image/CIBevelSample/CIBevelView.py
+Examples/Core Image/CIBevelSample/SampleCIView.py
+Examples/Core Image/CIBevelSample/lightball.tiff
+Examples/Core Image/CIBevelSample/main.py
+Examples/Core Image/CIBevelSample/setup.py
+Examples/Core Image/CIBevelSample/summary.txt
+Examples/Core Image/CIBevelSample/English.lproj/MainMenu.nib/classes.nib
+Examples/Core Image/CIBevelSample/English.lproj/MainMenu.nib/info.nib
+Examples/Core Image/CIBevelSample/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/Core Image/CIHazeFilterSample/CraterLake.jpg
+Examples/Core Image/CIHazeFilterSample/HazeFilterView.py
+Examples/Core Image/CIHazeFilterSample/MyHazeFilter.py
+Examples/Core Image/CIHazeFilterSample/MyHazeRemoval.cikernel
+Examples/Core Image/CIHazeFilterSample/main.py
+Examples/Core Image/CIHazeFilterSample/setup.py
+Examples/Core Image/CIHazeFilterSample/summary.txt
+Examples/Core Image/CIHazeFilterSample/English.lproj/MainMenu.nib/classes.nib
+Examples/Core Image/CIHazeFilterSample/English.lproj/MainMenu.nib/info.nib
+Examples/Core Image/CIHazeFilterSample/English.lproj/MainMenu.nib/objects.nib
+Examples/Core Image/CIMicroPaint/CIMicroPaintView.py
+Examples/Core Image/CIMicroPaint/SampleCIView.py
+Examples/Core Image/CIMicroPaint/main.py
+Examples/Core Image/CIMicroPaint/setup.py
+Examples/Core Image/CIMicroPaint/summary.txt
+Examples/Core Image/CIMicroPaint/English.lproj/MainMenu.nib/classes.nib
+Examples/Core Image/CIMicroPaint/English.lproj/MainMenu.nib/info.nib
+Examples/Core Image/CIMicroPaint/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/Core Image/CITransitionSelectorSample/Blank.jpg
+Examples/Core Image/CITransitionSelectorSample/Frog.jpg
+Examples/Core Image/CITransitionSelectorSample/Mask.jpg
+Examples/Core Image/CITransitionSelectorSample/Rose.jpg
+Examples/Core Image/CITransitionSelectorSample/Shading.tiff
+Examples/Core Image/CITransitionSelectorSample/TransitionSelectorView.py
+Examples/Core Image/CITransitionSelectorSample/main.py
+Examples/Core Image/CITransitionSelectorSample/setup.py
+Examples/Core Image/CITransitionSelectorSample/summary.txt
+Examples/Core Image/CITransitionSelectorSample/English.lproj/MainMenu.nib/classes.nib
+Examples/Core Image/CITransitionSelectorSample/English.lproj/MainMenu.nib/info.nib
+Examples/Core Image/CITransitionSelectorSample/English.lproj/MainMenu.nib/objects.nib
+Examples/ImageKit/ImageBrowser/ImageBrowserController.py
+Examples/ImageKit/ImageBrowser/ReadMe.txt
+Examples/ImageKit/ImageBrowser/main.py
+Examples/ImageKit/ImageBrowser/setup.py
+Examples/ImageKit/ImageBrowser/summary.txt
+Examples/ImageKit/ImageBrowser/English.lproj/MainMenu.nib/classes.nib
+Examples/ImageKit/ImageBrowser/English.lproj/MainMenu.nib/info.nib
+Examples/ImageKit/ImageBrowser/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/PDFKit/PDFKitViewer/00ReadMe.txt
+Examples/PDFKit/PDFKitViewer/AppDelegate.py
+Examples/PDFKit/PDFKitViewer/Info.plist
+Examples/PDFKit/PDFKitViewer/MyPDFDocument.py
+Examples/PDFKit/PDFKitViewer/main.py
+Examples/PDFKit/PDFKitViewer/pdfkitviewer.icns
+Examples/PDFKit/PDFKitViewer/setup.py
+Examples/PDFKit/PDFKitViewer/summary.txt
+Examples/PDFKit/PDFKitViewer/English.lproj/Credits.rtf
+Examples/PDFKit/PDFKitViewer/English.lproj/MainMenu.nib/classes.nib
+Examples/PDFKit/PDFKitViewer/English.lproj/MainMenu.nib/info.nib
+Examples/PDFKit/PDFKitViewer/English.lproj/MainMenu.nib/objects.nib
+Examples/PDFKit/PDFKitViewer/English.lproj/MyDocument.nib/classes.nib
+Examples/PDFKit/PDFKitViewer/English.lproj/MyDocument.nib/data.dependency
+Examples/PDFKit/PDFKitViewer/English.lproj/MyDocument.nib/info.nib
+Examples/PDFKit/PDFKitViewer/English.lproj/MyDocument.nib/keyedobjects.nib
+Examples/PathDemo/DemoView.py
+Examples/PathDemo/PathDemoController.py
+Examples/PathDemo/main.py
+Examples/PathDemo/setup.py
+Examples/PathDemo/summary.txt
+Examples/PathDemo/English.lproj/MainMenu.nib/classes.nib
+Examples/PathDemo/English.lproj/MainMenu.nib/info.nib
+Examples/PathDemo/English.lproj/MainMenu.nib/objects.nib
+Examples/Programming with Quartz/00ReadMe.txt
+Examples/Programming with Quartz/BasicDrawing/.Utilities.py.swp
+Examples/Programming with Quartz/BasicDrawing/00ReadMe.txt
+Examples/Programming with Quartz/BasicDrawing/AppDrawing.py
+Examples/Programming with Quartz/BasicDrawing/BitmapContext.py
+Examples/Programming with Quartz/BasicDrawing/ColorAndGState.py
+Examples/Programming with Quartz/BasicDrawing/CoordinateSystem.py
+Examples/Programming with Quartz/BasicDrawing/DataProvidersAndConsumers.py
+Examples/Programming with Quartz/BasicDrawing/DrawingBasics.py
+Examples/Programming with Quartz/BasicDrawing/EPSPrinting.py
+Examples/Programming with Quartz/BasicDrawing/FrameworkTextDrawing.py
+Examples/Programming with Quartz/BasicDrawing/FrameworkUtilities.py
+Examples/Programming with Quartz/BasicDrawing/ImageMasking.h
+Examples/Programming with Quartz/BasicDrawing/ImageMasking.py
+Examples/Programming with Quartz/BasicDrawing/Images.py
+Examples/Programming with Quartz/BasicDrawing/MyAppController.py
+Examples/Programming with Quartz/BasicDrawing/MyView.py
+Examples/Programming with Quartz/BasicDrawing/PDFHandling.py
+Examples/Programming with Quartz/BasicDrawing/PathDrawing.py
+Examples/Programming with Quartz/BasicDrawing/PatternDrawing.py
+Examples/Programming with Quartz/BasicDrawing/QuartzTextDrawing.py
+Examples/Programming with Quartz/BasicDrawing/Shadings.py
+Examples/Programming with Quartz/BasicDrawing/ShadowsAndTransparencyLayers.py
+Examples/Programming with Quartz/BasicDrawing/UIHandling.py
+Examples/Programming with Quartz/BasicDrawing/Utilities.py
+Examples/Programming with Quartz/BasicDrawing/main.py
+Examples/Programming with Quartz/BasicDrawing/setup.py
+Examples/Programming with Quartz/BasicDrawing/summary.txt
+Examples/Programming with Quartz/BasicDrawing/English.lproj/MainMenu.nib/classes.nib
+Examples/Programming with Quartz/BasicDrawing/English.lproj/MainMenu.nib/info.nib
+Examples/Programming with Quartz/BasicDrawing/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/400x259x8.bw.raw
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/Kitty.pdf
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/LyingOnDeckNoProfile.JPG
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/Poot.jpg
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/blendmode.pdf
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/image-400x300x24.raw
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/imageturkey.eps
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/otherimage-400x300x24.raw
+Examples/Programming with Quartz/BasicDrawing/GraphicsFiles/ptlobos.tif
+Examples/Programming with Quartz/CocoaDrawingShell/MyView.py
+Examples/Programming with Quartz/CocoaDrawingShell/main.py
+Examples/Programming with Quartz/CocoaDrawingShell/setup.py
+Examples/Programming with Quartz/CocoaDrawingShell/summary.txt
+Examples/Programming with Quartz/CocoaDrawingShell/English.lproj/MainMenu.nib/classes.nib
+Examples/Programming with Quartz/CocoaDrawingShell/English.lproj/MainMenu.nib/info.nib
+Examples/Programming with Quartz/CocoaDrawingShell/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/Programming with Quartz/ConfidentialStamper/ConfidentialStamper.py
+Examples/Programming with Quartz/ConfidentialStamper/confidential.pdf
+Examples/Programming with Quartz/ConfidentialStamper/multipagedocumenttostamp.pdf
+Examples/Programming with Quartz/CreatePDFDocument/CreatePDFDocument.py
+Examples/Programming with Quartz/PSConverterTool/PSConverterTool.py
+Examples/Programming with Quartz/ParsePageContents/parse_page_contents.py
+Examples/QuartzComposer/Chart/AppController.py
+Examples/QuartzComposer/Chart/Chart.qtz
+Examples/QuartzComposer/Chart/main.py
+Examples/QuartzComposer/Chart/setup.py
+Examples/QuartzComposer/Chart/summary.txt
+Examples/QuartzComposer/Chart/English.lproj/MainMenu.nib/classes.nib
+Examples/QuartzComposer/Chart/English.lproj/MainMenu.nib/data.dependency
+Examples/QuartzComposer/Chart/English.lproj/MainMenu.nib/info.nib
+Examples/QuartzComposer/Chart/English.lproj/MainMenu.nib/keyedobjects.nib
+Examples/TLayer/AppDelegate.py
+Examples/TLayer/Circle.py
+Examples/TLayer/Extras.py
+Examples/TLayer/ShadowOffsetView.py
+Examples/TLayer/TLayerDemo.py
+Examples/TLayer/TLayerView.py
+Examples/TLayer/main.py
+Examples/TLayer/setup.py
+Examples/TLayer/summary.txt
+Examples/TLayer/English.lproj/MainMenu.nib/classes.nib
+Examples/TLayer/English.lproj/MainMenu.nib/info.nib
+Examples/TLayer/English.lproj/MainMenu.nib/objects.nib
+Examples/TLayer/English.lproj/TLayerDemo.nib/classes.nib
+Examples/TLayer/English.lproj/TLayerDemo.nib/info.nib
+Examples/TLayer/English.lproj/TLayerDemo.nib/objects.nib
+Lib/Quartz/__init__.py
+Lib/Quartz/CoreGraphics/__init__.py
+Lib/Quartz/CoreGraphics/_contextmanager.py
+Lib/Quartz/CoreGraphics/_metadata.py
+Lib/Quartz/CoreVideo/__init__.py
+Lib/Quartz/CoreVideo/_metadata.py
+Lib/Quartz/ImageIO/PyObjCOverrides.bridgesupport
+Lib/Quartz/ImageIO/__init__.py
+Lib/Quartz/ImageIO/_metadata.py
+Lib/Quartz/ImageKit/__init__.py
+Lib/Quartz/ImageKit/_metadata.py
+Lib/Quartz/PDFKit/__init__.py
+Lib/Quartz/PDFKit/_metadata.py
+Lib/Quartz/QuartzComposer/__init__.py
+Lib/Quartz/QuartzComposer/_metadata.py
+Lib/Quartz/QuartzComposer/test/__init__.py
+Lib/Quartz/QuartzComposer/test/test_quartzcomposer.py
+Lib/Quartz/QuartzCore/__init__.py
+Lib/Quartz/QuartzCore/_metadata.py
+Lib/Quartz/QuartzFilters/__init__.py
+Lib/Quartz/QuartzFilters/_metadata.py
+Lib/Quartz/QuickLookUI/__init__.py
+Lib/Quartz/QuickLookUI/_metadata.py
+Lib/Quartz/QuickLookUI/test/__init__.py
+Lib/Quartz/QuickLookUI/test/test_quicklookui.py
+Lib/pyobjc_framework_Quartz.egg-info/PKG-INFO
+Lib/pyobjc_framework_Quartz.egg-info/SOURCES.txt
+Lib/pyobjc_framework_Quartz.egg-info/dependency_links.txt
+Lib/pyobjc_framework_Quartz.egg-info/not-zip-safe
+Lib/pyobjc_framework_Quartz.egg-info/requires.txt
+Lib/pyobjc_framework_Quartz.egg-info/top_level.txt
+Modules/_CVPixelBuffer.m
+Modules/_CoreGraphics_inlines.m
+Modules/_callbacks.m
+Modules/_coregraphics.m
+Modules/_doubleindirect.m
+Modules/_sortandmap.m
+PyObjCTest/__init__.py
+PyObjCTest/test_IKFilterBrowserPanel.py
+PyObjCTest/test_IKFilterBrowserView.py
+PyObjCTest/test_IKImageView.py
+PyObjCTest/test_PDFAnnotation.py
+PyObjCTest/test_PDFAnnotationButtonWidget.py
+PyObjCTest/test_PDFAnnotationChoiceWidget.py
+PyObjCTest/test_PDFAnnotationLine.py
+PyObjCTest/test_PDFAnnotationMarkup.py
+PyObjCTest/test_PDFAnnotationPopup.py
+PyObjCTest/test_PDFAnnotationText.py
+PyObjCTest/test_PDFBorder.py
+PyObjCTest/test_PDFOutline.py
+PyObjCTest/test_PDFSelection.py
+PyObjCTest/test_PDFThumbnailView.py
+PyObjCTest/test_caanimation.py
+PyObjCTest/test_cabase.py
+PyObjCTest/test_cacifilteradditions.py
+PyObjCTest/test_caconstraintlayoutmanager.py
+PyObjCTest/test_caemittercell.py
+PyObjCTest/test_caemitterlayer.py
+PyObjCTest/test_cagradientlayer.py
+PyObjCTest/test_calayer.py
+PyObjCTest/test_camediatiming.py
+PyObjCTest/test_camediatimingfunction.py
+PyObjCTest/test_caopengllayer.py
+PyObjCTest/test_carenderer.py
+PyObjCTest/test_careplicatorlayer.py
+PyObjCTest/test_cascrolllayer.py
+PyObjCTest/test_cashapelayer.py
+PyObjCTest/test_catextlayer.py
+PyObjCTest/test_catransaction.py
+PyObjCTest/test_catransform3d.py
+PyObjCTest/test_cavaluefunction.py
+PyObjCTest/test_cgaffinetransform.py
+PyObjCTest/test_cgbase.py
+PyObjCTest/test_cgbitmapcontext.py
+PyObjCTest/test_cgcolor.py
+PyObjCTest/test_cgcolorspace.py
+PyObjCTest/test_cgcontext.py
+PyObjCTest/test_cgdataconsumer.py
+PyObjCTest/test_cgdataprovider.py
+PyObjCTest/test_cgdirectdisplay.py
+PyObjCTest/test_cgdirectpalette.py
+PyObjCTest/test_cgdisplayconfiguration.py
+PyObjCTest/test_cgdisplayfade.py
+PyObjCTest/test_cgdisplaystream.py
+PyObjCTest/test_cgerror.py
+PyObjCTest/test_cgevent.py
+PyObjCTest/test_cgeventsource.py
+PyObjCTest/test_cgeventtypes.py
+PyObjCTest/test_cgfont.py
+PyObjCTest/test_cgfunction.py
+PyObjCTest/test_cggeometry.py
+PyObjCTest/test_cgglcontext.py
+PyObjCTest/test_cggradient.py
+PyObjCTest/test_cgimage.py
+PyObjCTest/test_cgimagedestination.py
+PyObjCTest/test_cgimagemetadata.py
+PyObjCTest/test_cgimageproperties.py
+PyObjCTest/test_cgimagesource.py
+PyObjCTest/test_cglayer.py
+PyObjCTest/test_cgpath.py
+PyObjCTest/test_cgpattern.py
+PyObjCTest/test_cgpdfarray.py
+PyObjCTest/test_cgpdfcontentstream.py
+PyObjCTest/test_cgpdfcontext.py
+PyObjCTest/test_cgpdfdictionary.py
+PyObjCTest/test_cgpdfdocument.py
+PyObjCTest/test_cgpdfobject.py
+PyObjCTest/test_cgpdfoperatortable.py
+PyObjCTest/test_cgpdfpage.py
+PyObjCTest/test_cgpdfscanner.py
+PyObjCTest/test_cgpdfstream.py
+PyObjCTest/test_cgpdfstring.py
+PyObjCTest/test_cgpsconverter.py
+PyObjCTest/test_cgremoteoperation.py
+PyObjCTest/test_cgsession.py
+PyObjCTest/test_cgshading.py
+PyObjCTest/test_cgwindow.py
+PyObjCTest/test_cgwindowlevel.py
+PyObjCTest/test_cicolor.py
+PyObjCTest/test_cicontext.py
+PyObjCTest/test_cifilter.py
+PyObjCTest/test_cifiltergenerator.py
+PyObjCTest/test_cifiltershape.py
+PyObjCTest/test_ciimage.py
+PyObjCTest/test_ciimageprovider.py
+PyObjCTest/test_cikernel.py
+PyObjCTest/test_ciplugin.py
+PyObjCTest/test_ciplugininterface.py
+PyObjCTest/test_cirawfilter.py
+PyObjCTest/test_cisampler.py
+PyObjCTest/test_civector.py
+PyObjCTest/test_cvbase.py
+PyObjCTest/test_cvbuffer.py
+PyObjCTest/test_cvdisplaylink.py
+PyObjCTest/test_cvhosttime.py
+PyObjCTest/test_cvimagebuffer.py
+PyObjCTest/test_cvopenglbuffer.py
+PyObjCTest/test_cvopenglbufferpool.py
+PyObjCTest/test_cvopengltexture.py
+PyObjCTest/test_cvopengltexturecache.py
+PyObjCTest/test_cvpixelbuffer.py
+PyObjCTest/test_cvpixelbufferiosurface.py
+PyObjCTest/test_cvpixelbufferpool.py
+PyObjCTest/test_cvpixelformatdescription.py
+PyObjCTest/test_cvreturn.py
+PyObjCTest/test_ikcameradeviceview.py
+PyObjCTest/test_ikdevicebrowserview.py
+PyObjCTest/test_ikfilterui.py
+PyObjCTest/test_ikimagebrowsercell.py
+PyObjCTest/test_ikimagebrowserview.py
+PyObjCTest/test_ikimageeditpanel.py
+PyObjCTest/test_ikpicturetaker.py
+PyObjCTest/test_iksaveoptions.py
+PyObjCTest/test_ikscannerdeviceview.py
+PyObjCTest/test_ikslideshow.py
+PyObjCTest/test_imagekitdeprecated.py
+PyObjCTest/test_pdfactionnamed.py
+PyObjCTest/test_pdfactionresetform.py
+PyObjCTest/test_pdfdocument.py
+PyObjCTest/test_pdfpage.py
+PyObjCTest/test_pdfview.py
+PyObjCTest/test_qccomposition.py
+PyObjCTest/test_qccompositionparameterview.py
+PyObjCTest/test_qccompositionpickerpanel.py
+PyObjCTest/test_qccompositionpickerview.py
+PyObjCTest/test_qccompositionrepository.py
+PyObjCTest/test_qcplugin.py
+PyObjCTest/test_qcrenderer.py
+PyObjCTest/test_qcview.py
+PyObjCTest/test_qlpreviewitem.py
+PyObjCTest/test_qlpreviewpanel.py
+PyObjCTest/test_qlpreviewview.py
+PyObjCTest/test_quartzfilter.py
+PyObjCTest/test_quartzfiltermanager.py
