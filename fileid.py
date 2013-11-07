@@ -52,7 +52,8 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		return unicode(url.path())
 
 else:
-	
+
+	print "fileid: implementation not available"
 	def getFileNativeId(filepath): return None
 	def getPathByNativeId(fileid): return None
 
