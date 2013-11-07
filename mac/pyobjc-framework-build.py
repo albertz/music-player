@@ -13,6 +13,15 @@ except OSError: pass
 os.mkdir(TargetDir)
 assert os.path.exists(TargetDir)
 
+if False:
+	# TODO: doesnt work currently because of protocols..
+	SDKROOT="/Developer/SDKs/MacOSX10.6.sdk"
+	assert os.path.exists(SDKROOT)
+	CFLAGS=["-mmacosx-version-min=10.6", "-DMAC_OS_X_VERSION_MIN_REQUIRED=1060", "--sysroot", SDKROOT]
+	os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.6"
+	os.environ["SDKROOT"] = SDKROOT
+else:
+	CFLAGS=[]
 
 def copytree(src, dst, symlinks=False):
 	try: os.makedirs(dst)
@@ -73,6 +82,7 @@ for framework in ["Cocoa", "Quartz"]:
 			args = \
 				["cc"] + \
 				extmod.sources + \
+				CFLAGS + \
 				["-I../../python-embedded/CPython/Include",
 				 "-I../../python-embedded/pylib",
 				 "-I../pyobjc-core/Modules/objc"] + \
