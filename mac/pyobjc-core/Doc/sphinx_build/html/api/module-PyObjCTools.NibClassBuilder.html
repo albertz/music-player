@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyObjCTools.NibClassBuilder – Magic NIBs &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjCTools – Utilities" href="module-PyObjCTools.html" />
+    <link rel="next" title="PyObjCTools.Signals – Debug signal handling" href="module-PyObjCTools.Signals.html" />
+    <link rel="prev" title="PyObjCTools.Conversion – Convert data structures" href="module-PyObjCTools.Conversion.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.Signals.html" title="PyObjCTools.Signals – Debug signal handling"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.Conversion.html" title="PyObjCTools.Conversion – Convert data structures"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" accesskey="U"><tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-PyObjCTools.NibClassBuilder">
+<span id="pyobjctools-nibclassbuilder-magic-nibs"></span><h1><a class="reference internal" href="#module-PyObjCTools.NibClassBuilder" title="PyObjCTools.NibClassBuilder: Extract definitions from NIBs"><tt class="xref py py-mod docutils literal"><span class="pre">PyObjCTools.NibClassBuilder</span></tt></a> &#8211; Magic NIBs<a class="headerlink" href="#module-PyObjCTools.NibClassBuilder" title="Permalink to this headline">¶</a></h1>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.4: </span>Use of this module is deprecated because it cannot be
+used with modern versions of Xcode (starting at Xcode 4.0),
+and because recent versions of Xcode can extract class
+information from Python sources.</p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The module is used to avoid repeating class inheritance and outlet
+definitions in both python sources and Interface Builder NIB files.</p>
+<p>The module reads this information from NIB files and provides a magic
+meta class that inserts the right superclass and outlet definitions.</p>
+<p>Do not use this module for new developement, it will likely disappear
+in a future version of PyObjC because it can no longer work with modern
+versions of Xcode, and in particular not with XIB files and compiled
+NIB files.</p>
+</div>
+<div class="section" id="extracting-class-definitions-from-nibs">
+<h2>Extracting class definitions from nibs<a class="headerlink" href="#extracting-class-definitions-from-nibs" title="Permalink to this headline">¶</a></h2>
+<p>The module maintains a global set of class definitions, extracted from
+nibs. To add the classes from a nib to this set, use the <tt class="docutils literal"><span class="pre">extractClasses()</span></tt>
+function. It can be called in two ways:</p>
+<dl class="function">
+<dt id="PyObjCTools.NibClassBuilder.extractClasses">
+<tt class="descclassname">PyObjCTools.NibClassBuilder.</tt><tt class="descname">extractClasses</tt><big>(</big><em>nibName</em>, <em>bundle=&lt;current-bundle&gt;</em><big>)</big><a class="headerlink" href="#PyObjCTools.NibClassBuilder.extractClasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>This finds the nib by name from a bundle. If no bundle
+if given, the <tt class="docutils literal"><span class="pre">objc.currentBundle()</span></tt> is searched.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descclassname">PyObjCTools.NibClassBuilder.</tt><tt class="descname">extractClasses</tt><big>(</big><em>path=pathToNib</em><big>)</big></dt>
+<dd><p>This uses an explicit path to a nib.</p>
+</dd></dl>
+
+<p><tt class="docutils literal"><span class="pre">extractClasses()</span></tt> can be called multiple times for the same bundle: the
+results are cached so no almost extra overhead is caused.</p>
+</div>
+<div class="section" id="using-the-class-definitions">
+<h2>Using the class definitions<a class="headerlink" href="#using-the-class-definitions" title="Permalink to this headline">¶</a></h2>
+<p>The module contains a &#8220;magic&#8221; base (super) class called <tt class="docutils literal"><span class="pre">AutoBaseClass</span></tt>.
+Subclassing <tt class="docutils literal"><span class="pre">AutoBaseClass</span></tt> will invoke some magic that will look up the
+proper base class in the class definitions extracted from the nib(s).
+If you use multiple inheritance to use Cocoa&#8217;s &#8220;informal protocols&#8221;,
+you <em>must</em> list <tt class="docutils literal"><span class="pre">AutoBaseClass</span></tt> as the first base class. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">PyModel</span><span class="p">(</span><span class="n">AutoBaseClass</span><span class="p">,</span> <span class="n">NSTableSource</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-nibinfo-class">
+<h2>The <tt class="docutils literal"><span class="pre">NibInfo</span></tt> class<a class="headerlink" href="#the-nibinfo-class" title="Permalink to this headline">¶</a></h2>
+<p>The parsing of nibs and collecting the class definition is done by the
+<tt class="docutils literal"><span class="pre">NibInfo</span></tt> class. You normally don&#8217;t use it directly, but it&#8217;s here if you
+have special needs.</p>
+</div>
+<div class="section" id="the-command-line-tool">
+<h2>The command line tool<a class="headerlink" href="#the-command-line-tool" title="Permalink to this headline">¶</a></h2>
+<p>When run from the command line, this module invokes a simple command
+line program, which you feed paths to nibs. This will print a Python
+template for all classes defined in the nib(s). For more documentation,
+see the commandline_doc variable, or simply run the program without
+arguments. It also contains a simple test program.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">PyObjCTools.NibClassBuilder</span></tt> &#8211; Magic NIBs</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#extracting-class-definitions-from-nibs">Extracting class definitions from nibs</a></li>
+<li><a class="reference internal" href="#using-the-class-definitions">Using the class definitions</a></li>
+<li><a class="reference internal" href="#the-nibinfo-class">The <tt class="docutils literal"><span class="pre">NibInfo</span></tt> class</a></li>
+<li><a class="reference internal" href="#the-command-line-tool">The command line tool</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.Conversion.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools.Conversion</span></tt> &#8211; Convert data structures</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.Signals.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">PyObjCTools.Signals</span></tt> &#8211; Debug signal handling</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/module-PyObjCTools.NibClassBuilder.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.Signals.html" title="PyObjCTools.Signals – Debug signal handling"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.Conversion.html" title="PyObjCTools.Conversion – Convert data structures"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" ><tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

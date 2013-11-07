@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyObjCTools.TestSupport – Testing helpers &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjCTools – Utilities" href="module-PyObjCTools.html" />
+    <link rel="next" title="Developer Documentation" href="../dev/index.html" />
+    <link rel="prev" title="PyObjCTools.Signals – Debug signal handling" href="module-PyObjCTools.Signals.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dev/index.html" title="Developer Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.Signals.html" title="PyObjCTools.Signals – Debug signal handling"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" accesskey="U"><tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-PyObjCTools.TestSupport">
+<span id="pyobjctools-testsupport-testing-helpers"></span><h1><a class="reference internal" href="#module-PyObjCTools.TestSupport" title="PyObjCTools.TestSupport: Testing helpers"><tt class="xref py py-mod docutils literal"><span class="pre">PyObjCTools.TestSupport</span></tt></a> &#8211; Testing helpers<a class="headerlink" href="#module-PyObjCTools.TestSupport" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes and functions that are
+usefull for testing PyObjC itself including the framework
+wrappers.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This module is primarily used for testing PyObjC
+and the API isn&#8217;t fully stable.</p>
+</div>
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.sdkForPython">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">sdkForPython</tt><big>(</big><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.sdkForPython" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the SDK version used to compile Python,
+or <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> when no version can be calculated.</p>
+<p>The SDK version is a tupel with the major
+and minor versions of Mac OS X (for example <tt class="docutils literal"><span class="pre">(10,</span> <span class="pre">8)</span></tt>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.fourcc">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">fourcc</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.fourcc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the integer value of a four character code
+&#8220;literal&#8221;.</p>
+<p>The <em>value</em> is a byte string of length 4 and contains
+the contents of the <tt class="xref c c-type docutils literal"><span class="pre">char</span></tt> C literal with
+the four character code, for example <tt class="docutils literal"><span class="pre">b&quot;abcd&quot;</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.cast_int">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">cast_int</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.cast_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <em>value</em> as if it were a 4 byte integer (using
+the overflow behavior of most CPUs)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.cast_longlong">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">cast_longlong</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.cast_longlong" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <em>value</em> as if it were a 8 byte integer (using
+the overflow behavior of most CPUs)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.cast_uint">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">cast_uint</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.cast_uint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <em>value</em> as if it were a 4 byte unsigned integer (
+using the overflow behavior of C)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.cast_ulonglong">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">cast_ulonglong</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.cast_ulonglong" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <em>value</em> as if it were a 8 byte unsigned integer (using
+the overflow behavior of C)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.os_release">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">os_release</tt><big>(</big><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.os_release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the major release of Mac OS X on the current machine,
+for example &#8220;10.5&#8221; on all systems running a version
+of Leopard.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.is32Bit">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">is32Bit</tt><big>(</big><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.is32Bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> if the proces is in 32-bit mode.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.onlyIf">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">onlyIf</tt><big>(</big><em>expr</em>, <em>message</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.onlyIf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for enabling tests only when an expression is true. This is
+the same as <a class="reference external" href="http://docs.python.org/library/unittest.html#unittest.skipUnless" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">skipUnless</span></tt></a> in Python 2.7 or later.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.onlyPython2">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">onlyPython2</tt><big>(</big><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.onlyPython2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for enabling a test only when using Python 2.x.</p>
+<p>This is basicly <tt class="docutils literal"><span class="pre">onlyIf(sys.version_info[0]</span> <span class="pre">==</span> <span class="pre">2)</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.onlyPython3">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">onlyPython3</tt><big>(</big><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.onlyPython3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for enabling a test only when using Python 3.x.</p>
+<p>This is basicly <tt class="docutils literal"><span class="pre">onlyIf(sys.version_info[0]</span> <span class="pre">==</span> <span class="pre">3)</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.onlyOn32Bit">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">onlyOn32Bit</tt><big>(</big><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.onlyOn32Bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for enabling a test only when the process is running in 32-bit mode.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.onlyOn64Bit">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">onlyOn64Bit</tt><big>(</big><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.onlyOn64Bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for enabling a test only when the process is running in 64-bit mode.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.min_os_level">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">min_os_level</tt><big>(</big><em>version</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.min_os_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for enabling a test only when running on a recent enough release
+of Mac OS X.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.TestSupport.max_os_level">
+<tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">max_os_level</tt><big>(</big><em>version</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.max_os_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for enabling a test only when running on a old enough release
+of Mac OS X.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="PyObjCTools.TestSupport.filterWarnings">
+<em class="property">class </em><tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">filterWarnings</tt><big>(</big><em>kind</em>, <em>category</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.filterWarnings" title="Permalink to this definition">¶</a></dt>
+<dd><p>A with-statement context that adds a filter to the warnings module
+while the body of the statement is running.</p>
+<p>This is similar to <a class="reference external" href="http://docs.python.org/library/warnings.html#warnings.catch_warnings" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">warnings.catch_warnings</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="PyObjCTools.TestSupport.TestCase">
+<em class="property">class </em><tt class="descclassname">PyObjCTools.TestSupport.</tt><tt class="descname">TestCase</tt><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference external" href="http://docs.python.org/library/unittest.html#unittest.TestCase" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">unittest.TestCase</span></tt></a> with some addition functionality. The
+most important addition is that each test gets run with a fresh autorelease pool.</p>
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertItemsEqual">
+<tt class="descname">assertItemsEqual</tt><big>(</big><em>seq1</em>, <em>seq2</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertItemsEqual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that sequences <em>seq1</em> and <em>seq2</em> have the same members (in any order).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertGreaterThan">
+<tt class="descname">assertGreaterThan</tt><big>(</big><em>value</em>, <em>test</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertGreaterThan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is greater than <em>test</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertGreaterThanOrEquals">
+<tt class="descname">assertGreaterThanOrEquals</tt><big>(</big><em>value</em>, <em>test</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertGreaterThanOrEquals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is greater than or equal to <em>test</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertLessThan">
+<tt class="descname">assertLessThan</tt><big>(</big><em>value</em>, <em>test</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertLessThan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is less than <em>test</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertLessThanOrEquals">
+<tt class="descname">assertLessThanOrEquals</tt><big>(</big><em>value</em>, <em>test</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertLessThanOrEquals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is less than or equal to <em>test</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIs">
+<tt class="descname">assertIs</tt><big>(</big><em>value</em>, <em>test</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is the same object as <em>test</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsNot">
+<tt class="descname">assertIsNot</tt><big>(</big><em>value</em>, <em>test</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsNot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is not the same object as <em>test</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsNone">
+<tt class="descname">assertIsNone</tt><big>(</big><em>value</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is the same object as <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsNotNone">
+<tt class="descname">assertIsNotNone</tt><big>(</big><em>value</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsNotNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>value</em> is the not same object as <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertSstartswith">
+<tt class="descname">assertSstartswith</tt><big>(</big><em>self</em>, <em>value</em>, <em>check</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertSstartswith" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>value</em> is a string that starts with <em>check</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertHasAttr">
+<tt class="descname">assertHasAttr</tt><big>(</big><em>self</em>, <em>value</em>, <em>key</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertHasAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>value</em> has an attribute named <em>key</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertNotHasAttr">
+<tt class="descname">assertNotHasAttr</tt><big>(</big><em>self</em>, <em>value</em>, <em>key</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertNotHasAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>value</em> does not have an attribute named <em>key</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsInstance">
+<tt class="descname">assertIsInstance</tt><big>(</big><em>self</em>, <em>value</em>, <em>types</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>value</em> is an instance of <em>types</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsNotInstance">
+<tt class="descname">assertIsNotInstance</tt><big>(</big><em>self</em>, <em>value</em>, <em>types</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsNotInstance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>value</em> is not an instance of <em>types</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertAlmostEquals">
+<tt class="descname">assertAlmostEquals</tt><big>(</big><em>val1, val2[, message</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertAlmostEquals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>val1</em> is almost equal to <em>val2</em> (that is,
+the difference between the two values is less that 1e-5)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIn">
+<tt class="descname">assertIn</tt><big>(</big><em>self</em>, <em>value</em>, <em>seq</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>value</em> is a member of <em>seq</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertNotIn">
+<tt class="descname">assertNotIn</tt><big>(</big><em>self</em>, <em>value</em>, <em>seq</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertNotIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that <em>value</em> is not a member of <em>seq</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsCFType">
+<tt class="descname">assertIsCFType</tt><big>(</big><em>tp</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsCFType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>tp</em> is a wrapper class for a CoreFoundation type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsOpaquePointer">
+<tt class="descname">assertIsOpaquePointer</tt><big>(</big><em>tp[, message</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsOpaquePointer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that <em>tp</em> is a wrapper class for an opaque pointer (&#8220;handle&#8221;)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertIsNullTerminated">
+<tt class="descname">assertIsNullTerminated</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertIsNullTerminated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the callable has metadata that indicates that the
+callable is variadic function where the argument list is terminated by
+a null value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsNullTerminated">
+<tt class="descname">assertResultIsNullTerminated</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsNullTerminated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the callable has metadata that indicates that the result
+is a null terminated array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsNullTerminated">
+<tt class="descname">assertArgIsNullTerminated</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsNullTerminated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the callable has metadata that indicates that the argument
+<em>argno</em> is a null terminated array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsVariableSize">
+<tt class="descname">assertResultIsVariableSize</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsVariableSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the callable has metadata that indicates that the result
+is an array with an unspecified size.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsVariableSize">
+<tt class="descname">assertArgIsVariableSize</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsVariableSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the callable has metadata that indicates that the argument
+<em>argno</em> is an array with an unspecified size.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgSizeInResult">
+<tt class="descname">assertArgSizeInResult</tt><big>(</big><em>method, argno[, message</em><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgSizeInResult" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">Asserts that the callable has metadata that indicates that the argument</tt></dt>
+<dt>
+<tt class="descname">*argno* is an array where the size of the array is specified in the return value.</tt></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsPrintf">
+<tt class="descname">assertArgIsPrintf</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsPrintf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that it is a
+variadic function with a printf-format string in argument <em>argno</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsCFRetained">
+<tt class="descname">assertResultIsCFRetained</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsCFRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of the result is increased by the function (that
+is, the caller owns the value after the call).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsNotCFRetained">
+<tt class="descname">assertResultIsNotCFRetained</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsNotCFRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of the result is not increased by the function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsCFRetained">
+<tt class="descname">assertArgIsCFRetained</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsCFRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of argument <em>argno</em> is increased by the function (that
+is, the caller owns the value after the call).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">used to check the behavior of output arguments.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsNotCFRetained">
+<tt class="descname">assertArgIsNotCFRetained</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsNotCFRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of argument <em>argno</em> is not increased by the function.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">used to check the behavior of output arguments.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsRetained">
+<tt class="descname">assertResultIsRetained</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of the result is increased by the function (that
+is, the caller owns the value after the call).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsNotRetained">
+<tt class="descname">assertResultIsNotRetained</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsNotRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of the result is not increased by the function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsRetained">
+<tt class="descname">assertArgIsRetained</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of argument <em>argno</em> is increased by the function (that
+is, the caller owns the value after the call).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">used to check the behavior of output arguments.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsNotRetained">
+<tt class="descname">assertArgIsNotRetained</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsNotRetained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the callable has metadata that specifies that the
+retain count of argument <em>argno</em> is not increased by the function.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">used to check the behavior of output arguments.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultHasType">
+<tt class="descname">assertResultHasType</tt><big>(</big><em>method</em>, <em>tp</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultHasType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the result has a specific type encoding.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsBOOL">
+<tt class="descname">assertResultIsBOOL</tt><big>(</big><em>method</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsBOOL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the result has type <tt class="xref c c-type docutils literal"><span class="pre">BOOL</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgHasType">
+<tt class="descname">assertArgHasType</tt><big>(</big><em>method</em>, <em>argno</em>, <em>tp</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgHasType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the argument <em>argno</em> has a specific type encoding.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsBOOL">
+<tt class="descname">assertArgIsBOOL</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsBOOL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the argument <em>argno</em> has type <tt class="xref c c-type docutils literal"><span class="pre">BOOL</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsFunction">
+<tt class="descname">assertArgIsFunction</tt><big>(</big><em>method</em>, <em>argno</em>, <em>sel_type</em>, <em>retained</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is a function with a specific type signature.
+If <em>retained</em> is true the function stores the function reference beyond
+the end of the function call.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultIsBlock">
+<tt class="descname">assertResultIsBlock</tt><big>(</big><em>method</em>, <em>sel_type</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultIsBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the result is a block with a specific type signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsBlock">
+<tt class="descname">assertArgIsBlock</tt><big>(</big><em>method</em>, <em>argno</em>, <em>sel_type</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is a block with a specific type signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsSEL">
+<tt class="descname">assertArgIsSEL</tt><big>(</big><em>method</em>, <em>argno</em>, <em>sel_type</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsSEL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is a SEL value for a method with
+a specific type signature</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsFixedSize">
+<tt class="descname">assertArgIsFixedSize</tt><big>(</big><em>method</em>, <em>argno</em>, <em>count</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsFixedSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is an array of <em>count</em> elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertResultSizeInArg">
+<tt class="descname">assertResultSizeInArg</tt><big>(</big><em>method</em>, <em>count</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertResultSizeInArg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the result is an array of where the size
+of the array is specified in argument <em>count</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgSizeInArg">
+<tt class="descname">assertArgSizeInArg</tt><big>(</big><em>method</em>, <em>argno</em>, <em>count</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgSizeInArg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is an array of where the size
+of the array is specified in argument <em>count</em>.</p>
+<p><em>count</em> can also be an tuple of two elements: the first elements
+specifies the size before the call, the second the size
+after the call.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsOut">
+<tt class="descname">assertArgIsOut</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is a pass-by-reference output parameter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsIn">
+<tt class="descname">assertArgIsIn</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is a pass-by-reference input parameter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="PyObjCTools.TestSupport.TestCase.assertArgIsInOut">
+<tt class="descname">assertArgIsInOut</tt><big>(</big><em>method</em>, <em>argno</em><span class="optional">[</span>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#PyObjCTools.TestSupport.TestCase.assertArgIsInOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that argument <em>argno</em> is a pass-by-reference input and output parameter.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There are also a number of deprecated aliases for the methods above, those
+are intentionally not documented.</p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.Signals.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools.Signals</span></tt> &#8211; Debug signal handling</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../dev/index.html"
+                        title="next chapter">Developer Documentation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/lib/module-PyObjCTools.TestSupport.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dev/index.html" title="Developer Documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.Signals.html" title="PyObjCTools.Signals – Debug signal handling"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" ><tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

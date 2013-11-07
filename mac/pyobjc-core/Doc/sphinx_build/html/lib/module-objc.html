@@ -1,0 +1,2054 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>objc – The PyObjC bridge &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="Python API" href="index.html" />
+    <link rel="next" title="PyObjCTools – Utilities" href="module-PyObjCTools.html" />
+    <link rel="prev" title="Python API" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.html" title="PyObjCTools – Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Python API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Python API</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-objc">
+<span id="objc-the-pyobjc-bridge"></span><h1><a class="reference internal" href="#module-objc" title="objc: The PyObjC bridge (MacOS X)"><tt class="xref py py-mod docutils literal"><span class="pre">objc</span></tt></a> &#8211; The PyObjC bridge<a class="headerlink" href="#module-objc" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The module <a class="reference internal" href="#module-objc" title="objc: The PyObjC bridge (MacOS X)"><tt class="xref py py-mod docutils literal"><span class="pre">objc</span></tt></a> is the core of PyObjC and provides the automatic
+bridging between Python and Objective-C. It also provides a number of
+utility functions and types that make it easier to integrate Python
+and Objective-C code.</p>
+<p>The module <a class="reference internal" href="#module-objc" title="objc: The PyObjC bridge (MacOS X)"><tt class="xref py py-mod docutils literal"><span class="pre">objc</span></tt></a> defines a number of functions whose names start with
+an underscore. Those functions are private and should not be used, they can
+be removed from release without warning.</p>
+<p>NOTE: This document is currently mostly an exhaustive list of stuff and
+needs to be reorganised once I&#8217;ve filled in the technical details.</p>
+<div class="section" id="debugging">
+<h3>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.setVerbose">
+<tt class="descclassname">objc.</tt><tt class="descname">setVerbose</tt><big>(</big><em>yesOrNo</em><big>)</big><a class="headerlink" href="#objc.setVerbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>When the argument is <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt> the bridge will log more information.</p>
+<p>This currently results in output on the standard error stream whenever
+an exception is translated from Python to Objective-C.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.getVerbose">
+<tt class="descclassname">objc.</tt><tt class="descname">getVerbose</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.getVerbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current value of the verbose flag.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="tweaking-behaviour">
+<h3>Tweaking behaviour<a class="headerlink" href="#tweaking-behaviour" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.setUseKVOForSetattr">
+<tt class="descclassname">objc.</tt><tt class="descname">setUseKVOForSetattr</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.setUseKVOForSetattr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the default value for the <em>__useKVO__</em> attribute on
+classes defined after this call. Returns the previous value.</p>
+<p>When the <em>__useKVO__</em> attribute of a class is true instances
+of the class will generate Key-Value Observation notifications when
+setting attributes from Python.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.setHideProtected">
+<tt class="descclassname">objc.</tt><tt class="descname">setHideProtected</tt><big>(</big><em>yesOrNo</em><big>)</big><a class="headerlink" href="#objc.setHideProtected" title="Permalink to this definition">¶</a></dt>
+<dd><p>When the argument is <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt> protected methods of an Objective-C
+class will not be included in the output of <a class="reference external" href="http://docs.python.org/library/functions.html#dir" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">dir()</span></tt></a>. Protected methods
+are those whose selector starts with an underscore.</p>
+<p>This option is on by default.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.setStrBridgeEnabled">
+<tt class="descclassname">objc.</tt><tt class="descname">setStrBridgeEnabled</tt><big>(</big><em>yesOrNo</em><big>)</big><a class="headerlink" href="#objc.setStrBridgeEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <em>yesOrNo</em> is true instances of <tt class="xref py py-class docutils literal"><span class="pre">str</span></tt> are bridged
+as NSString instances, otherwise bridging issues a <tt class="xref py py-data docutils literal"><span class="pre">PyObjCStrBridgeWarning</span></tt>
+warning and still bridges as an NSString instances.</p>
+<p>By default PyObjC behaves as if <tt class="docutils literal"><span class="pre">setStrBridgeEnabled(True)</span></tt> was called.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function is not available in Python 3.x</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Setting this option to false is discouraged and is mostly usefull when porting
+to Python 3.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.getStrBridgeEnabled">
+<tt class="descclassname">objc.</tt><tt class="descname">getStrBridgeEnabled</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.getStrBridgeEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> if the str bridge is enabled and <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a> when it is
+not.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function is not available in Python 3.x</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="utilities">
+<h3>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.allocateBuffer">
+<tt class="descclassname">objc.</tt><tt class="descname">allocateBuffer</tt><big>(</big><em>size</em><big>)</big><a class="headerlink" href="#objc.allocateBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a writable buffer object of <em>size</em> bytes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.CFToObject">
+<tt class="descclassname">objc.</tt><tt class="descname">CFToObject</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.CFToObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts an object from the standard library <tt class="xref py py-mod docutils literal"><span class="pre">CF</span></tt> module to a
+PyObjC wrapper for the same CoreFoundation object. Raises an exception
+when the conversion fails.</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.4: </span>part of support for the CF module in the python 2 std. library,
+will be removed in PyObjC 3.0.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">this function is not available for Python 3.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.ObjectToCF">
+<tt class="descclassname">objc.</tt><tt class="descname">ObjectToCF</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.ObjectToCF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a PyObjC wrapper for a CoreFoundation object to an object from the standard
+library <tt class="xref py py-mod docutils literal"><span class="pre">CF</span></tt> module for the same CoreFoundation object. Raises an exception
+when the conversion fails.</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.4: </span>part of support for the CF module in the python 2 std. library,
+will be removed in PyObjC 3.0.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">this function is not available for Python 3.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="accessing-classes-and-protocols">
+<h3>Accessing classes and protocols<a class="headerlink" href="#accessing-classes-and-protocols" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.lookUpClass">
+<tt class="descclassname">objc.</tt><tt class="descname">lookUpClass</tt><big>(</big><em>classname</em><big>)</big><a class="headerlink" href="#objc.lookUpClass" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>classname</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; the name of an Objective-C class</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the named Objective-C class</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">objc.nosuchclass_error</span></tt> when the class does not exist</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.getClassList">
+<tt class="descclassname">objc.</tt><tt class="descname">getClassList</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.getClassList" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of a classes known to the Objective-C runtime</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.protocolsForClass">
+<tt class="descclassname">objc.</tt><tt class="descname">protocolsForClass</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#objc.protocolsForClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of Protocol objects that the class claims to
+implement directly. The <em>cls</em> object must a subclass of NSObject.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.protocolsForProcess">
+<tt class="descclassname">objc.</tt><tt class="descname">protocolsForProcess</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.protocolsForProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all Protocol objects known to the Objective-C
+runtime.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.propertiesForClass">
+<tt class="descclassname">objc.</tt><tt class="descname">propertiesForClass</tt><big>(</big><em>objcClass</em><big>)</big><a class="headerlink" href="#objc.propertiesForClass" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of properties from the Objective-C runtime</td>
+</tr>
+</tbody>
+</table>
+<p>The return value is a list with information about
+properties on this class or protocol from the Objective-C runtime. This
+does not include properties superclasses.</p>
+<p>Every entry in the list is dictionary with the following keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><em>name</em></td>
+<td>Name of the property (a string)</td>
+</tr>
+<tr class="row-odd"><td><em>raw_attr</em></td>
+<td>Raw value of the attribute string (a byte string)</td>
+</tr>
+<tr class="row-even"><td><em>typestr</em></td>
+<td>The type string for this attribute (a byte string)</td>
+</tr>
+<tr class="row-odd"><td><em>classname</em></td>
+<td>When the type string is <tt class="docutils literal"><span class="pre">objc._C_ID</span></tt> this is the
+name of the Objective-C class (a string).</td>
+</tr>
+<tr class="row-even"><td><em>readonly</em></td>
+<td>True iff the property is read-only (bool)</td>
+</tr>
+<tr class="row-odd"><td><em>copy</em></td>
+<td>True iff the property is copying the value (bool)</td>
+</tr>
+<tr class="row-even"><td><em>retain</em></td>
+<td>True iff the property is retaining the value (bool)</td>
+</tr>
+<tr class="row-odd"><td><em>nonatomic</em></td>
+<td>True iff the property is not atomic (bool)</td>
+</tr>
+<tr class="row-even"><td><em>dynamic</em></td>
+<td>True iff the property is dynamic (bool)</td>
+</tr>
+<tr class="row-odd"><td><em>weak</em></td>
+<td>True iff the property is weak (bool)</td>
+</tr>
+<tr class="row-even"><td><em>collectable</em></td>
+<td>True iff the property is collectable (bool)</td>
+</tr>
+<tr class="row-odd"><td><em>getter</em></td>
+<td>Non-standard selector for the getter method (a byte string)</td>
+</tr>
+<tr class="row-even"><td><em>setter</em></td>
+<td>Non-standard selector for the setter method (a byte string)</td>
+</tr>
+</tbody>
+</table>
+<p>All values but <em>name</em> and <em>raw_attr</em> are optional. The other attributes
+contain a decoded version of the <em>raw_attr</em> value. The boolean attributes
+should be interpreted as <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a> when the aren&#8217;t present.</p>
+<p>The documentation for the Objective-C runtime contains more information about
+property definitions.</p>
+<p>This function only returns information about properties as they are defined
+in the Objective-C runtime, that is using <tt class="docutils literal"><span class="pre">&#64;property</span></tt> definitions in an
+Objective-C interface. Not all properties as they are commonly used  in
+Objective-C are defined using that syntax, especially properties in classes
+that were introduced before MacOSX 10.5.</p>
+<p>This function always returns an empty list on MacOS X 10.4.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 2.3.</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.listInstanceVariables">
+<tt class="descclassname">objc.</tt><tt class="descname">listInstanceVariables</tt><big>(</big><em>classOrInstance</em><big>)</big><a class="headerlink" href="#objc.listInstanceVariables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of information about all instance variables for
+a class or instance. <em>ClassOrInstance</em> must be a subclass of NSObject,
+or an instance of such a class.</p>
+<p>The elements of the list are tuples with two elements: a string with
+the name of the instance variable and a byte string with the type encoding
+of the instance variable.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.getInstanceVariable">
+<tt class="descclassname">objc.</tt><tt class="descname">getInstanceVariable</tt><big>(</big><em>object</em>, <em>name</em><big>)</big><a class="headerlink" href="#objc.getInstanceVariable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the instance variable <em>name</em>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Direct access of instance variables should only be used as a debugging
+tool and could negatively affect the invariants that a class tries to
+maintain.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.setInstanceVariable">
+<tt class="descclassname">objc.</tt><tt class="descname">setInstanceVariable</tt><big>(</big><em>object</em>, <em>name</em>, <em>value</em><span class="optional">[</span>, <em>updateRefCounts</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.setInstanceVariable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of instance variable <em>name</em> to <em>value</em>. When the instance variable
+type encoding is <tt class="xref py py-data docutils literal"><span class="pre">objc._C_ID</span></tt> <em>updateRefCounts</em> must be specified and tells
+whether or not the retainCount of the old and new values are updated.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Direct access of instance variables should only be used as a debugging
+tool and could negatively affect the invariants that a class tries to
+maintain.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.protocolNamed">
+<tt class="descclassname">objc.</tt><tt class="descname">protocolNamed</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#objc.protocolNamed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Protocol object for the named protocol. Raises <a class="reference internal" href="#objc.ProtocolError" title="objc.ProtocolError"><tt class="xref py py-exc docutils literal"><span class="pre">ProtocolError</span></tt></a>
+when the protocol does not exist.</p>
+<p>This is the equivalent of <tt class="docutils literal"><span class="pre">&#64;protocol(name)</span></tt> in Objective-C.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="objc.ProtocolError">
+<em class="property">exception </em><tt class="descclassname">objc.</tt><tt class="descname">ProtocolError</tt><a class="headerlink" href="#objc.ProtocolError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised by <a class="reference internal" href="#objc.protocolNamed" title="objc.protocolNamed"><tt class="xref py py-func docutils literal"><span class="pre">protocolNamed()</span></tt></a> when looking up a protocol that does not
+exist.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="dynamic-modification-of-classes">
+<h3>Dynamic modification of classes<a class="headerlink" href="#dynamic-modification-of-classes" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.classAddMethods">
+<tt class="descclassname">objc.</tt><tt class="descname">classAddMethods</tt><big>(</big><em>cls</em>, <em>methods</em><big>)</big><a class="headerlink" href="#objc.classAddMethods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a sequence of methods to the given class.</p>
+<p>The effect is simular to how categories work in Objective-C. If the class
+already implements a method that is defined in <em>methods</em> the existing
+implementation is replaced by the new one.</p>
+<p>The objects in <em>methods</em> should be one of:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#objc.selector" title="objc.selector"><tt class="xref py py-class docutils literal"><span class="pre">selector</span></tt></a> instances with a callable (that is, the first argument
+to <a class="reference internal" href="#objc.selector" title="objc.selector"><tt class="xref py py-class docutils literal"><span class="pre">selector</span></tt></a> must not be <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a>).</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">classmethod</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">staticmethod</span></tt> instances that wrap a
+function object.</li>
+<li>functions</li>
+<li>unbound methods</li>
+</ul>
+<p>For the last two the method selector is calculated using the regular
+algoritm for this (e.g. as if <tt class="docutils literal"><span class="pre">selector(item)</span></tt> was called). The last
+two are instance methods by default, but automaticly made class methods
+when the class (or a superclass) has a class method with the same
+selector.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.classAddMethod">
+<tt class="descclassname">objc.</tt><tt class="descname">classAddMethod</tt><big>(</big><em>cls</em>, <em>name</em>, <em>method</em><big>)</big><a class="headerlink" href="#objc.classAddMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds function <em>method</em> as selector <em>name</em> to the given class. When <em>method</em>
+is a selector the signature and class-method-ness are copied from the selector.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Adding a selector that&#8217;s defined in Objective-C to another class will raise
+an exception.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.Category">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">Category</tt><a class="headerlink" href="#objc.Category" title="Permalink to this definition">¶</a></dt>
+<dd><p>A helper class for adding a category to an existing Objecive-C class (subclass
+of <tt class="xref c c-type docutils literal"><span class="pre">NSObject</span></tt>).</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">NSObject</span> <span class="p">(</span><span class="n">Category</span><span class="p">(</span><span class="n">NSObject</span><span class="p">)):</span>
+   <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">pass</span>
+</pre></div>
+</div>
+<p>The metaclass uses <a class="reference internal" href="#objc.classAddMethods" title="objc.classAddMethods"><tt class="xref py py-func docutils literal"><span class="pre">classAddMethods()</span></tt></a> to add the methods in the category
+body to the base class.</p>
+<p>The name of the class must be the same as the argument to <a class="reference internal" href="#objc.Category" title="objc.Category"><tt class="xref py py-class docutils literal"><span class="pre">Category</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="plugin-bundles">
+<h3>Plugin bundles<a class="headerlink" href="#plugin-bundles" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.currentBundle">
+<tt class="descclassname">objc.</tt><tt class="descname">currentBundle</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.currentBundle" title="Permalink to this definition">¶</a></dt>
+<dd><p>During module initialization this function returns an NSBundle object for
+the current bundle. This works for application as well as plug-ins created
+using <a class="reference external" href="http://packages.python.org/py2app">py2app</a>.</p>
+<p>After module initialization use <tt class="docutils literal"><span class="pre">NSBundle.bundleForClass_(ClassInYourBundle)</span></tt>
+to get the bundle.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerPlugin">
+<tt class="descclassname">objc.</tt><tt class="descname">registerPlugin</tt><big>(</big><em>pluginName</em><big>)</big><a class="headerlink" href="#objc.registerPlugin" title="Permalink to this definition">¶</a></dt>
+<dd><p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.3: </span>use <a class="reference internal" href="#objc.currentBundle" title="objc.currentBundle"><tt class="xref py py-func docutils literal"><span class="pre">currentBundle()</span></tt></a> instead</p>
+<p>Register the current py2app plugin by named and return its bundle.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.pluginBundle">
+<tt class="descclassname">objc.</tt><tt class="descname">pluginBundle</tt><big>(</big><em>pluginName</em><big>)</big><a class="headerlink" href="#objc.pluginBundle" title="Permalink to this definition">¶</a></dt>
+<dd><p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.3: </span>use <a class="reference internal" href="#objc.currentBundle" title="objc.currentBundle"><tt class="xref py py-func docutils literal"><span class="pre">currentBundle()</span></tt></a> instead</p>
+<p>Return the main bundle for a named plugin. This should only be used
+after it has been register with <a class="reference internal" href="#objc.registerPlugin" title="objc.registerPlugin"><tt class="xref py py-func docutils literal"><span class="pre">registerPlugin()</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="memory-management">
+<h3>Memory management<a class="headerlink" href="#memory-management" title="Permalink to this headline">¶</a></h3>
+<p>PyObjC automaticly manages Cocoa reference counts for you, the functions
+in this section help in finetuning this behaviour.</p>
+<dl class="function">
+<dt id="objc.recycleAutoreleasePool">
+<tt class="descclassname">objc.</tt><tt class="descname">recycleAutoreleasePool</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.recycleAutoreleasePool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flush the NSAutoreleasePool that PyObjC creates on import. Use this
+before entering the application main loop when you do a lot of work
+before starting the main loop.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.removeAutoreleasePool">
+<tt class="descclassname">objc.</tt><tt class="descname">removeAutoreleasePool</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.removeAutoreleasePool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this in plugin bundles to remove the release pool that PyObjC creates
+on import. In plugins this pool will interact in unwanted ways with the
+embedding application.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="test-support">
+<h3>Test support<a class="headerlink" href="#test-support" title="Permalink to this headline">¶</a></h3>
+<p>The functions in this section are present as support code for PyObjC&#8217;s
+unittests and are not part of the stable API. Please let us know if you
+use these functions in your code.</p>
+<dl class="function">
+<dt id="objc.splitSignature">
+<tt class="descclassname">objc.</tt><tt class="descname">splitSignature</tt><big>(</big><em>typestring</em><big>)</big><a class="headerlink" href="#objc.splitSignature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split an encoded Objective-C signature string into the
+encoding strings for seperate types.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>typestring</strong> (<em>byte string</em>) &#8211; an encoded method signature (byte string)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of type signatures</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of byte strings</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.splitStructSignature">
+<tt class="descclassname">objc.</tt><tt class="descname">splitStructSignature</tt><big>(</big><em>typestring</em><big>)</big><a class="headerlink" href="#objc.splitStructSignature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns (structname, fields). <em>Structname</em> is a string or <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> and
+<em>fields</em> is a list of (name, typestr) values. The <em>name</em> is a string or
+<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> and the <em>typestr</em> is a byte string.</p>
+<p>Raises <tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt> when the type is not the type string for a struct
+type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.repythonify">
+<tt class="descclassname">objc.</tt><tt class="descname">repythonify</tt><big>(</big><em>object</em><span class="optional">[</span>, <em>type</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.repythonify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal API for converting an object to a given Objetive-C type
+and converting it back again.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="framework-wrappers">
+<h3>Framework wrappers<a class="headerlink" href="#framework-wrappers" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.pyobjc_id">
+<tt class="descclassname">objc.</tt><tt class="descname">pyobjc_id</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#objc.pyobjc_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the address of the underlying object as an integer.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is basicly the same as <a class="reference external" href="http://docs.python.org/library/functions.html#id" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">id()</span></tt></a>, but for the Objective-C
+object wrapped by PyObjC instead of python objects.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.loadBundle">
+<tt class="descclassname">objc.</tt><tt class="descname">loadBundle</tt><big>(</big><em>module_name</em>, <em>module_globals</em><span class="optional">[</span>, <em>bundle_path</em><span class="optional">[</span>, <em>bundle_identifier</em><span class="optional">[</span>, <em>scan_classes</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadBundle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the bundle specified by <em>bundle_path</em> or <em>bundle_identifier</em> and add the classes
+in the bundle to <em>module_globals</em>. The classes are not added to the <em>module_globals</em> when
+<em>scan_classes</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a> (it defaults to <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>).</p>
+<p>If both a <em>bundle_path</em> and <em>bundle_identifier</em> are specified the function first tries
+to locate the bundle using the identifier and then using the path.</p>
+<p>When <em>bundle_identifier</em> is specified the bundle is located using <tt class="docutils literal"><span class="pre">[NSBundle</span> <span class="pre">+bundleWithIdentifier:]</span></tt>,
+and when <em>bundle_path</em> is specified the bundle is located using <tt class="docutils literal"><span class="pre">[NSBundle</span> <span class="pre">+bundleWithPath:]</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><em>bundle_path</em> must be an absolute path.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The current implementation loads <em>all</em> Objective-C classes into <em>module_globals</em>, as
+testing if a class is located in a specific bundle is fairly expensive and slowed down
+application initialization too much.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerCFSignature">
+<tt class="descclassname">objc.</tt><tt class="descname">registerCFSignature</tt><big>(</big><em>name</em>, <em>encoding</em>, <em>typeId</em><span class="optional">[</span>, <em>tollfreeName</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.registerCFSignature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a CoreFoundation based type with the bridge. If <em>tollfreeName</em> is specified
+the type is tollfree bridged to that Objective-C class.</p>
+<p>The value of <em>typeId</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> for tollfree bridged types, and the result
+of the &#8220;GetTypeID&#8221; function for the type for other types.</p>
+<p>Returns the class object for the registerd type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.loadBundleVariables">
+<tt class="descclassname">objc.</tt><tt class="descname">loadBundleVariables</tt><big>(</big><em>bundle</em>, <em>module_globals</em>, <em>variableInfo</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadBundleVariables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a list of global variables (constants) from a bundle and adds proxy objects for
+them to the <em>module_globals</em> dictionary. If <em>skip_undefined</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> (the default)
+the function will skip entries that don&#8217;t refer to existing variables, otherwise it
+raises an <tt class="xref py py-exc docutils literal"><span class="pre">error</span></tt> exception for these variables.</p>
+<p><em>variableInfo</em> is a sequence of variable descriptions. Every description is a tuple
+of two elements: the variable name (a string) and the type encoding for the variable
+(a byte string).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.loadSpecialVar">
+<tt class="descclassname">objc.</tt><tt class="descname">loadSpecialVar</tt><big>(</big><em>bundle</em>, <em>module_globals</em>, <em>typeid</em>, <em>name</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadSpecialVar" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function loads a global variable from a bundle and adds it to the <em>module_globals</em>
+dictionary. The variable should be a CoreFoundation based type, with a value that
+is not a valid pointer.</p>
+<p>If <em>skip_undefined</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> (the default) the function won&#8217;t raise and exception
+when the variable is not present. Otherwise the function will raise an <tt class="xref py py-exc docutils literal"><span class="pre">error</span></tt> exception.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.loadBundleFunctions">
+<tt class="descclassname">objc.</tt><tt class="descname">loadBundleFunctions</tt><big>(</big><em>bundle</em>, <em>module_globals</em>, <em>functionInfo</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadBundleFunctions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a list of functions from a bundle and adds proxy objects for
+them to the <em>module_globals</em> dictionary. If <em>skip_undefined</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> (the default)
+the function will skip entries that don&#8217;t refer to existing functions, otherwise it
+raises an <tt class="xref py py-exc docutils literal"><span class="pre">error</span></tt> exception for these functions.</p>
+<p><em>bundle</em> is either an <em>NSBundle</em> instance, or <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a>. When a bundle is specified
+the function is looked up in that bundle, otherwise the function is looked up in
+any bundle (including the main program and Python extensions).</p>
+<p><em>functionInfo</em> is a sequence of function descriptions. Every description is a tuple
+of two or four elements: the function name (a string) and signature (a byte string) and
+optionally a value for the &#8220;__doc__&#8221; attribute and a metadata dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.loadFunctionList">
+<tt class="descclassname">objc.</tt><tt class="descname">loadFunctionList</tt><big>(</big><em>list</em>, <em>module_globals</em>, <em>functionInfo</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadFunctionList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simular to <a class="reference internal" href="#objc.loadBundleFunctions" title="objc.loadBundleFunctions"><tt class="xref py py-func docutils literal"><span class="pre">loadBundleFunctions()</span></tt></a>, but loads the functions from <em>list</em> instead
+of a bundle.</p>
+<p><em>List</em> should be a capsule object with tag &#8220;objc.__inline__&#8221; and the value should
+be a pointer to an array of structs with the following definition:</p>
+<div class="highlight-objective-c"><div class="highlight"><pre><span class="k">struct</span> <span class="n">function</span> <span class="p">{</span>
+    <span class="kt">char</span><span class="o">*</span>  <span class="n">name</span><span class="p">;</span>
+    <span class="kt">void</span>   <span class="p">(</span><span class="o">*</span><span class="n">function</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>The last item in the array must have a <tt class="xref c c-data docutils literal"><span class="pre">NULL</span></tt> pointer in the name field.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.createOpaquePointerType">
+<tt class="descclassname">objc.</tt><tt class="descname">createOpaquePointerType</tt><big>(</big><em>name</em>, <em>typestr</em>, <em>doc</em><big>)</big><a class="headerlink" href="#objc.createOpaquePointerType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a wrapper type for opaque pointers (&#8220;handles&#8221;) of a given type.
+The type will be registered with the bridge and will be used to wrap
+values with the given type signature.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.createStructType">
+<tt class="descclassname">objc.</tt><tt class="descname">createStructType</tt><big>(</big><em>name</em>, <em>typestr</em>, <em>fieldnames</em>, <em>doc</em><span class="optional">[</span>, <em>pack</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.createStructType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a type to wrap structs with a given name and type signature, this
+type will be used by the bridge to convert values of this structure to Python.</p>
+<p>This also adds a class method named <em>name</em> to <a class="reference internal" href="#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">objc.ivar</span></tt></a>. This class
+method creates a new instance variable with the struct type as its type.</p>
+<ul class="simple">
+<li><em>name</em> is a string with the name of the structure, for example &#8220;NSPoint&#8221;.</li>
+<li><em>typestr</em> is the encoded type of the structure and can optionally
+contain embedded field names</li>
+<li><em>fieldnames</em> is a list with the field names, the value can be <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a>
+when the <em>typestr</em> contains embedded field names.</li>
+<li><em>doc</em> is the value of __doc__ for the new type</li>
+<li><em>pack</em> can be used to specify the value of &#8220;#pragma pack&#8221; for the structure
+(default is to use the default platform packing for structures).</li>
+</ul>
+<p>The created type behaves itself simular to a mutable <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">namedtuple</span></tt></a>,
+that is items can be accessed both using attribute access and using the sequence interface.</p>
+<p>An example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Point</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">createStructType</span><span class="p">(</span><span class="s">&quot;Point&quot;</span><span class="p">,</span> <span class="n">b</span><span class="s">&quot;{Point=dd}&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;x&quot;</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">])</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+
+<span class="c"># Set the X field in two ways:</span>
+<span class="n">p</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span>
+</pre></div>
+</div>
+<p>The generated type als has a number of methods:</p>
+<ul class="simple">
+<li><em>_asdict()</em>:  Returns a dict that maps from field names to attribute values</li>
+<li><em>_replace(**kwds)</em>: Return a copy of the struct and replace attribute values with values from the keyword arguments</li>
+<li><em>copy()</em>: Return a copy of the struct. If an attribute is another struct that attribute gets copied as well, other attributes
+are not copied. That is, struct types are deep copied other types are shallow copied.</li>
+</ul>
+<p>And the following attributes are present:</p>
+<ul class="simple">
+<li><em>_fields</em>: A list of field names</li>
+<li><em>__typestr__</em>: The Objective-C type encoding for the struct (without embedded field names)</li>
+</ul>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>The function creates a class method on <a class="reference internal" href="#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">objc.ivar</span></tt></a>.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>The type now implements the &#8220;_asdict&#8221; and &#8220;_replace&#8221; methods that
+are also present on <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">collections.namedtuple()</span></tt></a> types. The
+attribute &#8220;_fields&#8221; was added as well.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerStructAlias">
+<tt class="descclassname">objc.</tt><tt class="descname">registerStructAlias</tt><big>(</big><em>typestr</em>, <em>structType</em><big>)</big><a class="headerlink" href="#objc.registerStructAlias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tell the brige that structures with encoding <em>typestr</em> should also be
+coverted to Python using <em>structType</em> (a type created using <a class="reference internal" href="#objc.createStructType" title="objc.createStructType"><tt class="xref py py-func docutils literal"><span class="pre">createStructType()</span></tt></a>).</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.5: </span>Use <a class="reference internal" href="#objc.createStructAlias" title="objc.createStructAlias"><tt class="xref py py-func docutils literal"><span class="pre">createStructAlias()</span></tt></a> instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.createStructAlias">
+<tt class="descclassname">objc.</tt><tt class="descname">createStructAlias</tt><big>(</big><em>name</em>, <em>typestr</em>, <em>structType</em><big>)</big><a class="headerlink" href="#objc.createStructAlias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tell the brige that structures with encoding <em>typestr</em> should also be
+coverted to Python using <em>structType</em> (a type created using
+<a class="reference internal" href="#objc.createStructType" title="objc.createStructType"><tt class="xref py py-func docutils literal"><span class="pre">createStructType()</span></tt></a>).</p>
+<p>This also adds a class method named <em>name</em> to <a class="reference internal" href="#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">objc.ivar</span></tt></a>. This class
+method creates a new instance variable with the struct type as its type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerMetaDataForSelector">
+<tt class="descclassname">objc.</tt><tt class="descname">registerMetaDataForSelector</tt><big>(</big><em>class_</em>, <em>selector</em>, <em>metadata</em><big>)</big><a class="headerlink" href="#objc.registerMetaDataForSelector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a metadata structure for the given selector.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerListType">
+<tt class="descclassname">objc.</tt><tt class="descname">registerListType</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#objc.registerListType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register <em>type</em> as a list-like type that will be bridged to Objective-C as an NSArray subclass.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerMappingType">
+<tt class="descclassname">objc.</tt><tt class="descname">registerMappingType</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#objc.registerMappingType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register <em>type</em> as a dict-like type that will be bridged to Objective-C as an NSDictionary subclass.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.addConvenienceForSelector">
+<tt class="descclassname">objc.</tt><tt class="descname">addConvenienceForSelector</tt><big>(</big><em>selector</em>, <em>methods</em><big>)</big><a class="headerlink" href="#objc.addConvenienceForSelector" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Add a list of method to every class that has <em>selector</em> as a selector.
+These additional methods are not added to the Objective-C class, but are
+only visibile in Python code.</p>
+<p>The <em>methods</em> argument is a list of tuples (methodname, function).</p>
+</div></blockquote>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.5.</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.addConvenienceForClass">
+<tt class="descclassname">objc.</tt><tt class="descname">addConvenienceForClass</tt><big>(</big><em>classname</em>, <em>method</em><big>)</big><a class="headerlink" href="#objc.addConvenienceForClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a list of method the named class when that class is initialized, the class
+need not be loaded at the time of this call. These additional methods are not
+added to the Objective-C class, but are only visibile in Python code.</p>
+<p>The <em>methods</em> argument is a list of tuples (methodname, function).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc._setClassSetUpHook">
+<tt class="descclassname">objc.</tt><tt class="descname">_setClassSetUpHook</tt><big>(</big><big>)</big><a class="headerlink" href="#objc._setClassSetUpHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a private hook that is called during the creation of a subclass.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This hook is not part of the stable API.</p>
+</div>
+<p class="versionadded">
+<span class="versionmodified">New in version 2.3.</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc._setClassExtender">
+<tt class="descclassname">objc.</tt><tt class="descname">_setClassExtender</tt><big>(</big><big>)</big><a class="headerlink" href="#objc._setClassExtender" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a private hook that&#8217;s called during the creation of the proxy for
+an Objective-C class.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This hook is not part of the stable API.</p>
+</div>
+<p class="versionadded">
+<span class="versionmodified">New in version 2.2.</span></p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.3: </span>In version 2.2 the hook gets called any time the bridge rescans
+a class, in 2.3 the hook only gets called during initial construction
+and has less oportunity to change things.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="types">
+<h2>Types<a class="headerlink" href="#types" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="objc.objc_class">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">objc_class</tt><a class="headerlink" href="#objc.objc_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is the metatype for Objective-C classes and provides no user-visible
+behavior.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.objc_object">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">objc_object</tt><a class="headerlink" href="#objc.objc_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is the root class for Objective-C classes, that is all wrappers for
+Objective-C classes are a subclass of this class. It is not possible to instantiate
+instances of Objective-C classes by using the class as a callable, instances are
+created using the standard Objective-C mechanisms instead.</p>
+<dl class="data">
+<dt id="objc.objc_object.pyobjc_ISA">
+<tt class="descname">pyobjc_ISA</tt><a class="headerlink" href="#objc.objc_object.pyobjc_ISA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property that returns the current Objective-C classes of an object.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.objc_object.pyobjc_instanceMethods">
+<tt class="descname">pyobjc_instanceMethods</tt><a class="headerlink" href="#objc.objc_object.pyobjc_instanceMethods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property that provides explicit access to just the instance methods
+of an object.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.objc_object.__block_signature__">
+<tt class="descname">__block_signature__</tt><a class="headerlink" href="#objc.objc_object.__block_signature__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property with the type signature for calling a block, or <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.objc_object.__cobject__">
+<tt class="descname">__cobject__</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.objc_object.__cobject__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a capsule object with identifier &#8220;objc.__object__&#8221; and the a reference
+to the Objective-C object as the value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.objc_object.__reduce__">
+<tt class="descname">__reduce__</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.objc_object.__reduce__" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method ensures that Objective-C objects will not be pickled unless the subclass
+explictly implements the pickle protocol. This is needed because the pickle will
+write an incomplete serialization of Objective-C objects for protocol 2 or later.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The wrapper classes for the <tt class="xref c c-type docutils literal"><span class="pre">NSString</span></tt> class cluster aren&#8217;t subclasses
+of <a class="reference internal" href="#objc.objc_object" title="objc.objc_object"><tt class="xref py py-class docutils literal"><span class="pre">objc_object</span></tt></a>, but are subclasses of the builtin <tt class="xref py py-class docutils literal"><span class="pre">unicode</span></tt> type
+(<tt class="xref py py-class docutils literal"><span class="pre">str:</span></tt> in Python 3).</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.pyobjc_unicode">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">pyobjc_unicode</tt><a class="headerlink" href="#objc.pyobjc_unicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to wrap instances of the <tt class="xref c c-type docutils literal"><span class="pre">NSString</span></tt> class cluster and is
+a subclass of the builtin Unicode type (<tt class="xref py py-class docutils literal"><span class="pre">unicode</span></tt> for python 2 and <tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>
+for Python 3).</p>
+<p>Methods of the underlying <tt class="xref c c-type docutils literal"><span class="pre">NSString</span></tt> class can be accessed at as methods
+of the python type, unless they have the same name as a method of the built-in Unicode
+type.</p>
+<dl class="method">
+<dt id="objc.pyobjc_unicode.nsstring">
+<tt class="descname">nsstring</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.pyobjc_unicode.nsstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an instance of a subclass of <a class="reference internal" href="#objc.objc_object" title="objc.objc_object"><tt class="xref py py-class docutils literal"><span class="pre">objc_object</span></tt></a> that represents the
+string. This provides full access to the Cocoa string API, but without easy
+interoperability with Python APIs.</p>
+</dd></dl>
+
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Instances of <tt class="xref c c-type docutils literal"><span class="pre">NSString</span></tt> can be mutable. Mutations to mutable Cocoa
+strings are not reflected in instances of <a class="reference internal" href="#objc.pyobjc_unicode" title="objc.pyobjc_unicode"><tt class="xref py py-class docutils literal"><span class="pre">pyobjc_unicode</span></tt></a>, use
+<a class="reference internal" href="#objc.pyobjc_unicode.nsstring" title="objc.pyobjc_unicode.nsstring"><tt class="xref py py-meth docutils literal"><span class="pre">nsstring()</span></tt></a> and explict conversion to the built-in unicode type when
+you work with mutable <tt class="xref c c-type docutils literal"><span class="pre">NSString</span></tt> values.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Cocoa strings are wrapped using a subclass of the built-in unicode string
+to get better interaction between Python and Cocoa. Because Cocoa strings are
+instances of the built-in unicode type they can be passed to functions in
+extension modules that expect unicode arguments (in particular the file
+system access APIs such as <a class="reference external" href="http://docs.python.org/library/functions.html#open" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">open()</span></tt></a>).</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.selector">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">selector</tt><big>(</big><em>function</em><span class="optional">[</span>, <em>selector</em><span class="optional">[</span>, <em>signature</em><span class="optional">[</span>, <em>isClassMethod</em><span class="optional">[</span>, <em>returnType</em><span class="optional">[</span>, <em>argumentTypes</em><span class="optional">[</span>, <em>isRequired</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.selector" title="Permalink to this definition">¶</a></dt>
+<dd><p>This type is used to represent an Objective-C method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>function</strong> &#8211; The Python callable that is used for the method. Can be a <tt class="xref py py-class docutils literal"><span class="pre">classmethod</span></tt> , but not a <tt class="xref py py-class docutils literal"><span class="pre">staticmethod</span></tt>.</li>
+<li><strong>selector</strong> &#8211; The Objective-C selector for the method. The default is calculated from the __name__ attribute for <em>function</em></li>
+<li><strong>signature</strong> &#8211; The type encoding for the method, the default signature assumes that all arguments and the result are objects
+(or &#8216;void&#8217; when the function does not contain a return statement with a value).</li>
+<li><strong>isClassMethod</strong> &#8211; Used to specify if a method is a class method (default is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> if <em>function</em> is a <tt class="xref py py-class docutils literal"><span class="pre">classmethod</span></tt>
+and <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a> otherwise)</li>
+<li><strong>returnType</strong> &#8211; Alternative method for specifying the method return type, using the syntax of <a class="reference external" href="http://docs.python.org/c-api/arg.html#Py_BuildValue" title="(in Python v2.7)"><tt class="xref c c-func docutils literal"><span class="pre">Py_BuildValue()</span></tt></a>.</li>
+<li><strong>argumentTypes</strong> &#8211; Alternative method for specifying argument types, using the syntax of <a class="reference external" href="http://docs.python.org/c-api/arg.html#Py_BuildValue" title="(in Python v2.7)"><tt class="xref c c-func docutils literal"><span class="pre">Py_BuildValue()</span></tt></a>.</li>
+<li><strong>isRequired</strong> &#8211; Specify if the method is required (defaults to <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>), used in the definition of protocols.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The arguments <em>returnType</em> and <em>argumentTypes</em> are deprecated in PyObjC 2.5, they are confusing and can only specify
+a subset of types.</p>
+<dl class="data">
+<dt id="objc.selector.callable">
+<tt class="descname">callable</tt><a class="headerlink" href="#objc.selector.callable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property with access to the underlying callable (the <em>function</em> argument to the constructor).</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.selector.__doc__">
+<tt class="descname">__doc__</tt><a class="headerlink" href="#objc.selector.__doc__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Documentation string for the selector</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.selector.__metadata__">
+<tt class="descname">__metadata__</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.selector.__metadata__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of the metadata dictionary for the selector.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.ivar">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">ivar</tt><big>(</big><span class="optional">[</span><em>name</em><span class="optional">[</span>, <em>type</em><span class="optional">[</span>, <em>isOutlet</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.ivar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a descriptor for accessing an Objective-C instance variable. This should only
+be used in the definition of an Objective-C subclass, the bridge will use this information
+to create an instance variable with the same name on the Objective-C class itself.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the instance variable. The name defaults to the name the instance
+variable is bound to in a class definition.</li>
+<li><strong>type</strong> &#8211; Type encoding for the instance varialble. Defaults to <tt class="xref py py-data docutils literal"><span class="pre">_C_ID</span></tt> (that is,
+an object)</li>
+<li><strong>isOutlet</strong> &#8211; If <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> the instance variable is used as an outlet, by default
+the instance variable is not an outlet.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sharing an ivar object between multiple class definitions is not supported.</p>
+</div>
+<p>Instances of <a class="reference internal" href="#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">ivar</span></tt></a> have a number of attributes that help with introspection:</p>
+<ul class="simple">
+<li><em>__typestr__</em>: The type encoding of the Objective-C type of the variable</li>
+<li><em>__name__</em>: The Objective-C name of the variable</li>
+<li><em>__isOutlet__</em>: <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> if the variable is an <a class="reference internal" href="#objc.IBOutlet" title="objc.IBOutlet"><tt class="xref py py-func docutils literal"><span class="pre">IBOutlet()</span></tt></a></li>
+<li><em>__isSlot__</em>: <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> if the variable is a Python slot.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You cannot access these attributes  through an Objective-C instance, you have to access
+them through the class object. That&#8217;s because <a class="reference internal" href="#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">ivar</span></tt></a> is a data descriptor.</p>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt>Function <a class="reference internal" href="#objc.IBOutlet" title="objc.IBOutlet"><tt class="xref py py-func docutils literal"><span class="pre">IBOutlet()</span></tt></a></dt>
+<dd>Definition of outlets.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.informal_protocol">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">informal_protocol</tt><big>(</big><em>name</em>, <em>selector_list</em><big>)</big><a class="headerlink" href="#objc.informal_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to specify which methods are part of an informal protocol
+in Objective-C. Informal protocols are a documentation construct in Objective-C and
+as such are not present in the Objective-C runtime (as opposed to formal protocols).</p>
+<p>Informal protocols are used by the bridge to automaticly update method signatures when
+a class appears to implement an informal protocol. This makes it possible the define
+a large subset of Cocoa functionality without manually setting method signatures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the protocol</li>
+<li><strong>selector_list</strong> &#8211; A sequence of <a class="reference internal" href="#objc.selector" title="objc.selector"><tt class="xref py py-class docutils literal"><span class="pre">selector</span></tt></a> instances, all of which should have no callable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="data">
+<dt id="objc.informal_protocol.__name__">
+<tt class="descname">__name__</tt><a class="headerlink" href="#objc.informal_protocol.__name__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property with the protocol name</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.informal_protocol.selectors">
+<tt class="descname">selectors</tt><a class="headerlink" href="#objc.informal_protocol.selectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property with the sequence of selectors for this protocol</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.formal_protocol">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">formal_protocol</tt><big>(</big><em>name</em>, <em>supers</em>, <em>selector_list</em><big>)</big><a class="headerlink" href="#objc.formal_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to represent formal protocols in Python, and is comparabile with the
+&#8220;&#64;protocol&#8221; construct in Objective-C.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; The name of the protocol</li>
+<li><strong>supers</strong> &#8211; A list of protocols this protocol inherits from</li>
+<li><strong>selector_list</strong> &#8211; A sequence of <a class="reference internal" href="#objc.selector" title="objc.selector"><tt class="xref py py-class docutils literal"><span class="pre">selector</span></tt></a> instances, all of which should have no callable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Constructing new protocols is supported on a subset of Mac OS X platforms:</p>
+<ul class="last simple">
+<li>All 32-bit programs</li>
+<li>64-bit programs starting from Mac OS X 10.7, but only when PyObjC was build with
+the 10.7 SDK (or later)</li>
+</ul>
+</div>
+<dl class="data">
+<dt id="objc.formal_protocol.__name__">
+<tt class="descname">__name__</tt><a class="headerlink" href="#objc.formal_protocol.__name__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property with the name of the protocol</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.formal_protocol.name">
+<tt class="descname">name</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.formal_protocol.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the protocol</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.formal_protocol.conformsTo_">
+<tt class="descname">conformsTo_</tt><big>(</big><em>proto</em><big>)</big><a class="headerlink" href="#objc.formal_protocol.conformsTo_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> if this protocol conforms to protocol <em>proto</em>, returns <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a> otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.formal_protocol.descriptionForInstanceMethod_">
+<tt class="descname">descriptionForInstanceMethod_</tt><big>(</big><em>selector</em><big>)</big><a class="headerlink" href="#objc.formal_protocol.descriptionForInstanceMethod_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple with 2 byte strings: the selector name and the type signature for the selector.</p>
+<p>Returns <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> when the selector is not part of the protocol.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.formal_protocol.descriptionForClassMethod_">
+<tt class="descname">descriptionForClassMethod_</tt><big>(</big><em>selector</em><big>)</big><a class="headerlink" href="#objc.formal_protocol.descriptionForClassMethod_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple with 2 byte strings: the selector name and the type signature for the selector.</p>
+<p>Returns <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> when the selector is not part of the protocol.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.formal_protocol.instanceMethods">
+<tt class="descname">instanceMethods</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.formal_protocol.instanceMethods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of instance methods in this protocol.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.formal_protocol.classMethods">
+<tt class="descname">classMethods</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.formal_protocol.classMethods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of instance methods in this protocol.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The interface of this class gives the impression that a protocol instance is an Objective-C
+object. That was true in earlier versions of Mac OS X, but not in more recent versions.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.varlist">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">varlist</tt><a class="headerlink" href="#objc.varlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>A C array of unspecified length. Instances of this type cannot be created in Python code.</p>
+<p>This type is used when the API does not specify the amount of items in an array in a way
+that is usable by the bridge.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Access through a <a class="reference internal" href="#objc.varlist" title="objc.varlist"><tt class="xref py py-class docutils literal"><span class="pre">varlist</span></tt></a> object can easily read beyond the end of the
+wrapped C array.  Read the Apple documentation for APIs that return a varlist to
+determine how many elements you can safely access.</p>
+</div>
+<dl class="method">
+<dt id="objc.varlist.as_tuple">
+<tt class="descname">as_tuple</tt><big>(</big><em>count</em><big>)</big><a class="headerlink" href="#objc.varlist.as_tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple containing the first <em>count</em> elements of the array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.varlist.__getitem__">
+<tt class="descname">__getitem__</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#objc.varlist.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the <em>index</em>-th element of the array. Supports numeric
+indexes as well as slices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.varlist.__setitem__">
+<tt class="descname">__setitem__</tt><big>(</big><em>index</em>, <em>value</em><big>)</big><a class="headerlink" href="#objc.varlist.__setitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the value of the <em>index</em>-th element of the array. Supports numeric
+indexes as well as slices (but assigning to a slice is only possible when
+that does not resize the array).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.function">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">function</tt><a class="headerlink" href="#objc.function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instances of this class represent global functions from Cocoa frameworks. These
+objects are created using <a class="reference internal" href="#objc.loadBundleFunctions" title="objc.loadBundleFunctions"><tt class="xref py py-func docutils literal"><span class="pre">loadBundleFunctions()</span></tt></a> and <a class="reference internal" href="#objc.loadFunctionList" title="objc.loadFunctionList"><tt class="xref py py-func docutils literal"><span class="pre">loadFunctionList()</span></tt></a>.</p>
+<dl class="data">
+<dt id="objc.function.__doc__">
+<tt class="descname">__doc__</tt><a class="headerlink" href="#objc.function.__doc__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property with the documentation string for the function.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.function.__name__">
+<tt class="descname">__name__</tt><a class="headerlink" href="#objc.function.__name__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only property with the name of the function</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.function.__module__">
+<tt class="descname">__module__</tt><a class="headerlink" href="#objc.function.__module__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-write property with the module that defined the function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.function.__metadata__">
+<tt class="descname">__metadata__</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.function.__metadata__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of the metadata dictionary for the selector.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.IMP">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">IMP</tt><a class="headerlink" href="#objc.IMP" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to represent the actual implementation of an Objective-C
+method (basicly a C function). Instances behave the same as unbound methods:
+you can call them but need to specify the &#8220;self&#8221; argument.</p>
+<dl class="data">
+<dt id="objc.IMP.isAlloc">
+<tt class="descname">isAlloc</tt><a class="headerlink" href="#objc.IMP.isAlloc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only attribute that specifies if the IMP is an allocator (that is,
+the implementation of &#8220;+alloc&#8221; or one of its variant)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.IMP.isClassMethod">
+<tt class="descname">isClassMethod</tt><a class="headerlink" href="#objc.IMP.isClassMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only attribute that specified if the IMP is for a class method.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.IMP.signature">
+<tt class="descname">signature</tt><a class="headerlink" href="#objc.IMP.signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only attribute with the type encoding for the IMP.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.IMP.selector">
+<tt class="descname">selector</tt><a class="headerlink" href="#objc.IMP.selector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read-only attribute with the selector for the method that this IMP
+is associated with.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.IMP.__name__">
+<tt class="descname">__name__</tt><a class="headerlink" href="#objc.IMP.__name__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <a class="reference internal" href="#objc.selector" title="objc.selector"><tt class="xref py py-data docutils literal"><span class="pre">selector</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.IMP.__metadata__">
+<tt class="descname">__metadata__</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.IMP.__metadata__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of the metadata dictionary for the selector.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.super">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">super</tt><a class="headerlink" href="#objc.super" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a subclass of <tt class="xref py py-class docutils literal"><span class="pre">super</span></tt> that works
+properly for Objective-C classes as well as regular Python classes.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The statement <tt class="samp docutils literal"><span class="pre">from</span> <em><span class="pre">Framework</span></em> <span class="pre">import</span> <span class="pre">*</span></tt> will replace the
+built-in <tt class="xref py py-class docutils literal"><span class="pre">super</span></tt> by this class.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="objc.nil">
+<tt class="descclassname">objc.</tt><tt class="descname">nil</tt><a class="headerlink" href="#objc.nil" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt>, for easier translation of existing Objective-C
+code.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.YES">
+<tt class="descclassname">objc.</tt><tt class="descname">YES</tt><a class="headerlink" href="#objc.YES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt>, for easier translation of existing Objective-C
+code.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.NO">
+<tt class="descclassname">objc.</tt><tt class="descname">NO</tt><a class="headerlink" href="#objc.NO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for <tt class="xref py py-const docutils literal"><span class="pre">False</span></tt>, for easier translation of existing Objective-C
+code.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.NULL">
+<tt class="descclassname">objc.</tt><tt class="descname">NULL</tt><a class="headerlink" href="#objc.NULL" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: add description of pass by reference arguments and the
+difference between None and NULL</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.MAC_OS_X_VERSION_MAX_ALLOWED">
+<tt class="descclassname">objc.</tt><tt class="descname">MAC_OS_X_VERSION_MAX_ALLOWED</tt><a class="headerlink" href="#objc.MAC_OS_X_VERSION_MAX_ALLOWED" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of <tt class="xref c c-data docutils literal"><span class="pre">MAC_OS_X_VERSION_MAX_ALLOWED</span></tt> when PyObjC was
+compiled.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.MAC_OS_X_VERSION_MIN_REQUIRED">
+<tt class="descclassname">objc.</tt><tt class="descname">MAC_OS_X_VERSION_MIN_REQUIRED</tt><a class="headerlink" href="#objc.MAC_OS_X_VERSION_MIN_REQUIRED" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of <tt class="xref c c-data docutils literal"><span class="pre">MAC_OS_X_VERSION_MIN_REQUIRED</span></tt> when PyObjC was
+compiled.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.MAC_OS_X_VERSION_10_N">
+<tt class="descclassname">objc.</tt><tt class="descname">MAC_OS_X_VERSION_10_N</tt><a class="headerlink" href="#objc.MAC_OS_X_VERSION_10_N" title="Permalink to this definition">¶</a></dt>
+<dd><p>There are currently 6 constants of this form, for <tt class="docutils literal"><span class="pre">N</span></tt> from 1 to 6,
+and these have the same value as the Objective-C constant of the same
+name.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="objc.platform">
+<tt class="descclassname">objc.</tt><tt class="descname">platform</tt><a class="headerlink" href="#objc.platform" title="Permalink to this definition">¶</a></dt>
+<dd><p>This always has the value &#8220;MACOSX&#8221;.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="objective-c-type-strings">
+<h2>Objective-C type strings<a class="headerlink" href="#objective-c-type-strings" title="Permalink to this headline">¶</a></h2>
+<p>The Objective-C runtime and the PyObjC bridge represent the types of
+instance variables and methods arguments and return values as a string
+with a compact representation. The Python representation of that string is
+a byte string (that is type <tt class="xref py py-class docutils literal"><span class="pre">bytes</span></tt> in Python 3.x and <tt class="xref py py-class docutils literal"><span class="pre">str</span></tt>
+in Python 2.x).</p>
+<div class="section" id="basic-types">
+<h3>Basic types<a class="headerlink" href="#basic-types" title="Permalink to this headline">¶</a></h3>
+<p>The representation for basic types is a single character, the table below
+lists symbolic constants in the for those constants.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Objective-C type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_ID</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">id</span></tt> (an Objective-C instance)</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CLASS</span></tt></td>
+<td>an Objective-C class</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_SEL</span></tt></td>
+<td>a method selector</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CHR</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">char</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_UCHR</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">unsigned</span> <span class="pre">char</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_SHT</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">short</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_USHT</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">unsigned</span> <span class="pre">short</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_BOOL</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">bool</span></tt>  (or <tt class="xref c c-type docutils literal"><span class="pre">_Bool</span></tt>)</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_INT</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">int</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_UINT</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">unsigned</span> <span class="pre">int</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_LNG</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">long</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_ULNG</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">unsigned</span> <span class="pre">long</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_LNG_LNG</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">long</span> <span class="pre">long</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_ULNG_LNG</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_FLT</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">float</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_DBL</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">double</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_VOID</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">void</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_UNDEF</span></tt></td>
+<td>&#8220;other&#8221; (such a function)</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CHARPTR</span></tt></td>
+<td>C string (<tt class="xref c c-type docutils literal"><span class="pre">char*</span></tt>)</td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_NSBOOL</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">BOOL</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_UNICHAR</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">UniChar</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CHAR_AS_TEXT</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">char</span></tt> when uses as text or a byte array</td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CHAR_AS_INT</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">int8_t</span></tt> (or <tt class="xref c c-type docutils literal"><span class="pre">char</span></tt> when</td>
+</tr>
+<tr class="row-odd"><td>used</td>
+<td>as a number)</td>
+</tr>
+</tbody>
+</table>
+<p>The values <tt class="xref py py-const docutils literal"><span class="pre">_C_NSBOOL</span></tt>, <tt class="xref py py-const docutils literal"><span class="pre">_C_UNICHAR</span></tt>, <tt class="xref py py-const docutils literal"><span class="pre">_C_CHAR_AS_TEXT</span></tt>
+and <tt class="xref py py-const docutils literal"><span class="pre">_C_CHAR_AS_INT</span></tt> are inventions of PyObjC and are not used in
+the Objective-C runtime.</p>
+</div>
+<div class="section" id="complex-types">
+<h3>Complex types<a class="headerlink" href="#complex-types" title="Permalink to this headline">¶</a></h3>
+<p>More complex types can be represented using longer type strings:</p>
+<ul>
+<li><p class="first">a pointer to some type is <tt class="xref py py-const docutils literal"><span class="pre">_C_PTR</span></tt> followed by the type string
+of the pointed-to type.</p>
+</li>
+<li><p class="first">a bitfield in a structure is represented as <tt class="xref py py-const docutils literal"><span class="pre">_C_BFLD</span></tt> followed
+by an integer with the number of bits.</p>
+<p>Note that PyObjC cannot convert bitfields at this time.</p>
+</li>
+<li><p class="first">a C structure is represented as <tt class="xref py py-const docutils literal"><span class="pre">_C_STRUCT_B</span></tt> followed by the
+struct name, followed by <tt class="xref py py-const docutils literal"><span class="pre">'='</span></tt>, followed by the encoded types of
+all fields followed by <tt class="xref py py-const docutils literal"><span class="pre">_C_STRUCT_E</span></tt>. The field name (including the
+closing equals sign) is optional.</p>
+</li>
+<li><p class="first">a C union is represented as <tt class="xref py py-const docutils literal"><span class="pre">_C_UNION_B</span></tt> followed by the
+struct name, followed by <tt class="xref py py-const docutils literal"><span class="pre">'='</span></tt>, followed by the encoded types of
+all fields followed by <tt class="xref py py-const docutils literal"><span class="pre">_C_UNION_E</span></tt>. The field name (including the
+closing equals sign) is optional.</p>
+<p>Note that PyObjC cannot convert C unions at this time.</p>
+</li>
+<li><p class="first">a C array is represented as <tt class="xref py py-const docutils literal"><span class="pre">_C_ARY_B</span></tt> followed by an integer
+representing the number of items followed by the encoded element type,
+followed by <tt class="xref py py-const docutils literal"><span class="pre">_C_ARY_E</span></tt>.</p>
+</li>
+<li><p class="first">The C construct &#8216;const&#8217; is mapped to <tt class="xref py py-const docutils literal"><span class="pre">_C_CONST</span></tt>, that is a
+<tt class="xref c c-type docutils literal"><span class="pre">const</span> <span class="pre">char*</span></tt> is represented as <tt class="xref py py-const docutils literal"><span class="pre">_C_CONST</span></tt> + <tt class="xref py py-const docutils literal"><span class="pre">_C_CHARPTR</span></tt>.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="additional-annotations-for-method-and-function-arguments">
+<h3>Additional annotations for method and function arguments<a class="headerlink" href="#additional-annotations-for-method-and-function-arguments" title="Permalink to this headline">¶</a></h3>
+<p>Method arguments can have prefixes that closer describe their functionality.
+Those prefixes are inheritted from Distributed Objects are not used by the
+Objective-C runtime, but are used by PyObjC.</p>
+<ul class="simple">
+<li>When a pointer argument is an input argument it is prefixed by
+<tt class="xref py py-const docutils literal"><span class="pre">_C_IN</span></tt>.</li>
+<li>When a pointer argument is an output argument it is prefixed by
+<tt class="xref py py-const docutils literal"><span class="pre">_C_OUT</span></tt>.</li>
+<li>When a pointer argument is an input and output argument it is prefixed
+by <tt class="xref py py-const docutils literal"><span class="pre">_C_INOUT</span></tt>.</li>
+<li>Distributed objects uses the prefix <tt class="xref py py-const docutils literal"><span class="pre">_C_BYCOPY</span></tt> to tell that a
+value should be copied to the other side instead of sending a proxy
+reference. This is not used by PyObjC.</li>
+<li>Distributed objects uses the prefix <tt class="xref py py-const docutils literal"><span class="pre">_C_ONEWAY</span></tt> on the method return
+type to tell that the method result is not used and the caller should not
+wait for a result from the other side. This is not used by PyObjC.</li>
+</ul>
+<p>When a pointer argument to a function prefixed by <tt class="xref py py-const docutils literal"><span class="pre">_C_IN</span></tt>,
+<tt class="xref py py-const docutils literal"><span class="pre">_C_OUT</span></tt> or <tt class="xref py py-const docutils literal"><span class="pre">_C_INOUT</span></tt> the brige assumes that it is a pass by
+reference argument (that is, a pointer to a single value), unless other
+information is provided to the bridge.</p>
+<p>TODO: Write how to write Objective-C code to ensure that the right prefixes
+are added by the compiler.</p>
+</div>
+<div class="section" id="special-encoded-types">
+<h3>Special encoded types<a class="headerlink" href="#special-encoded-types" title="Permalink to this headline">¶</a></h3>
+<p>The table below shows constants for a number of C types that are used
+in Cocoa but are not basic C types.</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Constant</th>
+<th class="head">Objective-C type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CFTYPEID</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">CFTypeID</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_NSInteger</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">NSInteger</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_NSUInteger</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">NSUInteger</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CFIndex</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">CFIndex</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="xref py py-const docutils literal"><span class="pre">_C_CGFloat</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">CGFloat</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="xref py py-const docutils literal"><span class="pre">_sockaddr_type</span></tt></td>
+<td><tt class="xref c c-type docutils literal"><span class="pre">struct</span> <span class="pre">sockaddr</span></tt></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="context-pointers">
+<h2>Context pointers<a class="headerlink" href="#context-pointers" title="Permalink to this headline">¶</a></h2>
+<p>A number of Objective-C APIs have one argument that is a context pointer,
+which is a <tt class="xref c c-type docutils literal"><span class="pre">void*</span></tt>. In Objective-C your can pass a pointer to an
+arbitrary value, in Python this must be an integer.</p>
+<p>PyObjC provides a <tt class="xref py py-data docutils literal"><span class="pre">context</span></tt> object that can be used to allocate
+unique integers and map those to objects.</p>
+<dl class="function">
+<dt id="objc.context.register">
+<tt class="descclassname">context.</tt><tt class="descname">register</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#objc.context.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a value to the context registry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; An arbitrary object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A unique integer that&#8217;s suitable to be used as a context pointer
+(the handle).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">context.unregister(value):</tt></dt>
+<dd><p>Remove an object from the context registery, this object must be have
+been added to the registry before.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; An object in the context registry</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.context.get">
+<tt class="descclassname">context.</tt><tt class="descname">get</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#objc.context.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an object from the registry given the return value from
+<a class="reference internal" href="#objc.context.register" title="objc.context.register"><tt class="xref py py-func docutils literal"><span class="pre">context.register()</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="descriptors">
+<h2>Descriptors<a class="headerlink" href="#descriptors" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="objc.IBOutlet">
+<tt class="descclassname">objc.</tt><tt class="descname">IBOutlet</tt><big>(</big><span class="optional">[</span><em>name</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.IBOutlet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an instance variable that can be used as an outlet in
+Interface Builder. When the name is not specified the bridge will
+use the name from the class dictionary.</p>
+<p>The code block below defines an instance variable named &#8220;button&#8221; and
+makes that available as an outlet in Interface Builder.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">SomeObject</span> <span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+    <span class="n">button</span> <span class="o">=</span> <span class="n">IBOutlet</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IBOutlet function is recognized by Interface Builder when it
+reads Python code.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.IBAction">
+<tt class="descclassname">objc.</tt><tt class="descname">IBAction</tt><big>(</big><em>function</em><big>)</big><a class="headerlink" href="#objc.IBAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark an method as an action for use in Interface Builder.  Raises
+<tt class="xref py py-exc docutils literal"><span class="pre">TypeError</span></tt> when the argument is not a function.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">SomeObject</span> <span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+   <span class="nd">@IBAction</span>
+   <span class="k">def</span> <span class="nf">saveDocument_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+       <span class="k">pass</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The IBOutlet decorator is recognized by Interface Builder when it
+reads Python code. Beyond that the decoerator has no effect.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.instancemethod">
+<tt class="descclassname">objc.</tt><tt class="descname">instancemethod</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.instancemethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly mark a method as an instance method. Use this when
+PyObjC incorrectly deduced that a method should be a class method.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">SomeObject</span> <span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+   <span class="nd">@instancemethod</span>
+   <span class="k">def</span> <span class="nf">alloc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">pass</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There is no function named <em>objc.classmethod</em>, use
+<tt class="xref py py-func docutils literal"><span class="pre">classmethod</span></tt> to explictly mark a function
+as a class method.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.accessor">
+<tt class="descclassname">objc.</tt><tt class="descname">accessor</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.accessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this decorator on the definition of accessor methods to ensure
+that it gets the right method signature in the Objective-C runtime.</p>
+<p>The conventions for accessor names that can be used with Key-Value Coding
+is described in the <a class="reference external" href="http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/KeyValueCoding/Articles/AccessorConventions.html">Apple documentation for Key-Value Coding</a></p>
+<p>The table below describes the convention for methods for a property named &#8216;&lt;property&gt;&#8217;,
+with a short description and notes. The <a class="reference external" href="http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/KeyValueCoding/Articles/AccessorConventions.html">Apple documentation for Key-Value Coding</a>
+contains more information.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="29%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+<th class="head">Notes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>&lt;property&gt;</td>
+<td>Getter for a basic property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>is&lt;Property&gt;</td>
+<td>Likewise, for a boolean
+property.</td>
+<td>PyObjC won&#8217;t automaticly set the
+correct property type, use
+<tt class="xref py py-func docutils literal"><span class="pre">typeAccessor()</span></tt> instead of
+<a class="reference internal" href="#objc.accessor" title="objc.accessor"><tt class="xref py py-func docutils literal"><span class="pre">accessor()</span></tt></a>.</td>
+</tr>
+<tr class="row-even"><td>set&lt;Property&gt;_</td>
+<td>Setter for a basic property</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>countOf&lt;Property&gt;</td>
+<td>Returns the number of
+items in a indexed
+property, or unordered
+property</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>objectIn&lt;Property&gt;AtIndex_</td>
+<td>Returns the object at a specific
+index for an indexed property</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>&lt;property&gt;AtIndexes_</td>
+<td>Returns an array of
+object values at specific
+indexes for an indexed
+property. The argument
+is an :c:type`NSIndexSet`.</td>
+<td>Don&#8217;t use this with
+<a class="reference internal" href="#objc.typedAccessor" title="objc.typedAccessor"><tt class="xref py py-func docutils literal"><span class="pre">typedAccessor()</span></tt></a>.</td>
+</tr>
+<tr class="row-even"><td>get&lt;Property&gt;_range_</td>
+<td>Optimized accessor</td>
+<td>Not supported by PyObjC, don&#8217;t use</td>
+</tr>
+<tr class="row-odd"><td>insertObject_in&lt;Property&gt;AtIndex_</td>
+<td>Add an object to an indexed
+property at a specific index.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>insert&lt;Property&gt;_atIndexes_</td>
+<td>Insert the values from a list of
+at specific indices. The
+arguments are an <tt class="xref c c-type docutils literal"><span class="pre">NSArray</span></tt>
+and an <tt class="xref c c-type docutils literal"><span class="pre">NSIndexSet</span></tt>.</td>
+<td>Don&#8217;t use this with
+<a class="reference internal" href="#objc.typedAccessor" title="objc.typedAccessor"><tt class="xref py py-func docutils literal"><span class="pre">typedAccessor()</span></tt></a>.</td>
+</tr>
+<tr class="row-odd"><td>removeObjectFrom&lt;Property&gt;AtIndex_</td>
+<td>Remove the value
+at a specific index of an
+indexed property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>remove&lt;Property&gt;AtIndexes_</td>
+<td>Remove the values at specific
+indices of an indexed property. The
+argument is an :c:type`NSIndexSet`.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>replaceObjectIn&lt;Property&gt;AtIndex_withObject_</td>
+<td>Replace the value at a specific
+index of an indexed property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>replace&lt;Property&gt;AtIndexes_with&lt;Property&gt;_</td>
+<td>Replace the values at specific
+indices of an indexed property.</td>
+<td>Don&#8217;t use with <a class="reference internal" href="#objc.typedAccessor" title="objc.typedAccessor"><tt class="xref py py-func docutils literal"><span class="pre">typedAccessor()</span></tt></a></td>
+</tr>
+<tr class="row-odd"><td>enumeratorOf&lt;Property&gt;</td>
+<td>Returns an <tt class="xref c c-type docutils literal"><span class="pre">NSEnumerator</span></tt>
+for an unordered property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>memberOf&lt;Property&gt;_</td>
+<td>Returns True if the value is
+a member of an unordered property</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>add&lt;Property&gt;Object_</td>
+<td>Insert a specific object in
+an unordered property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>add&lt;Property&gt;_</td>
+<td>Add a set of new values
+to an unordered property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>remove&lt;Property&gt;Object_</td>
+<td>Remove an object
+from an unordered property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>remove&lt;Property&gt;_</td>
+<td>Remove a set of objects
+from an unordered property.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>intersect&lt;Property&gt;_</td>
+<td>Remove all objects from
+an unorderd property that
+are not in the set argument.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>validate&lt;Property&gt;_error_</td>
+<td>Validate the new value of a
+property</td>
+<td>For typed accessor&#8217;s the value
+is wrapped in an <tt class="xref c c-type docutils literal"><span class="pre">NSValue</span></tt>
+(but numbers and booleans are automaticly
+unwrapped by the bridge)</td>
+</tr>
+</tbody>
+</table>
+<p>PyObjC provides another mechanism for defining properties: <a class="reference internal" href="#objc.object_property" title="objc.object_property"><tt class="xref py py-class docutils literal"><span class="pre">object_property</span></tt></a>.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>Added support for unordered properties. Also fixed some issues for 64-bit
+builds.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.typedAccessor">
+<tt class="descclassname">objc.</tt><tt class="descname">typedAccessor</tt><big>(</big><em>valueType</em><big>)</big><a class="headerlink" href="#objc.typedAccessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this decorator on the definition of accessor methods to ensure
+that it gets the right method signature in the Objective-C runtime.</p>
+<p>The <em>valueType</em> is the encoded string for a single value.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When you use a typed accessor you must also implement &#8220;setNilValueForKey_&#8221;,
+as described in the <a class="reference external" href="http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/KeyValueCoding/Articles/AccessorConventions.html">Apple documentation for Key-Value Coding</a></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.typedSelector">
+<tt class="descclassname">objc.</tt><tt class="descname">typedSelector</tt><big>(</big><em>signature</em><big>)</big><a class="headerlink" href="#objc.typedSelector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this decorator to explicitly set the type signature for a method.</p>
+<p>An example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@typedSelector</span><span class="p">(</span><span class="n">b</span><span class="s">&#39;I@:d&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">makeUnsignedIntegerOfDouble_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.namedSelector">
+<tt class="descclassname">objc.</tt><tt class="descname">namedSelector</tt><big>(</big><em>name</em><span class="optional">[</span>, <em>signature</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.namedSelector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this decorator to explictly set the Objective-C method name instead
+of deducing it from the Python name. You can optionally set the method
+signature as well.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.callbackFor">
+<tt class="descclassname">objc.</tt><tt class="descname">callbackFor</tt><big>(</big><em>callable</em><span class="optional">[</span>, <em>argIndex=</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.callbackFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this decorator to tell that this function is the callback for
+an (Objective-C) API that stores a reference to the callback
+function.</p>
+<p>You only <em>have</em> to use this API when the Objective-C API can store
+the callback function for later usage. For other functions the
+bridge can create a temporary callback stub.</p>
+<p>Using this decorator for methods is not supported</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@objc.callbackFor</span><span class="p">(</span><span class="n">NSArray</span><span class="o">.</span><span class="n">sortedArrayUsingFunction_context</span>\<span class="n">_</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>This tells the bridge that &#8216;compare&#8217; is used as the sort function
+for NSArray, and ensures that the function will get the correct
+Objective-C signature.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The example will also work without the decorator because
+NSArray won&#8217;t store a reference to the compare function that
+is used after &#8216;sortedArrayUsingFunction_context_&#8217; returns.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.selectorFor">
+<tt class="descclassname">objc.</tt><tt class="descname">selectorFor</tt><big>(</big><em>callable</em><span class="optional">[</span>, <em>argIndex</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.selectorFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to tell that this is the &#8220;callback&#8221; selector for another
+API.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@objc.selectorFor</span><span class="p">(</span><span class="n">NSApplication</span><span class="o">.</span><span class="n">beginSheet_modalForWindow_modalDelegate_didEndSelector_contextInfo_</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">sheetDidEnd_returnCode_contextInfo_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sheet</span><span class="p">,</span> <span class="n">returnCode</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>This will tell the bridge that this method is used as the end method
+for a sheet API, and will ensure that the method is registered with
+the correct Objective-C signature.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.synthesize">
+<tt class="descclassname">objc.</tt><tt class="descname">synthesize</tt><big>(</big><em>name</em><span class="optional">[</span>, <em>copy</em><span class="optional">[</span>, <em>readwrite</em><span class="optional">[</span>, <em>type</em><span class="optional">[</span>, <em>ivarName</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.synthesize" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; name of the property</li>
+<li><strong>copy</strong> &#8211; if false (default) values are stored as is, otherwise
+new values are copied.</li>
+<li><strong>readwrite</strong> &#8211; If true (default) the property is read-write</li>
+<li><strong>type</strong> &#8211; an encoded type for the property, defaults to
+<tt class="xref py py-data docutils literal"><span class="pre">_C_ID</span></tt>.</li>
+<li><strong>iVarName</strong> &#8211; Name of the instance variable used to store
+the value. Default to the name of the property
+prefixed by and underscore.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This synthensizes a getter, and if necessary, setter method with
+the correct signature. The getter and setter provide access to
+an instance variable.</p>
+<p>This can be used when specific semantics are required (such as
+copying values before storing them).</p>
+<p>The class <a class="reference internal" href="#objc.object_property" title="objc.object_property"><tt class="xref py py-class docutils literal"><span class="pre">object_property</span></tt></a> provides simular features with
+a nicer python interface: with that calss the property behaves
+itself like a property for python code, with this function you
+still have to call accessor methods in your code.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="interacting-with-synchronized-blocks">
+<h2>Interacting with <tt class="docutils literal"><span class="pre">&#64;synchronized</span></tt> blocks<a class="headerlink" href="#interacting-with-synchronized-blocks" title="Permalink to this headline">¶</a></h2>
+<p>PyObjC provides an API that implements locking in the same way as the
+<tt class="docutils literal"><span class="pre">&#64;synchronized</span></tt> statement in Objective-C.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">object_lock</span><span class="p">(</span><span class="n">anNSObject</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="objc.object_lock">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">object_lock</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#objc.object_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents the mutex that protects an Objective-C object
+for the <tt class="docutils literal"><span class="pre">&#64;synchronized</span></tt> statement. This can be used as a context
+manager for the <tt class="docutils literal"><span class="pre">with</span></tt> statement, but can also be used standalone.</p>
+<dl class="method">
+<dt id="objc.object_lock.lock">
+<tt class="descname">lock</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.object_lock.lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquire the object mutex</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.object_lock.unlock">
+<tt class="descname">unlock</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.object_lock.unlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the object mutex</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="archiving-python-and-objective-c-objects">
+<h2>Archiving Python and Objective-C objects<a class="headerlink" href="#archiving-python-and-objective-c-objects" title="Permalink to this headline">¶</a></h2>
+<p>Python and Objective-C each provide a native object serialization method,
+the <a class="reference external" href="http://docs.python.org/library/pickle.html#pickle" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">pickle</span></tt></a> module in Python and the <tt class="xref c c-type docutils literal"><span class="pre">NSCoding</span></tt> protocol in Objective-C.</p>
+<p>It is possible to use an <tt class="xref c c-type docutils literal"><span class="pre">NSKeyedArchiver</span></tt> to store any Python object that
+can be pickled in an Objective-C serialized data object.</p>
+<p>Due to technical details it is not possible to pickle an Objective-C object,
+unless someone explicitly implements the pickle protocol for such an object.</p>
+</div>
+<div class="section" id="properties">
+<h2>Properties<a class="headerlink" href="#properties" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Introduction<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Both Python and Objective-C have support for properties, which are object attributes
+that are accessed using attribute access syntax but which result in a method call.</p>
+<p>The Python built-in <tt class="xref py py-class docutils literal"><span class="pre">property</span> <span class="pre">&lt;__builtin__.property__</span></tt> is used to define new
+properties in plain Python code. These properties don&#8217;t full interoperate with
+Objective-C code though because they do not necessarily implement the Objective-C
+methods that mechanisms like Key-Value Coding use to interact with a class.</p>
+<p>PyObjC therefore has a number of property classes that allow you to define new
+properties that do interact fully with the Key-Value Coding and Observation
+frameworks.</p>
+<p>TODO: Implement method for enabling properties on existing classes and tell
+why that is off by default and when it will be turned on by default.</p>
+<p>TODO: The description is way to minimal, even the design document contained
+more information.</p>
+<dl class="class">
+<dt id="objc.object_property">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">object_property</tt><big>(</big><em>name=None</em>, <em>read_only=False</em>, <em>copy=False</em>, <em>dynamic=False</em>, <em>ivar=None</em>, <em>typestr=_C_ID</em>, <em>depends_on=None</em><big>)</big><a class="headerlink" href="#objc.object_property" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the property, the default is to extract the name from the class dictionary</li>
+<li><strong>read_only</strong> &#8211; Is this a read-only property? The default is a read-write property.</li>
+<li><strong>copy</strong> &#8211; Should the default setter method copy values? The default retains the new value without copying.</li>
+<li><strong>dynamic</strong> &#8211; If this argument is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> the property will not generate default accessor,
+but will rely on some external process to create them.</li>
+<li><strong>ivar</strong> &#8211; Name of the instance variable that&#8217;s used to store the value. When this value is <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a>
+the name will be calculated from the property name. If it is <a class="reference internal" href="#objc.NULL" title="objc.NULL"><tt class="xref py py-data docutils literal"><span class="pre">NULL</span></tt></a> there will be no instance variable.</li>
+<li><strong>typestr</strong> &#8211; The Objective-C type for this property, defaults to an arbitrary object.</li>
+<li><strong>depends_on</strong> &#8211; A sequence of names of properties the value of this property depends on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>During the class definition you can add accessor methods by using the property as a decorator</p>
+<dl class="method">
+<dt id="objc.object_property.getter">
+<tt class="descclassname">object_property.</tt><tt class="descname">getter</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.object_property.getter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for defining the getter method for a property. The name of the method should be the
+same as the property:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyObject</span> <span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+    <span class="n">prop</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">object_property</span><span class="p">()</span>
+
+    <span class="nd">@prop.getter</span>
+    <span class="k">def</span> <span class="nf">prop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">return</span> <span class="mi">42</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.object_property.setter">
+<tt class="descclassname">object_property.</tt><tt class="descname">setter</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.object_property.setter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for defining the setter method for a property. The name of the method should be the
+same as the property.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.object_property.validate">
+<tt class="descclassname">object_property.</tt><tt class="descname">validate</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.object_property.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for defining a Key-Value Coding validator for this property.</p>
+</dd></dl>
+
+<p>It is possible to override property accessor in a subclass:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MySubclass</span> <span class="p">(</span><span class="n">MyObject</span><span class="p">):</span>
+    <span class="nd">@MyObject.prop.getter</span>
+    <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;the world&quot;</span>
+</pre></div>
+</div>
+<p>This can also be used to convert a read-only property to a read-write one
+by adding a setter accessor.</p>
+</div>
+<div class="section" id="properties-for-structured-types">
+<h3>Properties for structured types<a class="headerlink" href="#properties-for-structured-types" title="Permalink to this headline">¶</a></h3>
+<p>Key-Value Coding is slightly different for structured types like sets and
+lists (ordered and unordered collections). For this reason PyObjC also provides
+subclasses of <a class="reference internal" href="#objc.object_property" title="objc.object_property"><tt class="xref py py-class docutils literal"><span class="pre">object_property</span></tt></a> that are tuned for these types.</p>
+<dl class="class">
+<dt id="objc.array_property">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">array_property</tt><a class="headerlink" href="#objc.array_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>This property implements a list-like property. When you access the property
+you will get an object that implements the <tt class="xref py py-class docutils literal"><span class="pre">MutableSequence</span></tt> ABC, and
+that will generate the correct Key-Value Observation notifications when
+the datastructure is updated.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.set_property">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">set_property</tt><a class="headerlink" href="#objc.set_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>This property implements a set-like property. When you access the property
+you will get an object that implements the <tt class="xref py py-class docutils literal"><span class="pre">MutableSet</span></tt> ABC, and
+that will generate the correct Key-Value Observation notifications when
+the datastructure is updated.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.dict_property">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">dict_property</tt><a class="headerlink" href="#objc.dict_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>This property is like an <a class="reference internal" href="#objc.object_property" title="objc.object_property"><tt class="xref py py-class docutils literal"><span class="pre">object_property</span></tt></a>, but has an empty
+NSMutableDictionary object as its default value. This type is mostly
+provided to have a complete set of property types.</p>
+</dd></dl>
+
+<p>These collection properties are at this time experimental and do not yet
+provide proper hooks for tweaking their behavior. Future versions of PyObjC
+will provide such hooks (for example a method that will be called when an
+item is inserted in an array property).</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">objc</span></tt> &#8211; The PyObjC bridge</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#debugging">Debugging</a></li>
+<li><a class="reference internal" href="#tweaking-behaviour">Tweaking behaviour</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+<li><a class="reference internal" href="#accessing-classes-and-protocols">Accessing classes and protocols</a></li>
+<li><a class="reference internal" href="#dynamic-modification-of-classes">Dynamic modification of classes</a></li>
+<li><a class="reference internal" href="#plugin-bundles">Plugin bundles</a></li>
+<li><a class="reference internal" href="#memory-management">Memory management</a></li>
+<li><a class="reference internal" href="#test-support">Test support</a></li>
+<li><a class="reference internal" href="#framework-wrappers">Framework wrappers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#types">Types</a></li>
+<li><a class="reference internal" href="#constants">Constants</a></li>
+<li><a class="reference internal" href="#objective-c-type-strings">Objective-C type strings</a><ul>
+<li><a class="reference internal" href="#basic-types">Basic types</a></li>
+<li><a class="reference internal" href="#complex-types">Complex types</a></li>
+<li><a class="reference internal" href="#additional-annotations-for-method-and-function-arguments">Additional annotations for method and function arguments</a></li>
+<li><a class="reference internal" href="#special-encoded-types">Special encoded types</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#context-pointers">Context pointers</a></li>
+<li><a class="reference internal" href="#descriptors">Descriptors</a></li>
+<li><a class="reference internal" href="#interacting-with-synchronized-blocks">Interacting with <tt class="docutils literal"><span class="pre">&#64;synchronized</span></tt> blocks</a></li>
+<li><a class="reference internal" href="#archiving-python-and-objective-c-objects">Archiving Python and Objective-C objects</a></li>
+<li><a class="reference internal" href="#properties">Properties</a><ul>
+<li><a class="reference internal" href="#id1">Introduction</a></li>
+<li><a class="reference internal" href="#properties-for-structured-types">Properties for structured types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Python API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/lib/module-objc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.html" title="PyObjCTools – Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Python API"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

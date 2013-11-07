@@ -1,0 +1,748 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>BridgeSupport XML files &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjC metadata system" href="index.html" />
+    <link rel="next" title="Compiled metadata system" href="compiled.html" />
+    <link rel="prev" title="PyObjC metadata system" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="compiled.html" title="Compiled metadata system"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyObjC metadata system"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">PyObjC metadata system</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="bridgesupport-xml-files">
+<h1>BridgeSupport XML files<a class="headerlink" href="#bridgesupport-xml-files" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>PyObjC 2.0 introduced a way to load enhanced API descriptions
+from XML &#8220;bridgesupport&#8221; files. The format of this file is shared
+between a number of bridges, although later releases of PyObjC added
+more capabilities that aren&#8217;t in the official format.</p>
+<p>As of PyObjC 2.4 <a class="footnote-reference" href="#id2" id="id1">[1]</a> use of bridgesupport files is deprecated, the
+<a class="reference internal" href="compiled.html"><em>compiled metadata system</em></a> allows for faster and lazy loading.</p>
+</div>
+<div class="section" id="basic-structure-and-use">
+<h2>Basic structure and use<a class="headerlink" href="#basic-structure-and-use" title="Permalink to this headline">¶</a></h2>
+<p>Bridgesupport files are XML files with a root element &#8220;signatures&#8221;
+that has child elements for various kind of API descriptions. The API
+descriptions contain information that cannot be extracted at runtime,
+such as the names and types of global variables (constants), enum labels,
+function prototypes and additional information about method signatures.</p>
+<p>PyObjC supports loading bridgesupport files when initializing a module
+using <a class="reference internal" href="#objc.initFrameworkWrapper" title="objc.initFrameworkWrapper"><tt class="xref py py-func docutils literal"><span class="pre">initFrameworkWrapper()</span></tt></a>, as well as parsing the contents of
+bridgesupport files using <a class="reference internal" href="#objc.parseBridgeSupport" title="objc.parseBridgeSupport"><tt class="xref py py-func docutils literal"><span class="pre">parseBridgeSupport()</span></tt></a>.</p>
+<p>The function <a class="reference internal" href="#objc.initFrameworkWrapper" title="objc.initFrameworkWrapper"><tt class="xref py py-func docutils literal"><span class="pre">initFrameworkWrapper()</span></tt></a> is basicly a one-step
+solution for wrapping a framework: it loads the framework bundle
+and bridgesupport file and then initializes the contents of the wrapper
+module.   Bridgesupport files are located using a search path:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">&#8220;PyObjC.brigesupport&#8221; next to the module calling
+<a class="reference internal" href="#objc.initFrameworkWrapper" title="objc.initFrameworkWrapper"><tt class="xref py py-func docutils literal"><span class="pre">initFrameworkWrapper()</span></tt></a>.</p>
+</li>
+<li><p class="first">A resource file inside the framework itself (with suffix
+&#8221;.bridgesupport&#8221; and the same basename as the framework,
+located in subdirectory &#8220;BridgeSupport&#8221;).</p>
+</li>
+<li><p class="first">A resource name with the same basename as the framework
+and suffix &#8221;.bridgesupport&#8221; in &#8220;/System/Library/BridgeSupport&#8221;</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">PyObjC will not load bridgesupport files from
+&#8220;/Library/BridgeSupport&#8221; or &#8220;~/Library/BridgeSupport&#8221;
+to avoid depending on system-specif files that could
+make a bundled PyObjC application non-portable.</p>
+</div>
+</li>
+</ol>
+</div></blockquote>
+<p>When a bridgesupport is loaded from the last two location
+the function also looks for &#8220;PyObjCOverrides.bridgesupport&#8221; next
+to the module that called <a class="reference internal" href="#objc.initFrameworkWrapper" title="objc.initFrameworkWrapper"><tt class="xref py py-func docutils literal"><span class="pre">initFrameworkWrapper()</span></tt></a>.</p>
+</div>
+<div class="section" id="creating-a-library-wrapper">
+<h2>Creating a library wrapper<a class="headerlink" href="#creating-a-library-wrapper" title="Permalink to this headline">¶</a></h2>
+<p>The easiest way to create a framework wrapper using
+bridgesupport files is to use a python package where
+the &#8220;__init__.py&#8221; contains a call of <a class="reference internal" href="#objc.initFrameworkWrapper" title="objc.initFrameworkWrapper"><tt class="xref py py-func docutils literal"><span class="pre">initFrameworkWrapper()</span></tt></a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">objc</span> <span class="kn">as</span> <span class="nn">_objc</span>
+
+<span class="n">__bundle__</span> <span class="o">=</span> <span class="n">_objc</span><span class="o">.</span><span class="n">initFrameworkWrapper</span><span class="p">(</span><span class="s">&quot;FrameworkName&quot;</span><span class="p">,</span>
+                     <span class="n">frameworkIdentifier</span><span class="o">=</span><span class="s">&quot;com.apple.Framework&quot;</span><span class="p">,</span>
+                     <span class="n">frameworkPath</span><span class="o">=</span><span class="n">_objc</span><span class="o">.</span><span class="n">pathForFramework</span><span class="p">(</span><span class="s">&quot;/System/Library/Frameworks/FrameworkName.framework&quot;</span><span class="p">)</span>
+                     <span class="nb">globals</span><span class="o">=</span><span class="nb">globals</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>The framework name, identifier and path should be replaced by the
+information for the framework you are wrapping.</p>
+<p>The <a class="reference internal" href="#objc.initFrameworkWrapper" title="objc.initFrameworkWrapper"><tt class="xref py py-func docutils literal"><span class="pre">initFrameworkWrapper()</span></tt></a>  will load bridgesupport files from
+a file named &#8220;PyObjC.bridgesupport&#8221; next to the &#8220;__init__.py&#8221; when
+such a file exist, and otherwise from the default location in the
+framework itself.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The call to <tt class="xref py py-func docutils literal"><span class="pre">objc.pathForFramework()</span></tt> ensures that the wrapper does the right thing
+when DYLD environment variables are
+set (see <a class="reference external" href="http://developer.apple.com/library/mac/#documentation/Darwin/Reference/Manpages/man1/dyld.1.html">dyld(1)</a> for
+more information on those).</p>
+</div>
+</div>
+<div class="section" id="detailed-file-structure">
+<h2>Detailed file structure<a class="headerlink" href="#detailed-file-structure" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the BridgeSupport file as supported by PyObjC. PyObjC supports a slightly different dialect of those files
+than what is described in <a class="reference external" href="http://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man5/BridgeSupport.5.html&gt;`">Apple&#8217;s manual page for BridgeSupport</a>.</p>
+<p>The file is an XML document with a toplevel element named &#8220;signatures&#8221;. The standard proscribes an attribute named version, that
+attribute is ignored by PyObjC. A minimal BridgeSupport file is:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;signature</span> <span class="na">version=</span><span class="s">&#39;1.0&#39;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/signatures&gt;</span>
+</pre></div>
+</div>
+<p>The document root has children that contain the metadata for various types of objects.</p>
+<ul class="simple">
+<li><em>&lt;cftype&gt;</em>:   Describes a Core Foundation type</li>
+<li><em>&lt;class&gt;</em>:    Describes additional information for an Objective-C class, this does not contain
+all information about the class, only those bits that cannot be extracted from the Objective-C runtime.</li>
+<li><em>&lt;constant&gt;</em>: Describes a (constant) external variable</li>
+<li><em>&lt;enum&gt;</em>: A numeric constant, used for enum labels and #define&#8217;s that expand into an integer or
+float literal.</li>
+<li><em>&lt;function&gt;</em>: Describes a C function</li>
+<li><em>&lt;function_pointer&gt;</em>: An alias for a <em>&lt;function&gt;</em> node.</li>
+<li><em>&lt;informal_protocol&gt;</em>: Describes the interface of an Objective-C informal protocol (that is, a protocol
+that is only described in documentation and not as a language construct)</li>
+<li><em>&lt;null_const&gt;</em>: Describes a constant value that evaluates to C&#8217;s NULL pointer</li>
+<li><em>&lt;opaque&gt;</em>: A pointer type that refers to an opaque blob (a &#8220;handle&#8221;).</li>
+<li><em>&lt;string_constant&gt;</em>: Describes a #define that expands into a C or Objective-C string literal</li>
+<li><em>&lt;struct&gt;</em>:   Describes a typedef-ed C structure (for example <tt class="xref c c-type docutils literal"><span class="pre">NSPoint</span></tt>)</li>
+</ul>
+<p>The sections below contain more information about all types, with details about their semantics,
+supported child elements and attributes.</p>
+<p>The document can contain other elements, attributes, and extra whitespace and those will be ignored by
+the bridgesupport parser.</p>
+<p>Bridgesupport elements are processed in an undefined order, the side effects of alle elements that have
+the same name will take place but it is undefined which definition will be bound to a name in the module
+globals dictionary.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference external" href="http://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man5/BridgeSupport.5.html&gt;`">BridgeSupport(5)</a></dt>
+<dd>Apple manual page describing the metadata format</dd>
+</dl>
+</div>
+<div class="section" id="type-encodings">
+<h3>Type encodings<a class="headerlink" href="#type-encodings" title="Permalink to this headline">¶</a></h3>
+<p>A number of elements have a &#8220;type&#8221; attribute that contains an Objective-C runtime type encoding. Most contain
+the type encoding for a single type, the signature for methods in informal protocol contains the type signatures
+of the return value and all arguments (included the implicit ones).</p>
+<p>The type signatures are described in <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1">Apple&#8217;s Objective-C Runtime Programming Guide</a>, and the format of
+the BridgeSupport file uses that format with one small change: the BridgeSupport file can contain some
+type encoding that aren&#8217;t presesnt in Apple&#8217;s runtime and redefines one type encoding.</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="86%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><strong>Typecode</strong></th>
+<th class="head"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><em>B</em></td>
+<td>used for type <tt class="xref c c-type docutils literal"><span class="pre">BOOL</span></tt>, is used for <tt class="xref c c-type docutils literal"><span class="pre">bool</span></tt> in the Objective-C runtime</td>
+</tr>
+<tr class="row-odd"><td><em>Z</em></td>
+<td>used for type <tt class="xref c c-type docutils literal"><span class="pre">bool</span></tt></td>
+</tr>
+<tr class="row-even"><td><em>T</em></td>
+<td>used for type <tt class="xref c c-type docutils literal"><span class="pre">UniChar</span></tt></td>
+</tr>
+<tr class="row-odd"><td><em>t</em></td>
+<td>used for type <tt class="xref c c-type docutils literal"><span class="pre">char</span></tt> in the role of a single character</td>
+</tr>
+<tr class="row-even"><td><em>z</em></td>
+<td>used for type <tt class="xref c c-type docutils literal"><span class="pre">char</span></tt> in the role of a small integer</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The bridge uses the information provided by these ehnanced type encodings and translates them to regular
+type encodings when communicating with the Objective-C runtime (or other Objective-C code).</p>
+</div>
+<div class="section" id="boolean-attributes">
+<h3>Boolean attributes<a class="headerlink" href="#boolean-attributes" title="Permalink to this headline">¶</a></h3>
+<p>A number of elements that are described below have attributes that are booleans. When the documentation
+says that an attribute is a boolean attribute the value of the attribute is either <em>true</em> or <em>false</em>:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;function</span> <span class="na">name=</span><span class="s">&#39;func1&#39;</span> <span class="na">variadic=</span><span class="s">&#39;true&#39;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;function</span> <span class="na">name=</span><span class="s">&#39;func1&#39;</span> <span class="na">variadic=</span><span class="s">&#39;false&#39;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>The values <em>true</em> and <em>false</em> correspond to the Python values <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> and <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a> (the obvious
+interpretation).</p>
+</div>
+<div class="section" id="cftype">
+<h3>&lt;cftype&gt;<a class="headerlink" href="#cftype" title="Permalink to this headline">¶</a></h3>
+<p>Nodes of this type define a CoreFoundation type, such <tt class="xref c c-type docutils literal"><span class="pre">CFURLRef</span></tt>. These elements are used to
+define a Python proxy for the CoreFoundation type and to register that type with the bridge. The proxy
+type is a subclass of <a class="reference internal" href="../api/module-objc.html#objc.objc_object" title="objc.objc_object"><tt class="xref py py-class docutils literal"><span class="pre">objc_object</span></tt></a>.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;cftype</span> <span class="na">name=</span><span class="s">&#39;CFURLRef&#39;</span> <span class="na">type=</span><span class="s">&#39;^{CFURLRef}&#39;</span> <span class="na">gettypeid_func=</span><span class="s">&#39;CFURLGetTypeID&#39;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>These elements do not have child elements, all information is encoded in attributes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>name</em>:           the name of the Objetive-C type (such as <tt class="xref c c-type docutils literal"><span class="pre">CFURLRef</span></tt></li>
+<li><em>type</em>, <em>type64</em>: the type encoding for the Objective-C type, <em>type64</em> contains the encoding for use
+in 64-bit mode when that encoding is different from the encoding used in 32-bit mode.</li>
+<li><em>gettypeid_func</em>: (optional) the name of a C function for retrieving the type ID of the type, the default is derived
+from the name (strip &#8220;Ref&#8221; from the end of <em>name</em>, then add &#8220;GetTypeID&#8221;)</li>
+<li><em>tollfree</em>:       (optional) the name of an Objective-C class that is tollfree bridged to this type
+For tollfree bridged types the bridge does not create a new proxy type, but reuses the proxy type for the
+Objective-C class. That is, in Python the CoreFoundation and Objective-C interfaces can be used without
+any form of casting.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="class">
+<h3>&lt;class&gt;<a class="headerlink" href="#class" title="Permalink to this headline">¶</a></h3>
+<p>Describes additional metadata for Objective-C classes.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">&#39;NSObject&#39;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;method</span> <span class="na">selector=</span><span class="s">&#39;description&#39;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;retval</span> <span class="na">type=</span><span class="s">&#39;@&#39;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/method&gt;</span>
+<span class="nt">&lt;/class&gt;</span>
+</pre></div>
+</div>
+<p>The element has a single attribute <em>name</em> with the name of the Objective-C class. When that class is not present
+in the runtime the metadata is stored for later use (a later class definition or bundle loading action might make
+the class known to the runtime later on).</p>
+<p>The element has 0 or more children with method definitions, the tag for those children is <em>&lt;method&gt;</em> and other
+children are ignored.</p>
+<p>A <em>&lt;method&gt;</em> element has the following attributes:</p>
+<ul class="simple">
+<li><em>selector</em>: The selector for this method</li>
+<li><em>class_method</em>: A boolean attribute that indicates if this method is a class method (default: <em>false</em>).</li>
+<li><em>variadic</em>: Boolean attribute that tells if the method has a variable number of
+arguments (default: <em>false</em>)</li>
+<li><em>c_array_delimited_by_null</em>: Boolean attribute that tells if a variadic function
+has an argument list that is ended by a null value (default: <em>false</em>).</li>
+<li><em>c_array_length_in_arg</em>: For a variadic function the argument with this index contains
+the number of variadic arguments.</li>
+<li><em>suggestion</em>: Indicates that this method should not be used from Python code. The value contains
+a message to add to the Python exception that&#8217;s raised when trying to use the method.</li>
+</ul>
+<p>Method&#8217;s have 0 or more <em>&lt;arg&gt;</em> and <em>&lt;retval&gt;</em> child elements that describe additional
+information about the method prototype (information that cannot be extracted from
+the Objective-C runtime).  The structure of <em>&lt;arg&gt;</em> and <em>&lt;retval&gt;</em> elements is described
+in the section <a class="reference internal" href="#describing-function-and-method-prototypes">describing function and method prototypes</a>.</p>
+</div>
+<div class="section" id="constant">
+<h3>&lt;constant&gt;<a class="headerlink" href="#constant" title="Permalink to this headline">¶</a></h3>
+<p>This element defines a C constant/variable definition.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;constant</span> <span class="na">name=</span><span class="s">&quot;NSZeroPoint&quot;</span> <span class="na">type=</span><span class="s">&quot;{_NSPoint=ff}&quot;</span> <span class="na">type64=</span><span class="s">&quot;{_CGPoint=dd}&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>This element does not have children, all information is encoded in attributes.</p>
+<ul class="simple">
+<li><em>name</em>: The name of the variable. This name is bound to the proxied value
+in the globals dictionary.</li>
+<li><em>type</em>, <em>type64</em>: The type encoding of the variable. The attribute
+<em>type64</em> is used to describe the type encoding for the 64-bit runtime when
+that encoding is different from the encoding for the 32-bit runtime.</li>
+<li><em>magic_cookie</em>: Boolean attribute. When the value is true and the type
+is an Objective-C or CoreFoundation class the value is assumed to be a
+magic cookie that cannot be accessed like a normal object.</li>
+</ul>
+<p>The bridge will ignore constants that have a type that is a struct type with
+embedded function pointers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Due to the way these values are exposed to Python they will behave like constants
+in Python, the Python representation will not change when the value of the C
+variable would change. This means that <em>&lt;constant&gt;</em> definitions aren&#8217;t useful to
+expose variable definitions that aren&#8217;t effectively constant (such as the
+<tt class="xref c c-data docutils literal"><span class="pre">NSApp</span></tt> variable).</p>
+</div>
+</div>
+<div class="section" id="enum">
+<h3>&lt;enum&gt;<a class="headerlink" href="#enum" title="Permalink to this headline">¶</a></h3>
+<p>This element defines a numeric constant such as an <tt class="xref c c-type docutils literal"><span class="pre">enum</span></tt> label or C a macro that expands into an integer or float
+literal.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;enum</span> <span class="na">name=</span><span class="s">&#39;NSCompareEqual&#39;</span> <span class="na">value=</span><span class="s">&#39;0&#39;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>This element does not have children, all information is encoded in attributes.</p>
+<ul class="simple">
+<li><em>name</em>: The name of the constant</li>
+<li><em>value</em>, <em>value64</em>: The value of the constant. The attribute <em>value64</em> contains the value for 64-bit code
+when that value is different from <em>value</em>.</li>
+<li><em>le_value</em>, <em>be_value</em>: When the <em>value</em> and <em>value64</em> attributes are not present, these two attributes
+encode the value of the constant for little endian (<em>le_value</em>) and big endian (<em>be_value</em>) systems.</li>
+</ul>
+<p>The value attribute can contain a numeric constant in a number of formats:</p>
+<ul class="simple">
+<li>An integer with or without a sign, in the format of a decimal integer C constant without a size
+suffix (such as &#8216;L&#8217;). Examples are <em>42</em>, <em>-32</em>. These are converted to a Python integral type (<tt class="xref py py-class docutils literal"><span class="pre">int</span></tt>
+or <tt class="xref py py-class docutils literal"><span class="pre">long</span></tt>).</li>
+<li>A C floating point constant in a decimal representation, without a size suffix. Examples
+are <em>1.0</em>, <em>-1.5e30</em>. These are converted to a Python floating point type (<tt class="xref py py-class docutils literal"><span class="pre">float</span></tt>).</li>
+<li>A C floating point constant in a hexadecimal representation, without a size suffix. An
+example is <em>0x1.77p+10</em>. These are converted to a Python floating point type (<tt class="xref py py-class docutils literal"><span class="pre">float</span></tt>).</li>
+</ul>
+<p>When the value cannot be parsed the definition is ignored.</p>
+</div>
+<div class="section" id="function">
+<h3>&lt;function&gt;<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h3>
+<p>This element defines a global C function.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;function</span> <span class="na">name=</span><span class="s">&quot;NSCreateObject&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;retval</span> <span class="na">type=</span><span class="s">&quot;@&quot;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;arg</span> <span class="na">type=</span><span class="s">&quot;#&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/function&gt;</span>&#39;
+</pre></div>
+</div>
+<p>Information about the function itself is encoded in attributes of the <em>&lt;function&gt;</em> elements,
+information about the return value is encoded as the child element <em>&lt;retval&gt;</em> and information
+about arguments is encoded using <em>&lt;arg&gt;</em> elements.</p>
+<ul class="simple">
+<li><em>name</em>: The name of the function</li>
+<li><em>variadic</em>: Boolean attribute that tells if the function has a variable number of
+arguments (default: <em>false</em>)</li>
+<li><em>c_array_delimited_by_null</em>: Boolean attribute that tells if a variadic function
+has an argument list that is ended by a null value (default: <em>false</em>). When the
+function is variadic and this attribute is true the last <em>&lt;arg&gt;</em> child contains information
+about all variadic arguments (that is, there can be 0 or more instances of the
+argument described by that node present in the actual argument list).</li>
+<li><em>c_array_length_in_arg</em>: For a variadic function the argument with this index contains
+the number of variadic arguments. The last <em>&lt;arg&gt;</em> child contains the type information
+for those arguments.</li>
+</ul>
+<p>The structure of <em>&lt;arg&gt;</em> and <em>&lt;retval&gt;</em> elements is described in the section
+<a class="reference internal" href="#describing-function-and-method-prototypes">describing function and method prototypes</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Variadic functions are only supported when the bridge has enough information to
+construct a valid argument list using one of the arguments described above or a
+<em>printf_format</em> attribute on one of the <em>&lt;arg&gt;</em> children.</p>
+</div>
+</div>
+<div class="section" id="function-pointer">
+<h3>&lt;function_pointer&gt;<a class="headerlink" href="#function-pointer" title="Permalink to this headline">¶</a></h3>
+<p>This element is intended to be used to define function aliases, that is an alternative name for a <em>&lt;function&gt;</em> element.
+Due to the way PyObjC is implemented the element can also be used to define an alias for other elements (for example
+<em>&lt;enum&gt;</em> or <em>&lt;constant&gt;</em> elements).</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;function_pointer</span> <span class="na">name=</span><span class="s">&#39;AlternateName&#39;</span> <span class="na">original=</span><span class="s">&#39;BasicName&#39;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>This element does not have children, all information is encoded in attributes.</p>
+<ul class="simple">
+<li><em>name</em>: the name that will be added to the globals dictionary</li>
+<li><em>orginal</em>: the name from the globals dictionary that will be aliased. When
+this object does not exist the <em>&lt;function_pointer&gt;</em> element will be ignored.</li>
+</ul>
+</div>
+<div class="section" id="informal-protocol">
+<h3>&lt;informal_protocol&gt;<a class="headerlink" href="#informal-protocol" title="Permalink to this headline">¶</a></h3>
+<p>This element is used to describe an Objective-C informal protocol, that is a set of methods expected by an API that are described
+in the documentation but are not a formal <tt class="docutils literal"><span class="pre">&#64;protocol</span></tt> definition. The information in informal protocol definitions are
+used by the bridge to automaticly adjust the method signatures of method that are defined in Python.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;informal_protocol</span> <span class="na">name=</span><span class="s">&quot;NSTableViewDataSource&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;method</span> <span class="na">selector=</span><span class="s">&quot;numberOfRowsInTableView:&quot;</span> <span class="na">type=</span><span class="s">&quot;i@:@&quot;</span> <span class="na">type64=</span><span class="s">&quot;q@:@&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/informal_protocol&gt;</span>
+</pre></div>
+</div>
+<p>The <em>&lt;informal_protocol&gt;</em> element has a single attribute, <em>name</em>, with the name of the protocol. Child elements with tag
+<em>&lt;method&gt;</em> contain more information about methods in the protocol. Other child elements are ignored.</p>
+<p>All information for <em>&lt;method&gt;</em> elements is provided through attributes, the element does not have child elements (and does
+not contain the same kind of information as <em>&lt;method&gt;</em> elements in <em>&lt;class&gt;</em> definitions.</p>
+<p>The following attributes can be used for <em>&lt;method&gt;</em> elements:</p>
+<ul class="simple">
+<li><em>selector</em>: The selector for the method</li>
+<li><em>type</em>, <em>type64</em>: The Objective-C type encoding of the method prototype: the return value followed by all arguments
+(including the two implicit arguments).</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <em>&lt;method&gt;</em> elelments in an informal protocol cannot be used to describe complicated method signatures, such
+as variadic methods or pointer arguments that refer to arrays. This can be worked around by describing such methods
+using <em>&lt;method&gt;</em> notes of a <em>&lt;class&gt;</em> definition for class <tt class="xref c c-data docutils literal"><span class="pre">NSObject</span></tt> as well.</p>
+</div>
+</div>
+<div class="section" id="null-const">
+<h3>&lt;null_const&gt;<a class="headerlink" href="#null-const" title="Permalink to this headline">¶</a></h3>
+<p>This element defines a name that expands into a C <tt class="xref c c-data docutils literal"><span class="pre">NULL</span></tt> pointer, and that is
+represented as <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> in Python.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;null_const</span> <span class="na">name=</span><span class="s">&#39;nil&#39;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>This element does not have children, all information is encoded in attributes.</p>
+<ul class="simple">
+<li><em>name</em>: The name of a <tt class="xref c c-data docutils literal"><span class="pre">NULL</span></tt> constant. This name will be bound
+to <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> in the globals dictionary.</li>
+</ul>
+</div>
+<div class="section" id="opaque">
+<h3>&lt;opaque&gt;<a class="headerlink" href="#opaque" title="Permalink to this headline">¶</a></h3>
+<p>This element describes pointer types that are used as handles.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;opaque</span> <span class="na">name=</span><span class="s">&#39;NSOpaqueType&#39;</span> <span class="na">type=</span><span class="s">&#39;^{opaque}&#39;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>These elements do not have child elements, all information is encoded in attributes:</p>
+<ul>
+<li><p class="first"><em>name</em>: The name of the type</p>
+</li>
+<li><dl class="first docutils">
+<dt><em>type</em>, <em>type64</em>: The Objective-C type encoding of the pointer type. The <em>type64</em> attribute can be used</dt>
+<dd><p class="first last">to describe the type for the 64-bit runtime when that type is different from the type for the 32-bit runtime.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="string-constant">
+<h3>&lt;string_constant&gt;<a class="headerlink" href="#string-constant" title="Permalink to this headline">¶</a></h3>
+<p>This element describes C constants that are string literals, for example C macros.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;string_constant</span> <span class="na">name=</span><span class="s">&quot;NSLabel&quot;</span>  <span class="na">value=</span><span class="s">&quot;label text&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>These elements do not have child elements, all information is encoded in attributes:</p>
+<ul class="simple">
+<li><em>name</em>: Name of the constant</li>
+<li><em>value</em>, <em>value64</em>: The value of the constant. The attribute <em>value64</em> can be used when the
+value for the 64-bit runtime is different from the value for the 32-bit runtime.</li>
+<li><em>nsstring</em>: Boolean attribute, defaults to <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>. When this value is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>
+the Python representation is a unicode string (<tt class="xref py py-class docutils literal"><span class="pre">unicode</span></tt>), otherwise the Python
+representation is a byte string (<tt class="xref py py-class docutils literal"><span class="pre">bytes</span></tt>).</li>
+</ul>
+</div>
+<div class="section" id="struct">
+<h3>&lt;struct&gt;<a class="headerlink" href="#struct" title="Permalink to this headline">¶</a></h3>
+<p>This element describes a C structure type and is used to create a Python type with
+a simular interface (see <a class="reference internal" href="manual.html#objc.createStructType" title="objc.createStructType"><tt class="xref py py-func docutils literal"><span class="pre">createStructType()</span></tt></a>).</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;struct</span> <span class="na">name=</span><span class="s">&#39;NSPoint&#39;</span> <span class="na">type=</span><span class="s">&#39;{_NSPoint=&quot;x&quot;f&quot;y&quot;f}&#39;</span> <span class="na">type64=</span><span class="s">&#39;{_CGPoint=&quot;x&quot;d&quot;y&quot;d}&#39;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>These elements do not have child elements, all information is encoded in attributes:</p>
+<ul>
+<li><p class="first"><em>name</em>: The name of the structure type, this is usually the typedef name in C</p>
+</li>
+<li><p class="first"><em>type</em>, <em>type64</em>: The Objective-C type encoding of the type. Use <em>type64</em> when the
+encoding for the 64-bit runtime is different from the encoding for the 32-bit runtime.</p>
+<p>The encoding should be for a structure type and must include embedded field names,
+when the field names are not present the definition is ignored. A structure type
+contains embedded field names with the encoding contains a (double-)quoted field
+name just before the type encoding of that field. In the example above the field
+names are <em>x</em> and <em>y</em>.</p>
+</li>
+<li><p class="first"><em>alias</em>: Name of a Python type that should be used for the Python representation
+of this structure. That type should be created using <a class="reference internal" href="manual.html#objc.createStructType" title="objc.createStructType"><tt class="xref py py-func docutils literal"><span class="pre">createStructType()</span></tt></a>
+(or a <em>&lt;struct&gt;</em> element in a bridgesupport file). The value of the attribute is
+a fully qualified name.</p>
+<p>One example for using this is to map the Objective-C types <tt class="xref c c-type docutils literal"><span class="pre">NSPoint</span></tt> and
+<tt class="xref c c-type docutils literal"><span class="pre">CGPoint</span></tt> to the same Python type.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="describing-function-and-method-prototypes">
+<h3>Describing function and method prototypes<a class="headerlink" href="#describing-function-and-method-prototypes" title="Permalink to this headline">¶</a></h3>
+<p>The elements <em>&lt;function&gt;</em> and <em>&lt;method&gt;</em> (in <em>&lt;class&gt;</em> definitions) can have child elements that are used
+to describe the full prototype (for functions) or additional information about the prototype (for methods).</p>
+<p>For functions the <em>&lt;arg&gt;</em> children contain information about all arguments, in order (and without using the
+attribute <em>index</em> described below). The <em>&lt;retval&gt;</em> child element can contain information about the function
+return value, when that element is not present the function has return type <tt class="xref c c-type docutils literal"><span class="pre">void</span></tt>.</p>
+<p>For methods the <em>&lt;arg&gt;</em> children can contain more information about some arguments, these children have
+an <em>index</em> attribute that tells which argument is described. Likewise the <em>&lt;retval&gt;</em> element can optionally
+provide more information about the return value of a method.</p>
+<p>It is undefined which <em>&lt;retval&gt;</em> element is used when more then one of them is present, and the bridge may
+also ignore definitions with multiple <em>&lt;retval&gt;</em> elements.</p>
+<p>The following attributes can be used with <em>&lt;arg&gt;</em> and <em>&lt;retval&gt;</em> elements:</p>
+<ul>
+<li><p class="first"><em>index</em>: For <em>&lt;arg&gt;</em> children of <em>&lt;method&gt;</em> elements only. Contains the argument index, where index 0 is
+the first explicit method argument (that is, the two implicit arguments cannot not present in the
+bridgesupport file).</p>
+</li>
+<li><p class="first"><em>type</em>, <em>type64</em>: Type of the argument or return value. Required for children of <em>&lt;function&gt;</em>, and optional for children
+of <em>&lt;method&gt;</em> (the default type is extracted from the Objective-C runtime). The <em>type64</em> attribute can be used
+to describe the type for the 64-bit runtime when that type is different from the type for the 32-bit runtime.</p>
+</li>
+<li><p class="first"><em>type_modifier</em>: A modifier for pointer arguments. Use value &#8216;n&#8217; to specify that a value is passed into the function,
+&#8216;o&#8217; to specify that a value is passed out of the function and &#8216;N&#8217; to specify that a value is passed both ways.</p>
+<p>When none of the <em>c_array_...</em> attributes are used the argument is a pass-by-reference argument (single value), otherwise
+the argument is a buffer (C array).</p>
+</li>
+<li><p class="first"><em>already_cfretained</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>, the return value, or pass-by-reference
+output parameter, is an object that is returned with an increased retain count (that is, the Objective-C caller must call
+<tt class="xref c c-func docutils literal"><span class="pre">CFRelease()</span></tt> when it no longer needs to access the value).</p>
+</li>
+<li><p class="first"><em>already_retained</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>, the return value, or pass-by-reference
+output parameter, is an object that is returned with an increased retain count (that is, the Objective-C caller must call
+the retain method when it no longer needs to access the value).</p>
+<p>Metadata where both <em>already_retained</em> and <em>already_cfretained</em> are true is invalid and will be ignored.</p>
+</li>
+<li><p class="first"><em>c_array_length_in_result</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When true the <em>&lt;arg&gt;</em> is a pointer argument that
+points to a buffer of values where the number of values is in the return value of the function or method. This is commonly
+used with output parameters (see <em>type_modifier</em>), and with an argument that is used to specify the size of the buffer that
+needs to be allocated before calling the function or method.</p>
+</li>
+<li><p class="first"><em>c_array_delimited_by_null</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When true the value is a pointer to a null-terminated
+buffer of values.</p>
+</li>
+<li><p class="first"><em>c_array_of_variable_length</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When true the value is a pointer to a buffer where
+the bridge has no information about the expected size. For arguments the bridge assumes that the size of the sequence that
+the caller passes is sufficient (for input parameters), for return values the bridge creates a special sequence type that doesn&#8217;t
+limit the indexes you can use.</p>
+</li>
+<li><p class="first"><em>printf_format</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When true the argument is a printf-style format string, used when
+the function or method is a variadic callable to convert the additional arguments.</p>
+</li>
+<li><p class="first"><em>function_pointer</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When true the argument is a function pointer, the function interface
+is described by child elements of this element.</p>
+</li>
+<li><p class="first"><em>block</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When true the argument is a block, the block interface
+is described by child elements of this element.</p>
+</li>
+<li><p class="first"><em>function_pointer_retained</em>: Boolean attribute (default <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a>). When true and either <em>function_pointer</em> or <em>block</em> is true,
+the function pointer argument will be stored by the called function. The bridge cannot create a temporary C bridge for the
+function that&#8217;s cleaned up after the call.</p>
+</li>
+<li><p class="first"><em>free_result</em>: The return value in C is a buffer that should be freed using the function <tt class="xref c c-func docutils literal"><span class="pre">free()</span></tt>.</p>
+</li>
+<li><p class="first"><em>sel_of_type</em>, <em>sel_of_type64</em>: Used when the argument has type <tt class="xref c c-type docutils literal"><span class="pre">SEL</span></tt>: the value of the attribute describes the type
+signature of a selector. This data is used by the decorator <a class="reference internal" href="../api/module-objc.html#objc.selectorFor" title="objc.selectorFor"><tt class="xref py py-func docutils literal"><span class="pre">selectorFor()</span></tt></a> to adjust the method signature of a newly
+defined python method.</p>
+</li>
+<li><p class="first"><em>c_array_of_fixed_length</em>: The argument or return value is a C array of a fixed length. The attribute value is the (integer)
+value of that length.</p>
+</li>
+<li><p class="first"><em>c_array_length_in_arg</em>: The argument or return value is an array whose length is passed in another argument. The value is the
+index of that argument (for methods index 0 is the first explicit argument). For <em>&lt;arg&gt;</em> nodes the value can also be two integers
+separated by a comma, in those cases the first value is the argument that contains the array length that should be passed to the
+function while the second value the argument that contains the usuable length of the array when the function returns.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="api-description">
+<h2>API description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="objc.parseBridgeSupport">
+<tt class="descclassname">objc.</tt><tt class="descname">parseBridgeSupport</tt><big>(</big><em>xmldata</em>, <em>globals</em>, <em>frameworkName</em><span class="optional">[</span>, <em>dylib_path</em><span class="optional">[</span>, <em>inlineTab</em><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.parseBridgeSupport" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xmldata</strong> &#8211; A string with the bridgesupport XML document</li>
+<li><strong>globals</strong> &#8211; Globals dictionary for the wrapper module, usually
+the result of <tt class="xref py py-func docutils literal"><span class="pre">globals</span></tt>.</li>
+<li><strong>frameworkName</strong> &#8211; Name of the framework, it is assumed that the Python
+module for the wrapper has the same name.</li>
+<li><strong>dylib_path</strong> &#8211; (Optional) filesystem path for a shared library with
+additional function definitions. Used by the system
+bridgesupport files to provide access to inline
+functions.</li>
+<li><strong>inlineTab</strong> &#8211; (Optional) A capsule object with function pointers,
+see <a class="reference internal" href="manual.html#objc.loadFunctionList" title="objc.loadFunctionList"><tt class="xref py py-func docutils literal"><span class="pre">loadFunctionList()</span></tt></a> for more information on
+this parameter.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Load a <a class="reference external" href="http://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man5/BridgeSupport.5.html">BridgeSupport XML file</a>
+with metadata for a framework.</p>
+<p>The definitions from the framework will be added to the <em>globals</em> dictionary.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function is primarily present for backward compatibility and for users that need an easy way to wrap their own Objective-C code.
+PyObjC itself uses a different metadata mechanism that&#8217;s better tuned to the needs of PyObjC.</p>
+</div>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.4: </span>This function is not present.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>The function is available again.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.initFrameworkWrapper">
+<tt class="descclassname">objc.</tt><tt class="descname">initFrameworkWrapper</tt><big>(</big><em>frameworkName</em>, <em>frameworkPath</em>, <em>frameworkIdentifier</em>, <em>globals</em><span class="optional">[</span>, <em>inlineTab</em><span class="optional">[</span>, <em>scan_classes</em><span class="optional">[</span>, <em>frameworkResourceName</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.initFrameworkWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frameworkName</strong> &#8211; Name of the framework, it is assumed that the Python
+module for the wrapper has the same name.</li>
+<li><strong>frameworkPath</strong> &#8211; Filesystem path for the framework bundle</li>
+<li><strong>frameworkIdentifier</strong> &#8211; Bundle identifier for the framework</li>
+<li><strong>globals</strong> &#8211; Globals dictionary for the wrapper module, usually
+the result of <tt class="xref py py-func docutils literal"><span class="pre">globals</span></tt>.</li>
+<li><strong>inlineTab</strong> &#8211; (Optional) A capsule object with function pointers,
+see <a class="reference internal" href="manual.html#objc.loadFunctionList" title="objc.loadFunctionList"><tt class="xref py py-func docutils literal"><span class="pre">loadFunctionList()</span></tt></a> for more information on
+this parameter.</li>
+<li><strong>scan_classes</strong> &#8211; (Optional) If this option is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> (the default)
+all Objective-C classes in the runtime are added to
+<em>globals</em>.</li>
+<li><strong>frameworkResourceName</strong> &#8211; (Optional) the first argument for
+<a class="reference external" href="http://packages.python.org/distribute/pkg_resources.html#resourcemanager-api">pkg_resources.resource_string()</a>, defaults to
+<em>frameworkName</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Load the named framework using the identifier if that has result otherwise
+using the path. Also loads the information in the bridgesupport file (
+either one embedded in the framework or one next to the module that
+called <a class="reference internal" href="#objc.initFrameworkWrapper" title="objc.initFrameworkWrapper"><tt class="xref py py-func docutils literal"><span class="pre">initFrameworkWrapper()</span></tt></a>).</p>
+<p>See <a class="reference internal" href="#basic-structure-and-use">Basic structure and use</a> for more information on the way this
+function loads for bridgesupport files.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.4: </span>This function is not present.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>The function is available again.</p>
+</dd></dl>
+
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Technically, deprecation started in PyObjC 2.5, the bridgesupport
+system was temporarily removed in PyObjC 2.4.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">BridgeSupport XML files</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#basic-structure-and-use">Basic structure and use</a></li>
+<li><a class="reference internal" href="#creating-a-library-wrapper">Creating a library wrapper</a></li>
+<li><a class="reference internal" href="#detailed-file-structure">Detailed file structure</a><ul>
+<li><a class="reference internal" href="#type-encodings">Type encodings</a></li>
+<li><a class="reference internal" href="#boolean-attributes">Boolean attributes</a></li>
+<li><a class="reference internal" href="#cftype">&lt;cftype&gt;</a></li>
+<li><a class="reference internal" href="#class">&lt;class&gt;</a></li>
+<li><a class="reference internal" href="#constant">&lt;constant&gt;</a></li>
+<li><a class="reference internal" href="#enum">&lt;enum&gt;</a></li>
+<li><a class="reference internal" href="#function">&lt;function&gt;</a></li>
+<li><a class="reference internal" href="#function-pointer">&lt;function_pointer&gt;</a></li>
+<li><a class="reference internal" href="#informal-protocol">&lt;informal_protocol&gt;</a></li>
+<li><a class="reference internal" href="#null-const">&lt;null_const&gt;</a></li>
+<li><a class="reference internal" href="#opaque">&lt;opaque&gt;</a></li>
+<li><a class="reference internal" href="#string-constant">&lt;string_constant&gt;</a></li>
+<li><a class="reference internal" href="#struct">&lt;struct&gt;</a></li>
+<li><a class="reference internal" href="#describing-function-and-method-prototypes">Describing function and method prototypes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-description">API description</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">PyObjC metadata system</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="compiled.html"
+                        title="next chapter">Compiled metadata system</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/metadata/bridgesupport.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="compiled.html" title="Compiled metadata system"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyObjC metadata system"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >PyObjC metadata system</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

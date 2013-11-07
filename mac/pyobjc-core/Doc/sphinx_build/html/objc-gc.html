@@ -1,0 +1,159 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Objective-C Garbage Collection &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="index.html" />
+    <link rel="next" title="PyObjC metadata system" href="metadata/index.html" />
+    <link rel="prev" title="PyObjC support for “blocks”" href="blocks.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metadata/index.html" title="PyObjC metadata system"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="blocks.html" title="PyObjC support for “blocks”"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="objective-c-garbage-collection">
+<h1>Objective-C Garbage Collection<a class="headerlink" href="#objective-c-garbage-collection" title="Permalink to this headline">¶</a></h1>
+<p>Starting from Mac OS X 10.5 Objective-C supports an optional Garbage Collection (GC) for code that is
+explictly compiled to support (or require) garbage collection. The GC system is deprecated in OS X 10.8.</p>
+<p>PyObjC does <em>not</em> support the GC system, the core bridge is currently not GC save and using PyObjC in
+a proces that uses GC is not supported (and the default compilation flags for PyObjC also don&#8217;t mention
+that the code supports GC).</p>
+<p>Because GC is not supported you cannot write Screen Savers with PyObjC on Mac OS X 10.6 or 10.7 systems when
+the system is running with a 64-bit user-space.</p>
+<div class="section" id="technical-issues-w-r-t-gc-support">
+<h2>Technical issues w.r.t. GC support<a class="headerlink" href="#technical-issues-w-r-t-gc-support" title="Permalink to this headline">¶</a></h2>
+<p>The following is an incomplete list of issues that make it impossible to use PyObjC with GC.</p>
+<ul>
+<li><p class="first">The <tt class="docutils literal"><span class="pre">OC_*</span></tt> classes (Objective-C proxies for Python objects) have a <tt class="docutils literal"><span class="pre">-dealloc</span></tt> method, but
+no <tt class="docutils literal"><span class="pre">-finalize</span></tt> method. This will cause memory leaks when using GC because the Python reference count
+is never decreased.</p>
+</li>
+<li><p class="first">Python subclasses of Cocoa classes have a (generated) <tt class="docutils literal"><span class="pre">-dealloc</span></tt> method that cleans up the python
+state of the object. They don&#8217;t have a <tt class="docutils literal"><span class="pre">finalize</span></tt> method, once again causing memory leaks.</p>
+</li>
+<li><p class="first">The bridge uses <tt class="docutils literal"><span class="pre">NSMapTable</span></tt> instances to store the proxy objects for Python and Objective-C objects
+(one to get the proxy object for Python objects and one to get the proxy objects for Objective-C objects).</p>
+<p>Those currently contain strong references for both keys and values, which means Python objects that have
+passed the bridge cannot die because their proxy will never be garbage collected.</p>
+</li>
+<li><p class="first">The <tt class="docutils literal"><span class="pre">NSMapTable</span></tt> instances mentioned in the previous item are likely not used thread safely in GC-ed
+processes (the use is currently serialized using Python&#8217;s GIL)</p>
+</li>
+<li><p class="first"><em>All</em> Objective-C code needs to be reviewed to check if it is GC-safe.</p>
+</li>
+</ul>
+<p>I don&#8217;t expect that PyObjC will ever support GC because Apple has deprecated GC in OS X 10.8, and will likely
+remove GC support in some future release.  It is therefore not worthwhile to spend a signficant amount of time
+on making PyObjC GC-safe.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Objective-C Garbage Collection</a><ul>
+<li><a class="reference internal" href="#technical-issues-w-r-t-gc-support">Technical issues w.r.t. GC support</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="blocks.html"
+                        title="previous chapter">PyObjC support for &#8220;blocks&#8221;</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="metadata/index.html"
+                        title="next chapter">PyObjC metadata system</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/objc-gc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metadata/index.html" title="PyObjC metadata system"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="blocks.html" title="PyObjC support for “blocks”"
+             >previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

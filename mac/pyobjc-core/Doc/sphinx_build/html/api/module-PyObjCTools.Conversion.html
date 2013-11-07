@@ -1,0 +1,145 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyObjCTools.Conversion – Convert data structures &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjCTools – Utilities" href="module-PyObjCTools.html" />
+    <link rel="next" title="PyObjCTools.NibClassBuilder – Magic NIBs" href="module-PyObjCTools.NibClassBuilder.html" />
+    <link rel="prev" title="PyObjCTools.AppHelper – Work with AppKit" href="module-PyObjCTools.AppHelper.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.NibClassBuilder.html" title="PyObjCTools.NibClassBuilder – Magic NIBs"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.AppHelper.html" title="PyObjCTools.AppHelper – Work with AppKit"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" accesskey="U"><tt class="docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-PyObjCTools.Conversion">
+<span id="pyobjctools-conversion-convert-data-structures"></span><h1><a class="reference internal" href="#module-PyObjCTools.Conversion" title="PyObjCTools.Conversion: Convert data structures"><tt class="xref py py-mod docutils literal"><span class="pre">PyObjCTools.Conversion</span></tt></a> &#8211; Convert data structures<a class="headerlink" href="#module-PyObjCTools.Conversion" title="Permalink to this headline">¶</a></h1>
+<p>Functions for converting between Cocoa and pure Python data structures.</p>
+<dl class="function">
+<dt id="PyObjCTools.Conversion.propertyListFromPythonCollection">
+<tt class="descclassname">PyObjCTools.Conversion.</tt><tt class="descname">propertyListFromPythonCollection</tt><big>(</big><em>pyCol</em>, <em>conversionHelper=None</em><big>)</big><a class="headerlink" href="#PyObjCTools.Conversion.propertyListFromPythonCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a Python collection (dictionary, array, tuple, string) into an
+Objective-C collection.</p>
+<p>If conversionHelper is defined, it must be a callable.  It will be called
+for any object encountered for which <tt class="docutils literal"><span class="pre">propertyListFromPythonCollection()</span></tt>
+cannot automatically convert the object.   The supplied helper function
+should convert the object and return the converted form.  If the conversion
+helper cannot convert the type, it should raise an exception or return None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.Conversion.pythonCollectionFromPropertyList">
+<tt class="descclassname">PyObjCTools.Conversion.</tt><tt class="descname">pythonCollectionFromPropertyList</tt><big>(</big><em>ocCol</em>, <em>conversionHelper=None</em><big>)</big><a class="headerlink" href="#PyObjCTools.Conversion.pythonCollectionFromPropertyList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a Foundation based collection&#8211; a property list&#8211; into a Python
+collection.  Like <tt class="docutils literal"><span class="pre">propertyListFromPythonCollection()</span></tt>, <tt class="docutils literal"><span class="pre">conversionHelper</span></tt>
+is an optional callable that will be invoked any time an encountered object
+cannot be converted.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.AppHelper.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">PyObjCTools.AppHelper</span></tt> &#8211; Work with AppKit</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.NibClassBuilder.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">PyObjCTools.NibClassBuilder</span></tt> &#8211; Magic NIBs</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/module-PyObjCTools.Conversion.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.NibClassBuilder.html" title="PyObjCTools.NibClassBuilder – Magic NIBs"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.AppHelper.html" title="PyObjCTools.AppHelper – Work with AppKit"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" ><tt class="docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1255 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>An introduction to PyObjC &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="index.html" />
+    <link rel="next" title="PyObjC Tutorials" href="tutorials/index.html" />
+    <link rel="prev" title="Welcome to PyObjC-Core’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorials/index.html" title="PyObjC Tutorials"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to PyObjC-Core’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="an-introduction-to-pyobjc">
+<h1>An introduction to PyObjC<a class="headerlink" href="#an-introduction-to-pyobjc" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="preface">
+<h2>Preface<a class="headerlink" href="#preface" title="Permalink to this headline">¶</a></h2>
+<p>PyObjC is a bridge between Python and Objective-C.  It allows Python
+scripts to use and extend existing Objective-C class libraries;
+most importantly the <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CocoaFundamentals/Introduction/Introduction.html#//apple_ref/doc/uid/TP40002974">Cocoa libraries</a> by <a class="reference external" href="http://www.apple.com/">Apple</a>.</p>
+<p>This document describes how to use Objective-C class libraries from Python
+scripts and how to interpret the documentation of those libraries from the
+point of view of a Python programmer.</p>
+</div>
+<div class="section" id="first-steps">
+<h2>First Steps<a class="headerlink" href="#first-steps" title="Permalink to this headline">¶</a></h2>
+<p>When dealing with the Objective-C runtime, there are certain patterns
+you need to learn when writing Python code.  If you&#8217;re not already an
+Objective-C programmer, some of them will seem strange or even
+&#8220;un-pythonic&#8221; at first.  However, you will get used to it, and the way
+that PyObjC works is quite compliant with the <span class="target" id="index-0"></span><a class="pep reference external" href="http://www.python.org/dev/peps/pep-0020"><strong>PEP 20</strong></a> (the Zen of Python,
+<tt class="docutils literal"><span class="pre">import</span> <span class="pre">this</span></tt>).  In fact, Ronald is Dutch ;)</p>
+<p>With no further ado, here are the three most important things you
+<em>must</em> know before embarking on any PyObjC voyage:</p>
+<div class="section" id="underscores-and-lots-of-them">
+<h3>Underscores, and lots of them<a class="headerlink" href="#underscores-and-lots-of-them" title="Permalink to this headline">¶</a></h3>
+<p>Objective-C objects communicate with each other by sending messages.
+The syntax for messages is somewhere in-between Python&#8217;s positional and
+keyword arguments.  Specificlaly, Objective-C message dispatch uses
+positional arguments, but parts of the message name (called &#8220;selector&#8221;
+in Objective-C terminology) are interleaved with the arguments.</p>
+<p>An Objective-C message looks like this:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><div class="highlight"><pre><span class="p">[</span><span class="n">someObject</span> <span class="nl">doSomething:</span><span class="n">arg1</span> <span class="nl">withSomethingElse:</span><span class="n">arg2</span><span class="p">];</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The selector (message name) for the above snippet is this (note the colons):</p>
+<blockquote>
+<div><div class="highlight-objective-c"><div class="highlight"><pre><span class="nl">doSomething:withSomethingElse:</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>In order to have a lossless and unambiguous translation between Objective-C
+messages and Python methods, the Python method name equivalent is simply
+the selector with colons replaced by underscores.  Since each colon in an
+Objective-C selector is a placeholder for an argument, the number of
+underscores in the PyObjC-ified method name is the number of arguments
+that should be given.</p>
+<p>The PyObjC translation of the above selector is (note the underscores):</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">doSomething_withSomethingElse_</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The message dispatch, translated to PyObjC, looks like this:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">someObject</span><span class="o">.</span><span class="n">doSomething_withSomethingElse_</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><em>Methods that take one argument will have a trailing underscore</em>.</p>
+<p>It may take a little while to get used to, but PyObjC does not ever
+rename selectors.  The trailing underscore will seem strange at first,
+especially for cases like this:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="c"># note the trailing underscore</span>
+<span class="n">someObject</span><span class="o">.</span><span class="n">setValue_</span><span class="p">(</span><span class="n">aValue</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>There are a few additional rules regarding message dispatch, see the
+<a class="reference internal" href="#overview-of-the-bridge">Overview of the bridge</a> for the complete rundown.</p>
+</div>
+<div class="section" id="two-phase-instantiation">
+<h3>Two-phase instantiation<a class="headerlink" href="#two-phase-instantiation" title="Permalink to this headline">¶</a></h3>
+<p>Objective-C, being a low-level runtime, separates the two concepts required
+to instantiate an object.</p>
+<dl class="docutils">
+<dt>allocation:</dt>
+<dd>Reserve a chunk of memory large enough to hold the new object, and make
+sure that all of its declared instance variables are set to &#8220;zero&#8221;
+(this means nil pointers to objects, 0 for integers, etc.).</dd>
+<dt>initialization:</dt>
+<dd>Fill in the blank slate allocated by the allocation phase.</dd>
+</dl>
+<p>In Objective-C, the convention is for allocation to be performed by a class
+method called <tt class="docutils literal"><span class="pre">alloc</span></tt>, and initialization is done with method
+<em>beginning with</em> the word <tt class="docutils literal"><span class="pre">init</span></tt>.  For example, here is the syntax for
+instantiating an <tt class="docutils literal"><span class="pre">NSObject</span></tt>:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">myObject</span> <span class="o">=</span> <span class="n">NSObject</span><span class="o">.</span><span class="n">alloc</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>And here is an example for creating an <tt class="docutils literal"><span class="pre">NSData</span></tt> instance given a few bytes:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">myData</span> <span class="o">=</span> <span class="n">NSData</span><span class="o">.</span><span class="n">alloc</span><span class="p">()</span><span class="o">.</span><span class="n">initWithBytes_length_</span><span class="p">(</span><span class="s">&#39;the bytes&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>You must also follow this convention when subclassing Objective-C classes.
+When initializing, an object must always (directly or indirectly) call the
+designated initializer of its <tt class="docutils literal"><span class="pre">super</span></tt>.  The designated initializer is the
+&#8220;most basic&#8221; initializer through which all initialization eventually ends up.
+The designated initializer for <tt class="docutils literal"><span class="pre">NSObject</span></tt> is <tt class="docutils literal"><span class="pre">init</span></tt>.  To find the
+designated initializer for other classes, consult the documentation for that
+class.  Here is an example of an <tt class="docutils literal"><span class="pre">NSObject</span></tt> subclass with a customized
+initialization phase:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+   <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       Designated initializer for MyClass</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="c"># ALWAYS call the super&#39;s designated initializer.</span>
+       <span class="c"># Also, make sure to re-bind &quot;self&quot; just in case it</span>
+       <span class="c"># returns something else, or even None!</span>
+       <span class="bp">self</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+       <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span> <span class="bp">None</span>
+
+       <span class="bp">self</span><span class="o">.</span><span class="n">myVariable</span> <span class="o">=</span> <span class="mi">10</span>
+
+       <span class="c"># Unlike Python&#39;s __init__, initializers MUST return self,</span>
+       <span class="c"># because they are allowed to return any object!</span>
+       <span class="k">return</span> <span class="bp">self</span>
+
+
+<span class="k">class</span> <span class="nc">MyOtherClass</span><span class="p">(</span><span class="n">MyClass</span><span class="p">):</span>
+
+   <span class="k">def</span> <span class="nf">initWithOtherVariable_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">otherVariable</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       Designated initializer for MyOtherClass</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="bp">self</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyOtherClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+       <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span> <span class="bp">None</span>
+
+       <span class="bp">self</span><span class="o">.</span><span class="n">otherVariable</span> <span class="o">=</span> <span class="n">otherVariable</span>
+       <span class="k">return</span> <span class="bp">self</span>
+
+<span class="n">myInstance</span> <span class="o">=</span> <span class="n">MyClass</span><span class="o">.</span><span class="n">alloc</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">myOtherInstance</span> <span class="o">=</span> <span class="n">MyOtherClass</span><span class="o">.</span><span class="n">alloc</span><span class="p">()</span><span class="o">.</span><span class="n">initWithOtherVariable_</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>Many Objective-C classes provide class methods that perform two-phase
+instantiation for you in one step.  Several examples of this are:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17</pre></div></td><td class="code"><div class="highlight"><pre><span class="c"># This is equivalent to:</span>
+<span class="c">#</span>
+<span class="c">#   myObject = NSObject.alloc().init()</span>
+<span class="c">#</span>
+<span class="n">myObject</span> <span class="o">=</span> <span class="n">NSObject</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+
+<span class="c"># This is equivalent to:</span>
+<span class="c">#</span>
+<span class="c">#   myDict = NSDictionary.alloc().init()</span>
+<span class="c">#</span>
+<span class="n">myDict</span> <span class="o">=</span> <span class="n">NSDictionary</span><span class="o">.</span><span class="n">dictionary</span><span class="p">()</span>
+
+<span class="c"># This is equivalent to:</span>
+<span class="c">#</span>
+<span class="c">#   myString = NSString.alloc().initWithString_(u&#39;my string&#39;)</span>
+<span class="c">#</span>
+<span class="n">myString</span> <span class="o">=</span> <span class="n">NSString</span><span class="o">.</span><span class="n">stringWithString_</span><span class="p">(</span><span class="s">u&#39;my string&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+</div>
+<div class="section" id="objective-c-uses-accessors-everywhere">
+<h3>Objective-C uses accessors everywhere<a class="headerlink" href="#objective-c-uses-accessors-everywhere" title="Permalink to this headline">¶</a></h3>
+<p>Unlike Python, Objective-C convention says to use accessors rather than
+directly accessing instance variables of other objects.  This means
+that in order to access an instance variable <tt class="docutils literal"><span class="pre">value</span></tt> of an object
+<tt class="docutils literal"><span class="pre">valueContainer</span></tt> you will have to use the following syntax:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre><span class="c"># Getting</span>
+<span class="c">#</span>
+<span class="c"># notice the method call</span>
+<span class="c">#</span>
+<span class="n">myValue</span> <span class="o">=</span> <span class="n">valueContainer</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+<span class="c"># Setting</span>
+<span class="c">#</span>
+<span class="c"># notice the naming convention and trailing underscore</span>
+<span class="c">#</span>
+<span class="n">valueContainer</span><span class="o">.</span><span class="n">setValue_</span><span class="p">(</span><span class="n">myNewValue</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>When writing your own classes from Python, this is a bit harder since
+Python only has one namespace for all attributes, even methods.  If you
+choose to implement accessors from Python, then you will have to name
+the instance variable something else:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyValueHolder</span><span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initWithValue_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyValueHolder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="c"># It&#39;s recommended not to use typical Python convention here,</span>
+        <span class="c"># as instance variables prefixed with underscores are reserved</span>
+        <span class="c"># by the Objective-C runtime.  It still works if you use</span>
+        <span class="c"># underscores, however.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ivar_value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ivar_value</span>
+
+    <span class="k">def</span> <span class="nf">setValue_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ivar_value</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>It&#8217;s also possible to use <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/KeyValueCoding/Articles/KeyValueCoding.html">Key-Value Coding</a> in some cases, which eliminates
+the need for writing most accessors, but only in scenarios where the rest of
+the code is using it.</p>
+</div>
+</div>
+<div class="section" id="objective-c-for-pyobjc-users">
+<h2>Objective-C for PyObjC users<a class="headerlink" href="#objective-c-for-pyobjc-users" title="Permalink to this headline">¶</a></h2>
+<p>It is recommended that you take the time to understand a little bit about
+Objective-C before jumping into PyObjC development.  The class libraries
+that you will be using from Cocoa are not documented in Python, and their
+documentation will be confusing without a grasp on the semantics and syntax
+of Objective-C.</p>
+<p>Objective-C is an object-oriented programming language implemented as a
+superset of C that borrows heavily in concept and syntax from Smalltalk.
+of C and borrows heavily from Smalltalk.  It features single inheritance with
+dynamic dispatch and (in theory) multiple root classes.  This is basically the
+same as Python with single inheritance.</p>
+<p>An important difference between Python and Objective-C is that the latter is
+not a pure object-oriented language.  Some values are not objects, but values
+of plain C types, such as <tt class="docutils literal"><span class="pre">int</span></tt> and <tt class="docutils literal"><span class="pre">double</span></tt>.  These basic C types can
+be used as the types of arguments and the return value of methods.</p>
+<p>Object allocation and initialization are explicit and separate actions in
+Objective-C.  The former is done by the class-method <tt class="docutils literal"><span class="pre">alloc</span></tt>, while the
+latter is done by instance methods whose name customarily starts with <tt class="docutils literal"><span class="pre">init</span></tt>.</p>
+<p>Objective-C code looks just like plain C code, with some easily recognizable
+Smalltalk-like extensions for the object-oriented parts of the language.  An
+example class declaration (usually found in <tt class="docutils literal"><span class="pre">.h</span></tt> files) and implementation
+(usually found in <tt class="docutils literal"><span class="pre">.m</span></tt> files) are listed below.  Class declarations are easily
+recognized as blocks of code between <tt class="docutils literal"><span class="pre">&#64;interface</span></tt> and <tt class="docutils literal"><span class="pre">&#64;end</span></tt>, and similarly
+the implementation is between <tt class="docutils literal"><span class="pre">&#64;implementation</span></tt> and <tt class="docutils literal"><span class="pre">&#64;end</span></tt>.  An expression
+enclosed in brackets in Objective-C is called a message, and is the equivalent
+to an instance method invocation in Python.  For example, this Objective-C
+code:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><div class="highlight"><pre><span class="p">[</span><span class="n">aMutableArray</span> <span class="nl">addObject:</span><span class="s">@&quot;constant string&quot;</span><span class="p">];</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Is equivalent in intent to the following in Python:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">aList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">u&quot;constant string&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Objective-C messages have three components: a target, a selector, and zero or
+more arguments.  The target, <tt class="docutils literal"><span class="pre">aMutableArray</span></tt>, is the object or class
+receiving the message.  The selector, <tt class="docutils literal"><span class="pre">addObject:</span></tt> uniquely identifies the
+kind of message that is being sent.  Finally, the arguments,
+<tt class="docutils literal"><span class="pre">&#64;&quot;constant</span> <span class="pre">string&quot;</span></tt> are used by the implementation of the method upon
+receipt of the message.  The syntax of Objective-C message dispatch is
+deceptively similar to keyword arguments in Python, but they are actually
+quite different.  Objective-C messages can not have default arguments, and all
+arguments are passed in a specific order.  The components of a selector may not
+be reordered.  Syntactically, one argument must be interleaved at every colon in
+the selector.  The message:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><div class="highlight"><pre><span class="p">[</span><span class="n">anArray</span> <span class="nl">indexOfObject:</span><span class="n">someObject</span> <span class="nl">inRange:</span><span class="n">someRange</span><span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="docutils">
+<dt>Target:</dt>
+<dd><tt class="docutils literal"><span class="pre">anArray</span></tt></dd>
+<dt>Selector:</dt>
+<dd><tt class="docutils literal"><span class="pre">indexOfObject:inRange:</span></tt></dd>
+<dt>Arguments:</dt>
+<dd><tt class="docutils literal"><span class="pre">someObject</span></tt>, <tt class="docutils literal"><span class="pre">someRange</span></tt></dd>
+</dl>
+<p>As documented later, the straightforward translation of such a message to
+Python is:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">anArray</span><span class="o">.</span><span class="n">indexOfObject_inRange_</span><span class="p">(</span><span class="n">someObject</span><span class="p">,</span> <span class="n">someRange</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>This may be awkward and &#8220;unpythonic&#8221; at first, however this syntax is necessary
+to preserve the semantics of Objective-C message dispatch.</p>
+<p>A class declaration:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">@interface</span> <span class="nc">MyClass</span> : <span class="nc">MySuperClass</span>
+<span class="p">{</span>
+    <span class="kt">id</span>  <span class="n">anInstanceVariable</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">anotherInstanceVariable</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// A class method that returns an initialized instance of this class.</span>
+<span class="c1">// Similar to an implementation of __call__ on the metaclass.</span>
+<span class="o">+</span><span class="nl">instanceWithObject:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="n">anObject</span> <span class="nl">andInteger:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">anInteger</span><span class="p">;</span>
+
+<span class="c1">// An instance method, the designated initializer for MyClass.</span>
+<span class="c1">// Similar to an implementation of __new__ on MyClass.</span>
+<span class="k">-</span><span class="nf">initWithObject:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">anObject</span> <span class="nf">andInteger:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">anInteger</span><span class="p">;</span>
+
+<span class="c1">// An accessor, instance variables (attributes) are in a separate</span>
+<span class="c1">// namespace and are considered &quot;private&quot; in Objective-C.  Conventionally,</span>
+<span class="c1">// there is nothing similar to this in Python.</span>
+<span class="k">-</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nf">anotherInstanceVariable</span><span class="p">;</span>
+<span class="k">@end</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>A class implementation:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">@implementation</span> <span class="nc">MyClass</span>
+
+<span class="c1">// Note that a type is not declared for the return value.  Undeclared types</span>
+<span class="c1">// are assumed to be &quot;id&quot;, which means any kind of instance.</span>
+<span class="k">+</span><span class="nf">instanceWithObject:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">anObject</span> <span class="nf">andInteger:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">anInteger</span>
+<span class="p">{</span>
+    <span class="c1">// 1. Create an instance of MyClass.</span>
+    <span class="c1">// 2. Initialize it with its designated initializer</span>
+    <span class="c1">//    &quot;initWithObject:andInteger:&quot;.</span>
+    <span class="c1">// 3. Autorelease it, so that it does not leak memory.</span>
+    <span class="c1">// 4. Return the new instance.</span>
+    <span class="c1">//</span>
+    <span class="c1">// NOTE:</span>
+    <span class="c1">//   By convention,initializers (such as +new, -init, -copy)</span>
+    <span class="c1">//   are the only methods that should return retained objects.</span>
+    <span class="c1">//</span>
+    <span class="c1">// NOTE:</span>
+    <span class="c1">//   Since this is a class method, &quot;self&quot; refers to the class!</span>
+    <span class="c1">//</span>
+    <span class="c1">// Very roughly similar to:</span>
+    <span class="c1">//   return self.__new__(anObject, anInteger)</span>
+    <span class="k">return</span> <span class="p">[[[</span><span class="n">self</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithObject:</span><span class="n">anObject</span> <span class="nl">andInteger:</span><span class="n">anInteger</span><span class="p">]</span> <span class="n">autorelease</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="c1">// Note that a type is not declared for the return value.  Undeclared types</span>
+<span class="c1">// are assumed to be &quot;id&quot;, which means any kind of instance.</span>
+<span class="k">-</span><span class="nf">initWithObject:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">anObject</span> <span class="nf">andInteger:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">anInteger</span>
+<span class="p">{</span>
+    <span class="c1">// Call the designated initializer of the superclass.</span>
+    <span class="c1">// Similar to:</span>
+    <span class="c1">//     self = super(MyClass, self).__new__()</span>
+    <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">];</span>
+
+    <span class="c1">// Bail if initialization of the superclass failed.</span>
+    <span class="c1">// Similar to:</span>
+    <span class="c1">//     if self is None:</span>
+    <span class="c1">//         return None</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Set the instance variable (attribute).  The argument must be</span>
+    <span class="c1">// retained, since it will persist as long as the instance does.</span>
+    <span class="c1">// Similar to:</span>
+    <span class="c1">//     # Reference counting is automatic in Python</span>
+    <span class="c1">//     self.anInstanceVariable = anObject</span>
+    <span class="n">anInstanceVariable</span> <span class="o">=</span> <span class="p">[</span><span class="n">anObject</span> <span class="n">retain</span><span class="p">];</span>
+
+    <span class="c1">// Set the other instance variable.  Note that since anInteger is</span>
+    <span class="c1">// a primitive &quot;C&quot; type, not an object, no reference counting takes</span>
+    <span class="c1">// place.</span>
+    <span class="c1">// Similar to:</span>
+    <span class="c1">//     # Everything is an object in Python</span>
+    <span class="c1">//     self.anotherInstanceVariable = anInteger</span>
+    <span class="n">anotherInstanceVariable</span> <span class="o">=</span> <span class="n">anInteger</span><span class="p">;</span>
+
+    <span class="c1">// Like __new__ in Python, initializers in Objective-C must</span>
+    <span class="c1">// explicitly return self.  Note that this is different from</span>
+    <span class="c1">// __init__.</span>
+    <span class="c1">// Similar to:</span>
+    <span class="c1">//     return self</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="c1">// an accessor, instance variables (attributes) are in a separate</span>
+<span class="c1">// namespace and are considered &quot;private&quot;</span>
+<span class="k">-</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nf">anotherInstanceVariable</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">anotherInstanceVariable</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Since objects were retained as instance variables on this object,</span>
+<span class="c1">// they must be freed when the object is.  This is similar to an</span>
+<span class="c1">// implementation of __del__ in Python.  Since Objective-C has no</span>
+<span class="c1">// cyclic garbage collection, this isn&#39;t discouraged like it is in</span>
+<span class="c1">// Python.</span>
+<span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">dealloc</span>
+<span class="p">{</span>
+    <span class="c1">// Very roughly similar to:</span>
+    <span class="c1">//     del self.instanceVariable</span>
+    <span class="p">[</span><span class="n">instanceVariable</span> <span class="n">release</span><span class="p">];</span>
+
+    <span class="c1">// Very roughly similar to:</span>
+    <span class="c1">//     super(MyClass, self).__del__()</span>
+    <span class="p">[</span><span class="n">super</span> <span class="n">dealloc</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>Objective-C also features exceptions, but they are typically only used for
+disaster recovery, not error handling, so you will not encounter them very
+often.  Read <a class="reference external" href="http://developer.apple.com/documentation/Cocoa/Conceptual/ObjectiveC/index.html">The Objective-C Programming Language</a> if you want to
+know more about exceptions in Objective-C.</p>
+<p>One thing to keep in mind when translating Objective-C snippets to Python is
+that any message can be sent to <tt class="docutils literal"><span class="pre">nil</span></tt>, and the return value of that message
+will be <tt class="docutils literal"><span class="pre">nil</span></tt>.  PyObjC translates <tt class="docutils literal"><span class="pre">nil</span></tt> to <tt class="docutils literal"><span class="pre">None</span></tt> when crossing the
+bridge, so any such attempt will raise an <tt class="docutils literal"><span class="pre">AttributeError</span></tt>.</p>
+<p>For more information about Objective-C see:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://developer.apple.com/documentation/Cocoa/Conceptual/ObjectiveC/index.html">The Objective-C Programming Language</a> at <a class="reference external" href="http://www.apple.com/">Apple</a>.</li>
+</ul>
+</div>
+<div class="section" id="overview-of-the-bridge">
+<h2>Overview of the bridge<a class="headerlink" href="#overview-of-the-bridge" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<p>Objective-C classes are visible as (new-style) Python classes and can be
+subclassed just like normal Python classes.  All the usual introspection
+mechanisms work as well, as do <tt class="docutils literal"><span class="pre">__slots__</span></tt> and descriptors.  The major
+differences between normal Python classes and Objective-C classes are the way
+that instances are created and initialized, and the fact that Objective-C
+selectors look strange when translated to Python methods.</p>
+<p>Multiple inheritance may be used when subclassing an Objective-C class, so
+long as the Objective-C class is the first base class and there is only one
+Objective-C base class.  The Objective-C runtime does not support multiple
+inheritance.  These mix-in classes should not contain different
+implementations for Objective-C methods.  To achieve this behavior, Categories
+should be used instead.</p>
+<p>Another thing to keep in mind is that the names of Objective-C classes must
+be globally unique per process, including across Python modules.  That is,
+it is <em>not</em> possible to have two Python modules that define a class with the
+same name.  It is conventional to choose class names with a short prefix that
+uniquely identify your project or company.  For example, Apple uses <tt class="docutils literal"><span class="pre">NS</span></tt>
+as the prefix for all classes in the <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CocoaFundamentals/Introduction/Introduction.html#//apple_ref/doc/uid/TP40002974">Cocoa libraries</a>.  Note that the <tt class="docutils literal"><span class="pre">NS</span></tt>
+prefix made much more sense when it was called NeXTstep, but persists to this
+day for compatibility reasons.</p>
+<p>As described in <a class="reference internal" href="#objective-c-for-pyobjc-users">Objective-C for PyObjC users</a> the creation of Objective-C
+objects is a two-stage process.  To initialize objects, first call a
+class method to allocate the memory (typically <tt class="docutils literal"><span class="pre">alloc</span></tt>), and then call an
+initializer (typically starts with <tt class="docutils literal"><span class="pre">init</span></tt>).  Some classes have class methods
+which perform this behind the scenes, especially classes that create cached,
+immutable, or singleton instances.</p>
+</div>
+<div class="section" id="messages-and-functions">
+<h3>Messages and Functions<a class="headerlink" href="#messages-and-functions" title="Permalink to this headline">¶</a></h3>
+<p>Objective-C methods are bridged to Python methods.  Because Objective-C
+message dispatch syntax can not be translated directly to Python, a few
+simple translations must take place.  The rules for these translations are:</p>
+<ol class="arabic">
+<li><p class="first">Replace all colons in the selector with underscores:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">someMethod:withFoo:andBar:</span></tt> translates to <tt class="docutils literal"><span class="pre">someMethod_withFoo_andBar_</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">If the result <tt class="docutils literal"><span class="pre">class</span></tt> or <tt class="docutils literal"><span class="pre">raise</span></tt> (Python keywords), append two underscores:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">class</span></tt> translates to <tt class="docutils literal"><span class="pre">class__</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">raise</span></tt> translates to <tt class="docutils literal"><span class="pre">raise__</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Use this translated selector as a normal Python method.
+The arguments must be passed in the same order, and the number of
+arguments passed will normally be equal to the number of underscores
+in the method name; exceptions to this rule and the behavior of &#8220;result&#8221;
+are mentioned below.</p>
+<div class="highlight-objective-c"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">someObject</span> <span class="nl">someMethod:</span><span class="n">firstArg</span> <span class="nl">withFoo:</span><span class="n">foo</span> <span class="nl">andBar:</span><span class="n">bar</span><span class="p">];</span>
+</pre></div>
+</td></tr></table></div>
+<p>translates to</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="n">result</span> <span class="o">=</span> <span class="n">someObject</span><span class="o">.</span><span class="n">someMethod_withFoo_andBar_</span><span class="p">(</span><span class="n">firstArg</span><span class="p">,</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</li>
+</ol>
+<p>Note that it is currently not possible to support methods with a variable
+number of arguments from Python.  These selectors must be wrapped by
+custom Objective-C code in order to be accessible by Python.</p>
+<p>Wrapped/bridged methods (and functions) have the same number of arguments
+as the corresponding Objective-C method or function, unless otherwise noted
+in the documentation (<a class="reference external" href="api-notes-macosx.html">Notes on supported APIs and classes on Mac OS X</a> for
+Cocoa on Mac OS X).</p>
+<p>Most methods or functions that take or return pointers to values will be an
+exception to this rule if it is callable from Python at all.  In Objective-C
+terminology, there are three kinds of pointers that can be used in a method:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">in</span></tt>:</dt>
+<dd><p class="first">Used to pass data by reference to the function.  This is not a special
+case from Python.</p>
+<p class="last">Instead of a regular value you may also pass in the value <tt class="docutils literal"><span class="pre">objc.NULL</span></tt>,
+when you do that the Objective-C method will receive a NULL pointer instead
+of a pointer to your value.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">out</span></tt>:</dt>
+<dd><p class="first">Used to pass data from the function (e.g. an additional return value).</p>
+<p class="last">Pass in either <tt class="docutils literal"><span class="pre">None</span></tt> or <tt class="docutils literal"><span class="pre">objc.NULL</span></tt> for output arguments.
+to the method. If the value is <tt class="docutils literal"><span class="pre">objc.NULL</span></tt> the Objective-C code will
+receive a NULL pointer for this argument, otherwise it will receive a
+valid pointer.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">inout</span></tt>:</dt>
+<dd><p class="first">A combination of in and out (a value is passed by reference, and mutated
+upon return).  Unlike <tt class="docutils literal"><span class="pre">out</span></tt>, these arguments remain in the argument list,
+and thus do not have an effect on the number of arguments a method expects.
+See below for notes on how <tt class="docutils literal"><span class="pre">inout</span></tt> arguments change the return value.</p>
+<p class="last">Instead of a regular value you may also pass in the value <tt class="docutils literal"><span class="pre">objc.NULL</span></tt>,
+when you do that the Objective-C method will receive a NULL pointer instead
+of a pointer to your value.</p>
+</dd>
+</dl>
+<p>In order to determine what the return value of such an exceptional message will
+look like, you must &#8220;make a list&#8221; of the return values with the following rules:</p>
+<ol class="arabic simple">
+<li>If the return type of the method or function is not <tt class="docutils literal"><span class="pre">void</span></tt>, add it to the
+list.</li>
+<li>For each argument in the method or function, add it to the list if it is
+<tt class="docutils literal"><span class="pre">out</span></tt> or <tt class="docutils literal"><span class="pre">inout</span></tt>. When <tt class="docutils literal"><span class="pre">objc.NULL</span></tt> was used as the argument value it
+will also be used as the result value.</li>
+</ol>
+<p>After creating this list, you will have one of three cases:</p>
+<dl class="docutils">
+<dt>Empty:</dt>
+<dd>The return value of this call will always be <tt class="docutils literal"><span class="pre">None</span></tt>.</dd>
+<dt>One element:</dt>
+<dd>The return value of this call will correspond to the one element of the list.</dd>
+<dt>More than one element:</dt>
+<dd>The return value of this call will be a tuple in the same order as the list.</dd>
+</dl>
+<p>The rules for pass by reference arguments may look quite complicated, but
+it turns out this is very straightforward when working with them.</p>
+<p>As an example of a method with two output arguments, <tt class="docutils literal"><span class="pre">NSMatrix</span></tt> implements a
+selector named <tt class="docutils literal"><span class="pre">getNumberOfRows:columns:</span></tt> with the following signature:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><div class="highlight"><pre><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">getNumberOfRows:</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="nv">rowCount</span> <span class="nf">columns:</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="nv">columnCount</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>This method is used from Python like this:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">rowCount</span><span class="p">,</span> <span class="n">columnCount</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">getNumberOfRows_columns_</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>When a function or method has an array of values and the length of that array
+as arguments, <tt class="docutils literal"><span class="pre">None</span></tt> may be passed as the length to specify that the length
+of the given sequence should be used.</p>
+<p>Python&#8217;s <tt class="docutils literal"><span class="pre">array.array</span></tt> type may be used to represent a C array if the
+typestr and size match what is expected by the selector.  Numeric, numarray,
+and other third party array types are not supported at the moment.</p>
+<p>When defining methods in an Objective-C subclass, the bridge must provide
+type signatures for each method to the Objective-C runtime.  The default
+type signature is for all arguments as well as the return value to be objects (just
+like with normal Python methods).  If there is no return statement in the implementation,
+then the return value will be void.  The bridge will automatically pick a better
+signature when it has more information available.  Specifically, a method overrides
+an existing method, the bridge will assume you want to use the same
+method signature.  Furthermore, if the method is implemented in an (informal)
+protocol known to the bridge it will use the signature from the corresponding
+method in that signature.</p>
+<p>The end result is that it is rarely necessary to explicitly add information about
+the signature of methods.  For the two most common cases where this is necessary,
+we have provided convenience decorators (used like <tt class="docutils literal"><span class="pre">staticmethod</span></tt> or
+<tt class="docutils literal"><span class="pre">classmethod</span></tt>):</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">objc.accessor</span></tt>:</dt>
+<dd>Use this to wrap a <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/KeyValueCoding/Articles/KeyValueCoding.html">Key-Value Coding</a> or <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html">Key-Value Observing</a> compliant
+accessor.</dd>
+<dt><tt class="docutils literal"><span class="pre">PyObjCTools.AppHelper.endSheetMethod</span></tt>:</dt>
+<dd>Use this to wrap the implementation of a sheet&#8217;s &#8220;didEndSelector&#8221; callback.</dd>
+</dl>
+<p>For complete control of the mapping to Objective-C you can use the function
+<tt class="docutils literal"><span class="pre">objc.selector</span></tt> to create custom descriptors.  See the documentation of the
+<tt class="docutils literal"><span class="pre">objc</span></tt> module for the arguments you can use with this function.  It is
+normally used like this:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="k">class</span> <span class="nc">MyObject</span><span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+            <span class="c"># -(void)someMethod:(float)arg</span>
+            <span class="k">def</span> <span class="nf">someMethod_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+                    <span class="k">pass</span>
+
+            <span class="n">someMethod_</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">selector</span><span class="p">(</span><span class="n">someMethod_</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="s">&#39;v@:f&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>In Python 2.4 or later there is a decorator for this purpose:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="k">class</span> <span class="nc">MyObject</span><span class="p">(</span><span class="n">NSObject</span><span class="p">):</span>
+
+            <span class="nd">@objc.signature</span><span class="p">(</span><span class="s">&#39;v@:f&#39;</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">someMethod_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+                    <span class="k">pass</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+</div>
+<div class="section" id="reference-counting">
+<h3>Reference counting<a class="headerlink" href="#reference-counting" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CocoaFundamentals/Introduction/Introduction.html#//apple_ref/doc/uid/TP40002974">Cocoa libraries</a>, and most (if not all) other class libraries for
+Objective-C use explicit reference counting to manage memory.  The methods
+<tt class="docutils literal"><span class="pre">retain</span></tt>, <tt class="docutils literal"><span class="pre">release</span></tt> and <tt class="docutils literal"><span class="pre">autorelease</span></tt> are used to manage these
+reference counts.  You won&#8217;t have to manage reference counts in Python, the
+bridge does all that work for you (but see <a class="reference external" href="api-notes-macosx.html">Notes on supported APIs and classes
+on Mac OS X</a> for some advanced issues).</p>
+<p>The only reasons reference counts are mentioned at all are to tell you about
+ignoring them, and more importantly to introduce you to some issues w.r.t.
+reference counting.</p>
+<p>It turns out that Cocoa uses a primitive form of <a class="reference external" href="http://docs.python.org/library/weakref.html#weakref" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">weak</span> <span class="pre">references</span></tt></a>.  Those
+are not true <a class="reference external" href="http://docs.python.org/library/weakref.html#weakref" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">weak</span> <span class="pre">references</span></tt></a> as in Python, but use-cases where an object
+stores a reference to another object without increasing the reference count
+for that other object.  The bridge cannot solve the issues this introduces
+for you, which means that you get hard crashes when you&#8217;re not careful when
+dealing with those <a class="reference external" href="http://docs.python.org/library/weakref.html#weakref" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">weak</span> <span class="pre">references</span></tt></a>.</p>
+<p>The basic rule to deal with weak references is: make sure objects stays
+alive as long as someone might have a weak reference to them.  Due to the way
+the bridge works, this means that you must make sure that you don&#8217;t create
+weak references from Objective-C to a plain Python object.  The Python
+object stays alive, but the proxy object as seen by the Objective-C code is
+actually an autoreleased object that will be cleaned up unless the Objective-C
+code increases its reference count.</p>
+<p>The document <a class="reference external" href="api-notes-macosx.html">Notes on supported APIs and classes on Mac OS X</a> contains
+information about classes that work with weak references.  The most important
+are notification centers and <tt class="docutils literal"><span class="pre">NSOutlineView</span></tt>, to be exact: the outline view
+stores weak references to the objects return by the method
+<tt class="docutils literal"><span class="pre">outlineView:child:ofItem:</span></tt> of its data source.  The easiest way to avoid
+crashes with outline views is to make sure that you model for the view uses
+subclasses of <tt class="docutils literal"><span class="pre">NSObject</span></tt> to represent the nodes in the outline view.</p>
+<p>Another gotcha is that <tt class="docutils literal"><span class="pre">obj.setDelegate_()</span></tt> often does <em>not</em> retain the
+delegate, so a reference should be maintained elsewhere.</p>
+</div>
+<div class="section" id="protocols">
+<h3>Protocols<a class="headerlink" href="#protocols" title="Permalink to this headline">¶</a></h3>
+<p>Cocoa defines a number of formal and informal protocols that specify methods
+that should be implemented by a class if it is to be used in a specific role,
+such as the data source for an <tt class="docutils literal"><span class="pre">NSTableView</span></tt>.</p>
+<p>Those protocols are represented by instances of <tt class="docutils literal"><span class="pre">objc.informal_protocol</span></tt>,
+and <tt class="docutils literal"><span class="pre">objc.formal_protocol</span></tt>.  The only ones that have to care about these
+objects are the maintainers of wrappers around Objective-C frameworks: they
+have to keep these protocol wrappers up-to-date.</p>
+<p>PyObjC will automatically use the information in the <tt class="docutils literal"><span class="pre">informal_protocol</span></tt>
+objects to add the right method signatures to methods, and to warn about
+classes that partially implement a protocol.</p>
+<p>See <a class="reference external" href="protocols.html">PyObjC protocol support</a> for more information.</p>
+</div>
+<div class="section" id="cocoa-bindings">
+<h3>Cocoa Bindings<a class="headerlink" href="#cocoa-bindings" title="Permalink to this headline">¶</a></h3>
+<p>In Mac OS X 10.3 Apple introduced <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CocoaBindings/CocoaBindings.html">Cocoa Bindings</a>, a method to make it easier
+to create and use <em>Controller</em> objects using <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html">Key-Value Observing</a> and
+<a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/KeyValueCoding/Articles/KeyValueCoding.html">Key-Value Coding</a>.  In order to create accessors compatible with this, you
+must use <tt class="docutils literal"><span class="pre">objc.accessor</span></tt> to create an appropriate selector descriptor.</p>
+<p>PyObjC automaticly emits the right <a class="reference external" href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html">Key-Value Observing</a> notifications when
+you set attributes on an Objective-C class. This is however not supported for
+pure python objects. You should therefore use <tt class="docutils literal"><span class="pre">NSMutableArray</span></tt> instances
+instead of Python lists for instance variables that will be observed and contain
+a sequence of values (and simularly for <tt class="docutils literal"><span class="pre">NSMutableDictionary</span></tt> instead of
+<tt class="docutils literal"><span class="pre">dict</span></tt>).</p>
+<p>NOTE: Key-Value Observing is not supported for &#8220;pure&#8221; python objects, that
+is instances of classes that don&#8217;t inherit from <tt class="docutils literal"><span class="pre">NSObject</span></tt>. Adding such
+support is not possible adding a KVO-like interface to the Python interpreter.</p>
+</div>
+<div class="section" id="categories">
+<h3>Categories<a class="headerlink" href="#categories" title="Permalink to this headline">¶</a></h3>
+<p>Objective-C has a mechanism for modularize a class definition, it is possible
+to add methods to an existing class in a separate compilation unit and even
+a separate library.  This mechanism is named categories and is used to enhance
+existing classes, for splitting classes in several parts and to document
+informal protocols.</p>
+<p>An example of a category definition:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="k">@interface</span> <span class="nc">NSObject</span> <span class="nl">(MyCategory)</span>
+    <span class="o">-</span> <span class="p">(</span><span class="n">NSSize</span><span class="p">)</span><span class="n">objectFootprint</span><span class="p">;</span>
+    <span class="k">@end</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>This declares an additional category on <tt class="docutils literal"><span class="pre">NSObject</span></tt>.  This category contains
+a single method.</p>
+<p>The function <tt class="docutils literal"><span class="pre">objc.classAddMethods</span></tt> can be used to get the same effect in
+Python:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="k">def</span> <span class="nf">objectFootprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="n">objc</span><span class="o">.</span><span class="n">classAddMethods</span><span class="p">(</span><span class="n">NSObject</span><span class="p">,</span> <span class="p">[</span><span class="n">objectFootprint</span><span class="p">])</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>This is not very clear, PyObjC therefore also provides the following
+mechanism, implemented on top of <tt class="docutils literal"><span class="pre">objc.classAddMethods</span></tt>:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="k">class</span> <span class="nc">NSObject</span><span class="p">(</span><span class="n">objc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="n">NSObject</span><span class="p">)):</span>
+            <span class="k">def</span> <span class="nf">objectFootprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="k">pass</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>To make it clear that <tt class="docutils literal"><span class="pre">objc.Category</span></tt> performs a special task the name in
+the class definition must be the same as the <tt class="docutils literal"><span class="pre">__name__</span></tt> of the argument
+to <tt class="docutils literal"><span class="pre">objc.Category</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="accessing-python-objects-from-objective-c">
+<h2>Accessing Python objects from Objective-C<a class="headerlink" href="#accessing-python-objects-from-objective-c" title="Permalink to this headline">¶</a></h2>
+<p>All Python objects can be accessed from Objective-C through proxy objects.
+Whenever a Python object crosses the line from Python to Objective-C a proxy
+object is created (of class <tt class="docutils literal"><span class="pre">OC_PythonObject</span></tt>, a subclass of <tt class="docutils literal"><span class="pre">NSProxy</span></tt>).
+This proxy object will forward all method calls from Objective-C to Python, and
+will return the results back to Objective-C.</p>
+<p>See the section &#8216;Method protocol&#8217; for a description of how PyObjC translates
+between Python and Objective-C method calls.</p>
+<p>A number of Python types/classes are treated specially:</p>
+<ul class="simple">
+<li>Python numbers (<tt class="docutils literal"><span class="pre">int</span></tt>, <tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">long</span></tt>) are translated into
+<tt class="docutils literal"><span class="pre">NSNumber</span></tt> instances.  Their identity is not preserved across the bridge.</li>
+<li>Python <tt class="docutils literal"><span class="pre">str</span></tt> is proxied using <tt class="docutils literal"><span class="pre">OC_PythonString</span></tt>, a subclass of
+<tt class="docutils literal"><span class="pre">NSString</span></tt>.  A Python <tt class="docutils literal"><span class="pre">str</span></tt> may be used anywhere a <tt class="docutils literal"><span class="pre">NSString</span></tt> is
+expected, but <tt class="docutils literal"><span class="pre">unicode</span></tt> should be used whenever possible.
+<tt class="docutils literal"><span class="pre">OC_PythonString</span></tt> will use the default encoding of <tt class="docutils literal"><span class="pre">NSString</span></tt>, which is
+normally MacRoman but could be something else.</li>
+<li>Python <tt class="docutils literal"><span class="pre">unicode</span></tt> is proxied using <tt class="docutils literal"><span class="pre">OC_PythonUnicode</span></tt>, a subclass of
+<tt class="docutils literal"><span class="pre">NSString</span></tt>.  A Python <tt class="docutils literal"><span class="pre">unicode</span></tt> may be used anywhere a <tt class="docutils literal"><span class="pre">NSString</span></tt>
+is expected.</li>
+<li>Python <tt class="docutils literal"><span class="pre">dict</span></tt> is proxied using <tt class="docutils literal"><span class="pre">OC_PythonDictionary</span></tt>, a subclass of
+<tt class="docutils literal"><span class="pre">NSMutableDictionary</span></tt>.  A Python <tt class="docutils literal"><span class="pre">dict</span></tt> may be used anywhere
+an <tt class="docutils literal"><span class="pre">NSDictionary</span></tt> is expected.</li>
+<li>Python <tt class="docutils literal"><span class="pre">list</span></tt> and <tt class="docutils literal"><span class="pre">tuple</span></tt> are proxied using <tt class="docutils literal"><span class="pre">OC_PythonArray</span></tt>, a
+subclass of <tt class="docutils literal"><span class="pre">NSMutableArray</span></tt>.  Python <tt class="docutils literal"><span class="pre">list</span></tt> or <tt class="docutils literal"><span class="pre">tuple</span></tt> objects
+may be used anywhere an <tt class="docutils literal"><span class="pre">NSArray</span></tt> is expected.</li>
+<li>Python objects that implement the Python buffer API, except for <tt class="docutils literal"><span class="pre">str</span></tt>
+and <tt class="docutils literal"><span class="pre">unicode</span></tt>, are proxied using <tt class="docutils literal"><span class="pre">OC_PythonData</span></tt>, a <tt class="docutils literal"><span class="pre">NSData</span></tt> subclass.
+Objects that implement the Python buffer API such as <tt class="docutils literal"><span class="pre">buffer</span></tt>,
+<tt class="docutils literal"><span class="pre">array.array</span></tt>, <tt class="docutils literal"><span class="pre">mmap.mmap</span></tt>, etc. may be used anywhere a <tt class="docutils literal"><span class="pre">NSData</span></tt> is
+expected.</li>
+</ul>
+<p>These special cases allow for more transparent bridging between Python and
+Objective-C.</p>
+</div>
+<div class="section" id="cocoa-for-python-programmers">
+<h2>Cocoa for Python programmers<a class="headerlink" href="#cocoa-for-python-programmers" title="Permalink to this headline">¶</a></h2>
+<p>Cocoa frameworks are mapped onto Python packages with the same name; that is
+the classes, constants and functions from the AppKit framework are available
+after you import <tt class="docutils literal"><span class="pre">AppKit</span></tt> in your Python script.</p>
+<p>These helper modules contain <em>only</em> functions, constants and classes that
+wrap items in the corresponding framework.  All utility functions and classes
+are located in the <tt class="docutils literal"><span class="pre">PyObjCTools</span></tt> package and <tt class="docutils literal"><span class="pre">objc</span></tt> module.  Note that it
+is possible to use <tt class="docutils literal"><span class="pre">pydoc</span></tt> (or the <tt class="docutils literal"><span class="pre">help()</span></tt>) function with the framework
+wrappers, but that this is not very useful for the entire module due to the
+size of these modules.</p>
+<p>This makes it easier to find documentation for an item: if you import it
+from the wrapper module for an Objective-C framework the documentation for
+that item can be found in the documentation for the framework; otherwise the
+item is documented in the PyObjC documentation.</p>
+<p>The module <tt class="docutils literal"><span class="pre">PyObjCTools.NibClassBuilder</span></tt> can be used to make working with
+NIB files more convenient.  This module can be used to extract information
+about classes from NIB files, both as a standalone tool generating source code
+and during runtime.  See the online documentation for this module for more
+information.</p>
+<p>PyObjC includes a number of examples that show how to use Cocoa from
+Python.  The <a class="reference external" href="../Examples/00ReadMe.html">PyObjC Example index</a> contains an overview of those examples.</p>
+<p>More information on Cocoa programming can be found at:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://developer.apple.com/library/mac/navigation/index.html#section=Frameworks&amp;topic=Cocoa%20Layer">Cocoa documentation at the Apple developer website</a></li>
+<li><a class="reference external" href="https://developer.apple.com/library/mac/navigation/index.html#section=Resource%20Types&amp;topic=Sample%20Code">Cocoa examples at the Apple developer website</a></li>
+<li>Your local bookstore or library</li>
+</ul>
+</div>
+<div class="section" id="notes-on-specific-tasks">
+<h2>Notes on specific tasks<a class="headerlink" href="#notes-on-specific-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="working-with-threads">
+<h3>Working with threads<a class="headerlink" href="#working-with-threads" title="Permalink to this headline">¶</a></h3>
+<p>Most of Cocoa, and thus PyObjC, requires an <tt class="docutils literal"><span class="pre">NSAutoreleasePool</span></tt> in order to function
+properly.  PyObjC does this automatically on the first thread it is imported from,
+but other threads will require explicit <tt class="docutils literal"><span class="pre">NSAutoreleasePool</span></tt> management.  The following
+practice for working with <tt class="docutils literal"><span class="pre">NSAutoreleasePool</span></tt> is recommended:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="n">pool</span> <span class="o">=</span> <span class="n">NSAutoreleasePool</span><span class="o">.</span><span class="n">alloc</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="o">...</span>
+    <span class="k">del</span> <span class="n">pool</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>Typically this will be done at the beginning and end of the thread.  It is important
+to use <tt class="docutils literal"><span class="pre">del</span></tt> before rebinding the <tt class="docutils literal"><span class="pre">pool</span></tt> local to another <tt class="docutils literal"><span class="pre">NSAutoreleasePool</span></tt>
+instance, otherwise it will not have the intended effect.</p>
+<p>For long running threads and tight loops, it can also be useful to use this pattern
+in the body of the loop in order to optimize memory usage.  For example, <tt class="docutils literal"><span class="pre">NSRunLoop</span></tt>
+will be create a new <tt class="docutils literal"><span class="pre">NSAutoreleasePool</span></tt> at the beginning of each run loop iteration
+and release it at the end.</p>
+</div>
+<div class="section" id="finalizers">
+<h3>Finalizers<a class="headerlink" href="#finalizers" title="Permalink to this headline">¶</a></h3>
+<p>In normal Python, there are two methods for writing finalizers: implementing
+<tt class="docutils literal"><span class="pre">__del__</span></tt>, and using <tt class="docutils literal"><span class="pre">weakref.ref</span></tt> callbacks.  Generally, <tt class="docutils literal"><span class="pre">__del___</span></tt> is
+discouraged as it does not allow the object to participate in cyclic garbage
+collection and create uncollectible garbage if not implemented properly.
+<tt class="docutils literal"><span class="pre">weakref.ref</span></tt> callbacks avoid this restriction as they do not provide a real
+reference to the object.</p>
+<p>In Objective-C, there is no cyclic garbage collection, so all Objective-C
+objects (including subclasses from Python) are already subject to these
+restrictions.  When subclassing an Objective-C class, you may implement
+<tt class="docutils literal"><span class="pre">dealloc</span></tt> or <tt class="docutils literal"><span class="pre">__del__</span></tt>.  If you implement <tt class="docutils literal"><span class="pre">dealloc</span></tt>, ensure that
+you call the super <tt class="docutils literal"><span class="pre">dealloc</span></tt> at the end.  If you implement both
+<tt class="docutils literal"><span class="pre">__del__</span></tt> and <tt class="docutils literal"><span class="pre">dealloc</span></tt>, the order in which they are called is
+undefined.</p>
+<p>It is not currently possible to create a <tt class="docutils literal"><span class="pre">weakref.ref</span></tt> for any Objective-C
+object.  It is probably technically possible to do, but tricky, so it
+may eventually be implemented in a future version of PyObjC (especially
+if a future Objective-C runtime supports it).</p>
+</div>
+<div class="section" id="copying">
+<h3>Copying<a class="headerlink" href="#copying" title="Permalink to this headline">¶</a></h3>
+<p>It is possible for a Python subclass of an Objective-C class to implement
+the <tt class="docutils literal"><span class="pre">NSCopying</span></tt> protocol.  Some care must be taken when the superclass
+already implements the protocol.</p>
+<p>Some <tt class="docutils literal"><span class="pre">NSCopying</span></tt> compliant Objective-C classes copy the template object
+manually.  In those cases the Python subclass must also copy the additional
+ivars manually.</p>
+<p>Other <tt class="docutils literal"><span class="pre">NSCopying</span></tt> compliant Objective-C classes use a convenience function
+that creates a shallow copy of the object and all of its ivars.  In those
+cases the Python subclass will not have to explicitly copy all of the ivars.
+However, the ivars in the copy will refer to the same objects as the original,
+and will thus share some state.  As with shallow copies in Python, if any of
+the ivars refer to mutable objects (<tt class="docutils literal"><span class="pre">list</span></tt>, <tt class="docutils literal"><span class="pre">dict</span></tt>, etc.) it may be
+desirable to explicitly make shallow or deep copies of the mutable ivars.</p>
+<p>NOTE: PyObjC might introduce a helper class when you inherit from a class
+that implements <tt class="docutils literal"><span class="pre">NSCopying</span></tt> as an internal implementation detail.
+External code should not rely on the existance of this class.</p>
+<p>NOTE2: <tt class="docutils literal"><span class="pre">SomeClass.copyWithZone_</span></tt> should not be implemented unless a
+superclass already implements <tt class="docutils literal"><span class="pre">copyWithZone:</span></tt>, or else the behavior
+will be undefined (memory corruption, crashes, etc.).</p>
+</div>
+</div>
+<div class="section" id="building-applications">
+<h2>Building applications<a class="headerlink" href="#building-applications" title="Permalink to this headline">¶</a></h2>
+<p>There are two different recommended ways to build applications with PyObjC.</p>
+<div class="section" id="py2app-setup-py">
+<h3>&#8220;py2app&#8221; :  setup.py<a class="headerlink" href="#py2app-setup-py" title="Permalink to this headline">¶</a></h3>
+<p>The PyObjC installer includes a copy of the <tt class="docutils literal"><span class="pre">py2app</span></tt> package.  This package
+offers a way to build distutils scripts for building (standalone)
+applications and plugin bundles.</p>
+<p>An example <tt class="docutils literal"><span class="pre">setup.py</span></tt> script:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">import</span> <span class="nn">py2app</span>
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;iClass.py&quot;</span><span class="p">],</span>
+    <span class="n">data_files</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;English.lproj&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>During development you typically invoke it from the command line like this:</p>
+<blockquote>
+<div><div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>python setup.py py2app -A
+</pre></div>
+</div>
+</div></blockquote>
+<p>This will build an application bundle in a folder named <tt class="docutils literal"><span class="pre">dist</span></tt> in the
+current folder. The <tt class="docutils literal"><span class="pre">-A</span></tt> option tells <tt class="docutils literal"><span class="pre">py2app</span></tt> to add symbolic
+links for data folders and files and an Alias to your main script,
+allowing you quickly rebuild the application without doing a full dependency
+scan, with the additional bonus that you can edit them without rebuild. To
+build a standalone application, simply do not use the <tt class="docutils literal"><span class="pre">-A</span></tt> option.
+Note that if you are using a version of Python shipped with your operating
+system, it will not be included in the application.  Otherwise, your
+application will include stripped down version of the Python runtime that
+you ran setup.py with.</p>
+<p>For more information about <tt class="docutils literal"><span class="pre">py2app</span></tt> usage, read through some of the
+<tt class="docutils literal"><span class="pre">setup.py</span></tt> scripts used by the examples in the <a class="reference external" href="../Examples/00ReadMe.txt">Examples</a> folder.
+On any <tt class="docutils literal"><span class="pre">setup.py</span></tt> script that imports <tt class="docutils literal"><span class="pre">py2app</span></tt>, you can use the
+following command to see the list of options:</p>
+<blockquote>
+<div><div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>python setup.py py2app --help
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="ide-approach-xcode">
+<h3>&#8220;IDE approach&#8221; : Xcode<a class="headerlink" href="#ide-approach-xcode" title="Permalink to this headline">¶</a></h3>
+<p>PyObjC includes a number of Xcode templates that can be used to
+develop applications, using the same underlying functionality that
+is in py2app.  These templates are used like any other Xcode template,
+but there are some organizational rules about the template.</p>
+<p>See <a class="reference external" href="Xcode-Templates.html">the documentation for the templates</a> for more details.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">An introduction to PyObjC</a><ul>
+<li><a class="reference internal" href="#preface">Preface</a></li>
+<li><a class="reference internal" href="#first-steps">First Steps</a><ul>
+<li><a class="reference internal" href="#underscores-and-lots-of-them">Underscores, and lots of them</a></li>
+<li><a class="reference internal" href="#two-phase-instantiation">Two-phase instantiation</a></li>
+<li><a class="reference internal" href="#objective-c-uses-accessors-everywhere">Objective-C uses accessors everywhere</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#objective-c-for-pyobjc-users">Objective-C for PyObjC users</a></li>
+<li><a class="reference internal" href="#overview-of-the-bridge">Overview of the bridge</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#messages-and-functions">Messages and Functions</a></li>
+<li><a class="reference internal" href="#reference-counting">Reference counting</a></li>
+<li><a class="reference internal" href="#protocols">Protocols</a></li>
+<li><a class="reference internal" href="#cocoa-bindings">Cocoa Bindings</a></li>
+<li><a class="reference internal" href="#categories">Categories</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#accessing-python-objects-from-objective-c">Accessing Python objects from Objective-C</a></li>
+<li><a class="reference internal" href="#cocoa-for-python-programmers">Cocoa for Python programmers</a></li>
+<li><a class="reference internal" href="#notes-on-specific-tasks">Notes on specific tasks</a><ul>
+<li><a class="reference internal" href="#working-with-threads">Working with threads</a></li>
+<li><a class="reference internal" href="#finalizers">Finalizers</a></li>
+<li><a class="reference internal" href="#copying">Copying</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#building-applications">Building applications</a><ul>
+<li><a class="reference internal" href="#py2app-setup-py">&#8220;py2app&#8221; :  setup.py</a></li>
+<li><a class="reference internal" href="#ide-approach-xcode">&#8220;IDE approach&#8221; : Xcode</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to PyObjC-Core&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorials/index.html"
+                        title="next chapter">PyObjC Tutorials</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorials/index.html" title="PyObjC Tutorials"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to PyObjC-Core’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

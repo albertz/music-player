@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Coding style for PyObjC &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="Developer Documentation" href="index.html" />
+    <link rel="next" title="How to wrap an Objective-C class library" href="wrapping.html" />
+    <link rel="prev" title="Structure of the PyObjC package" href="structure.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wrapping.html" title="How to wrap an Objective-C class library"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="structure.html" title="Structure of the PyObjC package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="coding-style-for-pyobjc">
+<h1>Coding style for PyObjC<a class="headerlink" href="#coding-style-for-pyobjc" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">authors:</th><td class="field-body">Ronald Oussoren,
+Bill Bumgarner</td>
+</tr>
+<tr class="field-even field"><th class="field-name">contact:</th><td class="field-body"><a class="reference external" href="mailto:pyobjc-dev&#37;&#52;&#48;lists&#46;sourceforge&#46;net">pyobjc-dev<span>&#64;</span>lists<span>&#46;</span>sourceforge<span>&#46;</span>net</a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">URL:</th><td class="field-body"><a class="reference external" href="http://pyobjc.sourceforge.net/">http://pyobjc.sourceforge.net/</a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body">2002 The PyObjC Project</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This document describes the coding style for PyObjC.  Please use this style for
+new code and try apply this style to existing code while working on it.</p>
+<p>The management summary: 4-space indents in Python code, 1-TAB indents in C
+code.</p>
+</div>
+<div class="section" id="python-code">
+<h2>Python code<a class="headerlink" href="#python-code" title="Permalink to this headline">¶</a></h2>
+<p>The coding style for core Python is used (see <span class="target" id="index-0"></span><a class="pep reference external" href="http://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a>).  For consistency with
+Cocoa we use mixed-case identifiers (like <tt class="docutils literal"><span class="pre">lookUpClass</span></tt>).</p>
+<p>PyObjC extensions to Apple frameworks should be clearly marked as such,
+preferably by prefixing names with <tt class="docutils literal"><span class="pre">PyObjC</span></tt> or <tt class="docutils literal"><span class="pre">pyobjc</span></tt>.  This should make
+it clear to users where they should look for documentation of an item: The
+Apple documentation or ours.</p>
+</div>
+<div class="section" id="c-code">
+<h2>C code<a class="headerlink" href="#c-code" title="Permalink to this headline">¶</a></h2>
+<p>The coding style for core Python is used (see <span class="target" id="index-1"></span><a class="pep reference external" href="http://www.python.org/dev/peps/pep-0007"><strong>PEP 7</strong></a>).  We use <tt class="docutils literal"><span class="pre">PyObjC</span></tt>
+instead of <tt class="docutils literal"><span class="pre">Py</span></tt> as the prefix for globally visible symbols.</p>
+<p>All (Objective-)C files in <tt class="docutils literal"><span class="pre">Modules/objc/</span></tt> should include <tt class="docutils literal"><span class="pre">&quot;pyobjc.h&quot;</span></tt> as
+their first include.  The (Objective-)C files in the wrappers for frameworks
+should include <tt class="docutils literal"><span class="pre">&quot;pyobjc-api.h&quot;</span></tt> and should not use other headers files from
+<tt class="docutils literal"><span class="pre">pyobjc-core</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">setup.py</span></tt> for a framework wrapper should defer most work to
+<tt class="docutils literal"><span class="pre">pyobjc_setup.py</span></tt>, like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyobjc_setup</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="n">setup</span><span class="p">(</span>
+   <span class="n">name</span><span class="o">=</span><span class="s">&#39;pyobjc-framework-AddressBook&#39;</span><span class="p">,</span>
+   <span class="n">version</span><span class="o">=</span><span class="s">&quot;2.3&quot;</span>
+   <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;Wrappers for the framework AddressBook on Mac OS X&quot;</span><span class="p">,</span>
+   <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span> <span class="s">&quot;AddressBook&quot;</span> <span class="p">],</span>
+   <span class="n">install_requires</span> <span class="o">=</span> <span class="p">[</span>
+       <span class="s">&#39;pyobjc-core&gt;=2.3b1&#39;</span><span class="p">,</span>
+       <span class="s">&#39;pyobjc-framework-Cocoa&gt;=2.3b1&#39;</span><span class="p">,</span>
+   <span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The framework wrappers do <em>not</em> include a copy of <tt class="docutils literal"><span class="pre">pyobjc-api.h</span></tt>, but
+dynamicly fetch that at build time.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>All items exported by the objc module and all PyObjC extensions to Apple
+frameworks (the AppKit and Foundation modules) should be documented using
+docstrings.</p>
+<p>All documentation&#8211; both standalone documents and docstrings&#8211; should be
+marked up using <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> [ReST].</p>
+<div class="section" id="rest-in-docstrings">
+<h3>ReST in DocStrings<a class="headerlink" href="#rest-in-docstrings" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> can be used in doc strings.   ReST in DocStrings works
+exactly like a standalone ReST document, but the ReST is broken up slightly
+differently.</p>
+<p>To format the DocStrings to be ReST compatible, make the following
+changes/additions to the source.  These examples were taken from source found
+in the DocUtils source tree.</p>
+<ol class="arabic">
+<li><p class="first">Add appropriate ReST style fields to the top of the document as comments:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Author: David Goodger</span>
+<span class="c"># Contact: goodger@users.sourceforge.net</span>
+<span class="c"># Copyright: This module has been placed in the public domain.</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Add a module level variable that indicates that ReST is used to format
+the text contained in the docstrings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">__docformat__</span> <span class="o">=</span> <span class="s">&#39;reStructuredText&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Format all other DocStrings as one normally would in Python.   Use ReST
+style markup where appropriate.   For example, bulleted lists and
+sections might commonly appear in the module or class docstrings.   The
+docstrings for individual methods may use example blocks, hyperlinks, or
+any other ReST markup.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Coding style for PyObjC</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#python-code">Python code</a></li>
+<li><a class="reference internal" href="#c-code">C code</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li><a class="reference internal" href="#rest-in-docstrings">ReST in DocStrings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="structure.html"
+                        title="previous chapter">Structure of the PyObjC package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wrapping.html"
+                        title="next chapter">How to wrap an Objective-C class library</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/dev/coding-style.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wrapping.html" title="How to wrap an Objective-C class library"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="structure.html" title="Structure of the PyObjC package"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Developer Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

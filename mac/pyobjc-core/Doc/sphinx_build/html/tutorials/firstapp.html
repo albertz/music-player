@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Creating your first PyObjC application. &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjC Tutorials" href="index.html" />
+    <link rel="next" title="Tutorial - Adding Python code to an existing ObjC application" href="embedded.html" />
+    <link rel="prev" title="Understanding existing PyObjC examples" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="embedded.html" title="Tutorial - Adding Python code to an existing ObjC application"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Understanding existing PyObjC examples"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">PyObjC Tutorials</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="creating-your-first-pyobjc-application">
+<h1>Creating your first PyObjC application.<a class="headerlink" href="#creating-your-first-pyobjc-application" title="Permalink to this headline">¶</a></h1>
+<p>WARNING: This tutorial assumes you&#8217;re using Xcode 2.5 and is therefore not
+entirely valid with Xcode 3 (that is MacOS 10.5).</p>
+<p>In this tutorial you will learn how to create your first Python Cocoa
+application: a simple dialog that allows you to convert amounts of money from
+one currency to another.  Definitely easier to do with a calculator, but in the
+process of following the tutorial you will learn which bits of Apple&#8217;s Cocoa
+documentation apply to PyObjC and which bits are different, and how to adapt
+the different bits to PyObjC from Objective-C.</p>
+<p>To follow the tutorial you need:</p>
+<blockquote>
+<div><ul class="simple">
+<li>PyObjC 1.3.1</li>
+<li>py2app 0.2 or later (included in the binary installer for PyObjC)</li>
+<li>Python 2.3 or later (note: PyObjC is NOT compatible with MacPython-OS9)</li>
+<li>Mac OS X 10.2 or later</li>
+<li>Xcode Tools (was Developer Tools for Mac OS X 10.2)</li>
+</ul>
+</div></blockquote>
+<p>If you do not have a <tt class="docutils literal"><span class="pre">/Developer</span></tt> folder, then you do not have Xcode Tools
+installed.  See <a class="reference external" href="http://developer.apple.com/tools/download/">Getting the Xcode Tools</a>.</p>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Before you start, download the <a class="reference download internal" href="../_downloads/firstapp_src.zip"><tt class="xref download docutils literal"><span class="pre">reference</span> <span class="pre">source</span> <span class="pre">package</span></tt></a> for this tutorial.</p>
+</div>
+<ol class="arabic simple">
+<li>Create a work directory <tt class="docutils literal"><span class="pre">src</span></tt>.  Check which Python you have installed
+PyObjC for, by running <tt class="docutils literal"><span class="pre">python</span></tt> and checking that <tt class="docutils literal"><span class="pre">import</span> <span class="pre">Foundation</span></tt>
+works.  If it does not work it could be that you have installed PyObjC for
+<tt class="docutils literal"><span class="pre">/usr/local/bin/python</span></tt> but Apple&#8217;s <tt class="docutils literal"><span class="pre">/usr/bin/python</span></tt> comes first in
+your <tt class="docutils literal"><span class="pre">$PATH</span></tt>.  Make sure you use the right python wherever it says
+<tt class="docutils literal"><span class="pre">python</span></tt> in this tutorial.</li>
+<li>Start Interface Builder, select <em>Cocoa Application</em>
+in the new file dialog, save this file as <tt class="docutils literal"><span class="pre">src/MainMenu.nib</span></tt>.</li>
+<li>Proceed with the instructions as lined out in Apple&#8217;s
+<a class="reference external" href="http://developer.apple.com/documentation/Cocoa/Conceptual/ObjCTutorial/index.html">Developing Cocoa Objective-C Applications: a Tutorial</a>, <a class="reference external" href="http://developer.apple.com/documentation/Cocoa/Conceptual/ObjCTutorial/index.html?http://developer.apple.com/documentation/Cocoa/Conceptual/ObjCTutorial/chapter03/chapter_3_section_1.html">chapter 3</a>,
+just after the section &#8220;<em>Creating the Currency Converter Interface</em>&#8221;.
+Work through &#8220;Defining the Classes of Currency Converter&#8221;, &#8220;Connecting
+ConverterController to the Interface&#8221;, and stop at
+&#8220;<em>Implementing the Classes of Currency Converter</em>&#8221;, as we are going to do
+this in Python, not Objective-C.  Your nib file should now be the same as
+<em>step3-MainMenu.nib</em>.</li>
+</ol>
+<ol class="arabic" start="4">
+<li><p class="first">Create the skeleton Python script by running the <tt class="docutils literal"><span class="pre">nibclassbuilder</span></tt> script.
+<tt class="docutils literal"><span class="pre">nibclassbuilder</span></tt> will parse the NIB file and create a skeleton module for
+you.  Invoke it as follows (from the <tt class="docutils literal"><span class="pre">src</span></tt> directory):</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>python -c <span class="s2">&quot;import PyObjCScripts.nibclassbuilder&quot;</span> MainMenu.nib &gt; CurrencyConverter.py
+</pre></div>
+</div>
+<p>Depending on your installation, the <tt class="docutils literal"><span class="pre">nibclassbuilder</span></tt> script may be on your <tt class="docutils literal"><span class="pre">$PATH</span></tt>.
+If so, it can be invoked as such:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>nibclassbuilder MainMenu.nib &gt; CurrencyConverter.py
+</pre></div>
+</div>
+<p>The result of this can be seen in <em>step4-CurrencyConverter.py</em>.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="testing-the-user-interface">
+<h2>Testing the user interface<a class="headerlink" href="#testing-the-user-interface" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic" start="5">
+<li><p class="first">Now we need to create an build script for CurrencyConverter.  To do this,
+create a file named <tt class="docutils literal"><span class="pre">setup.py</span></tt> with the following contents:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre>  <span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+  <span class="kn">import</span> <span class="nn">py2app</span>
+
+  <span class="n">setup</span><span class="p">(</span>
+      <span class="n">app</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;CurrencyConverter.py&#39;</span><span class="p">],</span>
+      <span class="n">data_files</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;MainMenu.nib&#39;</span><span class="p">],</span>
+  <span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>The result of this can be seen in <em>step5-setup.py</em>.</p>
+</li>
+<li><p class="first">Run the setup script to create a temporary application bundle for
+development:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>python setup.py py2app -A
+</pre></div>
+</div>
+<p>Note that we use the <tt class="docutils literal"><span class="pre">-A</span></tt> argument to create an alias bundle at
+<tt class="docutils literal"><span class="pre">dist/CurrencyConverter.app</span></tt>.  Alias bundles contain an alias to the
+main script (<tt class="docutils literal"><span class="pre">CurrencyConverter.py</span></tt>) and symlinks to the data files
+(<tt class="docutils literal"><span class="pre">MainMenu.nib</span></tt>), rather than including them and their dependencies
+into a standalone application bundle.  This allows us to keep working on
+the source files without having to rebuild the application.  This alias
+bundle is similar to a ZeroLink executable for Xcode - it is for
+DEVELOPMENT ONLY, and will not work on other machines.</p>
+</li>
+<li><p class="first">Run the program.  This can be done in three ways:</p>
+<ul>
+<li><p class="first">double-click <tt class="docutils literal"><span class="pre">dist/CurrencyConverter</span></tt> from the Finder
+(you won&#8217;t see the .app extension)</p>
+</li>
+<li><p class="first">open it from the terminal with:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>open dist/CurrencyConverter.app
+</pre></div>
+</div>
+</li>
+<li><p class="first">run it directly from the Terminal, as:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>./dist/CurrencyConverter.app/Contents/MacOS/CurrencyConverter
+</pre></div>
+</div>
+</li>
+</ul>
+<p>The last method is typically the best to use for development: it leaves
+stdout and stderr connected to your terminal session so you can see what
+is going on if there are errors, and it allows you to interact with <tt class="docutils literal"><span class="pre">pdb</span></tt>
+if you are using it to debug your application.  Note that your application
+will likely appear in the background, so you will have to cmd-tab or click
+on its dock icon to see its user interface.</p>
+<p>The other methods cause stdout and stderr to go to the Console log, which
+can be viewed with <tt class="docutils literal"><span class="pre">/Applications/Utilities/Console.app</span></tt>.</p>
+<p>When you run your script as it is now it should behave identically as when
+you tested your interface in Interface Builder in step 3, only now the
+skeleton is in Python, not Objective-C.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="writing-the-code">
+<h2>Writing the code<a class="headerlink" href="#writing-the-code" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic" start="8">
+<li><p class="first">Time to actually write some code.  Open <tt class="docutils literal"><span class="pre">CurrencyConverter.py</span></tt> in your
+favorite text editor.  Follow Apple&#8217;s documentation again, chapter 3,
+section &#8220;Implementing Currency Converter&#8217;s Classes&#8221;.  To translate this
+Objective C code to Python syntax, we will need to do some name mangling of
+the selectors.  See <em>An introduction to PyObjC</em> for the details, but the
+short is that:</p>
+<div class="highlight-objective-c"><div class="highlight"><pre><span class="p">[</span><span class="n">anObject</span> <span class="nl">modifyArg:</span> <span class="n">arg1</span> <span class="nl">andAnother:</span> <span class="n">arg2</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><p>translates into the following Python code, by replacing the colons in the
+selector with underscores, and passing the arguments as you would with a
+normal Python method call:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">anObject</span><span class="o">.</span><span class="n">modifyArg_andAnother_</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that we don&#8217;t do this mangling for <tt class="docutils literal"><span class="pre">Converter.convertAmount()</span></tt>: this
+method is only called by other Python code, so there is no need to go
+through the name mangling.  Also, if we would want to make this method
+callable from ObjC code we may have to tell the PyObjC runtime system about
+the types of the arguments, so it could do the conversion.  This is beyond
+the scope of this first tutorial, <em>An introduction to PyObjC</em> has a little
+more detail on this.</p>
+<p>The application should now be fully functional, try it.  The results of what
+we have up to now can be seen in <em>step8-CurrencyConverter.py</em>.</p>
+</div></blockquote>
+</div>
+<div class="section" id="extending-the-functionality">
+<h2>Extending the functionality<a class="headerlink" href="#extending-the-functionality" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic" start="9">
+<li><p class="first">We are going to add one more goodie, just to show how you edit an existing
+application.  The main problem, which may be obvious, is that we cannot run
+<tt class="docutils literal"><span class="pre">nibclassbuilder</span></tt> again because we would destroy all the code we wrote in
+steps 5 and 8, so we do this by hand.  What we are going to do is add an
+&#8220;invert rate&#8221; command, because I always get this wrong: instead of typing
+in the exchange rate from dollars to euros I type in the rate to convert
+from euros to dollars.</p>
+<p>Open <tt class="docutils literal"><span class="pre">MainMenu.nib</span></tt> in Interface Builder.  Select the <em>Classes</em> view and
+then select the <tt class="docutils literal"><span class="pre">ConverterController</span></tt> class.  In the info panel select
+the <em>Attributes</em> from the popup.  Select the <em>Actions</em> tab, and add an
+action <tt class="docutils literal"><span class="pre">invertRate:</span></tt>.  You have now told Interface Builder that instances
+of the <tt class="docutils literal"><span class="pre">ConverterController</span></tt> class have grown a new method
+<tt class="docutils literal"><span class="pre">invertRate_()</span></tt>.</p>
+<p>In the <tt class="docutils literal"><span class="pre">MainMenu.nib</span> <span class="pre">main</span></tt> window open the <em>MainMenu</em> menubar.  Select
+the <tt class="docutils literal"><span class="pre">Edit</span></tt> menu.  Make sure the <em>Menus</em> palette is open and selected,
+drag a separator to the <tt class="docutils literal"><span class="pre">Edit</span></tt> menu and then drag an <tt class="docutils literal"><span class="pre">Item</span></tt> there.
+Double-click the item and set the text to <tt class="docutils literal"><span class="pre">Invert</span> <span class="pre">Exchange</span> <span class="pre">Rate</span></tt>.</p>
+<p>Make the connection by control-dragging from the new
+<tt class="docutils literal"><span class="pre">Invert</span> <span class="pre">Exchange</span> <span class="pre">Rate</span></tt> menu item to the <tt class="docutils literal"><span class="pre">ConverterController</span></tt> instance
+in the Instances tab in the <tt class="docutils literal"><span class="pre">MainMenu.nib</span></tt> main window.</p>
+<p><em>NOTE:</em> you drag to the <em>instance</em> of <tt class="docutils literal"><span class="pre">ConverterController</span></tt>, not to the
+class.</p>
+<p>In the <em>Info</em> panel, <em>Connections</em> section, select <tt class="docutils literal"><span class="pre">invertRate:</span></tt> and
+press <em>Connect</em>.</p>
+</li>
+<li><p class="first">We know our program can&#8217;t invert rates yet, because we haven&#8217;t actually
+written the code to do it, but we are going to try it anyway, just to see
+what sort of spectacular crash we get.  Alas, nothing spectacular about it:
+when the NIB is loaded the Cocoa runtime system tries to make the
+connection, notices that we have no <tt class="docutils literal"><span class="pre">invertRate_()</span></tt> method in our
+<tt class="docutils literal"><span class="pre">ConverterController</span></tt> class and it gives an error message:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>./dist/CurrencyConverter.app/Contents/MacOS/CurrencyConverter
+2004-12-09 03:29:09.957 CurrencyConverter<span class="o">[</span>4454<span class="o">]</span> Could not connect the action
+invertRate: to target of class ConverterController
+</pre></div>
+</div>
+<p>Moreover, it has disabled the <tt class="docutils literal"><span class="pre">Invert</span> <span class="pre">Exchange</span> <span class="pre">Rate</span></tt> menu command and
+continues, so the program works as it did before, only with one more
+(disabled) menu item.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic" start="11">
+<li><p class="first">Writing the code is easy: add a method <tt class="docutils literal"><span class="pre">invertRate_(self,</span> <span class="pre">sender)</span></tt> that
+gets the float value of <tt class="docutils literal"><span class="pre">rateField</span></tt>, inverts it and puts it back.  We
+deliberately forget to test for divide by zero.  We run the program again,
+and now the menu entry is enabled.  After trying it with a couple of
+non-zero exchange rates we try it with an exchange rate of zero (or empty,
+which is the same).  We get a dialog box giving the Python exception, and
+offering the choice of continuing or quitting.</p>
+<p>To debug this application with pdb, start the application with the
+following command line:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>env <span class="nv">USE_PDB</span><span class="o">=</span>1 ./dist/CurrencyConverter.app/Contents/MacOS/CurrencyConverter
+</pre></div>
+</div>
+<p>When running in this mode, we will get a <tt class="docutils literal"><span class="pre">pdb.post_mortem(...)</span></tt> console
+in the terminal instead of the alert panel.  You can see this in action if
+you try and invert an exchange rate of <tt class="docutils literal"><span class="pre">0</span></tt>.</p>
+</li>
+<li><p class="first">Fix the final bug by testing for <tt class="docutils literal"><span class="pre">rate</span> <span class="pre">==</span> <span class="pre">0.0</span></tt> in <tt class="docutils literal"><span class="pre">invertRate_()</span></tt>.
+The result is in the <em>step12-src</em> directory.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="creating-a-redistributable-application">
+<h2>Creating a redistributable application<a class="headerlink" href="#creating-a-redistributable-application" title="Permalink to this headline">¶</a></h2>
+<p>Your application is finished, and you want to run it on other computers, or
+simply just move it to the <tt class="docutils literal"><span class="pre">Applications</span></tt> folder (or anywhere else) and
+insulate it from the original source code.</p>
+<p>This can be done with the following steps from the <tt class="docutils literal"><span class="pre">src</span></tt> directory:</p>
+<blockquote>
+<div></div></blockquote>
+<p>Now the application bundle located at <tt class="docutils literal"><span class="pre">dist/CurrencyConverter.app</span></tt> is a fully
+standalone application that should run on any computer running the same major
+version of Mac OS X or later.  This means that applications built on
+Mac OS X 10.2 are compatible with Mac OS X 10.3, but NOT vice versa.  If you
+are not using an Apple-supplied version of Python, a subset of your Python
+installation will be included in this application.</p>
+<p>For more complicated examples of py2app usage to do things such as change the
+application&#8217;s icon, see the Examples or the py2app documentation.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Creating your first PyObjC application.</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#testing-the-user-interface">Testing the user interface</a></li>
+<li><a class="reference internal" href="#writing-the-code">Writing the code</a></li>
+<li><a class="reference internal" href="#extending-the-functionality">Extending the functionality</a></li>
+<li><a class="reference internal" href="#debugging">Debugging</a></li>
+<li><a class="reference internal" href="#creating-a-redistributable-application">Creating a redistributable application</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Understanding existing PyObjC examples</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="embedded.html"
+                        title="next chapter">Tutorial - Adding Python code to an existing ObjC application</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/firstapp.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="embedded.html" title="Tutorial - Adding Python code to an existing ObjC application"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Understanding existing PyObjC examples"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >PyObjC Tutorials</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

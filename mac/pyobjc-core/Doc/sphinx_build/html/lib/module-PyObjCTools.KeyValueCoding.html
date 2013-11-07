@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyObjCTools.KeyValueCoding – Key-Value Coding API &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjCTools – Utilities" href="module-PyObjCTools.html" />
+    <link rel="next" title="PyObjCTools.AppHelper – Work with AppKit" href="module-PyObjCTools.AppHelper.html" />
+    <link rel="prev" title="PyObjCTools – Utilities" href="module-PyObjCTools.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.AppHelper.html" title="PyObjCTools.AppHelper – Work with AppKit"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.html" title="PyObjCTools – Utilities"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" accesskey="U"><tt class="docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-PyObjCTools.KeyValueCoding">
+<span id="pyobjctools-keyvaluecoding-key-value-coding-api"></span><h1><a class="reference internal" href="#module-PyObjCTools.KeyValueCoding" title="PyObjCTools.KeyValueCoding: Key-Value Coding API (MacOS X)"><tt class="xref py py-mod docutils literal"><span class="pre">PyObjCTools.KeyValueCoding</span></tt></a> &#8211; Key-Value Coding API<a class="headerlink" href="#module-PyObjCTools.KeyValueCoding" title="Permalink to this headline">¶</a></h1>
+<p>Support for Key-Value Coding in Python. This provides a simple functional
+interface to Cocoa&#8217;s Key-Value coding that also works for regular Python
+objects.</p>
+<p>Key-Value Coding is Cocoa functionality that is simular to
+the <a class="reference external" href="http://docs.python.org/library/functions.html#getattr" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">getattr()</span></tt></a> and <a class="reference external" href="http://docs.python.org/library/functions.html#setattr" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">setattr()</span></tt></a> functions in Python. The APIs
+in this module are modelled on those functions and work on
+Cocoa objects as well as basic Python objects.</p>
+<p>Key-Value Coding works with keys, basically attribute names, as well as
+key-paths. A key-path is a string that contains a sequence of dot-separated
+keys and is used to chain a number of keys together.</p>
+<div class="section" id="accessor-functions">
+<h2>Accessor functions<a class="headerlink" href="#accessor-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="PyObjCTools.KeyValueCoding.getKey">
+<tt class="descclassname">PyObjCTools.KeyValueCoding.</tt><tt class="descname">getKey</tt><big>(</big><em>object</em>, <em>key</em><big>)</big><a class="headerlink" href="#PyObjCTools.KeyValueCoding.getKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value of the attribute referenced by <tt class="docutils literal"><span class="pre">key</span></tt>. The key
+is used to build the name of an accessor method or attribute name.</p>
+<p>The following methods are tried for regular Python objects:</p>
+<ul class="simple">
+<li>Accessor method <tt class="docutils literal"><span class="pre">getKey</span></tt></li>
+<li>Accessor method <tt class="docutils literal"><span class="pre">get_key</span></tt></li>
+<li>Accessor method or attribute <tt class="docutils literal"><span class="pre">key</span></tt></li>
+<li>Accessor meethod or attribute <tt class="docutils literal"><span class="pre">isKey</span></tt></li>
+<li>Attribute <tt class="docutils literal"><span class="pre">_key</span></tt></li>
+</ul>
+<p>(In all of these &#8220;key&#8221; is replaced by the value of <tt class="docutils literal"><span class="pre">key</span></tt>).</p>
+<p>This function calls the regular Key-Value Coding methods for Cocoa objects,
+including those implemented in Python.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>object</strong> &#8211; An arbitrary object</li>
+<li><strong>key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; name of a key</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Result :</th><td class="field-body"><p class="first">the value of a key</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body"><p class="first last"><tt class="xref py py-exc docutils literal"><span class="pre">KeyError</span></tt> when the key does not exist.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.KeyValueCoding.setKey">
+<tt class="descclassname">PyObjCTools.KeyValueCoding.</tt><tt class="descname">setKey</tt><big>(</big><em>object</em>, <em>key</em>, <em>value</em><big>)</big><a class="headerlink" href="#PyObjCTools.KeyValueCoding.setKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of the attribute referenced by <tt class="docutils literal"><span class="pre">key</span></tt> to
+<tt class="docutils literal"><span class="pre">key</span></tt>. The key is used to build the name of an accessor
+method or attribute name.</p>
+<p>The following methods are tried for regular Python objects:</p>
+<ul class="simple">
+<li>Accessor method <tt class="docutils literal"><span class="pre">setKey</span></tt></li>
+<li>Accessor method <tt class="docutils literal"><span class="pre">set_key</span></tt></li>
+<li>attribute <tt class="docutils literal"><span class="pre">_key</span></tt></li>
+<li>Attribute <tt class="docutils literal"><span class="pre">key</span></tt></li>
+</ul>
+<p>(In all of these &#8220;key&#8221; is replaced by the value of <tt class="docutils literal"><span class="pre">key</span></tt>).</p>
+<p>This function calls the regular Key-Value Coding methods for Cocoa objects,
+including those implemented in Python.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>object</strong> &#8211; An arbitrary object</li>
+<li><strong>key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; name of a key</li>
+<li><strong>value</strong> &#8211; The value to set</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Result :</th><td class="field-body"><p class="first">the value of a key</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise :</th><td class="field-body"><p class="first last"><tt class="xref py py-exc docutils literal"><span class="pre">KeyError</span></tt> when the key does not exist.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="PyObjCTools.KeyValueCoding.getKeyPath">
+<tt class="descclassname">PyObjCTools.KeyValueCoding.</tt><tt class="descname">getKeyPath</tt><big>(</big><em>object</em>, <em>keypath</em><big>)</big><a class="headerlink" href="#PyObjCTools.KeyValueCoding.getKeyPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <tt class="docutils literal"><span class="pre">keypath</span></tt> is a string containing a path of keys. The keys
+are separated by colons, for example <tt class="xref py py-data docutils literal"><span class="pre">&quot;owner.firstName&quot;</span></tt>.</p>
+<p>The key path is used to traverse an object graph to an attribute. This
+function also supports set and array operators. Those are keys of
+the form <tt class="docutils literal"><span class="pre">&#64;operator</span></tt> are are used as <tt class="docutils literal"><span class="pre">pathToArray.&#64;operator.pathToProperty</span></tt>,
+for example <tt class="docutils literal"><span class="pre">system.disks.&#64;max.capacity</span></tt>.</p>
+<p>The table below lists the supported array operators</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Operator</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">avg</span></tt></td>
+<td>Use the rest of the keypath to fetch the value
+of each item in the container and returns the
+average of those values.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">count</span></tt></td>
+<td>Returns the number of items in the container</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">distinctUnionOfArrays</span></tt></td>
+<td>Use the rest of the keypath to fetch the value of
+each item, which must be a sequence. Those sequences
+are merged into an array with distict values.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">distinctUnionOfObjects</span></tt></td>
+<td>Use the rest of the keypath to fetch the value of
+each item and return an array with all distinct
+values.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">max</span></tt></td>
+<td>Use the rest of the keypath to fetch the value
+of each item in the container and returns the
+maximum of those values.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min</span></tt></td>
+<td>Use the rest of the keypath to fetch the value
+of each item in the container and returns the
+minimum of those values.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">sum</span></tt></td>
+<td>Use the rest of the keypath to fetch the value
+of each item in the container and returns the
+sum of those values.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">unionOfArrays</span></tt></td>
+<td>Like <tt class="docutils literal"><span class="pre">distinctUnionOfArrays</span></tt>, but without
+removing duplicates.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">unionOfObjects</span></tt></td>
+<td>Like <tt class="docutils literal"><span class="pre">distinctUnionOfObjects</span></tt>, but without
+removing duplicates</td>
+</tr>
+</tbody>
+</table>
+<p>This function calls the regular Key-Value Coding method for Cocoa objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> &#8211; An arbitrary object</li>
+<li><strong>keypath</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The keypath, colon seperated keys</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="key-value-coding-wrapper">
+<h2>Key-Value Coding wrapper<a class="headerlink" href="#key-value-coding-wrapper" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="PyObjCTools.KeyValueCoding.kvc">
+<em class="property">class </em><tt class="descclassname">PyObjCTools.KeyValueCoding.</tt><tt class="descname">kvc</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#PyObjCTools.KeyValueCoding.kvc" title="Permalink to this definition">¶</a></dt>
+<dd><p>This wrappers <tt class="docutils literal"><span class="pre">value</span></tt> in an object that uses KeyValue Coding
+to implement the attribute and item accessors.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">PyObjCTools.KeyValueCoding</span></tt> &#8211; Key-Value Coding API</a><ul>
+<li><a class="reference internal" href="#accessor-functions">Accessor functions</a></li>
+<li><a class="reference internal" href="#key-value-coding-wrapper">Key-Value Coding wrapper</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="module-PyObjCTools.AppHelper.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools.AppHelper</span></tt> &#8211; Work with AppKit</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/lib/module-PyObjCTools.KeyValueCoding.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.AppHelper.html" title="PyObjCTools.AppHelper – Work with AppKit"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="module-PyObjCTools.html" title="PyObjCTools – Utilities"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Python API</a> &raquo;</li>
+          <li><a href="module-PyObjCTools.html" ><tt class="docutils literal docutils literal docutils literal docutils literal docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Manual metadata loading &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjC metadata system" href="index.html" />
+    <link rel="next" title="Python API" href="../api/index.html" />
+    <link rel="prev" title="Compiled metadata system" href="compiled.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/index.html" title="Python API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="compiled.html" title="Compiled metadata system"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">PyObjC metadata system</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="manual-metadata-loading">
+<h1>Manual metadata loading<a class="headerlink" href="#manual-metadata-loading" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>When the other two metadata systems aren&#8217;t suitable it
+is also possible to load metadata through code. The other
+two systems use the functionality described in this section
+to actually load the metadata.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="bridgesupport.html"><em>BridgeSupport XML files</em></a></dt>
+<dd>Loading metadata from XML files</dd>
+<dt><a class="reference internal" href="compiled.html"><em>Compiled metadata system</em></a></dt>
+<dd>Loading metadata using compiled files</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="metadata-dictionaries">
+<h2>Metadata dictionaries<a class="headerlink" href="#metadata-dictionaries" title="Permalink to this headline">¶</a></h2>
+<p>One or the arguments for <a class="reference internal" href="#objc.loadBundleFunctions" title="objc.loadBundleFunctions"><tt class="xref py py-func docutils literal"><span class="pre">loadBundleFunctions()</span></tt></a>, <a class="reference internal" href="#objc.loadFunctionList" title="objc.loadFunctionList"><tt class="xref py py-func docutils literal"><span class="pre">loadFunctionList()</span></tt></a> and <a class="reference internal" href="#objc.registerMetaDataForSelector" title="objc.registerMetaDataForSelector"><tt class="xref py py-func docutils literal"><span class="pre">registerMetaDataForSelector()</span></tt></a>
+contains (or &#8220;is&#8221; for <a class="reference internal" href="#objc.registerMetaDataForSelector" title="objc.registerMetaDataForSelector"><tt class="xref py py-func docutils literal"><span class="pre">registerMetaDataForSelector()</span></tt></a>) a metadata dictionary containing information about function
+and method interfaces that cannot be extract from a basic type signature for that function or method.</p>
+<p>Copies of these structures can be also retrieved at runtime using the <em>__metadata__()</em> method on both <a class="reference internal" href="../api/module-objc.html#objc.function" title="objc.function"><tt class="xref py py-class docutils literal"><span class="pre">function</span></tt></a>
+and <a class="reference internal" href="../api/module-objc.html#objc.selector" title="objc.selector"><tt class="xref py py-class docutils literal"><span class="pre">selector</span></tt></a> objects, which makes it possible to introspect the metadata information when needed.</p>
+<p>The metadata is a Python dictionary with a particular structure (all keys are optional):</p>
+<ul>
+<li><p class="first"><em>arguments</em>: A dictionary containing more information on arguments. The keys of this dictionary are integers
+with the argument offset (for methods index 0 is the first implicit argument, index 2 is the first argument that is
+visible in a prototype). The values are metadata dictionaries for the arguments and are decribed
+<a class="reference external" href="argumentandreturnvaluemetadata">later on</a>.</p>
+<p>In metadata that is returned the <em>__metadata__()</em> method of <a class="reference internal" href="../api/module-objc.html#objc.function" title="objc.function"><tt class="xref py py-class docutils literal"><span class="pre">function</span></tt></a> and <a class="reference internal" href="../api/module-objc.html#objc.selector" title="objc.selector"><tt class="xref py py-class docutils literal"><span class="pre">selector</span></tt></a> objects the
+<em>arguments</em> value is a tuple with items for all arguments.</p>
+</li>
+<li><p class="first"><em>retval</em>: A metadata dictionary with more information on the return value. The contents of this dictionary
+is described <a class="reference external" href="argumentandreturnvaluemetadata">later on</a>.</p>
+</li>
+<li><p class="first"><em>suggestion</em>: For methods only: the method should not be called from Python, and calling it will raise and exception
+with the <em>suggestion</em> value in the exception message.</p>
+</li>
+<li><p class="first"><em>variadic</em>: If present and the value is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> the function or method takes a variable number of arguments. PyObjC
+can only call such functions when either on of the arguments is a <em>printf_format</em>, or the dictionary contains information
+on the argument array (as described by keys further on in this list).</p>
+</li>
+<li><p class="first"><em>c_array_delimited_by_null</em>: If present and the value is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>, and the function is a variadic function, the
+variable part of the function argument list is a list of values where the last item of the list is a null value. All elements
+of the list are the same type, that of the last type that is present in the prototype.</p>
+<p>In python the function is called with the additional arguments after the fixed arguments (just like in C), but without
+a null value at the end of the argument array.</p>
+<p>An example of such a function is <a class="reference external" href="http://www.manpages.info/macosx/execl.3.html">execlp(3)</a></p>
+</li>
+<li><p class="first"><em>c_array_length_in_arg</em>: If present and the value is an integer, and the function is a variadic function, the
+variable part of the function argument list is a list of values and the value for this key indicates which function
+argument contains the length of that list. All elements of the list are the same type, that of the last type that
+is present in the prototype.</p>
+<p>In python the function is called with the additional arguments after the fixed arguments (just like in C).</p>
+</li>
+</ul>
+<p>Keys not listed above will be ignored by the bridge.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The bridge currently does not copy the metadata when you register it with the functions listed above. Don&#8217;t rely
+on that behavior, it might change in a future release and changes to metadata dictionaries may or may not affect
+bridge behavior (basicly depending on if the change occurs before or after the bridge first uses the metadata)</p>
+</div>
+<div class="section" id="c-array-lenght-in-interpretation">
+<h3><em>c_array_lenght_in...</em> interpretation<a class="headerlink" href="#c-array-lenght-in-interpretation" title="Permalink to this headline">¶</a></h3>
+<p>The keys <em>c_array_length_in_arg</em> (function, argument and return value metadata) and <em>c_array_length_in_result</em> (argument
+metadata) describe the index of an argument that contains the size of a C array. This section describes how the bridge
+determines the value to use for the array.</p>
+<p>For <tt class="xref py py-data docutils literal"><span class="pre">_C_INOUT</span></tt> argument the value to use for converting to C and back from C is calculated both before and
+after the function call, which means that the length of the array passed to the function can have a different length
+than the array returned from the function.  This is used for function where a buffer is passed into the function and
+the function indicates the useable size of that buffer by modifiying a pass-by-reference argument.</p>
+<p>How the size of the C array is calculated depends on the <em>type</em> of the argument:</p>
+<ul class="simple">
+<li>When the type is a pointer type the value is calculated by dereferencing the pointer.</li>
+<li>When the type is a integer (for example, <tt class="xref c c-type docutils literal"><span class="pre">int</span></tt>, <tt class="xref c c-type docutils literal"><span class="pre">unsigned</span> <span class="pre">long</span></tt> or <tt class="xref c c-type docutils literal"><span class="pre">NSInteger</span></tt>) the length
+is the value of the C argument.</li>
+<li>When the type is <tt class="xref c c-type docutils literal"><span class="pre">NSRange</span></tt> or <tt class="xref c c-type docutils literal"><span class="pre">CFRange</span></tt> the length of the C array is the lenght of the range.</li>
+<li>When the type is <tt class="xref c c-type docutils literal"><span class="pre">id</span></tt> and the Objective-C instance responds to the &#8220;-count&#8221; selector the length
+of the C array is the result of calling that selector.</li>
+<li>In all other cases the length cannot be calculated and the bridge raises an exception.</li>
+</ul>
+</div>
+<div class="section" id="argument-and-return-value-metadata">
+<h3>Argument and return value metadata<a class="headerlink" href="#argument-and-return-value-metadata" title="Permalink to this headline">¶</a></h3>
+<p>The argument and return value metadata is also a dictionary with a specific structure. As with the complete metadata
+dictionary all keys are optional unless the description mentions otherwise.</p>
+<ul>
+<li><p class="first"><em>type</em>: A byte string with the type encoding for the value. The default is extracted from the type encoding for
+the entire prototype (for methods this is extracted from the Objective-C runtime, for functions this is passed as
+one of the items in the function info tuple).</p>
+<p>This key is always present in the metadata returned by the <em>__metadata__()</em> method.</p>
+</li>
+<li><p class="first"><em>type_override</em>: A byte string with value <tt class="xref py py-data docutils literal"><span class="pre">_C_IN</span></tt>, <tt class="xref py py-data docutils literal"><span class="pre">_C_OUT</span></tt> or <tt class="xref py py-data docutils literal"><span class="pre">_C_INOUT</span></tt> to indicate that the
+argument is an input, output or input/output argument. Ignored unless the <em>type</em> is a pointer type that isn&#8217;t a
+CoreFoundation instance.</p>
+<p>The value is assumed to be a single value (a pass-by-reference argument), unless there are keys in the dictionary that
+say otherwise (see further on in this list).</p>
+<p>This key is not used for return value metadata.</p>
+</li>
+<li><p class="first"><em>printf_format</em>: If present and the value is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> the argument value is a printf(3) style format string for
+a variadic function or method. Ignored unless the function or method actually is variadic.</p>
+</li>
+<li><p class="first"><em>sel_of_type</em>: A byte string that describes the expected selector prototype for arguments of the <tt class="xref py py-data docutils literal"><span class="pre">_C_SEL</span></tt>.</p>
+<p>Used by the decorator <a class="reference internal" href="../api/module-objc.html#objc.selectorFor" title="objc.selectorFor"><tt class="xref py py-func docutils literal"><span class="pre">selectorFor()</span></tt></a> to calculate the signature of the decorated method.</p>
+</li>
+<li><p class="first"><em>already_retained</em>: Value <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> indicates that the return value, or a pass-by-reference output parameter, is
+returned to the caller with an increased reference count. An Objective-C caller will have to call &#8220;-retain&#8221; on the value
+when the value is no longer used.</p>
+<p>Used by the bridge to correctly maintain the Objective-C reference count. Python users do not have to maintain the
+reference count themselfes.</p>
+</li>
+<li><p class="first"><em>already_cfretained</em>: Value <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> indicates that the return value, or a pass-by-reference output parameter, is
+returned to the caller with an increased reference count. An Objective-C caller will have to call &#8220;CFRelease&#8221; on the value
+when the value is no longer used.</p>
+<p>Used by the bridge to correctly maintain the Objective-C reference count. Python users do not have to maintain the
+reference count themselfes.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Use either <em>already_retained</em>, or <em>already_cfretained</em> but not both.</p>
+<p class="last">The two different keys are present to be able to support Objective-C Garbage Collection: in process with GC enabled
+the CoreFoundation and Cocoa retain count APIs behave differently. Because GC is on the way out and PyObjC doesn&#8217;t
+properly support GC anyway it is better to use <em>already_retained</em> where approprate and not use <em>already_cfretained</em>.</p>
+</div>
+</li>
+<li><p class="first"><em>c_array_delimited_by_null</em>: When <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>, and the argument or return value <em>type</em> is a pointer type, the value
+is a C array with a null value at the end. Python users do not have to supply the null value on calls, and the bridge
+will strip the null value in return values.</p>
+<p>When the <em>type_override</em> is <tt class="xref py py-data docutils literal"><span class="pre">_C_IN</span></tt> or <tt class="xref py py-data docutils literal"><span class="pre">_C_INOUT</span></tt> the input value must be a sequence of values (list, tuple,
+...). The bridge allocates a buffer of the right size, converts all values and appends the approprate null value. The
+value can also be a buffer (such as an <a class="reference external" href="http://docs.python.org/library/array.html#array.array" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">array.array</span></tt></a> of the approprate structure), which then must contain a null
+value at the end.</p>
+<p>When the <em>type_override</em> is <tt class="xref py py-data docutils literal"><span class="pre">_C_OUT</span></tt> the argument must be either <a class="reference internal" href="../api/module-objc.html#objc.NULL" title="objc.NULL"><tt class="xref py py-data docutils literal"><span class="pre">NULL</span></tt></a> to indicate that a <tt class="xref c c-data docutils literal"><span class="pre">NULL</span></tt>
+pointer should be passed to the Objective-C function or a buffer object of the appropriate structure, and with enough
+room to store the function output including the null delimiter.</p>
+</li>
+<li><p class="first"><em>c_array_length_in_arg</em>: The argument or return value is a C array where the length of the array is specified in
+another argument. Ignored when the <em>type</em> is not a pointer type. The value for this key is either a single integer, or
+two integers (for <tt class="xref py py-data docutils literal"><span class="pre">_C_INOUT</span></tt> arguments).</p>
+<p>When the <em>type_override</em> is <tt class="xref py py-data docutils literal"><span class="pre">_C_IN</span></tt> or <tt class="xref py py-data docutils literal"><span class="pre">_C_INOUT</span></tt> the input value must be a sequence of values of the correct
+lenght (at least the length that&#8217;s expected by the function, additional items in the sequence are ignored).</p>
+<p>When the <em>type_override</em> is <tt class="xref py py-data docutils literal"><span class="pre">_C_OUT</span></tt> the value can be <a class="reference internal" href="../api/module-objc.html#objc.NULL" title="objc.NULL"><tt class="xref py py-data docutils literal"><span class="pre">NULL</span></tt></a> (<tt class="xref c c-data docutils literal"><span class="pre">NULL</span></tt> pointer passed to the function) or
+<a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> (PyObjC allocates a C array of the right size and writes nul bytes in the entire buffer).</p>
+<p>When the value of the key is a single integer this argument index for the argument that contains the expected size
+of the array. When the value of the key is a tuple of two integers these are the indexes for the argument that contains
+the size that should be used when calling the function and the argument that contains the size of the array that is useable
+after the call.</p>
+</li>
+<li><p class="first"><em>c_array_of_fixed_length</em>: When the <em>type</em> is a pointer type the actual argument (or result) is an C array of a fixed length. The value
+for this key is an integer that is the length of the C array.</p>
+</li>
+<li><p class="first"><em>c_array_of_variable_length</em>: When the <em>type</em> is a pointer type the actual argument (or result) is a C array, but the
+lenght of the array is unknown or cannot be described in metadata.</p>
+<p>For results the bridge will return a value of <a class="reference internal" href="../api/module-objc.html#objc.varlist" title="objc.varlist"><tt class="xref py py-class docutils literal"><span class="pre">varlist</span></tt></a>.</p>
+<p>For arguments with <em>type_override</em> value <tt class="xref py py-data docutils literal"><span class="pre">_C_IN</span></tt> or <tt class="xref py py-data docutils literal"><span class="pre">_C_INOUT</span></tt> the value for the arugment must be a Python sequence
+and the bridge will allocate a C array that is long enough to contain all items of that sequence; alternatively the argument
+can be a Python buffer object (simular to <tt class="xref py py-data docutils literal"><span class="pre">_C_OUT</span></tt> arugments).  For <tt class="xref py py-data docutils literal"><span class="pre">_C_OUT</span></tt> arguments the value for the argument
+must be either <a class="reference internal" href="../api/module-objc.html#objc.NULL" title="objc.NULL"><tt class="xref py py-data docutils literal"><span class="pre">NULL</span></tt></a> or a Python buffer object that will be passed to the function.</p>
+</li>
+<li><p class="first"><em>c_array_length_in_result</em>: Only valid for argument metadata. When the argument <em>type</em> is a pointer type and the
+<em>type_override</em> is <tt class="xref py py-data docutils literal"><span class="pre">_C_INOUT</span></tt> or <tt class="xref py py-data docutils literal"><span class="pre">_C_OUT</span></tt> the usuable length of the array is calculated from the return value.</p>
+<p>The size of the buffer that needs to be allocated is determined using one of the other <em>c_array...</em> keys in the metadata
+dictionary.</p>
+</li>
+<li><p class="first"><em>null_accepted</em>: If <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> and the argument is a pointer it is safe to pass a <a class="reference internal" href="../api/module-objc.html#objc.NULL" title="objc.NULL"><tt class="xref py py-data docutils literal"><span class="pre">NULL</span></tt></a> as the value.
+Defaults to <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>.</p>
+<p>This key is not used in return value metadata.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The metadata that is currently shipped with PyObjC does not contain <em>null_accepted</em> data. This means that the bridge
+won&#8217;t check if it safe to pass <a class="reference internal" href="../api/module-objc.html#objc.NULL" title="objc.NULL"><tt class="xref py py-data docutils literal"><span class="pre">NULL</span></tt></a> as a value for pointer arguments, read the Cocoa documentation to check
+if passing <a class="reference internal" href="../api/module-objc.html#objc.NULL" title="objc.NULL"><tt class="xref py py-data docutils literal"><span class="pre">NULL</span></tt></a> is safe.</p>
+</div>
+</li>
+<li><p class="first"><em>callable</em>: When type argument or return value has type &#8220;^?&#8221; or &#8220;&#64;?&#8221; the method or function takes a function or block
+as the argument. In Python an arbitrary callable can be passed (but see <em>callable_retained</em> for some limitations).</p>
+<p>The value of this attribute contains the metadata describing the callable. It is a metadata structure as described in
+this section, with some additional limitations: the <em>arguments</em> key of the dictionary must describe all arguments of the
+callable (that is all keys in range(len(<em>arguments</em>)) must be present), the <em>type</em> key of the argument and return value
+metadata must be present (although it is allowed to leave out the return value metadata when the function has return
+type <tt class="xref c c-type docutils literal"><span class="pre">void</span></tt>).</p>
+<p>For blocks the argument array <em>must</em> include the first implicit argument at index 0 or the <em>arguments</em> array, and with
+type b&#8221;^v&#8221;.</p>
+</li>
+<li><p class="first"><em>callable_retained</em>: Then <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> and <em>callable</em> is present and the argument type is b&#8221;^?&#8221; the callable argument
+will be retained by the Objective-C funtion or method beyond the call.</p>
+<p>This key is not used in return value metadata.</p>
+<p>When this value is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> the argument must be a global object that is annotated with the decorator
+<a class="reference internal" href="../api/module-objc.html#objc.callbackFor" title="objc.callbackFor"><tt class="xref py py-func docutils literal"><span class="pre">callbackFor()</span></tt></a>. That decorator ensures that the C representation of the function is always present to ensure that
+it is safe to store a reference on the Objective-C side of the bridge.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="api-description">
+<h2>API description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="loading-frameworks-and-other-bundles">
+<h3>Loading frameworks and other bundles<a class="headerlink" href="#loading-frameworks-and-other-bundles" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.loadBundle">
+<tt class="descclassname">objc.</tt><tt class="descname">loadBundle</tt><big>(</big><em>module_name</em>, <em>module_globals</em><span class="optional">[</span>, <em>bundle_path</em><span class="optional">[</span>, <em>bundle_identifier</em><span class="optional">[</span>, <em>scan_classes</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadBundle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the bundle specified by <em>bundle_path</em> or <em>bundle_identifier</em> and add the classes
+in the bundle to <em>module_globals</em>. The classes are not added to the <em>module_globals</em> when
+<em>scan_classes</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#False" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">False</span></tt></a> (it defaults to <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a>).</p>
+<p>If both a <em>bundle_path</em> and <em>bundle_identifier</em> are specified the function first tries
+to locate the bundle using the identifier and then using the path.</p>
+<p>When <em>bundle_identifier</em> is specified the bundle is located using <tt class="docutils literal"><span class="pre">[NSBundle</span> <span class="pre">+bundleWithIdentifier:]</span></tt>,
+and when <em>bundle_path</em> is specified the bundle is located using <tt class="docutils literal"><span class="pre">[NSBundle</span> <span class="pre">+bundleWithPath:]</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><em>bundle_path</em> must be an absolute path.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The current implementation loads <em>all</em> Objective-C classes into <em>module_globals</em>, as
+testing if a class is located in a specific bundle is fairly expensive and slowed down
+application initialization too much.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="creating-and-registering-types">
+<h3>Creating and registering types<a class="headerlink" href="#creating-and-registering-types" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.registerCFSignature">
+<tt class="descclassname">objc.</tt><tt class="descname">registerCFSignature</tt><big>(</big><em>name</em>, <em>encoding</em>, <em>typeId</em><span class="optional">[</span>, <em>tollfreeName</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.registerCFSignature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a CoreFoundation based type with the bridge. If <em>tollfreeName</em> is specified
+the type is tollfree bridged to that Objective-C class.</p>
+<p>The value of <em>typeId</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a> for tollfree bridged types, and the result
+of the &#8220;GetTypeID&#8221; function for the type for other types.</p>
+<p>Returns the class object for the registerd type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.createOpaquePointerType">
+<tt class="descclassname">objc.</tt><tt class="descname">createOpaquePointerType</tt><big>(</big><em>name</em>, <em>typestr</em>, <em>doc</em><big>)</big><a class="headerlink" href="#objc.createOpaquePointerType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a wrapper type for opaque pointers (&#8220;handles&#8221;) of a given type.
+The type will be registered with the bridge and will be used to wrap
+values with the given type signature.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.createStructType">
+<tt class="descclassname">objc.</tt><tt class="descname">createStructType</tt><big>(</big><em>name</em>, <em>typestr</em>, <em>fieldnames</em>, <em>doc</em><span class="optional">[</span>, <em>pack</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.createStructType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a type to wrap structs with a given name and type signature, this
+type will be used by the bridge to convert values of this structure to Python.</p>
+<p>This also adds a class method named <em>name</em> to <a class="reference internal" href="../api/module-objc.html#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">objc.ivar</span></tt></a>. This class
+method creates a new instance variable with the struct type as its type.</p>
+<ul class="simple">
+<li><em>name</em> is a string with the name of the structure, for example &#8220;NSPoint&#8221;.</li>
+<li><em>typestr</em> is the encoded type of the structure and can optionally
+contain embedded field names</li>
+<li><em>fieldnames</em> is a list with the field names, the value can be <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a>
+when the <em>typestr</em> contains embedded field names.</li>
+<li><em>doc</em> is the value of __doc__ for the new type</li>
+<li><em>pack</em> can be used to specify the value of &#8220;#pragma pack&#8221; for the structure
+(default is to use the default platform packing for structures).</li>
+</ul>
+<p>The created type behaves itself simular to a mutable <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">namedtuple</span></tt></a>,
+that is items can be accessed both using attribute access and using the sequence interface.</p>
+<p>An example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Point</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">createStructType</span><span class="p">(</span><span class="s">&quot;Point&quot;</span><span class="p">,</span> <span class="n">b</span><span class="s">&quot;{Point=dd}&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;x&quot;</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">])</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+
+<span class="c"># Set the X field in two ways:</span>
+<span class="n">p</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span>
+</pre></div>
+</div>
+<p>The generated type als has a number of methods:</p>
+<ul class="simple">
+<li><em>_asdict()</em>:  Returns a dict that maps from field names to attribute values</li>
+<li><em>_replace(**kwds)</em>: Return a copy of the struct and replace attribute values with values from the keyword arguments</li>
+<li><em>copy()</em>: Return a copy of the struct. If an attribute is another struct that attribute gets copied as well, other attributes
+are not copied. That is, struct types are deep copied other types are shallow copied.</li>
+</ul>
+<p>And the following attributes are present:</p>
+<ul class="simple">
+<li><em>_fields</em>: A list of field names</li>
+<li><em>__typestr__</em>: The Objective-C type encoding for the struct (without embedded field names)</li>
+</ul>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>The function creates a class method on <a class="reference internal" href="../api/module-objc.html#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">objc.ivar</span></tt></a>.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>The type now implements the &#8220;_asdict&#8221; and &#8220;_replace&#8221; methods that
+are also present on <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">collections.namedtuple()</span></tt></a> types. The
+attribute &#8220;_fields&#8221; was added as well.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerStructAlias">
+<tt class="descclassname">objc.</tt><tt class="descname">registerStructAlias</tt><big>(</big><em>typestr</em>, <em>structType</em><big>)</big><a class="headerlink" href="#objc.registerStructAlias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tell the brige that structures with encoding <em>typestr</em> should also be
+coverted to Python using <em>structType</em> (a type created using <a class="reference internal" href="#objc.createStructType" title="objc.createStructType"><tt class="xref py py-func docutils literal"><span class="pre">createStructType()</span></tt></a>).</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.5: </span>Use <a class="reference internal" href="#objc.createStructAlias" title="objc.createStructAlias"><tt class="xref py py-func docutils literal"><span class="pre">createStructAlias()</span></tt></a> instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.createStructAlias">
+<tt class="descclassname">objc.</tt><tt class="descname">createStructAlias</tt><big>(</big><em>name</em>, <em>typestr</em>, <em>structType</em><big>)</big><a class="headerlink" href="#objc.createStructAlias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tell the brige that structures with encoding <em>typestr</em> should also be
+coverted to Python using <em>structType</em> (a type created using
+<a class="reference internal" href="#objc.createStructType" title="objc.createStructType"><tt class="xref py py-func docutils literal"><span class="pre">createStructType()</span></tt></a>).</p>
+<p>This also adds a class method named <em>name</em> to <a class="reference internal" href="../api/module-objc.html#objc.ivar" title="objc.ivar"><tt class="xref py py-class docutils literal"><span class="pre">objc.ivar</span></tt></a>. This class
+method creates a new instance variable with the struct type as its type.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="loading-variable-constants">
+<h3>Loading variable/constants<a class="headerlink" href="#loading-variable-constants" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.loadBundleVariables">
+<tt class="descclassname">objc.</tt><tt class="descname">loadBundleVariables</tt><big>(</big><em>bundle</em>, <em>module_globals</em>, <em>variableInfo</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadBundleVariables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a list of global variables (constants) from a bundle and adds proxy objects for
+them to the <em>module_globals</em> dictionary. If <em>skip_undefined</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> (the default)
+the function will skip entries that don&#8217;t refer to existing variables, otherwise it
+raises an <tt class="xref py py-exc docutils literal"><span class="pre">error</span></tt> exception for these variables.</p>
+<p><em>variableInfo</em> is a sequence of variable descriptions. Every description is a tuple
+of two elements: the variable name (a string) and the type encoding for the variable
+(a byte string).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.loadSpecialVar">
+<tt class="descclassname">objc.</tt><tt class="descname">loadSpecialVar</tt><big>(</big><em>bundle</em>, <em>module_globals</em>, <em>typeid</em>, <em>name</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadSpecialVar" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function loads a global variable from a bundle and adds it to the <em>module_globals</em>
+dictionary. The variable should be a CoreFoundation based type, with a value that
+is not a valid pointer.</p>
+<p>If <em>skip_undefined</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> (the default) the function won&#8217;t raise and exception
+when the variable is not present. Otherwise the function will raise an <tt class="xref py py-exc docutils literal"><span class="pre">error</span></tt> exception.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="loading-functions">
+<h3>Loading functions<a class="headerlink" href="#loading-functions" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.loadBundleFunctions">
+<tt class="descclassname">objc.</tt><tt class="descname">loadBundleFunctions</tt><big>(</big><em>bundle</em>, <em>module_globals</em>, <em>functionInfo</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadBundleFunctions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a list of functions from a bundle and adds proxy objects for
+them to the <em>module_globals</em> dictionary. If <em>skip_undefined</em> is <a class="reference external" href="http://docs.python.org/library/constants.html#True" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">True</span></tt></a> (the default)
+the function will skip entries that don&#8217;t refer to existing functions, otherwise it
+raises an <tt class="xref py py-exc docutils literal"><span class="pre">error</span></tt> exception for these functions.</p>
+<p><em>bundle</em> is either an <em>NSBundle</em> instance, or <a class="reference external" href="http://docs.python.org/library/constants.html#None" title="(in Python v2.7)"><tt class="xref py py-data docutils literal"><span class="pre">None</span></tt></a>. When a bundle is specified
+the function is looked up in that bundle, otherwise the function is looked up in
+any bundle (including the main program and Python extensions).</p>
+<p><em>functionInfo</em> is a sequence of function descriptions. Every description is a tuple
+of two or four elements: the function name (a string) and signature (a byte string) and
+optionally a value for the &#8220;__doc__&#8221; attribute and a metadata dictionary.</p>
+<p>The structure of the metadata dictionary is descripted in the section <a class="reference internal" href="#metadata-dictionaries">Metadata dictionaries</a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.loadFunctionList">
+<tt class="descclassname">objc.</tt><tt class="descname">loadFunctionList</tt><big>(</big><em>list</em>, <em>module_globals</em>, <em>functionInfo</em><span class="optional">[</span>, <em>skip_undefined</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.loadFunctionList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simular to <a class="reference internal" href="#objc.loadBundleFunctions" title="objc.loadBundleFunctions"><tt class="xref py py-func docutils literal"><span class="pre">loadBundleFunctions()</span></tt></a>, but loads the functions from <em>list</em> instead
+of a bundle.</p>
+<p><em>List</em> should be a capsule object with tag &#8220;objc.__inline__&#8221; and the value should
+be a pointer to an array of structs with the following definition:</p>
+<div class="highlight-objective-c"><div class="highlight"><pre><span class="k">struct</span> <span class="n">function</span> <span class="p">{</span>
+    <span class="kt">char</span><span class="o">*</span>  <span class="n">name</span><span class="p">;</span>
+    <span class="kt">void</span>   <span class="p">(</span><span class="o">*</span><span class="n">function</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>The last item in the array must have a <tt class="xref c c-data docutils literal"><span class="pre">NULL</span></tt> pointer in the name field.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="metadata-for-objective-c-methods-and-classes">
+<h3>Metadata for Objective-C methods and classes<a class="headerlink" href="#metadata-for-objective-c-methods-and-classes" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="objc.registerMetaDataForSelector">
+<tt class="descclassname">objc.</tt><tt class="descname">registerMetaDataForSelector</tt><big>(</big><em>class_</em>, <em>selector</em>, <em>metadata</em><big>)</big><a class="headerlink" href="#objc.registerMetaDataForSelector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a metadata structure for the given selector. The metadata is a dictionary,
+and the structure of that dictionary is described in the section <a class="reference internal" href="#metadata-dictionaries">Metadata dictionaries</a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerListType">
+<tt class="descclassname">objc.</tt><tt class="descname">registerListType</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#objc.registerListType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register <em>type</em> as a list-like type that will be bridged to Objective-C as an NSArray subclass.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.registerMappingType">
+<tt class="descclassname">objc.</tt><tt class="descname">registerMappingType</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#objc.registerMappingType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register <em>type</em> as a dict-like type that will be bridged to Objective-C as an NSDictionary subclass.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.addConvenienceForSelector">
+<tt class="descclassname">objc.</tt><tt class="descname">addConvenienceForSelector</tt><big>(</big><em>selector</em>, <em>methods</em><big>)</big><a class="headerlink" href="#objc.addConvenienceForSelector" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Add a list of method to every class that has <em>selector</em> as a selector.
+These additional methods are not added to the Objective-C class, but are
+only visibile in Python code.</p>
+<p>The <em>methods</em> argument is a list of tuples (methodname, function).</p>
+</div></blockquote>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.5.</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.addConvenienceForClass">
+<tt class="descclassname">objc.</tt><tt class="descname">addConvenienceForClass</tt><big>(</big><em>classname</em>, <em>method</em><big>)</big><a class="headerlink" href="#objc.addConvenienceForClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a list of method the named class when that class is initialized, the class
+need not be loaded at the time of this call. These additional methods are not
+added to the Objective-C class, but are only visibile in Python code.</p>
+<p>The <em>methods</em> argument is a list of tuples (methodname, function).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="objc.setSignatureForSelector">
+<tt class="descclassname">objc.</tt><tt class="descname">setSignatureForSelector</tt><big>(</big><em>class_name</em>, <em>selector</em>, <em>signature</em><big>)</big><a class="headerlink" href="#objc.setSignatureForSelector" title="Permalink to this definition">¶</a></dt>
+<dd><p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.3.</span></p>
+<p>Use the metadata system instead</p>
+<p>Register a replacement signature for a specific selector. This can
+be used to provide a more exact signature for a method.</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Manual metadata loading</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#metadata-dictionaries">Metadata dictionaries</a><ul>
+<li><a class="reference internal" href="#c-array-lenght-in-interpretation"><em>c_array_lenght_in...</em> interpretation</a></li>
+<li><a class="reference internal" href="#argument-and-return-value-metadata">Argument and return value metadata</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-description">API description</a><ul>
+<li><a class="reference internal" href="#loading-frameworks-and-other-bundles">Loading frameworks and other bundles</a></li>
+<li><a class="reference internal" href="#creating-and-registering-types">Creating and registering types</a></li>
+<li><a class="reference internal" href="#loading-variable-constants">Loading variable/constants</a></li>
+<li><a class="reference internal" href="#loading-functions">Loading functions</a></li>
+<li><a class="reference internal" href="#metadata-for-objective-c-methods-and-classes">Metadata for Objective-C methods and classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="compiled.html"
+                        title="previous chapter">Compiled metadata system</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../api/index.html"
+                        title="next chapter">Python API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/metadata/manual.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/index.html" title="Python API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="compiled.html" title="Compiled metadata system"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >PyObjC metadata system</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
