@@ -25,7 +25,7 @@
 	}];
 	
 	
-	onSelectionChange();
+	//onSelectionChange();
 	
 }
 
