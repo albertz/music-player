@@ -1162,7 +1162,6 @@ void PyObjC_SetupRuntimeCompat(void)
 	PyObjC_objc_registerProtocol = compat_objc_registerProtocol;
 	PyObjC_protocol_addMethodDescription = compat_protocol_addMethodDescription;
 	PyObjC_protocol_addProtocol = compat_protocol_addProtocol;
-#endif
 
 
 #elif defined(__LP64__)
@@ -1184,6 +1183,7 @@ void PyObjC_SetupRuntimeCompat(void)
 	SETUP(protocol_addProtocol);
 #endif
 
+#endif
 #endif
 
 #undef SETUP
