@@ -261,8 +261,8 @@ class DB(object):
 			# Maybe we had an old LevelDB or some other corruption.
 			# Not much we can do for recovering...
 			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.filename, exc)
-			self.removeOldDb()
-			self.initNew()
+			self._removeOldDb()
+			self._initNew()
 
 	def _findGlobalSelfInit(self):
 		global DBs
@@ -307,7 +307,7 @@ class DB(object):
 		assert sqlcmd.lower() == supposedsqlcmd.lower(), "DB main table was created with a different command (%s != %s)" % (sqlcmd, supposedsqlcmd)
 		conn.execute("select * from data limit 1")
 		
-	def removeOldDb(self):
+	def _removeOldDb(self):
 		# Maybe we really should do some backuping...?
 		self.disconnectAll()
 		import shutil, os
@@ -315,7 +315,7 @@ class DB(object):
 		try: os.remove(self.path)
 		except OSError: pass
 	
-	def initNew(self):
+	def _initNew(self):
 		self.disconnectAll()
 		conn = sqlite3.connect(self.path)
 		with conn:
@@ -340,15 +340,15 @@ class DB(object):
 				conn.execute(cmd, args)
 
 	def __getitem__(self, key):
-		try: return self.cache[key]
-		except KeyError: pass
+		if utils.isMainProcess:
+			try: return self.cache[key]
+			except KeyError: pass
 		origKey = key
 		key = dbRepr(key)
 		key = buffer(key)
 		with self.readlock:
 			cur = self._selectCmd("select value from data where key=? limit 1", (key,))
 			values = cur.fetchall()
-
 			del cur
 		if not values: raise KeyError
 		value = values[0]
@@ -359,6 +359,7 @@ class DB(object):
 		self.cache[origKey] = value
 		return value
 	
+	@utils.ExecInMainProcDecorator
 	def __setitem__(self, key, value):
 		self.cache[key] = value
 		key = dbRepr(key)
