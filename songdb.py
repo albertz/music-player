@@ -248,7 +248,10 @@ class DB(object):
 		self.LocalConnection = LocalConnection
 
 		self.name = filename
-		self.path = appinfo.userdir + "/" + filename
+		if self.name[0:1] == ":":  # e.g. ":memory:"
+			self.path = filename
+		else:
+			self.path = appinfo.userdir + "/" + filename
 		self.create_command = create_command
 		self.cache = Cache()
 
