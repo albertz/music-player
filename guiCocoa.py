@@ -170,11 +170,19 @@ def quit():
 def setup():
 	# Note: not needed when bundled...
 	mydir = os.path.dirname(__file__)
-	icon = NSImage.alloc().initWithContentsOfFile_(mydir + "/icon.icns")
-	if not icon:
-		print "icon.icns not found"
+	import os
+	if os.path.exists(mydir + "/icon.icns"):
+		try:
+			icon = NSImage.alloc().initWithContentsOfFile_(mydir + "/icon.icns")
+		except Exception as e:
+			print "icon.icns failed to load: %s" % e
+		else:
+			if icon:
+				app.setApplicationIconImage_(icon)
+			else:
+				print "icon.icns invalid"
 	else:
-		app.setApplicationIconImage_(icon)
+		print "icon.icns not found"
 
 	appDelegate = PyAppDelegate.alloc().init()
 	app.setDelegate_(appDelegate)
