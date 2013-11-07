@@ -57,6 +57,13 @@ for d in ["objc", "PyObjCTools"]:
 assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_objc.so")
 cp(env["BUILT_PRODUCTS_DIR"] + "/_objc.so", PYDIR + "/objc/_objc.so")
 
+# PyObjC frameworks
+for d in glob(env["BUILT_PRODUCTS_DIR"] + "/pyobjc/*"):
+	fulldir = d
+	d = os.path.basename(fulldir)
+	if os.path.exists(PYDIR + "/" + d):
+		shutil.rmtree(PYDIR + "/" + d)
+	shutil.copytree(fulldir, PYDIR + "/" + d, symlinks=False)
 
 # copy all dylibs
 
