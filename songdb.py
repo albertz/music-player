@@ -267,7 +267,7 @@ class DB(object):
 	def _findGlobalSelfInit(self):
 		global DBs
 		for key,value in DBs.items():
-			if value["name"] == self.name:
+			if value["filename"] == self.name:
 				return key
 
 	def __reduce__(self):
