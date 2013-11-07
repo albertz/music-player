@@ -11,6 +11,7 @@
 # http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
 try:
 	import objc
+	import AppKit
 except ImportError:
 	# probably not MacOSX. doesn't matter
 	pass
