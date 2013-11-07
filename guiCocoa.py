@@ -170,7 +170,6 @@ def quit():
 def setup():
 	# Note: not needed when bundled...
 	mydir = os.path.dirname(__file__)
-	import os
 	if os.path.exists(mydir + "/icon.icns"):
 		try:
 			icon = NSImage.alloc().initWithContentsOfFile_(mydir + "/icon.icns")
