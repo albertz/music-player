@@ -15,6 +15,10 @@ static void addPyPath() {
 	NSString* pathStr =
 	[[NSString alloc]
 	 initWithFormat:@"%s:%s:%s:%s:%s:%s:%s:%s:%s",
+	 
+	 // put our Python dir first to allow to overwrite System Python stuff (if needed, for example objc)
+	 [[[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python"] UTF8String],
+
 	 // Start with system Python. I had problems where ObjC would not work otherwise (where system Python was 2.6).
 	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7",
 	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.6",
@@ -29,11 +33,8 @@ static void addPyPath() {
 	 [[[[NSString alloc] initWithUTF8String:Py_GetPrefix()] stringByAppendingString:@"/Extras/lib/python/PyObjC"] UTF8String],
 
 	 // put the original Py_GetPath behind so that we prefer the System Python stuff if available
-	 Py_GetPath(),
-	 
-	 // put this last
-	 [[[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python"] UTF8String]
-	 ];
+	 Py_GetPath()
+	];
 	PySys_SetPath((char*)[pathStr UTF8String]);
 	NSLog(@"Python path: %@", pathStr);
 	[pathStr release];
