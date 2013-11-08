@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Compiled metadata system &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="up" title="PyObjC metadata system" href="index.html" />
+    <link rel="next" title="Manual metadata loading" href="manual.html" />
+    <link rel="prev" title="BridgeSupport XML files" href="bridgesupport.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="manual.html" title="Manual metadata loading"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bridgesupport.html" title="BridgeSupport XML files"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">PyObjC metadata system</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="compiled-metadata-system">
+<h1>Compiled metadata system<a class="headerlink" href="#compiled-metadata-system" title="Permalink to this headline">¶</a></h1>
+<p>Starting with version 2.4 PyObjC provides a more efficient, lazy loading
+metadata system. This can greatly reduce the memory use and startup time
+for PyObjC based applications while still providing full access to
+Cocoa APIs.</p>
+<div class="section" id="creating-a-framework-wrapper">
+<h2>Creating a framework wrapper<a class="headerlink" href="#creating-a-framework-wrapper" title="Permalink to this headline">¶</a></h2>
+<p>A framework wrapper with the new metadata system is always a
+python package. The package contains an &#8220;__init__.py&#8221; file
+that creates the lazy loader, a &#8220;_metadata.py&#8221; file with the
+compiled metadata and optionally other modules and extensions.</p>
+<p>The general structure of the &#8220;__init__.py&#8221; file is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">objc</span>
+<span class="kn">import</span> <span class="nn">Foundation</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_metadata</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s">&#39;FrameworkName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">ObjCLazyModule</span><span class="p">(</span><span class="s">&#39;FrameworkName&#39;</span><span class="p">,</span>
+     <span class="s">&quot;com.apple.FrameworkName&#39;,</span>
+     <span class="n">objc</span><span class="o">.</span><span class="n">pathForFramework</span><span class="p">(</span><span class="s">&quot;/System/Library/Frameworks/FrameworkName.framework&quot;</span><span class="p">),</span>
+     <span class="n">_metadata</span><span class="o">.</span><span class="n">__dict__</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">{</span>
+         <span class="s">&#39;__doc__&#39;</span><span class="p">:</span> <span class="n">__doc__</span><span class="p">,</span>
+         <span class="s">&#39;objc&#39;</span><span class="p">:</span> <span class="n">objc</span><span class="p">,</span>
+         <span class="s">&#39;__path__&#39;</span><span class="p">:</span> <span class="n">__path__</span><span class="p">,</span>
+     <span class="p">},</span> <span class="p">(</span><span class="n">Foundation</span><span class="p">,))</span>
+</pre></div>
+</div>
+<p>The framework name, identifier and path should be replaced by
+the correct values for the wrapped framework. The import of &#8220;Foundation&#8221;
+can be replaced by imports of other framework this framework relies on
+(also add those to the last argument of <a class="reference internal" href="#objc.ObjCLazyModule" title="objc.ObjCLazyModule"><tt class="xref py py-class docutils literal"><span class="pre">objc.ObjCLazyModule</span></tt></a>).</p>
+</div>
+<div class="section" id="contents-of-the-metadata-module">
+<h2>Contents of the &#8220;_metadata&#8221; module<a class="headerlink" href="#contents-of-the-metadata-module" title="Permalink to this headline">¶</a></h2>
+<p>The exact contents of the &#8220;_metadata&#8221; module will be described later.</p>
+</div>
+<div class="section" id="generating-the-metadata-module">
+<h2>Generating the &#8220;_metadata&#8221; module<a class="headerlink" href="#generating-the-metadata-module" title="Permalink to this headline">¶</a></h2>
+<p>The &#8220;objective-metadata&#8221; project contains a tool for collecting information
+about frameworks and compiling that information and manual additions into
+a &#8220;_metadata&#8221; module.</p>
+<p>That project currently is not a stable as I&#8217;d like, this documentation will
+be updated with more information when that changes.</p>
+</div>
+<div class="section" id="api-description">
+<h2>API description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="objc.ObjCLazyModule">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">ObjCLazyModule</tt><big>(</big><em>name</em>, <em>frameworkIdentifier</em>, <em>frameworkPath</em>, <em>metadict</em><span class="optional">[</span>, <em>inline_list</em><span class="optional">[</span>, <em>initialdict</em><span class="optional">[</span>, <em>parents</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#objc.ObjCLazyModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of the built-in <tt class="xref py py-class docutils literal"><span class="pre">module</span></tt> type that adds lazy-loading of values defined
+in PyObjC metadata.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frameworkIdentifier</strong> &#8211; the <em>bundle_identifier</em> argument for a call to <a class="reference internal" href="manual.html#objc.loadBundle" title="objc.loadBundle"><tt class="xref py py-func docutils literal"><span class="pre">loadBundle()</span></tt></a></li>
+<li><strong>frameworkPath</strong> &#8211; the <em>bundle_path</em> argument for a call to <a class="reference internal" href="manual.html#objc.loadBundle" title="objc.loadBundle"><tt class="xref py py-func docutils literal"><span class="pre">loadBundle()</span></tt></a></li>
+<li><strong>metadict</strong> &#8211; the dictionary with metadata, usually the __dict__ of a module generated by
+the metadata compiler.</li>
+<li><strong>inline_list</strong> &#8211; a capsule object with function definitions, see <a class="reference internal" href="manual.html#objc.loadFunctionList" title="objc.loadFunctionList"><tt class="xref py py-func docutils literal"><span class="pre">loadFunctionList()</span></tt></a> for more information.</li>
+<li><strong>initial_dict</strong> &#8211; additional values to add to the module dictionary</li>
+<li><strong>parents</strong> &#8211; a list of parent modules, the module behaves as if those modules were imported using
+<tt class="docutils literal"><span class="pre">from</span> <span class="pre">parent</span> <span class="pre">parent</span> <span class="pre">import</span> <span class="pre">*</span></tt>, but lazily fetches definitions on first access.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is the primary entry point for the framework wrappers shipped with PyObjC.</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Compiled metadata system</a><ul>
+<li><a class="reference internal" href="#creating-a-framework-wrapper">Creating a framework wrapper</a></li>
+<li><a class="reference internal" href="#contents-of-the-metadata-module">Contents of the &#8220;_metadata&#8221; module</a></li>
+<li><a class="reference internal" href="#generating-the-metadata-module">Generating the &#8220;_metadata&#8221; module</a></li>
+<li><a class="reference internal" href="#api-description">API description</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bridgesupport.html"
+                        title="previous chapter">BridgeSupport XML files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="manual.html"
+                        title="next chapter">Manual metadata loading</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/metadata/compiled.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="manual.html" title="Manual metadata loading"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bridgesupport.html" title="BridgeSupport XML files"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >PyObjC metadata system</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

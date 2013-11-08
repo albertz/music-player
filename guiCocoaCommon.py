@@ -79,7 +79,7 @@ try:
 				return True
 			return False
 
-except:
+except Exception:
 	NSFlippedView = objc.lookUpClass("NSFlippedView")
 
 try:
@@ -110,7 +110,7 @@ try:
 			if self.onTextChange:
 				self.onTextChange()
 
-except:
+except Exception:
 	NSExtendedTextField = objc.lookUpClass("NSExtendedTextField")
 
 try:
@@ -124,7 +124,7 @@ try:
 		def valueChange(self, sender):
 			if self.onValueChange:
 				self.onValueChange(self.doubleValue())
-except:
+except Exception:
 	NSExtendedSlider = objc.lookUpClass("NSExtendedSlider")
 
 try:
@@ -213,7 +213,7 @@ try:
 			pboard.setPropertyList_forType_(possibleSources, NSFilenamesPboardType)
 			return True
 			
-except:
+except Exception:
 	TableViewDataSource = objc.lookUpClass("TableViewDataSource")
 
 try:
@@ -235,7 +235,7 @@ try:
 				except Exception:
 					import sys
 					sys.excepthook(*sys.exc_info())						
-except:
+except Exception:
 	TableViewDelegate = objc.lookUpClass("TableViewDelegate")
 
 
@@ -249,7 +249,7 @@ try:
 		def click(self, sender):
 			attr = self.userAttr.__get__(self.inst)
 			utils.daemonThreadCall(attr, name="%r click handler" % (self.userAttr))
-except:
+except Exception:
 	ButtonActionHandler = objc.lookUpClass("ButtonActionHandler") # already defined earlier
 
 
@@ -268,7 +268,7 @@ try:
 		def draggedImage_endedAt_operation_(self, img, pt, operation):
 			if self.onDragEnded: self.onDragEnded(operation)
 		
-except:
+except Exception:
 	DragSource = objc.lookUpClass("DragSource")
 
 # keep old pools. there is no real safe way to know whether we still have some refs to objects

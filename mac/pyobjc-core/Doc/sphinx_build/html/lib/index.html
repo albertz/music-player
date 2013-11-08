@@ -1,0 +1,176 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Python API &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="../index.html" />
+    <link rel="next" title="objc – The PyObjC bridge" href="module-objc.html" />
+    <link rel="prev" title="Manual metadata loading" href="../metadata/manual.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-objc.html" title="objc – The PyObjC bridge"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../metadata/manual.html" title="Manual metadata loading"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="python-api">
+<h1>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="module-objc.html"><tt class="docutils literal"><span class="pre">objc</span></tt> &#8211; The PyObjC bridge</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#introduction">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#debugging">Debugging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#tweaking-behaviour">Tweaking behaviour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#utilities">Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#accessing-classes-and-protocols">Accessing classes and protocols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#dynamic-modification-of-classes">Dynamic modification of classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#plugin-bundles">Plugin bundles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#memory-management">Memory management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#test-support">Test support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#framework-wrappers">Framework wrappers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#types">Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#constants">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#objective-c-type-strings">Objective-C type strings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#basic-types">Basic types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#complex-types">Complex types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#additional-annotations-for-method-and-function-arguments">Additional annotations for method and function arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#special-encoded-types">Special encoded types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#context-pointers">Context pointers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#descriptors">Descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#interacting-with-synchronized-blocks">Interacting with <tt class="docutils literal"><span class="pre">&#64;synchronized</span></tt> blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#archiving-python-and-objective-c-objects">Archiving Python and Objective-C objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-objc.html#properties">Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#id1">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-objc.html#properties-for-structured-types">Properties for structured types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module-PyObjCTools.html"><tt class="docutils literal"><span class="pre">PyObjCTools</span></tt> &#8211; Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module-PyObjCTools.KeyValueCoding.html"><tt class="docutils literal"><span class="pre">PyObjCTools.KeyValueCoding</span></tt> &#8211; Key-Value Coding API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module-PyObjCTools.KeyValueCoding.html#accessor-functions">Accessor functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-PyObjCTools.KeyValueCoding.html#key-value-coding-wrapper">Key-Value Coding wrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module-PyObjCTools.AppHelper.html"><tt class="docutils literal"><span class="pre">PyObjCTools.AppHelper</span></tt> &#8211; Work with AppKit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-PyObjCTools.Conversion.html"><tt class="docutils literal"><span class="pre">PyObjCTools.Conversion</span></tt> &#8211; Convert data structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-PyObjCTools.NibClassBuilder.html"><tt class="docutils literal"><span class="pre">PyObjCTools.NibClassBuilder</span></tt> &#8211; Magic NIBs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module-PyObjCTools.NibClassBuilder.html#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-PyObjCTools.NibClassBuilder.html#extracting-class-definitions-from-nibs">Extracting class definitions from nibs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-PyObjCTools.NibClassBuilder.html#using-the-class-definitions">Using the class definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-PyObjCTools.NibClassBuilder.html#the-nibinfo-class">The <tt class="docutils literal"><span class="pre">NibInfo</span></tt> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module-PyObjCTools.NibClassBuilder.html#the-command-line-tool">The command line tool</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="module-PyObjCTools.Signals.html"><tt class="docutils literal"><span class="pre">PyObjCTools.Signals</span></tt> &#8211; Debug signal handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module-PyObjCTools.TestSupport.html"><tt class="docutils literal"><span class="pre">PyObjCTools.TestSupport</span></tt> &#8211; Testing helpers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../metadata/manual.html"
+                        title="previous chapter">Manual metadata loading</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="module-objc.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">objc</span></tt> &#8211; The PyObjC bridge</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/lib/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="module-objc.html" title="objc – The PyObjC bridge"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../metadata/manual.html" title="Manual metadata loading"
+             >previous</a> |</li>
+        <li><a href="../index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

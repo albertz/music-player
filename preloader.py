@@ -62,12 +62,12 @@ def preloaderMain():
 		# Import itunes module. This might start some background processes
 		# which load the iTunes DB, etc.
 		import itunes
-	except:
+	except Exception:
 		sys.excepthook(*sys.exc_info())
 	
 	try:
 		checkUpdate()
-	except:
+	except Exception:
 		sys.excepthook(*sys.exc_info())
 	
 	from State import state
@@ -77,6 +77,6 @@ def preloaderMain():
 			# it might make more sense to yield queue updates here.
 			# not possible atm, though. and this still works good enough.
 			checkUpdate()
-		except:
+		except Exception:
 			sys.excepthook(*sys.exc_info())
 	

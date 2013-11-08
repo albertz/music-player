@@ -1,0 +1,6 @@
+CoreFoundation
+PyObjCTest
+PyObjCTools
+Foundation
+Cocoa
+AppKit

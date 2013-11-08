@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyObjC protocol support &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="index.html" />
+    <link rel="next" title="Support for FSRef and FSSpec" href="fsref-fsspec.html" />
+    <link rel="prev" title="Converting values between Python and Objective-C" href="typemapping.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fsref-fsspec.html" title="Support for FSRef and FSSpec"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="typemapping.html" title="Converting values between Python and Objective-C"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyobjc-protocol-support">
+<h1>PyObjC protocol support<a class="headerlink" href="#pyobjc-protocol-support" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Apple makes use of both formal and informal protocols in the Cocoa framework.
+Formal protocols are those protocols that are implemented using Objective-C
+protocols:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><div class="highlight"><pre><span class="k">@protocol</span> <span class="nc">NSFoo</span> <span class="o">&lt;</span><span class="n">NSSomeProtocol</span><span class="o">&gt;</span>
+<span class="o">-</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">doesIt</span><span class="p">;</span>
+<span class="k">@end</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Conforming to a formal protocol requires the interface of a class to explicitly
+declare that it implements that protocol, and the implementation must implement
+all methods of the protocol.</p>
+<p>Informal protocols are defined as categories on NSObject with no implementation:</p>
+<blockquote>
+<div><div class="highlight-objective-c"><div class="highlight"><pre><span class="k">@interface</span> <span class="nc">NSObject</span><span class="nl">(FooDelegate)</span>
+<span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">optionalFooDelegateMethod</span><span class="p">;</span>
+<span class="k">@end</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Conforming to an informal protocol is much like conforming to a protocol in Python,
+the class simply implements the methods as documented.  In most cases, informal
+protocols are comprised entirely of optional methods (i.e. NSApplicationDelegate)
+and a check is made (i.e. <tt class="docutils literal"><span class="pre">-[NSObject</span> <span class="pre">respondsToSelector:]</span></tt>) before sending
+the message to the target.</p>
+</div>
+<div class="section" id="informal-protocols-and-pyobjc">
+<h2>Informal protocols and PyObjC<a class="headerlink" href="#informal-protocols-and-pyobjc" title="Permalink to this headline">¶</a></h2>
+<p>PyObjC has an explicit representation for informal protocols.  This makes
+it possible to use the protocol description to provide better error messages and
+to automaticly deduce the method signatures for classes that implement an
+informal protocol.</p>
+<p>Informal protocols are represented using instances of
+<tt class="docutils literal"><span class="pre">objc.informal_protocol</span></tt>.  These instances are automaticly added to a
+registry used by the class builder, so it is not necessary to explicitly
+state that a class implements an informal protocol.</p>
+</div>
+<div class="section" id="formal-protocols-and-pyobjc">
+<h2>Formal protocols and PyObjC<a class="headerlink" href="#formal-protocols-and-pyobjc" title="Permalink to this headline">¶</a></h2>
+<p>PyObjC also has an explicit representation for formal protocols.</p>
+<p>Formal protocols are represented as instances of <tt class="docutils literal"><span class="pre">objc.formal_protocol</span></tt>.
+Unlike informal protocols, it is necessary to explicitly declare
+conformance to formal protocols.  However, all formal protocols in Cocoa
+are also described using <tt class="docutils literal"><span class="pre">objc.informal_protocol</span></tt> objects.</p>
+<p>In python 2.x declaring conformance to a formal protocol is done by using
+the formal protocol as a mix-in, and by implementing its methods:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="n">NSLocking</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">protocolNamed</span><span class="p">(</span><span class="s">&#39;NSLocking&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">MyLockingObject</span><span class="p">(</span><span class="n">NSObject</span><span class="p">,</span> <span class="n">NSLocking</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="k">pass</span>
+
+            <span class="k">def</span> <span class="nf">unlock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="k">pass</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>In python 3.x  you don&#8217;t use the protocols as mix-ins, but specify them as
+a keyword argument:</p>
+<blockquote>
+<div><div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre>    <span class="n">NSLocking</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">protocolNamed</span><span class="p">(</span><span class="s">&#39;NSLocking&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">MyLockingObject</span><span class="p">(</span><span class="n">NSObject</span><span class="p">,</span> <span class="n">protocols</span><span class="o">=</span><span class="p">[</span><span class="n">NSLocking</span><span class="p">]):</span>
+            <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="k">pass</span>
+
+            <span class="k">def</span> <span class="nf">unlock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="k">pass</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>The class now formally implements the <tt class="docutils literal"><span class="pre">NSLocking</span></tt> protocol, this can be
+verified using the Objective-C introspection methods:</p>
+<blockquote>
+<div><div class="highlight-pycon"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">MyLockingObject</span><span class="o">.</span><span class="n">pyobjc_classMethods</span><span class="o">.</span><span class="n">conformsToProtocol_</span><span class="p">(</span><span class="n">NSLocking</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>This is useful for API&#8217;s that require (and check) the implementation of formal
+protocols.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PyObjC protocol support</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#informal-protocols-and-pyobjc">Informal protocols and PyObjC</a></li>
+<li><a class="reference internal" href="#formal-protocols-and-pyobjc">Formal protocols and PyObjC</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="typemapping.html"
+                        title="previous chapter">Converting values between Python and Objective-C</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="fsref-fsspec.html"
+                        title="next chapter">Support for <tt class="docutils literal docutils literal"><span class="pre">FSRef</span></tt> and <tt class="docutils literal docutils literal"><span class="pre">FSSpec</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/protocols.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fsref-fsspec.html" title="Support for FSRef and FSSpec"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="typemapping.html" title="Converting values between Python and Objective-C"
+             >previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

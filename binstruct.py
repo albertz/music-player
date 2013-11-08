@@ -53,6 +53,12 @@
 #  - too simple
 # ...
 
+# More, without details:
+# * CBOR ([RFC](http://tools.ietf.org/html/rfc7049), [HN discussion](https://news.ycombinator.com/item?id=6632576))
+# * msgpack
+# * Google's Protocol Buffers
+# * [Apache (Facebook) Thrift](http://thrift.apache.org/)
+
 ### This format.
 
 FILESIGNATURE = "BINSTRUCT.1\x00"
@@ -204,7 +210,7 @@ def strDecode(stream):
 	strLen = intDecode(stream)
 	return stream.read(strLen)
 
-# Lists. Amounts of items, each item as variant.
+# Lists. Amount of items, each item as variant.
 
 def listEncode(l):
 	bin = intEncode(len(l))
@@ -219,7 +225,7 @@ def listDecode(stream):
 		l[i] = varDecode(stream)
 	return l	
 
-# Dicts. Amounts of items, each item as 2 variants (key+value).
+# Dicts. Amount of items, each item as 2 variants (key+value).
 
 def dictEncode(d):
 	bin = intEncode(len(d))
@@ -229,8 +235,11 @@ def dictEncode(d):
 	return bin
 
 class Dict(dict):
-	def __getattr__(self, key): return dict.__getitem__(self, key)
-	def __setattr__(self, key, value): return dict.__setitem__(self, key, value)
+	def __getattr__(self, key):
+		try: return dict.__getitem__(self, key)
+		except KeyError: raise AttributeError
+	def __setattr__(self, key, value):
+		return dict.__setitem__(self, key, value)
 
 def dictDecode(stream):
 	dictLen = intDecode(stream)

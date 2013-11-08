@@ -18,9 +18,9 @@ sys.path += [env["PROJECT_DIR"] + "/.."]
 import better_exchook
 better_exchook.install()
 
-assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/ffmpeg.so")
-assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/faulthandler.so")
-assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_guiCocoaCommon.dylib")
+pylibs = ["ffmpeg.so", "faulthandler.so", "debugger.so", "_guiCocoaCommon.dylib"]
+for l in pylibs:
+	assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/" + l)
 
 # $PROJECT_DIR : /Users/az/Programmierung/music-player/mac
 # $EXECUTABLE_FOLDER_PATH : MusicPlayer.app/Contents/MacOS
@@ -37,7 +37,7 @@ open(PYDIR + "/appinfo_build.py", "w").write(
 	"gitRef = %r\n" % open(env["PROJECT_DIR"] + "/../.git/refs/heads/master").read().strip()
 )
 
-for f in ("ffmpeg.so","faulthandler.so","_guiCocoaCommon.dylib"):
+for f in pylibs:
 	cp(env["BUILT_PRODUCTS_DIR"] + "/" + f, PYDIR + "/" + f)
 for f in ("License.txt", "DevelopmentNotes.md", "WhatIsAMusicPlayer.md"):
 	cp(env["PROJECT_DIR"] + "/../" + f, PYDIR + "/" + f)
@@ -48,6 +48,22 @@ for d in ["lastfm", "tools"]:
 		shutil.rmtree(PYDIR + "/" + d)
 	shutil.copytree(env["PROJECT_DIR"] + "/../" + d, PYDIR + "/" + d, symlinks=False)
 
+
+# PyObjC
+for d in ["objc", "PyObjCTools"]:
+	if os.path.exists(PYDIR + "/" + d):
+		shutil.rmtree(PYDIR + "/" + d)
+	shutil.copytree(env["PROJECT_DIR"] + "/pyobjc-core/Lib/" + d, PYDIR + "/" + d, symlinks=False)
+assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_objc.so")
+cp(env["BUILT_PRODUCTS_DIR"] + "/_objc.so", PYDIR + "/objc/_objc.so")
+
+# PyObjC frameworks
+for d in glob(env["BUILT_PRODUCTS_DIR"] + "/pyobjc/*"):
+	fulldir = d
+	d = os.path.basename(fulldir)
+	if os.path.exists(PYDIR + "/" + d):
+		shutil.rmtree(PYDIR + "/" + d)
+	shutil.copytree(fulldir, PYDIR + "/" + d, symlinks=False)
 
 # copy all dylibs
 
@@ -60,7 +76,9 @@ def systemRun(cmd):
 	print cmd
 	Popen(cmd).wait()
 
-def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/","/opt/"], stripVersion = True):
+externalPath = os.path.normpath(env["PROJECT_DIR"] + "/../external")
+
+def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/","/opt/", externalPath], stripVersion = True):
 	binDir = os.path.dirname(binPath)
 	targetDylibDirFull = binDir + "/" + targetDylibDir
 

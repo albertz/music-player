@@ -1,0 +1,48 @@
+=========================
+Installation Instructions
+=========================
+
+.. :authors: Ronald Oussoren
+
+
+Installation
+------------
+
+PyObjC is installed using distutils and uses the setuptools extension to
+distutils. PyObjC's ``setup.py`` script will download setuptools if it is
+not yet installed.
+
+To install PyObjC::
+
+  $ python setup.py install
+
+This will compile and install the ``pyobjc-core`` package in your Python's
+``site-packages`` directory. When you have multiple versions of Python on 
+your machine this will only install it for the version of python that's first
+in your shell's search-path.
+
+
+Installation using ``easy_install``
+-----------------------------------
+
+It is also possible to install PyObjC using ``easy_install``:
+
+  $ easy_install pyobjc-core
+
+This will install just ``pyobjc-core``. In general you want to use
+the following command instead::
+
+
+  $ easy_install pyobjc
+
+This will install ``pyobjc-core`` as well as a large number of
+framework wrappers.
+
+
+Installation with the system version of Python
+----------------------------------------------
+
+The system version of Python (``/usr/bin/python``) includes a copy of
+PyObjC starting at MacOSX 10.5 ("Leopard"). Installing other versions
+of PyObjC with "/usr/bin/python" on Leopard or later is not supported
+and could break your system.

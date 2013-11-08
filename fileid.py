@@ -21,8 +21,13 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		filepath = unicode(filepath)
 		
 		url = AppKit.NSURL.alloc().initFileURLWithPath_(filepath)
-		bookmark, _ = url.bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_(AppKit.NSURLBookmarkCreationPreferFileIDResolution,None,None,None)
-		
+		bookmark = url.bookmarkDataWithOptions_includingResourceValuesForKeys_relativeToURL_error_(0,None,None,None)
+		if isinstance(bookmark, tuple):
+			# I have no idea why this is a tuple on Python 2.7.
+			# It is not a tuple on Python 2.6.
+			# According to the MacOSX SDK doc, it should directly return NSData.
+			bookmark = bookmark[0]
+
 		if not bookmark: return None
 		bytes = bookmark.bytes()
 		if isinstance(bytes, buffer): # Python 2.6 has buffer here - otherwise (>=2.7) we have memory
@@ -47,7 +52,8 @@ if sys.platform == "darwin" and utils.isPymoduleAvailable("AppKit"):
 		return unicode(url.path())
 
 else:
-	
+
+	print "fileid: implementation not available"
 	def getFileNativeId(filepath): return None
 	def getPathByNativeId(fileid): return None
 

@@ -213,7 +213,7 @@ class Cache:
 
 
 class DB(object):
-	def __init__(self, name, create_command = "create table %s(key blob primary key unique, value blob)"):
+	def __init__(self, filename, create_command = "create table %s(key blob primary key unique, value blob)"):
 		self.rwlock = utils.ReadWriteLock()
 		import threading
 
@@ -247,19 +247,33 @@ class DB(object):
 						l.reset()
 		self.LocalConnection = LocalConnection
 
-		self.name = name
-		self.path = appinfo.userdir + "/" + name
+		self.filename = filename
+		if filename[0:1] == ":":  # e.g. ":memory:"
+			self.path = filename
+		else:
+			self.path = appinfo.userdir + "/" + filename
 		self.create_command = create_command
 		self.cache = Cache()
 
 		try:
-			self.test()
+			self.sanityCheck()
 		except Exception as exc:
 			# Maybe we had an old LevelDB or some other corruption.
 			# Not much we can do for recovering...
-			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.name, exc)
-			self.removeOldDb()
-			self.initNew()
+			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.filename, exc)
+			self._removeOldDb()
+			self._initNew()
+
+	def _findGlobalSelfInit(self):
+		global DBs
+		for key,value in DBs.items():
+			if value["filename"] == self.filename:
+				return key
+
+	def __reduce__(self):
+		globalName = self._findGlobalSelfInit()
+		assert globalName
+		return (initDb, (globalName,))
 
 	@property
 	def writelock(self): return self.rwlock.writelock
@@ -282,7 +296,7 @@ class DB(object):
 			self._threadLocal = threading.local()
 		setattr(self._threadLocal, "connection", self.LocalConnection(v))
 
-	def test(self):
+	def sanityCheck(self):
 		# Some of these may throw an OperationalError.
 		conn = sqlite3.connect(self.path)
 		tblinfo = conn.execute("select sql from sqlite_master where type='table' and tbl_name='data'").fetchall()
@@ -293,7 +307,7 @@ class DB(object):
 		assert sqlcmd.lower() == supposedsqlcmd.lower(), "DB main table was created with a different command (%s != %s)" % (sqlcmd, supposedsqlcmd)
 		conn.execute("select * from data limit 1")
 		
-	def removeOldDb(self):
+	def _removeOldDb(self):
 		# Maybe we really should do some backuping...?
 		self.disconnectAll()
 		import shutil, os
@@ -301,7 +315,7 @@ class DB(object):
 		try: os.remove(self.path)
 		except OSError: pass
 	
-	def initNew(self):
+	def _initNew(self):
 		self.disconnectAll()
 		conn = sqlite3.connect(self.path)
 		with conn:
@@ -317,7 +331,8 @@ class DB(object):
 		conn = self._getConnection()
 		cur = conn.execute(cmd, args)
 		return cur
-	
+
+	@utils.ExecInMainProcDecorator
 	def _actionCmd(self, cmd, args):
 		conn = self._getConnection()
 		with self.writelock:
@@ -325,15 +340,15 @@ class DB(object):
 				conn.execute(cmd, args)
 
 	def __getitem__(self, key):
-		try: return self.cache[key]
-		except KeyError: pass
+		if utils.isMainProcess:
+			try: return self.cache[key]
+			except KeyError: pass
 		origKey = key
 		key = dbRepr(key)
 		key = buffer(key)
 		with self.readlock:
 			cur = self._selectCmd("select value from data where key=? limit 1", (key,))
 			values = cur.fetchall()
-
 			del cur
 		if not values: raise KeyError
 		value = values[0]
@@ -344,6 +359,7 @@ class DB(object):
 		self.cache[origKey] = value
 		return value
 	
+	@utils.ExecInMainProcDecorator
 	def __setitem__(self, key, value):
 		self.cache[key] = value
 		key = dbRepr(key)
@@ -379,8 +395,8 @@ class DB(object):
 		self.disconnectAll()
 
 DBs = {
-	"songDb": lambda: DB("songs.db"),
-	"songHashDb": lambda: DB("songHashs.db"),
+	"songDb": {"filename":"songs.db"},
+	"songHashDb": {"filename":"songHashs.db"},
 	}
 
 def usedDbsInCode(f):
@@ -395,7 +411,7 @@ def usedDbsInCode(f):
 			dbs.add(name)
 	return dbs
 
-def init():
+def _init():
 	import threading
 	for db in DBs.keys():
 		globals()["_%s_initlock" % db] = threading.Lock()
@@ -417,7 +433,8 @@ def init():
 def initDb(db):
 	with globals()["_%s_initlock" % db]:
 		if not globals()[db]:
-			globals()[db] = DBs[db]()
+			globals()[db] = DB(**DBs[db])
+		return globals()[db]
 
 def lazyInitDb(*dbs):
 	def decorator(f):
@@ -985,12 +1002,12 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 # These are search fallbacks while our own index doesn't work good enough.
 # They use the sqlite FTS4 index.
 
-DBs["songSearchIndexDb"] = lambda: DB(
-	"songSearchIndex.db",
-	create_command="CREATE VIRTUAL TABLE %s USING fts4(content TEXT, tokenize=porter)")
-DBs["songSearchIndexRefDb"] = lambda: DB(
-	"songSearchIndexRef.db",
-	create_command="CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)")
+DBs["songSearchIndexDb"] = {
+	"filename": "songSearchIndex.db",
+	"create_command": "CREATE VIRTUAL TABLE %s USING fts4(content TEXT, tokenize=porter)" }
+DBs["songSearchIndexRefDb"] = {
+	"filename": "songSearchIndexRef.db",
+	"create_command": "CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)" }
 
 def insertSearchEntry_raw(songId, tokens):
 	songId = buffer(songId)
@@ -1059,7 +1076,14 @@ def songdbMain():
 			import sys
 			sys.excepthook(*sys.exc_info())
 	flush()
-	
+
+def test_db_create():
+	for key,value in DBs.items():
+		value = value.copy()
+		value["filename"] = ":memory:"
+		db = DB(**value)
+		assert db
+
 # For debugging
 def dumpDatabases():
 	global songDb, songHashDb
@@ -1075,4 +1099,4 @@ def dumpDatabases():
 		pprint(value, indent=2)
 
 # Note: This doesn't load the DBs as earlier. This just setups the lazy loaders. See source.
-init()
+_init()

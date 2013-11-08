@@ -214,10 +214,14 @@ def fallback_findfile(filename):
 	if altfn[-4:-1] == ".py": altfn = altfn[:-1] # *.pyc or whatever
 	return altfn
 
-def print_traceback(tb, allLocals=None, allGlobals=None):
+def print_traceback(tb=None, allLocals=None, allGlobals=None):
 	if tb is None:
-		print "print_traceback: tb is None"
-		return
+		try:
+			tb = sys._getframe()
+			assert tb
+		except Exception:
+			print "print_traceback: tb is None and sys._getframe() failed"
+			return
 	import inspect
 	isframe = inspect.isframe
 	if isframe(tb): output('Traceback (most recent call first)')
@@ -293,7 +297,10 @@ def print_traceback(tb, allLocals=None, allGlobals=None):
 def better_exchook(etype, value, tb, debugshell=False, autodebugshell=True):
 	output("EXCEPTION")
 	allLocals,allGlobals = {},{}
-	print_traceback(tb, allLocals=allLocals, allGlobals=allGlobals)
+	if tb is not None:
+		print_traceback(tb, allLocals=allLocals, allGlobals=allGlobals)
+	else:
+		print "better_exchook: traceback unknown"
 	
 	import types
 	def _some_str(value):

@@ -7,38 +7,64 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <Python/Python.h>
+#import <Python.h>
 
 
 
 static void addPyPath() {
 	NSString* pathStr =
 	[[NSString alloc]
-	 initWithFormat:@"%s:%s%s:%@/Python",
-	 Py_GetPath(),
-	 Py_GetPrefix(), "/Extras/lib/python/PyObjC",
-	 [[NSBundle mainBundle] resourcePath]];
+	 initWithFormat:@"%s:%s:%s:%s:%s:%s:%s",
+	 
+	 // put our Python dir first to allow to overwrite System Python stuff (if needed, for example objc)
+	 [[[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python"] UTF8String],
+
+	 // Start with system Python. I had problems where ObjC would not work otherwise (where system Python was 2.6).
+	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7",
+	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.6",
+	 
+	 // these are currently needed for some stuff ... (xxx ?)
+	 // they might be removed at some later time.
+	 // note that this is also not that future-proof because i don't think it would work with Python 3.
+	 "/System/Library/Frameworks/Python.framework/Versions/Current/Extras/lib/python",
+	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7/lib-dynload",
+	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.6/lib-dynload",
+
+	 // put the original Py_GetPath behind so that we prefer the System Python stuff if available
+	 Py_GetPath()
+	];
 	PySys_SetPath((char*)[pathStr UTF8String]);
+	NSLog(@"Python path: %@", pathStr);
 	[pathStr release];
+}
+
+static int sys_argc;
+static char** sys_argv;
+
+static bool haveArg(const char* arg) {
+	for(int i = 1; i < sys_argc; ++i)
+		if(strcmp(sys_argv[i], arg) == 0) {
+			return true;
+		}
+	return false;
 }
 
 int main(int argc, char *argv[])
 {
+	sys_argc = argc;
+	sys_argv = argv;
 	//return NSApplicationMain(argc, (const char **)argv);
 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	BOOL forkExecProc = NO;
-	for(int i = 1; i < argc; ++i)
-		if(strcmp(argv[i], "--forkExecProc") == 0) {
-			forkExecProc = YES;
-			break;
-		}
+	bool forkExecProc = haveArg("--forkExecProc");
+	bool shell = haveArg("--shell");
+	bool pyShell = haveArg("--pyshell");
 	
 	NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
+	Py_SetProgramName(argv[0]);
 	if(!forkExecProc)
 		NSLog(@"Python version: %s, prefix: %s, main: %@", Py_GetVersion(), Py_GetPrefix(), mainPyFilename);
-	Py_SetProgramName((char*)[mainPyFilename UTF8String]);
 	
 	Py_Initialize();
 	PyEval_InitThreads();
@@ -53,8 +79,9 @@ int main(int argc, char *argv[])
 	
 	PySys_SetArgvEx(argc, argv, 0);
 	
-	if(!forkExecProc) {
+	if(!forkExecProc && !pyShell && !shell) {
 		// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
+		printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
 		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
 		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stderr);
 		PyRun_SimpleString("print 'hello there'");

@@ -1,0 +1,28 @@
+API Notes: CoreGraphics framework
+=================================
+
+API Notes
+---------
+
+* See :doc:`/api/coregraphics-context-managers` for some extensions
+  to the CoreGraphics API.
+
+* ``CGColorSpaceCreateWithPlatformColorSpace``,
+  ``CGColorSpaceCreateWithPlatformColorSpace``.
+
+  These functions are not supported.
+
+* The functions and data-types for parsing PDF documents (such 
+  as ``CGPDFStreamCreateWithStream``) are for the most part unsupported
+  at the moment. We have bindings for a subsection of the APIs, but haven't
+  those aren't complete nor fully tested.
+
+*  ``CGWaitForScreenUpdateRects``, ``CGWaitForScreenRefreshRects``
+
+   This functions are not yet supported.
+
+
+* ``CGDataProviderCreate``, ``CGDataProviderCreateDirectAccess``
+
+  These functions are not available when you build PyObjC on OSX 10.8,
+  even when you run on earlier releases of OSX.

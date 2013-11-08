@@ -4,6 +4,8 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+import sys
+
 # Import PyObjC here. This is because the first import of PyObjC *must* be
 # in the main thread. Otherwise, the NSAutoreleasePool created automatically
 # by PyObjC on the first import would be released at exit by the main thread
@@ -13,12 +15,29 @@ try:
 	import objc
 except ImportError:
 	# probably not MacOSX. doesn't matter
-	pass
+	objc = None
+except Exception:
+	print "Error while importing objc"
+	sys.excepthook(*sys.exc_info())
+	objc = None
+try:
+	# Seems that the `objc` module is not enough. Without `AppKit`,
+	# I still get a lot of
+	#   __NSAutoreleaseNoPool(): ... autoreleased with no pool in place - just leaking
+	# errors.
+	if objc:
+		import AppKit
+except Exception:
+	# Print error in any case, also ImportError, because we would expect that this works.
+	print "Error while importing AppKit"
+	sys.excepthook(*sys.exc_info())
 
 from collections import deque
 from threading import Condition, Thread, currentThread, Lock, RLock
-import sys, os, time
+import os
+import time
 import types
+from StringIO import StringIO
 
 import better_exchook
 
@@ -769,6 +788,12 @@ def fixValue(value, type):
 		return unicode(value)
 	return value
 
+def getTempNameInScope(scope):
+	import random
+	while True:
+		name = "_tmp_" + "".join([str(random.randrange(0, 10)) for _ in range(10)])
+		if name not in scope: return name
+
 
 def iterGlobalsUsedInFunc(f, fast=False, loadsOnly=True):
 	if hasattr(f, "func_code"): code = f.func_code
@@ -897,6 +922,12 @@ class Pickler(pickle.Pickler):
 		self.save_dict(obj)
 	dispatch[types.DictionaryType] = intellisave_dict
 
+	def save_buffer(self, obj):
+		self.save(buffer)
+		self.save((str(obj),))
+		self.write(pickle.REDUCE)
+	dispatch[types.BufferType] = save_buffer
+
 	# Some types in the types modules are not correctly referenced,
 	# such as types.FunctionType. This is fixed here.
 	def fixedsave_type(self, obj):
@@ -940,7 +971,10 @@ class ExecingProcess:
 		if pid == 0: # child
 			self.pipe_c2p[0].close()
 			self.pipe_p2c[1].close()
-			args = sys.argv + [
+			# Copying all parameters is problematic (e.g. --pyshell).
+			# sys.argv[0] is never "python", so it might be problematic
+			# if it is not executable. However, it should be.
+			args = sys.argv[0:1] + [
 				"--forkExecProc",
 				str(self.pipe_c2p[1].fileno()),
 				str(self.pipe_p2c[0].fileno())]
@@ -954,6 +988,7 @@ class ExecingProcess:
 			self.pickler.dump(self.target)
 			self.pickler.dump(self.args)
 			self.pipe_p2c[1].flush()
+	Verbose = False
 	@staticmethod
 	def checkExec():
 		if "--forkExecProc" in sys.argv:
@@ -964,7 +999,7 @@ class ExecingProcess:
 			writeend = os.fdopen(writeFileNo, "w")
 			unpickler = Unpickler(readend)
 			name = unpickler.load()
-			print "ExecingProcess child %s (pid %i)" % (name, os.getpid())
+			if ExecingProcess.Verbose: print "ExecingProcess child %s (pid %i)" % (name, os.getpid())
 			try:
 				target = unpickler.load()
 				args = unpickler.load()
@@ -973,7 +1008,7 @@ class ExecingProcess:
 				raise SystemExit
 			ret = target(*args)
 			Pickler(writeend).dump(ret)
-			print "ExecingProcess child %s (pid %i) finished" % (name, os.getpid())
+			if ExecingProcess.Verbose: print "ExecingProcess child %s (pid %i) finished" % (name, os.getpid())
 			raise SystemExit
 
 class ExecingProcess_ConnectionWrapper(object):
@@ -985,7 +1020,22 @@ class ExecingProcess_ConnectionWrapper(object):
 	def __getstate__(self): return self.fd
 	def __setstate__(self, state): self.__init__(state)
 	def __getattr__(self, attr): return getattr(self.conn, attr)
-		
+	def _check_closed(self): assert not self.conn.closed
+	def _check_writable(self): assert self.conn.writable
+	def _check_readable(self): assert self.conn.readable
+	def send(self, value):
+		self._check_closed()
+		self._check_writable()
+		buf = StringIO()
+		Pickler(buf).dump(value)
+		self.conn.send_bytes(buf.getvalue())
+	def recv(self):
+		self._check_closed()
+		self._check_readable()
+		buf = self.conn.recv_bytes()
+		f = StringIO(buf)
+		return Unpickler(f).load()
+
 def ExecingProcess_Pipe():
 	import socket
 	s1, s2 = socket.socketpair()
@@ -995,7 +1045,9 @@ def ExecingProcess_Pipe():
 	s2.close()
 	return c1, c2
 
-isFork = False
+
+isFork = False  # fork() without exec()
+isMainProcess = True
 
 class AsyncTask:		
 	def __init__(self, func, name=None, mustExec=False):
@@ -1030,6 +1082,8 @@ class AsyncTask:
 		if not self.mustExec and sys.platform != "win32":
 			global isFork
 			isFork = True
+		global isMainProcess
+		isMainProcess = False
 		try:
 			self.func(self)
 		except KeyboardInterrupt:
@@ -1080,29 +1134,77 @@ class AsyncTask:
 		pass
 
 class ForwardedKeyboardInterrupt(Exception): pass
+class _AsyncCallQueue:
+	Self = None
+	class Types:
+		result = 0
+		exception = 1
+		asyncExec = 2
+	def __init__(self, queue):
+		assert not self.Self
+		self.__class__.Self = self
+		self.mutex = Lock()
+		self.queue = queue
+	def put(self, type, value):
+		self.queue.put((type, value))
+	def asyncExecClient(self, func):
+		with self.mutex:
+			self.put(self.Types.asyncExec, func)
+			t, value = self.queue.get()
+			if t == self.Types.result:
+				return value
+			elif t == self.Types.exception:
+				raise value
+			else:
+				assert False, "bad behavior of asyncCall in asyncExec (%r)" % t
+	@classmethod
+	def asyncExecHost(clazz, task, func):
+		q = task
+		name = "<unknown>"
+		try:
+			name = repr(func)
+			res = func()
+			q.put((clazz.Types.result, res))
+		except Exception as exc:
+			print "Exception in asyncExecHost", name, exc
+			q.put((clazz.Types.exception, exc))
 
 def asyncCall(func, name=None, mustExec=False):
+	"""
+	This executes func() in another process and waits/blocks until
+	it is finished. The returned value is passed back to this process
+	and returned. Exceptions are passed back as well and will be
+	reraised here.
+
+	If `mustExec` is set, the other process must `exec()` after the `fork()`.
+	If it is not set, it might omit the `exec()`, depending on the platform.
+	"""
 	def doCall(queue):
-		res = None
+		q = _AsyncCallQueue(queue)
 		try:
 			res = func()
-			queue.put((None,res))
+			q.put(q.Types.result, res)
 		except KeyboardInterrupt as exc:
 			print "Exception in asyncCall", name, ": KeyboardInterrupt"
-			queue.put((ForwardedKeyboardInterrupt(exc),None))
+			q.put(q.Types.exception, ForwardedKeyboardInterrupt(exc))
 		except BaseException as exc:
 			print "Exception in asyncCall", name
 			sys.excepthook(*sys.exc_info())
-			queue.put((exc,None))
+			q.put(q.Types.exception, exc)
 	task = AsyncTask(func=doCall, name=name, mustExec=mustExec)
-	# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
-	# this will raise an EOFError here.
-	# However, normally, we should catch all exceptions and just reraise them here.
-	exc,res = task.get()
-	if exc is not None:
-		raise exc
-	return res
-
+	while True:
+		# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
+		# this will raise an EOFError here.
+		# However, normally, we should catch all exceptions and just reraise them here.
+		t,value = task.get()
+		if t == _AsyncCallQueue.Types.result:
+			return value
+		elif t == _AsyncCallQueue.Types.exception:
+			raise value
+		elif t == _AsyncCallQueue.Types.asyncExec:
+			_AsyncCallQueue.asyncExecHost(task, value)
+		else:
+			assert False, "unknown _AsyncCallQueue type %r" % t
 
 def WarnMustNotBeInForkDecorator(func):
 	class Ctx:
@@ -1116,6 +1218,64 @@ def WarnMustNotBeInForkDecorator(func):
 			return None
 		return func(*args, **kwargs)
 	return decoratedFunc
+
+def execInMainProc(func):
+	global isMainProcess
+	if isMainProcess:
+		return func()
+	else:
+		assert _AsyncCallQueue.Self, "works only if called via asyncCall"
+		return _AsyncCallQueue.Self.asyncExecClient(func)
+
+def ExecInMainProcDecorator(func):
+	def decoratedFunc(*args, **kwargs):
+		return execInMainProc(lambda: func(*args, **kwargs))
+	return decoratedFunc
+
+def test_asyncCall():
+	mod = globals()
+	calledBackVarName = getTempNameInScope(mod)
+	mod[calledBackVarName] = False
+	def funcAsync():
+		assert not isMainProcess
+		assert not isFork
+		res = execInMainProc(funcMain)
+		assert res == "main"
+		return "async"
+	def funcMain():
+		mod[calledBackVarName] = True
+		return "main"
+	res = asyncCall(funcAsync, name="test", mustExec=True)
+	assert res == "async"
+	assert mod[calledBackVarName] is True
+	mod.pop(calledBackVarName)
+
+class TestClassAsyncCallExecInMainProcDeco:
+	def __init__(self, name):
+		self.name = name
+	@ExecInMainProcDecorator
+	def testExecInMainProcDeco(self, *args):
+		return 42, self.name, args
+	@staticmethod
+	def getInstance(name):
+		return TestClassAsyncCallExecInMainProcDeco(name)
+	def __reduce__(self):
+		return (self.getInstance, (self.name,))
+
+def test_asyncCall2():
+	test = TestClassAsyncCallExecInMainProcDeco("test42")
+	def funcAsync():
+		res = test.testExecInMainProcDeco(1, buffer("abc"))
+		assert res == (42, "test42", (1, buffer("abc")))
+	asyncCall(funcAsync, name="test", mustExec=True)
+
+def test_picklebuffer():
+	origbuffer = buffer("123")
+	f = StringIO()
+	Pickler(f).dump(origbuffer)
+	f.seek(0)
+	b = Unpickler(f).load()
+	assert origbuffer == b
 
 
 def ExceptionCatcherDecorator(func):

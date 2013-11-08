@@ -1,0 +1,184 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyObjC support for “blocks” &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="index.html" />
+    <link rel="next" title="PyObjC metadata system" href="metadata/index.html" />
+    <link rel="prev" title="PyObjC with InterfaceBuilder" href="xcode.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metadata/index.html" title="PyObjC metadata system"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="xcode.html" title="PyObjC with InterfaceBuilder"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyobjc-support-for-blocks">
+<h1>PyObjC support for &#8220;blocks&#8221;<a class="headerlink" href="#pyobjc-support-for-blocks" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Objective-C has the concept of &#8220;blocks&#8221;, which are basically anonymous inline
+functions. The syntax for them is like this:</p>
+<div class="highlight-objective-c"><div class="highlight"><pre><span class="o">^</span><span class="p">{</span> <span class="n">printf</span><span class="p">(</span><span class="s">&quot;x is %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>This is a literal for a block that takes no arguments and prints a value when
+called.</p>
+<p>Blocks are only suppored when PyObjC is compiled using an Objective-C compiler
+that also supports blocks.</p>
+</div>
+<div class="section" id="calling-blocks-from-python">
+<h2>Calling blocks from Python<a class="headerlink" href="#calling-blocks-from-python" title="Permalink to this headline">¶</a></h2>
+<p>The Python representation for a block is a callable object, that is you can
+call the block just like you call any other function object.</p>
+<p>PyObjC manages the memory for blocks, it is not necessary to manage the reference
+counts of blocks in your code.</p>
+<div class="section" id="limitations">
+<h3>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h3>
+<p>It is not possible to call arbitrary blocks because PyObjC needs to store some
+additional metadata for a block. This means it is only possible to call blocks
+where the bridge knows the call signature, which means:</p>
+<ul class="simple">
+<li>Block was returned from a method for which we know the signature of
+returned blocks. PyObjC ships with metadata that covers all of Cocoa.</li>
+<li>When a block is stored in a Cocoa datastructure, such as an NSArray, and that
+is the only reference to the block PyObjC will loose the additional information
+that is needed to call the block.</li>
+</ul>
+<p>It is possible to retrieve and set the call signature of a block using the
+<tt class="docutils literal"><span class="pre">__block_signature__</span></tt> attribute on blocks.</p>
+</div>
+</div>
+<div class="section" id="implementing-blocks-in-python">
+<h2>Implementing blocks in Python<a class="headerlink" href="#implementing-blocks-in-python" title="Permalink to this headline">¶</a></h2>
+<p>It is very easy to use Objective-C methods that have a block as one of their
+arguments: just pass an arbitrary callable. PyObjC will automaticly wrap your
+callable in the right low-level datastructure.</p>
+<p>One of the side-effects of this is that the variour storage classes that are
+defined for block-related variables are not relevant for Python users. Blocks
+behave just like regular functions.</p>
+</div>
+<div class="section" id="metadata-for-blocks">
+<h2>Metadata for blocks<a class="headerlink" href="#metadata-for-blocks" title="Permalink to this headline">¶</a></h2>
+<p>The current implementation of blocks doesn&#8217;t allow for full introspection,
+which means that PyObjC must be taught about the signatures of blocks.  This
+is done using the <a class="reference internal" href="metadata/index.html"><em>metadata system</em></a>.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.5: </span>For basic blocks and (Objective-)C code compiled using a recent enough
+compiler the bridge can extract the block signature from the runtime.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PyObjC support for &#8220;blocks&#8221;</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#calling-blocks-from-python">Calling blocks from Python</a><ul>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementing-blocks-in-python">Implementing blocks in Python</a></li>
+<li><a class="reference internal" href="#metadata-for-blocks">Metadata for blocks</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="xcode.html"
+                        title="previous chapter">PyObjC with InterfaceBuilder</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="metadata/index.html"
+                        title="next chapter">PyObjC metadata system</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/blocks.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metadata/index.html" title="PyObjC metadata system"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="xcode.html" title="PyObjC with InterfaceBuilder"
+             >previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

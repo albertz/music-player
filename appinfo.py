@@ -40,7 +40,7 @@ musicdirs = (os.path.expanduser("~/Music"),)
 
 
 try: os.makedirs(userdir)
-except: pass
+except Exception: pass
 
 
 import utils
@@ -67,6 +67,15 @@ import sys
 if not getattr(sys, "argv", None):
 	sys.argv = ["."] # foo... constructor of ArgumentParser needs that
 
-from appinfo_args import argParser
-args = argParser.parse_args()
-
+import appinfo_args
+args = None
+try:
+	args, argv = appinfo_args.argParser.parse_known_args()
+	if argv:
+		print 'unrecognized arguments: %r' % argv
+except appinfo_args.ArgParserExitException:
+	pass
+except Exception:
+	sys.excepthook(*sys.exc_info())
+if args is None: # fallback
+	args = appinfo_args.argParser.parse_args(args=[])

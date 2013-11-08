@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Support for FSRef and FSSpec &mdash; PyObjC-Core 2.5.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.5.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyObjC-Core 2.5.0b1 documentation" href="index.html" />
+    <link rel="next" title="PyObjC with InterfaceBuilder" href="xcode.html" />
+    <link rel="prev" title="PyObjC protocol support" href="protocols.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="xcode.html" title="PyObjC with InterfaceBuilder"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="protocols.html" title="PyObjC protocol support"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="support-for-fsref-and-fsspec">
+<h1>Support for <tt class="docutils literal"><span class="pre">FSRef</span></tt> and <tt class="docutils literal"><span class="pre">FSSpec</span></tt><a class="headerlink" href="#support-for-fsref-and-fsspec" title="Permalink to this headline">¶</a></h1>
+<p>PyObjC has its own wrappers for the types <tt class="docutils literal"><span class="pre">FSRef</span></tt> and <tt class="docutils literal"><span class="pre">FSSpec</span></tt>, and also
+supports the wrappers for these types in <tt class="docutils literal"><span class="pre">Carbon.File</span></tt>.</p>
+<dl class="class">
+<dt id="objc.FSRef">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">FSRef</tt><a class="headerlink" href="#objc.FSRef" title="Permalink to this definition">¶</a></dt>
+<dd><p>This type represents an opaque <tt class="docutils literal"><span class="pre">FSRef</span></tt> structure.</p>
+<p>New instances are created using the <tt class="docutils literal"><span class="pre">from_pathname</span></tt> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="n">objc</span><span class="o">.</span><span class="n">FSRef</span><span class="o">.</span><span class="n">from_pathname</span><span class="p">(</span><span class="s">&quot;/Libray&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">objc</span><span class="o">.</span><span class="n">FSRef</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Instances of <tt class="docutils literal"><span class="pre">objc.FSRef</span></tt> are opaque and don&#8217;t provide access to
+specific fields in the structure. The following methods and properties
+are available to access an instance:</p>
+<dl class="attribute">
+<dt id="objc.FSRef.data">
+<tt class="descname">data</tt><a class="headerlink" href="#objc.FSRef.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>A bytestring containing the value of the <tt class="docutils literal"><span class="pre">FSRef</span></tt> object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.FSRef.as_pathname">
+<tt class="descname">as_pathname</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.FSRef.as_pathname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the POSIX path for the <tt class="docutils literal"><span class="pre">FSRef</span></tt> object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.FSRef.as_carbon">
+<tt class="descname">as_carbon</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.FSRef.as_carbon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <tt class="docutils literal"><span class="pre">Carbon.File.FSRef</span></tt> instance for the <tt class="docutils literal"><span class="pre">FSRef</span></tt> object.</p>
+<p>NOTE: This method is only available when <tt class="docutils literal"><span class="pre">Carbon</span></tt> support is
+enabled in the Python build.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">Carbon.File.FSRef</span></tt> instances can be used as the argument
+of functions that have an <tt class="docutils literal"><span class="pre">FSRef</span></tt> structure as one of their
+arguments.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All API&#8217;s using the FSRef type are deprecated by Apple as of Mac OS X 10.8,
+for most of those APIs there are alternate APIs that use URL objects
+(<tt class="xref c c-type docutils literal"><span class="pre">NSURL</span></tt> or <tt class="xref c c-type docutils literal"><span class="pre">CFURL</span></tt>).</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="objc.FSSpec">
+<em class="property">class </em><tt class="descclassname">objc.</tt><tt class="descname">FSSpec</tt><a class="headerlink" href="#objc.FSSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>This type represents an opaque <tt class="docutils literal"><span class="pre">FSSpec</span></tt> structure. It is not possible
+to create <tt class="docutils literal"><span class="pre">FSSpec</span></tt> instances in Python code.</p>
+<p>Instances of <tt class="docutils literal"><span class="pre">objc.FSSpec</span></tt> are opaque and don&#8217;t provide access to
+specific fields in the structure. The following methods and properties
+are available to access an instance:</p>
+<dl class="attribute">
+<dt id="objc.FSSpec.aref.data">
+<tt class="descclassname">aref.</tt><tt class="descname">data</tt><a class="headerlink" href="#objc.FSSpec.aref.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>A bytestring containing the value of the <tt class="docutils literal"><span class="pre">FSRef</span></tt> object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="objc.FSSpec.aref.as_carbon">
+<tt class="descclassname">aref.</tt><tt class="descname">as_carbon</tt><big>(</big><big>)</big><a class="headerlink" href="#objc.FSSpec.aref.as_carbon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <tt class="docutils literal"><span class="pre">Carbon.File.FSRef</span></tt> instance for the <tt class="docutils literal"><span class="pre">FSRef</span></tt> object.</p>
+<p>NOTE: This method is only available when <tt class="docutils literal"><span class="pre">Carbon</span></tt> support is
+enabled in the Python build.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">Carbon.File.FSSpec</span></tt> instances can be used as the argument
+of functions that have an <tt class="docutils literal"><span class="pre">FSSpec</span></tt> structure as one of their
+arguments.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">&#8220;FSSpec&#8221; is a deprecated type in Apple&#8217;s APIs. The type is not
+availble for 64-bit code, and shouldn&#8217;t be used for new development.</p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="protocols.html"
+                        title="previous chapter">PyObjC protocol support</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="xcode.html"
+                        title="next chapter">PyObjC with InterfaceBuilder</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/fsref-fsspec.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="xcode.html" title="PyObjC with InterfaceBuilder"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="protocols.html" title="PyObjC protocol support"
+             >previous</a> |</li>
+        <li><a href="index.html">PyObjC-Core 2.5.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, Ronald Oussoren.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
