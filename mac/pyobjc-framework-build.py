@@ -21,7 +21,8 @@ if False:
 	os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.6"
 	os.environ["SDKROOT"] = SDKROOT
 else:
-	CFLAGS=[]
+	CFLAGS=["-mmacosx-version-min=10.6"]
+	os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.6"
 
 def copytree(src, dst, symlinks=False):
 	try: os.makedirs(dst)
@@ -88,7 +89,7 @@ for framework in ["Cocoa", "Quartz"]:
 				 "-I../pyobjc-core/Modules/objc"] + \
 				extmod.extra_compile_args + \
 				extmod.extra_link_args + ["-undefined", "dynamic_lookup"] + \
-				["-o", "../" + TargetDir + "/" + filename]
+				["-shared", "-o", "../" + TargetDir + "/" + filename]
 			print " ".join(args)
 			res = subprocess.call(args)
 			if res != 0: sys.exit(res)
