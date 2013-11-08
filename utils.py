@@ -13,16 +13,23 @@ import sys
 # http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
 try:
 	import objc
+except ImportError:
+	# probably not MacOSX. doesn't matter
+	objc = None
+except Exception:
+	print "Error while importing objc"
+	sys.excepthook(*sys.exc_info())
+	objc = None
+try:
 	# Seems that the `objc` module is not enough. Without `AppKit`,
 	# I still get a lot of
 	#   __NSAutoreleaseNoPool(): ... autoreleased with no pool in place - just leaking
 	# errors.
-	import AppKit
-except ImportError:
-	# probably not MacOSX. doesn't matter
-	pass
+	if objc:
+		import AppKit
 except Exception:
-	print "Error while importing PyObjC (objc, AppKit)"
+	# Print error in any case, also ImportError, because we would expect that this works.
+	print "Error while importing AppKit"
 	sys.excepthook(*sys.exc_info())
 
 from collections import deque
