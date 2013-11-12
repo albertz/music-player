@@ -1494,6 +1494,16 @@ def simplifyString(s):
 	return s
 
 
+def uniqList(l):
+	s = set()
+	l_new = []
+	for v in l:
+		if v in s: continue
+		s.add(v)
+		l_new.append(v)
+	return l_new
+
+
 def isPymoduleAvailable(mod):
 	try:
 		__import__(mod)

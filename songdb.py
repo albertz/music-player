@@ -1036,6 +1036,7 @@ def search(query, limitResults=Search_ResultLimit):
 			return str(songId)
 		return None
 	results = map(getSongIdByRowId, results)
+	results = utils.uniqList(results)
 	results = map(getSongSummaryDictById, results)
 	results = filter(None, results)
 	return results
