@@ -13,6 +13,20 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 * Open Source, forked Amarok, made cross platform.
 
+### [Audacious](http://audacious-media-player.org/)
+
+* Open Source, descendant of XMMS
+
+### [XMMS2](https://xmms2.org/)
+
+* Open Source
+
+### [Music Player Daemon (MPD)](http://www.musicpd.org/)
+
+* Open Source
+* daemon, lightweight, seperate clients
+* Note that this player is compatible to MPD, i.e. it emulates the MPD server interface, thus MPD clients work with this player.
+
 ### [Songbird](http://getsongbird.com/)
 
 * Open Source, based on Mozilla XULRunner + GStreamer.
@@ -39,6 +53,16 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 * [Open Source](http://sourceforge.net/projects/listengnome/), Gnome.
 * Project dead?
+
+### [Deepin Music Player]((https://github.com/linuxdeepin/deepin-music-player))
+
+* Open Source, Python, GStreamer
+
+### [Foobnix](https://github.com/foobnix/foobnix)
+
+* Open Source, Python
+* CUE, wv, iso support
+* 10-band equalizer
 
 ### [Decibel](http://decibel.silent-blade.org/)
 
