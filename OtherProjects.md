@@ -63,5 +63,9 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 * Python module to handle audio metadata.
 
+### [VSXu](http://www.vsxu.com/)
 
+* [Open Source](https://github.com/vovoid/vsxu) (GPL)
+* Audio/Music Visualizer
+* Embeddable visual programming language, real-time OpenGL graphics
 
