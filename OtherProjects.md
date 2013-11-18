@@ -2,6 +2,10 @@
 
 There exists a huge amount of music players. Here is a list of some and other related projects. This list is not meant to be complete - but rather to be interesting in the scope of this project. This means a focus on Open Source, sound quality, platform independence, advanced DJ features, advanced queuing systems, etc.
 
+(I'm open for suggestions but don't expect that I will just add anything here.)
+
+
+
 ## Music players
 
 ### [Amarok](http://amarok.kde.org/)
@@ -80,6 +84,12 @@ There exists a huge amount of music players. Here is a list of some and other re
 * OSX only.
 * "HAL I/O using DAC native physical formats 'Integer Mode' (instead of CoreAudio 32bit float)", "Audio Device exclusive access mode", "Direct sound path, directly to the CoreAudio HAL for pure bit perfect sound".
 
+### [Douban FM Daemon (FMD)](http://hzqtc.github.io/fmd/)
+
+* Open Source, C, mpg123, libao
+* very simple, no fading, no gapless, ...
+* inspired by MPD
+
 
 
 ## Web-based streaming players
@@ -102,4 +112,21 @@ There exists a huge amount of music players. Here is a list of some and other re
 * [Open Source](https://github.com/vovoid/vsxu) (GPL)
 * Audio/Music Visualizer
 * Embeddable visual programming language, real-time OpenGL graphics
+
+### [sms-tools](https://github.com/MTG/sms-tools)
+
+* Python
+* spectral modelling synthesis tools for sound and music applications
+
+### [libao](http://xiph.org/ao/)
+
+* Open Source (GPL)
+* cross platform audio output library
+* supports OSS, ALSA, PulseAudio, esd, MacOSX, Windows, ...
+* latest release was 2011
+
+### [PortAudio](http://www.portaudio.com/)
+
+* Open Source (MIT license), cross-platform, input/output library
+* currently used by this project
 
