@@ -81,6 +81,16 @@ There exists a huge amount of music players. Here is a list of some and other re
 * "HAL I/O using DAC native physical formats 'Integer Mode' (instead of CoreAudio 32bit float)", "Audio Device exclusive access mode", "Direct sound path, directly to the CoreAudio HAL for pure bit perfect sound".
 
 
+
+## Web-based streaming players
+
+### [CherryMusic](http://www.fomori.org/cherrymusic/)
+
+* [Open Source](https://github.com/devsnd/cherrymusic) (GPL), Python, [CherryPy](http://www.cherrypy.org/), [jPlayer](http://jplayer.org/)
+* no advanced player technics like Gapless playback, mixing, etc. (because of web technology)
+
+
+
 ## Libraries
 
 ### [Mutagen](https://code.google.com/p/mutagen/)
