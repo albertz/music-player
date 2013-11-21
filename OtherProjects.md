@@ -95,6 +95,11 @@ There exists a huge amount of music players. Here is a list of some and other re
 * very simple, no fading, no gapless, ...
 * inspired by MPD
 
+### [Cog](http://cogx.org/)
+
+* Open Source, MacOSX
+* no update since 2008, latest release is 0.07
+
 
 
 ## Web-based streaming players
