@@ -13,9 +13,9 @@ There exists a huge amount of music players. Here is a list of some and other re
 * Open Source, based on KDE, ports are too limited.
 * It was my preferred player on Linux.
 
-### [Clementine](https://code.google.com/p/clementine-player/)
+### [Clementine](http://www.clementine-player.org/)
 
-* Open Source, forked Amarok, made cross platform.
+* [Open Source](https://code.google.com/p/clementine-player/), forked Amarok, made cross platform.
 
 ### [Audacious](http://audacious-media-player.org/)
 
@@ -30,6 +30,11 @@ There exists a huge amount of music players. Here is a list of some and other re
 * Open Source
 * daemon, lightweight, seperate clients
 * Note that this player is compatible to MPD, i.e. it emulates the MPD server interface, thus MPD clients work with this player.
+
+### [Tomahawk player](http://www.tomahawk-player.org/)
+
+* [Open Source](https://github.com/tomahawk-player/tomahawk) (GPL)
+* MacOSX, Windows, Linux
 
 ### [Songbird](http://getsongbird.com/)
 
