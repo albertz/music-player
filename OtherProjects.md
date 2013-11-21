@@ -100,6 +100,10 @@ There exists a huge amount of music players. Here is a list of some and other re
 * Open Source, MacOSX
 * no update since 2008, latest release is 0.07
 
+### [gmusicbrowser](http://gmusicbrowser.org/)
+
+* Open Source, Perl, GTK+, GStreamer
+
 
 
 ## Web-based streaming players
