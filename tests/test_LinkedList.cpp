@@ -1,5 +1,6 @@
 
 #include <assert.h>
+#include <thread>
 #include "LinkedList.hpp"
 
 void test1() {
@@ -22,6 +23,40 @@ void test1() {
 	assert(l.empty());
 }
 
+
+void test2() {
+	LinkedList<int> l;
+	l._check_sanity();
+
+	auto producer = [&l](){
+		for(int i = 0; i < 100; ++i) {
+			LinkedList<int>::ItemPtr item(new LinkedList<int>::Item);
+			item->value = i;
+			l.push_back(item);
+			l._check_sanity();
+		}
+	};
+
+	auto consumer = [&l](){
+		for(int i = 0; i < 100; ++i) {
+			while(l.empty()); // wait for entry
+			auto ret = l.pop_front();
+			l._check_sanity();
+			assert(ret);
+			assert(ret->value == i);
+		}
+	};
+
+	for(int i = 0; i < 10; ++i) {
+		std::thread t1(producer), t2(consumer);
+		t1.join();
+		t2.join();
+		assert(l.empty());
+	}
+}
+
+
 int main() {
 	test1();
+	test2();
 }
