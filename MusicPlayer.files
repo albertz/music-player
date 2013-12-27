@@ -5791,3 +5791,4 @@ PyUtils.h
 LinkedList.hpp
 tests/test_LinkedList.cpp
 IntrusivePtr.hpp
+tests/test_IntrusivePtr.cpp
