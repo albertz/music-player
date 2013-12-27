@@ -50,7 +50,6 @@ public:
 	// only single producer supported
 	void push_back() {
 		ItemPtr item(new Item());
-		ItemPtr oldLast = last;
 		if(!first) first = item;
 		if(!last) last = item;
 		else {
