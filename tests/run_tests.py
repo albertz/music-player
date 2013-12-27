@@ -3,10 +3,10 @@
 import os, sys
 from glob import glob
 os.chdir(os.path.dirname(__file__))
+sys.path += [".."]
 
-def compileCpp(fn):
-	pass
+import compile_utils as c
 
 for fn in glob("*.cpp"):
-	compileCpp(fn)
+	c.cc(fn)
 

@@ -8,53 +8,7 @@ import os, sys
 from glob import glob
 os.chdir(os.path.dirname(__file__))
 
-def sysExec(cmd):
-	print " ".join(cmd)
-	r = os.system(" ".join(cmd))
-	if r != 0: sys.exit(r)
-
-LinkPython = False
-UsePyPy = False
-
-def link(outfile, infiles, options):
-	if not LinkPython:
-		options += ["-undefined", "dynamic_lookup"]
-	if sys.platform == "darwin":
-		if LinkPython: options += ["-framework","Python"]
-		sysExec(
-			["libtool", "-dynamic", "-o", outfile] +
-			infiles +
-			options + 
-			["-lc"]
-		)
-	else:
-		if LinkPython: options += ["-lpython2.7"]
-		sysExec(
-			["ld"] +
-			["-L/usr/local/lib"] +
-			infiles +
-			options +
-			["-lc"] +
-			["-shared", "-o", outfile]
-		)
-
-CFLAGS = os.environ.get("CFLAGS", "").split()
-
-def cc(files, options):
-	if UsePyPy:
-		options += ["-I", "/usr/local/Cellar/pypy/1.9/include"]
-	else:
-		options += [
-			"-I", "/System/Library/Frameworks/Python.framework/Headers/", # mac
-			"-I", "/usr/include/python2.7", # common linux/unix
-		]
-	options += ["-fpic"]
-	cppfiles = [f for f in files if os.path.splitext(f)[1] == ".cpp"]
-	files = [f for f in files if f not in cppfiles]
-	if cppfiles:
-		cppoptions = ["-std=c++11"]
-		sysExec(["cc"] + options + cppoptions + CFLAGS + ["-c"] + cppfiles)		
-	sysExec(["cc"] + options + CFLAGS + ["-c"] + files)
+from compile_utils import *
 
 sysExec(["mkdir","-p","build"])
 os.chdir("build")
@@ -71,6 +25,7 @@ cc(
 		"-DHAVE_CONFIG_H",
 		"-g",
 	] +
+	get_python_ccopts() +
 	(["-I", "../chromaprint"] if staticChromaprint else [])
 )
 
@@ -84,6 +39,7 @@ link(
 		"-lswresample",
 		"-lportaudio",
 	] +
+	get_python_linkopts() +
 	([] if staticChromaprint else ["-lchromaprint"])
 )
 
@@ -95,4 +51,4 @@ if sys.platform == "darwin":
 		[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in guiCocoaCommonFiles],
 		["-framework", "Cocoa"]
 	)
-	
+
