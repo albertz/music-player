@@ -9,6 +9,7 @@ from glob import glob
 os.chdir(os.path.dirname(__file__))
 
 from compile_utils import *
+import compile_utils as c
 
 sysExec(["mkdir","-p","build"])
 os.chdir("build")
@@ -31,7 +32,7 @@ cc(
 
 link(
 	"../ffmpeg.so",
-	[os.path.splitext(os.path.basename(fn))[0] + ".o" for fn in ffmpegFiles],
+	[c.get_cc_outfilename(fn) for fn in ffmpegFiles],
 	[
 		"-lavutil",
 		"-lavformat",

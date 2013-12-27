@@ -7,6 +7,18 @@ def sysExec(cmd):
 	if r != 0: sys.exit(r)
 
 
+def is_uptodate(outfile, depfiles):
+	# TODO ...
+	return False
+
+def get_cc_outfilename(infile):
+	return os.path.splitext(os.path.basename(infile))[0] + ".o"
+
+def get_depfiles(outfile):
+	# depfilename = get_cc_outfilename(infile)
+	# TODO ...
+	return []
+
 LDFLAGS = os.environ.get("LDFLAGS", "").split()
 
 def link(outfile, infiles, options):
@@ -35,12 +47,14 @@ def link(outfile, infiles, options):
 		)
 
 CFLAGS = os.environ.get("CFLAGS", "").split()
+CFLAGS += ["-fpic"]
 
-def cc_single(fn, options):
-	options += ["-fpic"]
-	if os.path.splitext(fn)[1] == ".cpp":
+def cc_single(infile, options):
+	if os.path.splitext(infile)[1] == ".cpp":
 		options += ["-std=c++11"]
-	sysExec(["cc"] + options + CFLAGS + ["-c"] + [fn])
+	outfilename = get_cc_outfilename(infile)
+	depfilename = outfilename + ".deps"
+	sysExec(["cc"] + options + CFLAGS + ["-c", infile, "-MM", "-MF", depfilename])
 
 def cc(files, options):
 	for f in files:
