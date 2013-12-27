@@ -9,9 +9,11 @@ template<typename T>
 struct IntrusivePtr {
 	boost::atomic<T*> ptr;
 
-	IntrusivePtr(T* _p = NULL) : ptr(_p) {
-		if(_p)
+	IntrusivePtr(T* _p = NULL) : ptr(NULL) {
+		if(_p) {
 			intrusive_ptr_add_ref(_p);
+			ptr = _p;
+		}
 	}
 
 	IntrusivePtr(const IntrusivePtr& other) {
