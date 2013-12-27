@@ -7,11 +7,12 @@ def sysExec(cmd):
 	if r != 0: sys.exit(r)
 
 
-def is_uptodate(outfile):
+def is_uptodate(outfile, depfiles=None):
 	try: outmtime = os.path.getmtime(outfile)
 	except OSError: return False
-	try: depfiles = get_depfiles(outfile)
-	except IOError: return False
+	if depfiles is None:
+		try: depfiles = get_depfiles(outfile)
+		except IOError: return False
 	for depfn in depfiles:
 		try:
 			if os.path.getmtime(depfn) > outmtime:
@@ -54,10 +55,13 @@ def get_mtime(filename):
 LDFLAGS = os.environ.get("LDFLAGS", "").split()
 
 def link(outfile, infiles, options):
-	options = []
 	if "--weak-linking" in options:
 		idx = options.index("--weak-linking")
 		options[idx:idx+1] = ["-undefined", "dynamic_lookup"]
+
+	if is_uptodate(outfile, depfiles=infiles):
+		print "up-to-date:", outfile
+		return
 
 	if sys.platform == "darwin":
 		sysExec(
