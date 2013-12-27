@@ -23,3 +23,4 @@ for fn in glob("../*.cpp"):
 		options=[]
 	)
 	sysExec(["./" + binfile])
+	print os.path.basename(fn), ": success"
