@@ -2,12 +2,13 @@
 #define MP_BUFFER_HPP
 
 #include <list>
+#include <atomic>
 #include "PyThreading.hpp"
+#include "LinkedList.hpp"
 
 #define BUFFER_CHUNK_SIZE (1024 * 4)
 
 struct Buffer {
-	PyMutex mutex;
 
 	struct Chunk {
 		uint8_t data[BUFFER_CHUNK_SIZE];
@@ -18,8 +19,8 @@ struct Buffer {
 		uint16_t freeDataAvailable() { return BufferSize() - end; }
 		Chunk() : start(0), end(0) { mlock(this, sizeof(*this)); }
 	};
-	std::list<Chunk> chunks;
-	size_t _size;
+	LinkedList<Chunk> chunks;
+	std::atomic<size_t> _size;
 
 	Buffer() : _size(0) { mlock(this, sizeof(*this)); }
 	size_t size() { PyScopedLock lock(mutex); return _size; }
