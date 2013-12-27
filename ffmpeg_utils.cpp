@@ -102,7 +102,6 @@ const char* getStackSymbol(void* pt) { return "?"; }
 #endif
 
 size_t Buffer::pop(uint8_t* target, size_t target_size) {
-	PyScopedLock lock(mutex);
 	size_t c = 0;
 	while(!chunks.empty()) {
 		Chunk& chunk = chunks.front();
@@ -125,11 +124,10 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 }
 
 void Buffer::push(const uint8_t* data, size_t size) {
-	PyScopedLock lock(mutex);
 	_size += size;
 	while(size > 0) {
 		if(chunks.empty() || !chunks.back().freeDataAvailable())
-			chunks.push_back(Chunk());
+			chunks.push_back();
 		Chunk& chunk = chunks.back();
 		size_t s = std::min(size, (size_t)chunk.freeDataAvailable());
 		memcpy(chunk.data + chunk.end, data, s);
