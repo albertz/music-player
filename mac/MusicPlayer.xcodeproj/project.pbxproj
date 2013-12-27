@@ -235,6 +235,14 @@
 		23B071DF17AD79DF00524C82 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B071DD17AD79DF00524C82 /* debugger.cpp */; };
 		23B071E017AD79DF00524C82 /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B071DE17AD79DF00524C82 /* debugger.h */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
+		23E5BA01186DEE7900A7FB9F /* Buffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */; };
+		23E5BA02186DEE7900A7FB9F /* Fader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FA186DEE7900A7FB9F /* Fader.hpp */; };
+		23E5BA03186DEE7900A7FB9F /* LinkedList.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */; };
+		23E5BA04186DEE7900A7FB9F /* Protection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FC186DEE7900A7FB9F /* Protection.hpp */; };
+		23E5BA05186DEE7900A7FB9F /* PyThreading.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FD186DEE7900A7FB9F /* PyThreading.hpp */; };
+		23E5BA06186DEE7900A7FB9F /* PyUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FE186DEE7900A7FB9F /* PyUtils.h */; };
+		23E5BA07186DEE7900A7FB9F /* SampleType.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */; };
+		23E5BA08186DEE7900A7FB9F /* SmoothClip.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -558,6 +566,14 @@
 		23B071DE17AD79DF00524C82 /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
+		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
+		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
+		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
+		23E5B9FC186DEE7900A7FB9F /* Protection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Protection.hpp; path = ../Protection.hpp; sourceTree = "<group>"; };
+		23E5B9FD186DEE7900A7FB9F /* PyThreading.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PyThreading.hpp; path = ../PyThreading.hpp; sourceTree = "<group>"; };
+		23E5B9FE186DEE7900A7FB9F /* PyUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyUtils.h; path = ../PyUtils.h; sourceTree = "<group>"; };
+		23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SampleType.hpp; path = ../SampleType.hpp; sourceTree = "<group>"; };
+		23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SmoothClip.hpp; path = ../SmoothClip.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -965,6 +981,14 @@
 		23A14A6315E3B6A200376BF6 /* ffmpeg.so */ = {
 			isa = PBXGroup;
 			children = (
+				23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */,
+				23E5B9FA186DEE7900A7FB9F /* Fader.hpp */,
+				23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */,
+				23E5B9FC186DEE7900A7FB9F /* Protection.hpp */,
+				23E5B9FD186DEE7900A7FB9F /* PyThreading.hpp */,
+				23E5B9FE186DEE7900A7FB9F /* PyUtils.h */,
+				23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */,
+				23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */,
 				23ACE6FD1689E1CF00E45134 /* ffmpeg.h */,
 				23A14A6415E3B6B600376BF6 /* ffmpeg.c */,
 				23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */,
@@ -1077,20 +1101,27 @@
 			files = (
 				233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */,
 				233684F21600BD7F00A38E78 /* audio_processor.h in Headers */,
+				23E5BA05186DEE7900A7FB9F /* PyThreading.hpp in Headers */,
 				233684F71600BD7F00A38E78 /* base64.h in Headers */,
 				233684F81600BD7F00A38E78 /* bit_string_reader.h in Headers */,
 				233684F91600BD7F00A38E78 /* bit_string_writer.h in Headers */,
 				233684FB1600BD7F00A38E78 /* chroma.h in Headers */,
 				233684FD1600BD7F00A38E78 /* chroma_filter.h in Headers */,
+				23E5BA07186DEE7900A7FB9F /* SampleType.hpp in Headers */,
+				23E5BA03186DEE7900A7FB9F /* LinkedList.hpp in Headers */,
 				233684FE1600BD7F00A38E78 /* chroma_normalizer.h in Headers */,
 				233685001600BD7F00A38E78 /* chroma_resampler.h in Headers */,
 				233685021600BD7F00A38E78 /* chromaprint.h in Headers */,
 				233685031600BD7F00A38E78 /* classifier.h in Headers */,
 				233685041600BD7F00A38E78 /* combined_buffer.h in Headers */,
 				233685051600BD7F00A38E78 /* debug.h in Headers */,
+				23E5BA08186DEE7900A7FB9F /* SmoothClip.hpp in Headers */,
+				23E5BA06186DEE7900A7FB9F /* PyUtils.h in Headers */,
 				233685061600BD7F00A38E78 /* decoder.h in Headers */,
+				23E5BA01186DEE7900A7FB9F /* Buffer.hpp in Headers */,
 				2336850C1600BD7F00A38E78 /* feature_vector_consumer.h in Headers */,
 				2336850E1600BD7F00A38E78 /* fft.h in Headers */,
+				23E5BA04186DEE7900A7FB9F /* Protection.hpp in Headers */,
 				2336850F1600BD7F00A38E78 /* fft_frame.h in Headers */,
 				233685101600BD7F00A38E78 /* fft_frame_consumer.h in Headers */,
 				233685111600BD7F00A38E78 /* fft_lib.h in Headers */,
@@ -1099,6 +1130,7 @@
 				2336851A1600BD7F00A38E78 /* filter_utils.h in Headers */,
 				2336851C1600BD7F00A38E78 /* fingerprint_calculator.h in Headers */,
 				2336851E1600BD7F00A38E78 /* fingerprint_compressor.h in Headers */,
+				23E5BA02186DEE7900A7FB9F /* Fader.hpp in Headers */,
 				233685201600BD7F00A38E78 /* fingerprint_decompressor.h in Headers */,
 				233685221600BD7F00A38E78 /* fingerprinter.h in Headers */,
 				233685241600BD7F00A38E78 /* fingerprinter_configuration.h in Headers */,
