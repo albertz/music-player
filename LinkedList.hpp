@@ -2,6 +2,7 @@
 #define MP_LINKEDLIST_HPP
 
 #include <boost/shared_ptr.hpp>
+#include <assert.h>
 
 // lockfree
 
@@ -48,7 +49,7 @@ public:
 	}
 
 	// only single producer supported
-	void push_back() {
+	ItemPtr push_back() {
 		ItemPtr item(new Item());
 		if(!first) first = item;
 		if(!last) last = item;
@@ -56,6 +57,7 @@ public:
 			last->next = item;
 			last = item;
 		}
+		return item;
 	}
 
 	// only single consumer supported
@@ -83,6 +85,11 @@ public:
 	T& front() { return first->value; }
 	T& back() { return last->value; }
 
+
+	void _check_sanity() {
+		if(!first) assert(!last);
+		else assert(last);
+	}
 };
 
 
