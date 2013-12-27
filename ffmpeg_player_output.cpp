@@ -273,10 +273,10 @@ int PlayerObject::setPlaying(bool playing) {
 }
 
 void PlayerObject::resetPlaying() {
-	if(player->playing)
-		setPlaying(false);
-	if(player->outStream.get() != NULL)
-		player->outStream.reset();
+	if(this->playing)
+		this->setPlaying(false);
+	if(this->outStream.get() != NULL)
+		this->outStream.reset();
 }
 
 
