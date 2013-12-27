@@ -706,11 +706,6 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 	return ret;
 }
 
-/*
- static PyMemberDef PlayerMembers[] = {
- {"queue", },
- };
- */
 
 PyTypeObject Player_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
