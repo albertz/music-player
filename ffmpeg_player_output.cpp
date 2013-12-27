@@ -233,7 +233,7 @@ int PlayerObject::setPlaying(bool playing) {
 		assert(player->outStream.get() != NULL);
 		
 		if(soundcardOutputEnabled) {
-			if(playing && !player->outStream->stream) {
+			if(playing && !player->outStream->isOpen()) {
 				if(!player->outStream->open())
 					playing = false;
 			}
@@ -272,6 +272,12 @@ int PlayerObject::setPlaying(bool playing) {
 	return PyErr_Occurred() ? -1 : 0;
 }
 
+void PlayerObject::resetPlaying() {
+	if(player->playing)
+		setPlaying(false);
+	if(player->outStream.get() != NULL)
+		player->outStream.reset();
+}
 
 
 #ifdef __APPLE__

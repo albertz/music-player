@@ -255,6 +255,7 @@ struct PlayerObject {
 	bool playing;
 	bool soundcardOutputEnabled; // if enabled, uses PortAudio to play on soundcard. otherwise call readStreamOut manually
 	int setPlaying(bool playing);
+	void resetPlaying();
 	float volume;
 	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	bool volumeAdjustEnabled;
