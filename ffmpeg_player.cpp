@@ -419,6 +419,30 @@ static PyMethodDef md_readOutStream = {
 
 
 static
+PyObject* player_method_resetPlaying(PyObject* self, PyObject* _unused_arg) {
+	PlayerObject* player = (PlayerObject*) self;
+	if(PyErr_Occurred()) return NULL;
+	Py_INCREF(self);
+	Py_BEGIN_ALLOW_THREADS
+	{
+		PyScopedLock lock(player->lock);
+		player->resetPlaying();
+	}
+	Py_END_ALLOW_THREADS
+	Py_DECREF(self);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMethodDef md_resetPlaying = {
+	"resetPlaying",
+	player_method_resetPlaying,
+	METH_NOARGS,
+	NULL
+};
+
+
+static
 PyObject* player_getdict(PlayerObject* player) {
 	if(!player->dict) {
 		player->dict = PyDict_New();
@@ -446,12 +470,13 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		const Py_ssize_t C = 21;
+		const Py_ssize_t C = 22;
 		PyObject* mlist = PyList_New(C);
 		int i = 0;
 		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
 		PyList_SetItem(mlist, i++, PyString_FromString("peekQueue"));
 		PyList_SetItem(mlist, i++, PyString_FromString("playing"));
+		PyList_SetItem(mlist, i++, PyString_FromString("resetPlaying"));
 		PyList_SetItem(mlist, i++, PyString_FromString("curSong"));
 		PyList_SetItem(mlist, i++, PyString_FromString("curSongPos"));
 		PyList_SetItem(mlist, i++, PyString_FromString("curSongLen"));
@@ -493,7 +518,11 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	if(strcmp(key, "playing") == 0) {
 		return PyBool_FromLong(player->playing);
 	}
-	
+
+	if(strcmp(key, "resetPlaying") == 0) {
+		return PyCFunction_New(&md_resetPlaying, (PyObject*) player);
+	}
+
 	if(strcmp(key, "curSong") == 0) {
 		if(player->curSong && player->inStream) { // Note: if we simply check for curSong, we need an additional curSongOpened or so because from the outside, we often want to know if we correctly loaded the current song
 			Py_INCREF(player->curSong);
