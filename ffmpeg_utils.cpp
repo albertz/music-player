@@ -6,6 +6,7 @@
 
 #include "ffmpeg.h"
 #include "Protection.hpp"
+#include "PyUtils.h"
 #include <unistd.h>
 
 
