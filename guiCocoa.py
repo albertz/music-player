@@ -155,7 +155,7 @@ class PyAppDelegate(NSObject):
 
 	def about_(self, app):
 		import webbrowser
-		webbrowser.open("http://albertz.github.com/music-player/")
+		webbrowser.open("http://albertz.github.io/music-player/")
 	
 	def playPause_(self, app):
 		from State import state
