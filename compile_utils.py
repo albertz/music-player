@@ -36,14 +36,15 @@ def link(outfile, infiles, options):
 
 CFLAGS = os.environ.get("CFLAGS", "").split()
 
-def cc(files, options):
+def cc_single(fn, options):
 	options += ["-fpic"]
-	cppfiles = [f for f in files if os.path.splitext(f)[1] == ".cpp"]
-	files = [f for f in files if f not in cppfiles]
-	if cppfiles:
-		cppoptions = ["-std=c++11"]
-		sysExec(["cc"] + options + cppoptions + CFLAGS + ["-c"] + cppfiles)
-	sysExec(["cc"] + options + CFLAGS + ["-c"] + files)
+	if os.path.splitext(fn)[1] == ".cpp":
+		options += ["-std=c++11"]
+	sysExec(["cc"] + options + CFLAGS + ["-c"] + [fn])
+
+def cc(files, options):
+	for f in files:
+		cc_single(f, options)
 
 
 
