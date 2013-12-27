@@ -5,6 +5,7 @@
 // This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 #include "ffmpeg.h"
+#include "PyUtils.h"
 
 #include <portaudio.h>
 #include <boost/bind.hpp>

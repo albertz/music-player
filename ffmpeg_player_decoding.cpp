@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "ffmpeg.h"
+#include "PyUtils.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
