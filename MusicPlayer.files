@@ -5781,3 +5781,10 @@ ffmpeg_player_output.cpp
 ffmpeg_replaygain.cpp
 ffmpeg_utils.cpp
 portaudio-wavplay-demo.cpp
+Buffer.hpp
+PyThreading.hpp
+Protection.hpp
+SmoothClip.hpp
+Fader.hpp
+SampleType.hpp
+PyUtils.h
