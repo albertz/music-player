@@ -71,12 +71,6 @@
 		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
 		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
-		238E98791696674000C42074 /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 238E98671696633000C42074 /* NSFlippedView.m */; };
-		238E987A1696674300C42074 /* NSFlippedView.h in Sources */ = {isa = PBXBuildFile; fileRef = 238E98661696633000C42074 /* NSFlippedView.h */; };
-		239D888C182BB6C80068F287 /* TableViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D888A182BB6C80068F287 /* TableViewDelegate.h */; };
-		239D888D182BB6C80068F287 /* TableViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 239D888B182BB6C80068F287 /* TableViewDelegate.m */; };
-		239D8890182BBF9A0068F287 /* PythonBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239D888E182BBF9A0068F287 /* PythonBridge.cpp */; };
-		239D8891182BBF9A0068F287 /* PythonBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D888F182BBF9A0068F287 /* PythonBridge.h */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
 		239D88E5182BC72C0068F287 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DF182BC72C0068F287 /* darwin64.S */; };
@@ -243,6 +237,12 @@
 		23E5BA06186DEE7900A7FB9F /* PyUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FE186DEE7900A7FB9F /* PyUtils.h */; };
 		23E5BA07186DEE7900A7FB9F /* SampleType.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */; };
 		23E5BA08186DEE7900A7FB9F /* SmoothClip.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */; };
+		23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA09186E15A500A7FB9F /* NSFlippedView.h */; };
+		23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */; };
+		23E5BA11186E15A500A7FB9F /* PythonBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */; };
+		23E5BA12186E15A500A7FB9F /* PythonBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA0C186E15A500A7FB9F /* PythonBridge.h */; };
+		23E5BA13186E15A500A7FB9F /* TableViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */; };
+		23E5BA14186E15A500A7FB9F /* TableViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -390,13 +390,7 @@
 		233684EE1600BD7F00A38E78 /* spectrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectrum.h; sourceTree = "<group>"; };
 		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		238E98661696633000C42074 /* NSFlippedView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = MusicPlayer/NSFlippedView.h; sourceTree = "<group>"; };
-		238E98671696633000C42074 /* NSFlippedView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = MusicPlayer/NSFlippedView.m; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		239D888A182BB6C80068F287 /* TableViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TableViewDelegate.h; path = MusicPlayer/TableViewDelegate.h; sourceTree = "<group>"; };
-		239D888B182BB6C80068F287 /* TableViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TableViewDelegate.m; path = MusicPlayer/TableViewDelegate.m; sourceTree = "<group>"; };
-		239D888E182BBF9A0068F287 /* PythonBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PythonBridge.cpp; path = MusicPlayer/PythonBridge.cpp; sourceTree = "<group>"; };
-		239D888F182BBF9A0068F287 /* PythonBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PythonBridge.h; path = MusicPlayer/PythonBridge.h; sourceTree = "<group>"; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
 		239D88DE182BC72C0068F287 /* types.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = types.c; path = "pyobjc-core/libffi-src/types.c"; sourceTree = "<group>"; };
@@ -574,6 +568,12 @@
 		23E5B9FE186DEE7900A7FB9F /* PyUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyUtils.h; path = ../PyUtils.h; sourceTree = "<group>"; };
 		23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SampleType.hpp; path = ../SampleType.hpp; sourceTree = "<group>"; };
 		23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SmoothClip.hpp; path = ../SmoothClip.hpp; sourceTree = "<group>"; };
+		23E5BA09186E15A500A7FB9F /* NSFlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = guiCocoaCommon/NSFlippedView.h; sourceTree = "<group>"; };
+		23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = guiCocoaCommon/NSFlippedView.m; sourceTree = "<group>"; };
+		23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PythonBridge.cpp; path = guiCocoaCommon/PythonBridge.cpp; sourceTree = "<group>"; };
+		23E5BA0C186E15A500A7FB9F /* PythonBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PythonBridge.h; path = guiCocoaCommon/PythonBridge.h; sourceTree = "<group>"; };
+		23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TableViewDelegate.h; path = guiCocoaCommon/TableViewDelegate.h; sourceTree = "<group>"; };
+		23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TableViewDelegate.m; path = guiCocoaCommon/TableViewDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -721,12 +721,12 @@
 		238E98621696608E00C42074 /* guiCocoaCommon.so */ = {
 			isa = PBXGroup;
 			children = (
-				238E98661696633000C42074 /* NSFlippedView.h */,
-				238E98671696633000C42074 /* NSFlippedView.m */,
-				239D888A182BB6C80068F287 /* TableViewDelegate.h */,
-				239D888B182BB6C80068F287 /* TableViewDelegate.m */,
-				239D888E182BBF9A0068F287 /* PythonBridge.cpp */,
-				239D888F182BBF9A0068F287 /* PythonBridge.h */,
+				23E5BA09186E15A500A7FB9F /* NSFlippedView.h */,
+				23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */,
+				23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */,
+				23E5BA0C186E15A500A7FB9F /* PythonBridge.h */,
+				23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */,
+				23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */,
 			);
 			name = guiCocoaCommon.so;
 			sourceTree = "<group>";
@@ -1035,8 +1035,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				239D888C182BB6C80068F287 /* TableViewDelegate.h in Headers */,
-				239D8891182BBF9A0068F287 /* PythonBridge.h in Headers */,
+				23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */,
+				23E5BA12186E15A500A7FB9F /* PythonBridge.h in Headers */,
+				23E5BA13186E15A500A7FB9F /* TableViewDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1359,10 +1360,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				239D8890182BBF9A0068F287 /* PythonBridge.cpp in Sources */,
-				238E98791696674000C42074 /* NSFlippedView.m in Sources */,
-				238E987A1696674300C42074 /* NSFlippedView.h in Sources */,
-				239D888D182BB6C80068F287 /* TableViewDelegate.m in Sources */,
+				23E5BA11186E15A500A7FB9F /* PythonBridge.cpp in Sources */,
+				23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */,
+				23E5BA14186E15A500A7FB9F /* TableViewDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
