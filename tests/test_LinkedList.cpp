@@ -33,7 +33,6 @@ void test2() {
 			LinkedList<int>::ItemPtr item(new LinkedList<int>::Item);
 			item->value = i;
 			l.push_back(item);
-			l._check_sanity();
 		}
 	};
 
@@ -41,17 +40,17 @@ void test2() {
 		for(int i = 0; i < 100; ++i) {
 			while(l.empty()); // wait for entry
 			auto ret = l.pop_front();
-			l._check_sanity();
 			assert(ret);
 			assert(ret->value == i);
 		}
 	};
 
-	for(int i = 0; i < 10; ++i) {
+	for(int i = 0; i < 1000; ++i) {
 		std::thread t1(producer), t2(consumer);
 		t1.join();
 		t2.join();
 		assert(l.empty());
+		l._check_sanity();
 	}
 }
 

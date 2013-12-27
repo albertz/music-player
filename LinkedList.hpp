@@ -1,8 +1,9 @@
 #ifndef MP_LINKEDLIST_HPP
 #define MP_LINKEDLIST_HPP
 
-#include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <assert.h>
+#include "IntrusivePtr.hpp"
 
 // lockfree
 
@@ -10,8 +11,9 @@ template<typename T>
 class LinkedList {
 public:
 	struct Item;
-	typedef boost::shared_ptr<Item> ItemPtr;
-	struct Item {
+	typedef IntrusivePtr<Item> ItemPtr;
+
+	struct Item : public boost::intrusive_ref_counter< Item, boost::thread_safe_counter > {
 		ItemPtr next;
 		T value;
 	};
@@ -51,12 +53,12 @@ public:
 	// only single producer supported
 	ItemPtr push_back(ItemPtr item = NULL) {
 		if(!item) item.reset(new Item());
-		if(!first) first = item;
 		if(!last) last = item;
 		else {
 			last->next = item;
 			last = item;
 		}
+		if(!first) first = item;
 		return item;
 	}
 
@@ -78,7 +80,7 @@ public:
 	}
 
 	bool empty() {
-		return first == NULL;
+		return !first;
 	}
 
 	// be very careful!
