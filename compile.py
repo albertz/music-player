@@ -45,7 +45,7 @@ link(
 )
 
 if sys.platform == "darwin":
-	guiCocoaCommonFiles = glob("../mac/MusicPlayer/*.m")
+	guiCocoaCommonFiles = glob("../mac/guiCocoaCommon/*.m")
 	cc(guiCocoaCommonFiles,	[])
 	link(
 		"../_guiCocoaCommon.dylib",
