@@ -15,12 +15,12 @@ os.chdir("build")
 c.CFLAGS += ["-I../.."]
 
 for fn in glob("../*.cpp"):
-	c.cc([fn], options=[])
+	c.cc([fn], options=["-g"])
 	binfile = c.get_cc_outfilename(fn) + ".bin"
 	link_exec(
 		binfile,
 		[c.get_cc_outfilename(fn)],
-		options=[]
+		options=["-g"]
 	)
 	sysExec(["./" + binfile])
 	print os.path.basename(fn), ": success"
