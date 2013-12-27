@@ -9,9 +9,9 @@ from glob import glob
 os.chdir(os.path.dirname(__file__))
 
 def sysExec(cmd):
-    print " ".join(cmd)
-    r = os.system(" ".join(cmd))
-    if r != 0: sys.exit(r)
+	print " ".join(cmd)
+	r = os.system(" ".join(cmd))
+	if r != 0: sys.exit(r)
 
 LinkPython = False
 UsePyPy = False
