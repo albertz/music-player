@@ -83,6 +83,8 @@ def link(outfile, infiles, options):
 		)
 
 def link_exec(outfile, infiles, options):
+	options += ["-lc", "-lc++"]
+
 	if is_uptodate(outfile, depfiles=infiles):
 		print "up-to-date:", outfile
 		return
