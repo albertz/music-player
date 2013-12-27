@@ -5788,3 +5788,4 @@ SmoothClip.hpp
 Fader.hpp
 SampleType.hpp
 PyUtils.h
+LinkedList.hpp
