@@ -73,6 +73,13 @@ def setupAppleMenu():
 	app.delegate().dockMenu = m
 	app.setDockMenu_(m)
 
+	# new supermenu
+	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Debug", None, "")
+	m = NSMenu.alloc().initWithTitle_("Debug")
+	mainMenu.setSubmenu_forItem_(m, mi)
+
+	m.addItemWithTitle_action_keyEquivalent_('reset player', 'resetPlayer:', '')
+
 	app.setMainMenu_(mainMenu)
 
 def updateControlMenu():
@@ -157,6 +164,11 @@ class PyAppDelegate(NSObject):
 	def nextSong_(self, app):
 		from State import state
 		state.nextSong()
+
+	def resetPlayer_(self, app):
+		from State import state
+		state.player.resetPlaying()
+
 
 def getWindow(name):
 	global windows
