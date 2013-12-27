@@ -14,6 +14,9 @@ def is_uptodate(outfile, depfiles):
 def get_cc_outfilename(infile):
 	return os.path.splitext(os.path.basename(infile))[0] + ".o"
 
+def get_depfilename(outfile):
+	return outfile + ".deps"
+
 def get_depfiles(outfile):
 	# depfilename = get_cc_outfilename(infile)
 	# TODO ...
@@ -53,8 +56,11 @@ def cc_single(infile, options):
 	if os.path.splitext(infile)[1] == ".cpp":
 		options += ["-std=c++11"]
 	outfilename = get_cc_outfilename(infile)
-	depfilename = outfilename + ".deps"
-	sysExec(["cc"] + options + CFLAGS + ["-c", infile, "-MM", "-MF", depfilename])
+	depfilename = get_depfilename(outfilename)
+	sysExec(
+		["cc"] + options + CFLAGS +
+		["-c", infile, "-o", outfilename, "-MMD", "-MF", depfilename]
+	)
 
 def cc(files, options):
 	for f in files:
