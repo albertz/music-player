@@ -82,6 +82,20 @@ def link(outfile, infiles, options):
 			["-shared", "-o", outfile]
 		)
 
+def link_exec(outfile, infiles, options):
+	if is_uptodate(outfile, depfiles=infiles):
+		print "up-to-date:", outfile
+		return
+
+	sysExec(
+		["cc"] +
+		infiles +
+		options +
+		LDFLAGS +
+		["-o", outfile]
+	)
+
+
 CFLAGS = os.environ.get("CFLAGS", "").split()
 CFLAGS += ["-fpic"]
 
