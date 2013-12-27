@@ -14,7 +14,7 @@ os.chdir("build")
 
 c.CFLAGS += ["-I../.."]
 
-for fn in glob("../*.cpp"):
+def testCpp(fn):
 	c.cc([fn], options=["-g"])
 	binfile = c.get_cc_outfilename(fn) + ".bin"
 	link_exec(
@@ -24,3 +24,22 @@ for fn in glob("../*.cpp"):
 	)
 	sysExec(["./" + binfile])
 	print os.path.basename(fn), ": success"
+
+def test(fn):
+	if os.path.splitext(fn)[1] == ".cpp":
+		testCpp(fn)
+	else:
+		# TODO ...
+		testCpp(fn)
+
+if __name__ == "__main__":
+
+	if len(sys.argv) > 1:
+		for fn in sys.argv[1:]:
+			fn = "../" + os.path.basename(fn)
+			test(fn)
+
+	else:
+		for fn in glob("../*.cpp"):
+			testCpp(fn)
+
