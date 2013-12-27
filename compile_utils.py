@@ -7,9 +7,18 @@ def sysExec(cmd):
 	if r != 0: sys.exit(r)
 
 
-def is_uptodate(outfile, depfiles):
-	# TODO ...
-	return False
+def is_uptodate(outfile):
+	try: outmtime = os.path.getmtime(outfile)
+	except OSError: return False
+	try: depfiles = get_depfiles(outfile)
+	except IOError: return False
+	for depfn in depfiles:
+		try:
+			if os.path.getmtime(depfn) > outmtime:
+				return False
+		except OSError:
+			return False
+	return True
 
 def get_cc_outfilename(infile):
 	return os.path.splitext(os.path.basename(infile))[0] + ".o"
@@ -18,9 +27,29 @@ def get_depfilename(outfile):
 	return outfile + ".deps"
 
 def get_depfiles(outfile):
-	# depfilename = get_cc_outfilename(infile)
-	# TODO ...
-	return []
+	depfile = get_depfilename(outfile)
+	firstLine = True
+	lastLine = False
+	fileList = []
+	for line in open(depfile):
+		line = line.strip()
+		if not line: continue
+		assert not lastLine
+		if firstLine:
+			assert line.startswith(outfile + ": ")
+			line = line[len(outfile) + 2:]
+			firstLine = False
+		if line[-2:] == " \\":
+			line = line[:-2]
+		else:
+			lastLine = True
+		fileList += line.split()
+	assert lastLine
+	return fileList
+
+def get_mtime(filename):
+	return os.path.getmtime(filename)
+
 
 LDFLAGS = os.environ.get("LDFLAGS", "").split()
 
@@ -55,8 +84,14 @@ CFLAGS += ["-fpic"]
 def cc_single(infile, options):
 	if os.path.splitext(infile)[1] == ".cpp":
 		options += ["-std=c++11"]
+
 	outfilename = get_cc_outfilename(infile)
 	depfilename = get_depfilename(outfilename)
+
+	if is_uptodate(outfilename):
+		print "up-to-date:", outfilename
+		return
+
 	sysExec(
 		["cc"] + options + CFLAGS +
 		["-c", infile, "-o", outfilename, "-MMD", "-MF", depfilename]
