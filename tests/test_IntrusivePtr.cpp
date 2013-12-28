@@ -20,7 +20,7 @@ int main() {
 	p2 = p1;
 
 	for(int i = 0; i < 100; ++i) {
-		ItemPtr _tmp = p2;
+		ItemPtr _tmp(p2);
 	}
 
 }
