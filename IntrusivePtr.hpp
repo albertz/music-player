@@ -16,7 +16,7 @@ struct IntrusivePtr {
 		}
 	}
 
-	IntrusivePtr(const IntrusivePtr& other) {
+	IntrusivePtr(const IntrusivePtr& other) : ptr(NULL) {
 		T* p = other.ptr.load();
 		swap(IntrusivePtr(p));
 	}
