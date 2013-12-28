@@ -2,15 +2,13 @@
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include "IntrusivePtr.hpp"
 
-struct Item;
-typedef IntrusivePtr<Item> ItemPtr;
 
 struct Item : public boost::intrusive_ref_counter< Item, boost::thread_safe_counter > {
-	ItemPtr next;
 	int value;
-
 	Item(int v = 0) : value(v) {}
 };
+
+typedef IntrusivePtr<Item> ItemPtr;
 
 
 int main() {
