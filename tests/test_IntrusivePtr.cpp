@@ -26,9 +26,6 @@ int main() {
 
 	for(int i = 0; i < 100; ++i) {
 		ItemPtr _tmp = p2;
-
-		p2 = NULL;
-		p1 = p2;
 	}
 
 }
