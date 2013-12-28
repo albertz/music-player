@@ -34,6 +34,18 @@ public:
 };
 
 
+struct Guard {
+	enum {
+		S_Idx = 1,
+		S_Reading = 2,
+		S_ReadFlip = 4,
+		S_Writing = 8,
+		S_WriteFinal = 16,
+	};
+	boost::atomic<uint8_t> state;
+
+};
+
 template<typename T>
 class LockFreeData_Static {
 private:

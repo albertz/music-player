@@ -2,6 +2,7 @@
 #define MP_LINKEDLIST_HPP
 
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <boost/atomic.hpp>
 #include <assert.h>
 #include "IntrusivePtr.hpp"
 
@@ -13,13 +14,21 @@ public:
 	struct Item;
 	typedef IntrusivePtr<Item> ItemPtr;
 
+	enum ItemState {
+		S_BEGINMARK,
+		S_DATA,
+		S_ENDMARK
+	};
+
 	struct Item : public boost::intrusive_ref_counter< Item, boost::thread_safe_counter > {
-		ItemPtr next;
+		ItemPtr prev, next;
+		boost::atomic<ItemState> state;
 		T value;
 	};
 
 private:
-	ItemPtr first, last;
+	//ItemPtr main; // prev = last, next = first
+	ItemPtr last, first;
 
 public:
 	// not thread-safe!
@@ -43,6 +52,8 @@ public:
 	};
 
 	Iterator begin() {
+		//ItemPtr backup(main);
+		//return Iterator(backup->next);
 		return Iterator(first);
 	}
 
@@ -53,6 +64,7 @@ public:
 	// only single producer supported
 	ItemPtr push_back(ItemPtr item = NULL) {
 		if(!item) item.reset(new Item());
+		item->state = S_DATA;
 		ItemPtr oldLast = last;
 		if(oldLast) oldLast->next = item;
 		last = item;
