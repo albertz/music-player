@@ -62,9 +62,9 @@ public:
 
 	// only single consumer supported
 	ItemPtr pop_front() {
-		if(first) {
-			ItemPtr oldFirst = first;
-			first = first->next;
+		ItemPtr oldFirst = first;
+		if(oldFirst) {
+			first = oldFirst->next;
 			if(!first) last = NULL;
 			return oldFirst;
 		}
