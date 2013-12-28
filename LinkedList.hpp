@@ -53,11 +53,9 @@ public:
 	// only single producer supported
 	ItemPtr push_back(ItemPtr item = NULL) {
 		if(!item) item.reset(new Item());
-		if(!last) last = item;
-		else {
-			last->next = item;
-			last = item;
-		}
+		ItemPtr oldLast = last;
+		if(oldLast) oldLast->next = item;
+		last = item;
 		if(!first) first = item;
 		return item;
 	}
