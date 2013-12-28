@@ -25,9 +25,7 @@ int main() {
 	p2->next = p3;
 
 	for(int i = 0; i < 100; ++i) {
-		ItemPtr oldFirst = p2;
-		if(p2)
-			p2 = p2->next;
+		ItemPtr _tmp = p2;
 
 		p2 = NULL;
 		p1 = p2;
