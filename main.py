@@ -30,14 +30,44 @@ if __name__ == '__main__' and appinfo.args.pyexec:
 	exec(compile(sourcecode, "<pyexec>", "exec"))
 	raise SystemExit
 
-# This might do some init which might be important to be done in the main thread.
-import utils
 
+import utils
 utils.ExecingProcess.checkExec()
+
 
 import sys, time
 print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
 print "startup on", utils.formatDate(time.time())
+
+
+
+# Import PyObjC here. This is because the first import of PyObjC *must* be
+# in the main thread. Otherwise, the NSAutoreleasePool created automatically
+# by PyObjC on the first import would be released at exit by the main thread
+# which would crash (because it was created in a different thread).
+# http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
+try:
+	import objc
+except ImportError:
+	# probably not MacOSX. doesn't matter
+	objc = None
+except Exception:
+	print "Error while importing objc"
+	sys.excepthook(*sys.exc_info())
+	objc = None
+try:
+	# Seems that the `objc` module is not enough. Without `AppKit`,
+	# I still get a lot of
+	#   __NSAutoreleaseNoPool(): ... autoreleased with no pool in place - just leaking
+	# errors.
+	if objc:
+		import AppKit
+except Exception:
+	# Print error in any case, also ImportError, because we would expect that this works.
+	print "Error while importing AppKit"
+	sys.excepthook(*sys.exc_info())
+
+
 
 from State import state, modules
 

@@ -5,33 +5,6 @@
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 import sys
-
-# Import PyObjC here. This is because the first import of PyObjC *must* be
-# in the main thread. Otherwise, the NSAutoreleasePool created automatically
-# by PyObjC on the first import would be released at exit by the main thread
-# which would crash (because it was created in a different thread).
-# http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
-try:
-	import objc
-except ImportError:
-	# probably not MacOSX. doesn't matter
-	objc = None
-except Exception:
-	print "Error while importing objc"
-	sys.excepthook(*sys.exc_info())
-	objc = None
-try:
-	# Seems that the `objc` module is not enough. Without `AppKit`,
-	# I still get a lot of
-	#   __NSAutoreleaseNoPool(): ... autoreleased with no pool in place - just leaking
-	# errors.
-	if objc:
-		import AppKit
-except Exception:
-	# Print error in any case, also ImportError, because we would expect that this works.
-	print "Error while importing AppKit"
-	sys.excepthook(*sys.exc_info())
-
 from collections import deque
 from threading import Condition, Thread, currentThread, Lock, RLock
 import os
@@ -645,6 +618,7 @@ def objc_disposeClassPair(className):
 
 
 def objc_setClass(obj, clazz):
+	import objc
 	objAddr = objc.pyobjc_id(obj) # returns the addr and also ensures that it is an objc object
 	assert objAddr != 0
 
@@ -674,7 +648,8 @@ def do_in_mainthread(f, wait=True):
 	global quit
 	if quit:
 		raise KeyboardInterrupt
-	
+
+	import objc
 	try:
 		NSObject = objc.lookUpClass("NSObject")
 		class PyAsyncCallHelper(NSObject):
@@ -707,6 +682,7 @@ def DoInMainthreadDecorator(func):
 
 
 def ObjCClassAutorenamer(name, bases, dict):
+	import objc
 	def lookUpClass(name):
 		try: return objc.lookUpClass(name)
 		except objc.nosuchclass_error: return None
