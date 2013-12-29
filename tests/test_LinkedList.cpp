@@ -12,12 +12,15 @@ void test0() {
 	item->value = 42;
 	item = NULL;
 	l._checkSanity();
+	assert(l.size() == 1);
 
 	auto ret = l.pop_front();
 	assert(ret);
 	assert(ret->value == 42);
-	assert(l.empty());
 	ret = NULL;
+
+	assert(l.empty());
+	assert(l.size() == 0);
 	l._checkSanity();
 }
 

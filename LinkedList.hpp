@@ -179,6 +179,18 @@ public:
 
 
 	// not threading-safe!
+	size_t size() {
+		ItemPtr ptr = main;
+		size_t c = 0;
+		while(true) {
+			ptr = ptr->next;
+			if(ptr->state != S_Data) break;
+			c++;
+		}
+		return c;
+	}
+
+	// not threading-safe!
 	void _checkSanity() {
 		assert(main->state == S_MainLink);
 		ItemPtr ptr = main;
