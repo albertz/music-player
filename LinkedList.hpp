@@ -28,14 +28,10 @@ public:
 		Item() : state(S_Uninitialized), value() {}
 
 		bool isEmpty() {
-			// If pop_front() meanwhile, at every step, main->prev is sane,
-			//   while main->next can be invalid.
-			// If push_back() meanwhile, main->prev might be S_Uninitialized.
-			ItemPtr prevCpy(prev);
-			if(!prevCpy) // can happen when clear() meanwhile
+			ItemPtr nextCpy(next);
+			if(!nextCpy) // can happen when clear() meanwhile
 				return true;
-			// If S_Data or S_Uninitialized, there is some data.
-			return prevCpy->state == S_MainLink;
+			return nextCpy->state != S_Data;
 		}
 
 		bool insertBefore(ItemPtr& item) {
