@@ -4,6 +4,24 @@
 
 #include "LinkedList.hpp"
 
+void test0() {
+	LinkedList<int> l;
+	l._checkSanity();
+
+	auto item = l.push_back();
+	item->value = 42;
+	item = NULL;
+	l._checkSanity();
+
+	auto ret = l.pop_front();
+	assert(ret);
+	assert(ret->value == 42);
+	assert(l.empty());
+	ret = NULL;
+	l._checkSanity();
+}
+
+
 void test1() {
 	LinkedList<int> l;
 	l._checkSanity();
@@ -57,6 +75,7 @@ void test2() {
 
 
 int main() {
+	test0();
 	test1();
 	test2();
 }
