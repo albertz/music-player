@@ -9,7 +9,7 @@ sys.argv = [arg for arg in sys.argv if not arg.startswith("-psn_")]
 
 try:
 	import argparse
-	argParser = argparse.ArgumentParser()
+	argParser = argparse.ArgumentParser(add_help=False) # We add help manually.
 except ImportError:
 	if len(sys.argv) > 1:
 		print "Warning, argparse (for parsing sys.argv) not available. This needs Python >=2.7. Ignoring sys.argv."
@@ -22,6 +22,18 @@ except ImportError:
 		parse_args = parse_known_args
 	argParser = DummyArgParser()
 
+
+class ArgAction_PrintHelp(argparse.Action):
+	def __call__(self, parser, namespace, values, option_string=None):
+		parser.print_help()
+		# We don't use parser.exit() because we overwrite that to not exit.
+		# But we actually want to exit after this.
+		raise SystemExit
+
+argParser.add_argument(
+	"--help", "-h", nargs=0, action=ArgAction_PrintHelp,
+	help="prints help/usage"
+)
 argParser.add_argument(
 	"--shell", action="store_true",
 	help="uses a Python shell instead of the standard stdin control"
