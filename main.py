@@ -46,15 +46,14 @@ print "startup on", utils.formatDate(time.time())
 # by PyObjC on the first import would be released at exit by the main thread
 # which would crash (because it was created in a different thread).
 # http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
+objc, AppKit = None, None
 try:
 	import objc
-except ImportError:
-	# probably not MacOSX. doesn't matter
-	objc = None
 except Exception:
-	print "Error while importing objc"
-	sys.excepthook(*sys.exc_info())
-	objc = None
+	if sys.platform == "darwin":
+		print "Error while importing objc"
+		sys.excepthook(*sys.exc_info())
+	# Otherwise it doesn't matter.
 try:
 	# Seems that the `objc` module is not enough. Without `AppKit`,
 	# I still get a lot of
