@@ -52,7 +52,7 @@ public:
 					oldPrev->next = NULL;
 				}
 				else {
-					item->prev = oldPrevNext;
+					item->prev = oldPrev;
 				}
 			} else {
 				// oldPrev == NULL -> clear() or pop_front() item.
