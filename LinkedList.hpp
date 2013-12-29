@@ -34,16 +34,20 @@ public:
 			return nextCpy->state != S_Data;
 		}
 
-		bool insertBefore(ItemPtr item) {
+		bool insertBefore(Item* item) {
 			ItemPtr oldPrev = prev.exchange(item);
 			if(oldPrev) {
-				bool success = oldPrev->next.compare_exchange(this, item);
-				// If pop_front() meanwhile and oldPrev was the first item,
-				// we might have reset oldPrev->next already or will soon.
-				// In the latter case, it will set item->prev = main, which is correct;
-				// we do the same here, it doesn't matter which comes first.
-				if(success)
-					item->prev = oldPrev;
+				while(true) {
+					bool success = oldPrev->next.compare_exchange(this, item);
+					// If pop_front() meanwhile and oldPrev was the first item,
+					// we might have reset oldPrev->next already or will soon.
+					// In the latter case, it will set item->prev = main, ok.
+					// If pop_front() meanwhile, we might also have oldPrev==main.
+					if(success)
+						item->prev = oldPrev;
+					else
+						continue; // try again
+				}
 			} else {
 				// oldPrev == NULL -> clear() or pop_front() item.
 				return false;
@@ -135,7 +139,8 @@ public:
 		ItemPtr mainCpy(main);
 		if(!item) item.reset(new Item());
 		item->state = S_Uninitialized;
-		mainCpy->insertBefore(item);
+		bool success = mainCpy->insertBefore(item);
+		assert(success);
 		item->state = S_Data;
 		return item;
 	}
