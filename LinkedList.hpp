@@ -15,23 +15,91 @@ public:
 	typedef IntrusivePtr<Item> ItemPtr;
 
 	enum ItemState {
-		S_BEGINMARK,
-		S_DATA,
-		S_ENDMARK
+		S_Uninitialized,
+		S_MainLink,
+		S_Data,
 	};
 
 	struct Item : public boost::intrusive_ref_counter< Item, boost::thread_safe_counter > {
 		ItemPtr prev, next;
 		boost::atomic<ItemState> state;
 		T value;
+
+		Item() : state(S_Uninitialized), value() {}
+
+		bool isEmpty() {
+			// If pop_front() meanwhile, at every step, main->prev is sane,
+			//   while main->next can be invalid.
+			// If push_back() meanwhile, main->prev might be S_Uninitialized.
+			ItemPtr prevCpy(prev);
+			if(!prevCpy) // can happen when clear() meanwhile
+				return true;
+			// If S_Data or S_Uninitialized, there is some data.
+			return prevCpy->state == S_MainLink;
+		}
+
+		bool insertBefore(ItemPtr& item) {
+			ItemPtr oldPrev = prev.exchange(item);
+			if(oldPrev) {
+				ItemPtr oldPrevNext = oldPrev->next.exchange(item);
+				// If pop_front() meanwhile and oldPrev was the first item,
+				// we might have reset oldPrev->next already or will soon.
+				// In the latter case, it will set item->prev = main, which is correct;
+				// we do the same here, it doesn't matter which comes first.
+				// Otherwise, we get here:
+				if(!oldPrevNext) {
+					// oldPrev is being returned by pop_front()
+					oldPrev->next = NULL;
+				}
+				else {
+					item->prev = oldPrevNext;
+				}
+			} else {
+				// oldPrev == NULL -> clear() or pop_front() item.
+				return false;
+			}
+			item->next = this;
+			return true;
+		}
 	};
 
 private:
-	//ItemPtr main; // prev = last, next = first
-	ItemPtr last, first;
+	ItemPtr main; // prev = last, next = first
+
+	ItemPtr _newMain() {
+		ItemPtr m = new Item();
+		m->next = m;
+		m->prev = m;
+		m->state = S_MainLink;
+		return m;
+	}
+
+	void _releaseMain(const ItemPtr& m) {
+		ItemPtr ptr = m;
+		while(true) {
+			ptr = ptr->next.exchange(NULL);
+			if(!ptr) break;
+		}
+		ptr = m;
+		while(true) {
+			ptr = ptr->prev.exchange(NULL);
+			if(!ptr) break;
+		}
+	}
 
 public:
-	// not thread-safe!
+	LinkedList() {
+		main = _newMain();
+	}
+
+	~LinkedList() {
+		clear();
+
+	}
+
+	// The iterator is not thread-safe, i.e. you can't access
+	// a single iterator from multiple threads. However,
+	// the list can be accessed and modified from other threads.
 	struct Iterator {
 		ItemPtr ptr;
 
@@ -42,19 +110,30 @@ public:
 		}
 
 		Iterator& operator++() {
+			if(isEnd()) return *this;
 			ptr = ptr->next;
 			return *this;
 		}
 
+		bool operator==(const Iterator& other) const {
+			if(isEnd() && other.isEnd()) return true;
+			return ptr == other.ptr;
+		}
+
 		bool operator!=(const Iterator& other) const {
-			return ptr != other.ptr;
+			return !(*this == other);
+		}
+
+		bool isEnd() const {
+			if(ptr.get() == NULL) return true;
+			if(ptr->state != S_Data) return true;
+			return false;
 		}
 	};
 
 	Iterator begin() {
-		//ItemPtr backup(main);
-		//return Iterator(backup->next);
-		return Iterator(first);
+		ItemPtr backup(main);
+		return Iterator(backup->next);
 	}
 
 	Iterator end() {
@@ -63,44 +142,43 @@ public:
 
 	// only single producer supported
 	ItemPtr push_back(ItemPtr item = NULL) {
+		ItemPtr mainCpy(main);
 		if(!item) item.reset(new Item());
-		item->state = S_DATA;
-		ItemPtr oldLast = last;
-		if(oldLast) oldLast->next = item;
-		last = item;
-		if(!first) first = item;
+		item->state = S_Uninitialized;
+		mainCpy->insertBefore(item);
+		item->state = S_Data;
 		return item;
 	}
 
 	// only single consumer supported
 	ItemPtr pop_front() {
-		ItemPtr oldFirst = first;
-		if(oldFirst) {
-			first = oldFirst->next;
-			if(!first) last = NULL;
-			return oldFirst;
-		}
-		return NULL;
+		ItemPtr mainCpy(main);
+		ItemPtr first = mainCpy->next;
+		if(!first || first == mainCpy || first->state != S_Data)
+			return NULL;
+		first->prev = NULL;
+		ItemPtr firstNext = first->next.exchange(NULL);
+		if(firstNext) // can happen to be NULL when clear() meanwhile
+			firstNext->prev = mainCpy;
+		mainCpy->next = firstNext;
+		return first;
 	}
 
-	// not multithreading safe at all
 	void clear() {
-		first.reset();
-		last.reset();
+		ItemPtr oldMain = main.exchange(_newMain());
+		_releaseMain(oldMain);
 	}
 
 	bool empty() {
-		return !first;
+		return ItemPtr(main)->isEmpty();
 	}
 
-	// be very careful!
-	T& front() { return first->value; }
-	T& back() { return last->value; }
+	// be very careful! noone must use pop_front() or clear() meanwhile
+	T& front() { return main->next->value; }
+	T& back() { return main->prev->value; }
 
-
-	void _check_sanity() {
-		if(!first) assert(!last);
-		else assert(last);
+	void _checkSanity() {
+		// TODO...
 	}
 };
 

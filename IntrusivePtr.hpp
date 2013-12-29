@@ -33,6 +33,7 @@ struct IntrusivePtr {
 		return *this;
 	}
 
+	T* get() const { return ptr; }
 	T& operator*() const { return *ptr; }
 	T* operator->() const { return ptr; }
 	operator bool() const { return ptr; }
@@ -41,6 +42,11 @@ struct IntrusivePtr {
 		T* old = ptr.exchange(other.ptr);
 		other.ptr = old;
 		return other;
+	}
+
+	IntrusivePtr exchange(const IntrusivePtr& other) {
+		IntrusivePtr old = swap(IntrusivePtr(other));
+		return old;
 	}
 
 	void reset(T* _p = NULL) {

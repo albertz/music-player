@@ -6,7 +6,7 @@
 
 void test1() {
 	LinkedList<int> l;
-	l._check_sanity();
+	l._checkSanity();
 
 	for(int i = 0; i < 100; ++i) {
 		auto item = l.push_back();
@@ -16,7 +16,7 @@ void test1() {
 
 	for(int i = 0; i < 100; ++i) {
 		auto ret = l.pop_front();
-		l._check_sanity();
+		l._checkSanity();
 		assert(ret);
 		assert(ret->value == i);
 	}
@@ -51,7 +51,7 @@ void test2() {
 		t1.join();
 		t2.join();
 		assert(l.empty());
-		l._check_sanity();
+		l._checkSanity();
 	}
 }
 
