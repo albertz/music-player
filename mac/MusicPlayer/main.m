@@ -10,6 +10,43 @@
 #import <Python.h>
 
 
+// for AmIBeingDebugged
+#include <assert.h>
+#include <stdbool.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/sysctl.h>
+
+
+// Based on Apple's recommended method as described in
+// http://developer.apple.com/qa/qa2004/qa1361.html
+bool AmIBeingDebugged()
+// Returns true if the current process is being debugged (either
+// running under the debugger or has a debugger attached post facto).
+{
+	// Initialize mib, which tells sysctl what info we want.  In this case,
+	// we're looking for information about a specific process ID.
+	int mib[] =
+	{
+		CTL_KERN,
+		KERN_PROC,
+		KERN_PROC_PID,
+		getpid()
+	};
+	
+	// Caution: struct kinfo_proc is marked __APPLE_API_UNSTABLE.  The source and
+	// binary interfaces may change.
+	struct kinfo_proc info;
+	size_t info_size = sizeof ( info );
+	
+	int sysctl_result = sysctl ( mib, sizeof(mib) / sizeof(*mib), &info, &info_size, NULL, 0 );
+	if ( sysctl_result != 0 )
+		return false;
+	
+	// This process is being debugged if the P_TRACED flag is set.
+	return ( info.kp_proc.p_flag & P_TRACED ) != 0;
+}
+
 
 static void addPyPath() {
 	NSString* pathStr =
@@ -81,7 +118,10 @@ int main(int argc, char *argv[])
 	
 	PySys_SetArgvEx(argc, argv, 0);
 	
-	if(!forkExecProc && !pyShell && !shell) {
+	if(AmIBeingDebugged()) {
+		printf("debugger detected, not redirecting stdout/stderr\n");
+	}
+	else if(!forkExecProc && !pyShell && !shell) {
 		// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
 		printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
 		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
