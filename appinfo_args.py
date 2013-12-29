@@ -59,7 +59,7 @@ argParser.add_argument(
 )
 argParser.add_argument(
 	# Used in MacOSX binary version.
-	"--nolog", nargs=0, help=argparse.SUPPRESS
+	"--nolog", action="store_true", help=argparse.SUPPRESS
 )
 
 
