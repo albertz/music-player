@@ -37,6 +37,8 @@ struct IntrusivePtr {
 	T& operator*() const { return *ptr; }
 	T* operator->() const { return ptr; }
 	operator bool() const { return ptr; }
+	bool operator==(const IntrusivePtr& other) const { return ptr == other.ptr; }
+	bool operator!=(const IntrusivePtr& other) const { return ptr != other.ptr; }
 
 	IntrusivePtr& swap(IntrusivePtr&& other) {
 		T* old = ptr.exchange(other.ptr);
