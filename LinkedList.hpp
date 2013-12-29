@@ -155,8 +155,11 @@ public:
 		first->prev = NULL;
 		ItemPtr firstNext = first->next.exchange(NULL);
 		if(firstNext) // can happen to be NULL when clear() meanwhile
-			firstNext->prev = mainCpy;
-		mainCpy->next = firstNext;
+			// e.g. if firstNext==main and push_front() meanwhile,
+			// main->prev != first. in that case, don't change.
+			firstNext->prev.compare_exchange(first, mainCpy);
+		if(!mainCpy->next.compare_exchange(first, firstNext))
+			assert(false); // this can only happen if there was another consumer
 		return first;
 	}
 

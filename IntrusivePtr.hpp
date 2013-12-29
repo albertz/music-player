@@ -37,6 +37,7 @@ struct IntrusivePtr {
 	T& operator*() const { return *ptr; }
 	T* operator->() const { return ptr; }
 	operator bool() const { return ptr; }
+	operator T*() const { return ptr; }
 	bool operator==(const IntrusivePtr& other) const { return ptr == other.ptr; }
 	bool operator!=(const IntrusivePtr& other) const { return ptr != other.ptr; }
 
@@ -46,9 +47,18 @@ struct IntrusivePtr {
 		return other;
 	}
 
-	IntrusivePtr exchange(const IntrusivePtr& other) {
+	IntrusivePtr exchange(T* other) {
 		IntrusivePtr old = swap(IntrusivePtr(other));
 		return old;
+	}
+
+	bool compare_exchange(T* expected, T* desired) {
+		bool success = ptr.compare_exchange_strong(expected, desired);
+		if(success && expected != desired) {
+			intrusive_ptr_add_ref(desired);
+			intrusive_ptr_release(expected);
+		}
+		return success;
 	}
 
 	void reset(T* _p = NULL) {
