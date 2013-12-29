@@ -51,23 +51,10 @@ bool AmIBeingDebugged()
 static void addPyPath() {
 	NSString* pathStr =
 	[[NSString alloc]
-	 initWithFormat:@"%s:" /* "%s:%s:%s:%s:%s:" */ "%s",
+	 initWithFormat:@"%s:%s",
 	 
 	 // put our Python dir first to allow to overwrite System Python stuff (if needed, for example objc)
 	 [[[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python"] UTF8String],
-
-/*
-	 // Start with system Python. I had problems where ObjC would not work otherwise (where system Python was 2.6).
-	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7",
-	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.6",
-	 
-	 // these are currently needed for some stuff ... (xxx ?)
-	 // they might be removed at some later time.
-	 // note that this is also not that future-proof because i don't think it would work with Python 3.
-	 "/System/Library/Frameworks/Python.framework/Versions/Current/Extras/lib/python",
-	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.7/lib-dynload",
-	 "/System/Library/Frameworks/Python.framework/Versions/Current/lib/python2.6/lib-dynload",
-*/
 
 	 // put the original Py_GetPath behind so that we prefer the System Python stuff if available
 	 Py_GetPath()
