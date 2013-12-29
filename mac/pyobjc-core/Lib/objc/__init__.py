@@ -18,7 +18,11 @@ def _update(g=globals()):
     if sys.version_info[0] == 2:
         import copy_reg
 
-    import objc._objc as _objc
+    try:
+        import objc._objc as _objc
+    except Exception:
+        sys.excepthook(*sys.exc_info())
+        raise
     for k in _objc.__dict__:
         g.setdefault(k, getattr(_objc, k))
 _update()
