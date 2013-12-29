@@ -54,8 +54,14 @@ argParser.add_argument(
 	"--forkExecProc", nargs=2, help=argparse.SUPPRESS
 )
 argParser.add_argument(
+	# Used by MacOSX in some debug cases.
 	"-NSDocumentRevisionsDebugMode", nargs=1, help=argparse.SUPPRESS
 )
+argParser.add_argument(
+	# Used in MacOSX binary version.
+	"--nolog", help=argparse.SUPPRESS
+)
+
 
 class ArgParserExitException(Exception): pass
 
