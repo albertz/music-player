@@ -73,7 +73,7 @@ static void addPyPath() {
 	 Py_GetPath()
 	];
 	PySys_SetPath((char*)[pathStr UTF8String]);
-	NSLog(@"Python path: %@", pathStr);
+	printf("Python path: %s\n", [pathStr UTF8String]);
 	[pathStr release];
 }
 
@@ -99,11 +99,22 @@ int main(int argc, char *argv[])
 	bool forkExecProc = haveArg("--forkExecProc");
 	bool shell = haveArg("--shell");
 	bool pyShell = haveArg("--pyshell");
+	bool noLog = haveArg("--nolog");
+	bool help = haveArg("--help") || haveArg("-h");
+
+	printf("Hello from MusicPlayer on MacOSX.\n");
+
+	if(help) {
+		printf(
+			   "Help: Available MacOSX options:\n"
+			   "  --nolog		: don't redirect stdout/stderr to log. also implied when run in debugger\n"
+			   );
+	}
 	
 	NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
 	Py_SetProgramName(argv[0]);
 	if(!forkExecProc)
-		NSLog(@"Python version: %s, prefix: %s, main: %@", Py_GetVersion(), Py_GetPrefix(), mainPyFilename);
+		printf("Python version: %s, prefix: %s, main: %s\n", Py_GetVersion(), Py_GetPrefix(), [mainPyFilename UTF8String]);
 	
 	Py_Initialize();
 	PyEval_InitThreads();
@@ -121,7 +132,11 @@ int main(int argc, char *argv[])
 	if(AmIBeingDebugged()) {
 		printf("debugger detected, not redirecting stdout/stderr\n");
 	}
-	else if(!forkExecProc && !pyShell && !shell) {
+	else if(noLog) {
+		printf("not redirecting stdout/stderr\n");
+	}
+	else if(pyShell || shell || forkExecProc || help) {} // be quiet
+	else {
 		// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
 		printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
 		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
