@@ -48,6 +48,8 @@ bool AmIBeingDebugged()
 }
 
 
+bool forkExecProc = false;
+
 static void addPyPath() {
 	NSString* pathStr =
 	[[NSString alloc]
@@ -60,7 +62,8 @@ static void addPyPath() {
 	 Py_GetPath()
 	];
 	PySys_SetPath((char*)[pathStr UTF8String]);
-	printf("Python path: %s\n", [pathStr UTF8String]);
+	if(!forkExecProc)
+		printf("Python path: %s\n", [pathStr UTF8String]);
 	[pathStr release];
 }
 
@@ -83,13 +86,14 @@ int main(int argc, char *argv[])
 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	bool forkExecProc = haveArg("--forkExecProc");
+	forkExecProc = haveArg("--forkExecProc");
 	bool shell = haveArg("--shell");
 	bool pyShell = haveArg("--pyshell");
 	bool noLog = haveArg("--nolog");
 	bool help = haveArg("--help") || haveArg("-h");
 
-	printf("Hello from MusicPlayer on MacOSX.\n");
+	if(!forkExecProc)
+		printf("Hello from MusicPlayer on MacOSX.\n");
 
 	if(help) {
 		printf(
@@ -116,13 +120,13 @@ int main(int argc, char *argv[])
 	
 	PySys_SetArgvEx(argc, argv, 0);
 	
-	if(AmIBeingDebugged()) {
+	if(pyShell || shell || forkExecProc || help) {} // be quiet
+	else if(AmIBeingDebugged()) {
 		printf("debugger detected, not redirecting stdout/stderr\n");
 	}
 	else if(noLog) {
 		printf("not redirecting stdout/stderr\n");
 	}
-	else if(pyShell || shell || forkExecProc || help) {} // be quiet
 	else {
 		// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
 		printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
