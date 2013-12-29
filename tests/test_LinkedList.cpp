@@ -6,12 +6,14 @@
 
 void test0() {
 	LinkedList<int> l;
+	assert(l.empty());
 	l._checkSanity();
 
 	auto item = l.push_back();
 	item->value = 42;
 	item = NULL;
 	l._checkSanity();
+	assert(!l.empty());
 	assert(l.size() == 1);
 
 	auto ret = l.pop_front();
@@ -34,6 +36,9 @@ void test1() {
 		l._checkSanity();
 		item->value = i;
 	}
+
+	assert(!l.empty());
+	assert(l.size() == 100);
 
 	for(int i = 0; i < 100; ++i) {
 		auto ret = l.pop_front();
