@@ -10,7 +10,7 @@ void test1() {
 
 	for(int i = 0; i < 100; ++i) {
 		auto item = l.push_back();
-		l._check_sanity();
+		l._checkSanity();
 		item->value = i;
 	}
 
@@ -27,7 +27,7 @@ void test1() {
 
 void test2() {
 	LinkedList<int> l;
-	l._check_sanity();
+	l._checkSanity();
 
 	auto producer = [&l](){
 		for(int i = 0; i < 100; ++i) {
