@@ -42,17 +42,19 @@ argParser.add_argument(
 	"--pyshell", action="store_true", help="just a bare Python shell - no musicplayer stuff"
 )
 argParser.add_argument(
-	"--pyexec", nargs=1, help="just executes the Python commands - no musicplayer stuff"
+	"--pyexec", nargs=1,
+	help="just executes the Python commands - no musicplayer stuff",
+	metavar="<Python commands>"
 )
 argParser.add_argument(
 	"--qtgui", action="store_true",
 	help="force Qt GUI"
 )
 argParser.add_argument(
-	"--forkExecProc", nargs=2
+	"--forkExecProc", nargs=2, help=argparse.SUPPRESS
 )
 argParser.add_argument(
-	"-NSDocumentRevisionsDebugMode", nargs=1, help="MacOSX debug stuff"
+	"-NSDocumentRevisionsDebugMode", nargs=1, help=argparse.SUPPRESS
 )
 
 class ArgParserExitException(Exception): pass
