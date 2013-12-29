@@ -18,6 +18,7 @@ public:
 		S_Uninitialized,
 		S_MainLink,
 		S_Data,
+		S_PoppedOut,
 	};
 
 	struct Item : public boost::intrusive_ref_counter< Item, boost::thread_safe_counter > {
@@ -36,21 +37,31 @@ public:
 
 		bool insertBefore(Item* item) {
 			ItemPtr oldPrev = prev.exchange(item);
-			if(oldPrev) {
-				while(true) {
-					bool success = oldPrev->next.compare_exchange(this, item);
-					// If pop_front() meanwhile and oldPrev was the first item,
-					// we might have reset oldPrev->next already or will soon.
-					// In the latter case, it will set item->prev = main, ok.
-					// If pop_front() meanwhile, we might also have oldPrev==main.
-					if(success)
-						item->prev = oldPrev;
-					else
-						continue; // try again
-				}
-			} else {
+			if(!oldPrev) {
 				// oldPrev == NULL -> clear() or pop_front() item.
 				return false;
+			}
+			while(true) {
+				Item* oldPrevNext;
+				bool success = oldPrev->next.compare_exchange(this, item, &oldPrevNext);
+				// If pop_front() meanwhile and oldPrev was the first item,
+				// we might have reset oldPrev->next already or will soon.
+				// In the latter case, it will set item->prev = main, ok.
+				// If pop_front() meanwhile, we might also have oldPrev==main.
+				if(success) {
+					item->prev = oldPrev;
+					break;
+				}
+				else if(oldPrev->state == S_MainLink) {
+					assert(oldPrev.get() == this);
+					// and try again, wait for main->next == this
+				}
+				else {
+					assert(oldPrev->state == S_PoppedOut);
+					assert(oldPrevNext == NULL); // pop_front() does this
+					oldPrev = oldPrev->prev;
+					// and try again
+				}
 			}
 			item->next = this;
 			return true;
@@ -151,7 +162,8 @@ public:
 		ItemPtr first = mainCpy->next;
 		if(!first || first == mainCpy || first->state != S_Data)
 			return NULL;
-		first->prev = NULL;
+		first->state = S_PoppedOut;
+		// We don't reset first->prev because we might need it in Item::insertBefore.
 		ItemPtr firstNext = first->next.exchange(NULL);
 		if(firstNext) // can happen to be NULL when clear() meanwhile
 			// e.g. if firstNext==main and push_front() meanwhile,
