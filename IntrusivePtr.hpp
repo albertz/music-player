@@ -52,12 +52,14 @@ struct IntrusivePtr {
 		return old;
 	}
 
-	bool compare_exchange(T* expected, T* desired) {
+	bool compare_exchange(T* expected, T* desired, T** old = NULL) {
 		bool success = ptr.compare_exchange_strong(expected, desired);
 		if(success && expected != desired) {
 			intrusive_ptr_add_ref(desired);
 			intrusive_ptr_release(expected);
 		}
+		if(old)
+			*old = expected;
 		return success;
 	}
 
