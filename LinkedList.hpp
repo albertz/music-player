@@ -177,8 +177,41 @@ public:
 	T& front() { return main->next->value; }
 	T& back() { return main->prev->value; }
 
+
+	// not threading-safe!
 	void _checkSanity() {
-		// TODO...
+		assert(main->state == S_MainLink);
+		ItemPtr ptr = main;
+		size_t c1 = 0;
+		while(true) {
+			assert(ptr->next->prev == ptr);
+			assert(ptr->prev->next == ptr);
+			ptr = ptr->next;
+			if(ptr->state == S_MainLink) break;
+			else if(ptr->state == S_Data) {} // ok
+			else if(ptr->state == S_Uninitialized) assert(false);
+			else assert(false);
+			c1++;
+		}
+		assert(ptr->state == S_MainLink);
+		size_t c2 = 0;
+		ptr = main;
+		while(true) {
+			assert(ptr->next->prev == ptr);
+			assert(ptr->prev->next == ptr);
+			ptr = ptr->prev;
+			if(ptr->state == S_MainLink) break;
+			else if(ptr->state == S_Data) {} // ok
+			else if(ptr->state == S_Uninitialized) assert(false);
+			else assert(false);
+			c2++;
+		}
+		assert(ptr->state == S_MainLink);
+		assert(c1 == c2);
+		if(c1 == 0) {
+			assert(main->next == main);
+			assert(main->prev == main);
+		}
 	}
 };
 
