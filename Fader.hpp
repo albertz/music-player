@@ -2,19 +2,28 @@
 #define MP_FADER_HPP
 
 #include <stdint.h>
+#include <boost/atomic.hpp>
 
 struct PlayerObject;
 
-struct Fader {
-	uint16_t cur;
-	uint16_t limit;
-	int8_t inc; // -1 or 1 or 0
+class Fader {
+private:
+	boost::atomic<uint16_t> cur;
+	boost::atomic<uint16_t> limit;
+	boost::atomic<int8_t> inc; // -1 or 1 or 0
+public:
 	Fader();
-	void init(int8_t inc /* 1 for fading in, -1 for fading out */, int Samplerate);
+
+	// If samplerate differs, it resets.
+	void change(int8_t inc /* 1 for fading in, -1 for fading out */, int Samplerate);
+
 	void frameTick();
+
 	void finish();
 	bool finished();
-	double sampleFactor();
+
+	double sampleFactor() const;
+
 	void wait(PlayerObject* player);
 };
 
