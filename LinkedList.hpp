@@ -35,6 +35,12 @@ public:
 			return nextCpy->state != S_Data;
 		}
 
+		bool isData(bool alsoPoppedOut = true) {
+			if(state == S_Data) return true;
+			if(alsoPoppedOut && state == S_PoppedOut) return true;
+			return false;
+		}
+
 		bool insertBefore(Item* item) {
 			ItemPtr oldPrev = prev.exchange(item);
 			if(!oldPrev) {
@@ -183,9 +189,8 @@ public:
 		return ItemPtr(main)->isEmpty();
 	}
 
-	// be very careful! noone must use pop_front() or clear() meanwhile
-	T& front() { return main->next->value; }
-	T& back() { return main->prev->value; }
+	ItemPtr front() { return ItemPtr(main)->next; }
+	ItemPtr back() { return ItemPtr(main)->prev; }
 
 
 	// not threading-safe!
