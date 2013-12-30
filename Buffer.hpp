@@ -1,9 +1,8 @@
 #ifndef MP_BUFFER_HPP
 #define MP_BUFFER_HPP
 
-#include <list>
 #include <boost/atomic.hpp>
-#include "PyThreading.hpp"
+#include <stdint.h>
 #include "LinkedList.hpp"
 
 #define BUFFER_CHUNK_SIZE (1024 * 4)
@@ -17,12 +16,12 @@ struct Buffer {
 		uint16_t size() const { assert(start <= end); return end - start; }
 		static uint16_t BufferSize() { return BUFFER_CHUNK_SIZE; }
 		uint16_t freeDataAvailable() { return BufferSize() - end; }
-		Chunk() : start(0), end(0) { mlock(this, sizeof(*this)); }
+		Chunk();
 	};
 	LinkedList<Chunk> chunks;
 	boost::atomic<size_t> _size;
 
-	Buffer() : _size(0) { mlock(this, sizeof(*this)); }
+	Buffer();
 	
 	// these are all not multithreading safe
 	size_t size() { return _size; }
