@@ -9,6 +9,7 @@
 
 #include <portaudio.h>
 #include <boost/bind.hpp>
+#include <boost/atomic.hpp>
 
 #ifdef __APPLE__
 // PortAudio specific Mac stuff
@@ -35,7 +36,7 @@ For the callback, we need to minimize the locks - or better, avoid
 them fully. I'm not sure it is good to depend on thread context
 switches in case it is locked. This however needs some heavy redesign.
 */
-#define USE_PORTAUDIO_CALLBACK 0
+#define USE_PORTAUDIO_CALLBACK 1
 
 
 int initPlayerOutput() {
@@ -60,7 +61,7 @@ template<> struct OutPaSampleFormat<float32_t> {
 struct PlayerObject::OutStream {
 	PlayerObject* const player;
 	PaStream* stream;
-	bool needRealtimeReset; // PortAudio callback thread must set itself to realtime
+	boost::atomic<bool> needRealtimeReset; // PortAudio callback thread must set itself to realtime
 
 	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false) {
 		mlock(this, sizeof(*this));
@@ -80,8 +81,7 @@ struct PlayerObject::OutStream {
 		// We must not hold the PyGIL here!
 		PyScopedLock lock(outStream->player->lock);
 		
-		if(outStream->needRealtimeReset) {
-			outStream->needRealtimeReset = false;
+		if(outStream->needRealtimeReset.exchange(false)) {
 			setRealtime();
 		}
 		
@@ -208,7 +208,9 @@ struct PlayerObject::OutStream {
 		PaStream* stream = NULL;
 		std::swap(stream, this->stream);
 		PyScopedUnlock unlock(player->lock);
+#if !USE_PORTAUDIO_CALLBACK
 		audioThread.stop();
+#endif
 		Pa_CloseStream(stream);
 	}
 	
