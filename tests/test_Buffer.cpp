@@ -6,25 +6,26 @@
 void test1() {
 	Buffer buf;
 
+#define N 10000
 	auto producer = [&buf](){
-		for(int i = 0; i < 100; ++i) {
-			buf.push((uint8_t*)&i, sizeof(i));
+		for(uint32_t i = 0; i < N; ++i) {
+			buf.push((uint8_t*)&i, sizeof(uint32_t));
 		}
 	};
 
 	auto consumer = [&buf](){
-		for(int i = 0; i < 100; ++i) {
+		for(uint32_t i = 0; i < N; ++i) {
 			int ret;
-			while(buf.size() < sizeof(ret)); // wait for entry
-			size_t c = buf.pop((uint8_t*)&ret, sizeof(ret));
-			assert(c == sizeof(ret));
+			while(buf.size() < sizeof(uint32_t)); // wait for entry
+			size_t c = buf.pop((uint8_t*)&ret, sizeof(uint32_t));
+			assert(c == sizeof(uint32_t));
 			assert(ret == i);
 		}
 	};
 
-	for(int i = 0; i < 1000; ++i) {
+	for(int i = 0; i < 3; ++i) {
 		producer();
-		assert(buf.size() == 100 * sizeof(int));
+		assert(buf.size() == N * sizeof(int));
 		consumer();
 		assert(buf.empty());
 	}
