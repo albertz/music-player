@@ -34,14 +34,14 @@ void test1() {
 		assert(buf.empty());
 	}
 
-	for(int i = 0; i < 1000; ++i) {
+	for(int i = 0; i < 30; ++i) {
 		std::thread t1(producer), t2(consumer);
 		t1.join();
 		t2.join();
 		assert(buf.empty());
 	}
 
-	for(int i = 0; i < 1000; ++i) {
+	for(int i = 0; i < 10; ++i) {
 		producer_(0, N/2);
 		std::thread t1([&](){ producer_(N/2, N); }), t2(consumer);
 		t1.join();
