@@ -24,7 +24,7 @@ void test1() {
 
 	for(int i = 0; i < 1000; ++i) {
 		producer();
-		assert(buf.size() == 100);
+		assert(buf.size() == 100 * sizeof(int));
 		consumer();
 		assert(buf.empty());
 	}
