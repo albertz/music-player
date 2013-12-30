@@ -15,7 +15,7 @@ void test1() {
 	auto consumer = [&buf](){
 		for(int i = 0; i < 100; ++i) {
 			int ret;
-			while(buf.size() > sizeof(ret)); // wait for entry
+			while(buf.size() < sizeof(ret)); // wait for entry
 			size_t c = buf.pop((uint8_t*)&ret, sizeof(ret));
 			assert(c == sizeof(ret));
 			assert(ret == i);
