@@ -11,7 +11,8 @@ struct Buffer {
 
 	struct Chunk {
 		uint8_t data[BUFFER_CHUNK_SIZE];
-		boost::atomic<uint16_t> start, end;
+		typedef uint16_t Idx;
+		boost::atomic<Idx> start, end;
 		uint8_t* pt() { return data + start; }
 		uint16_t size() const { assert(start <= end); return end - start; }
 		static uint16_t BufferSize() { return BUFFER_CHUNK_SIZE; }
