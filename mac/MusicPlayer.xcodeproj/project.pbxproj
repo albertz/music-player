@@ -71,6 +71,7 @@
 		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
 		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
 		235A99661871180800D5CC20 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235A99651871180800D5CC20 /* Buffer.cpp */; };
+		237312E31871AEFF0052054E /* Fader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237312E21871AEFF0052054E /* Fader.cpp */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -392,6 +393,7 @@
 		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		235A99651871180800D5CC20 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buffer.cpp; path = ../Buffer.cpp; sourceTree = "<group>"; };
+		237312E21871AEFF0052054E /* Fader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Fader.cpp; path = ../Fader.cpp; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -983,6 +985,7 @@
 		23A14A6315E3B6A200376BF6 /* ffmpeg.so */ = {
 			isa = PBXGroup;
 			children = (
+				237312E21871AEFF0052054E /* Fader.cpp */,
 				235A99651871180800D5CC20 /* Buffer.cpp */,
 				23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */,
 				23E5B9FA186DEE7900A7FB9F /* Fader.hpp */,
@@ -1510,6 +1513,7 @@
 				23ACE7091689E66500E45134 /* ffmpeg_player_decoding.cpp in Sources */,
 				23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */,
 				23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */,
+				237312E31871AEFF0052054E /* Fader.cpp in Sources */,
 				23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
