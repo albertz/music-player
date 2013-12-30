@@ -31,11 +31,12 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 			assert(target_size == 0);
 			break;
 		}
-		if(chunkEnd == Chunk::BufferSize()) {
+		if(chunkEnd < Chunk::BufferSize()) {
 			// push() would have filled it further
 			break;
 		}
 		assert(chunk.start == chunkEnd);
+		assert(chunkEnd == Chunk::BufferSize());
 		chunks.pop_front();
 	}
 	return c;
