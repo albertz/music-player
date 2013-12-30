@@ -26,7 +26,7 @@ struct Buffer {
 	
 	// these are all not multithreading safe
 	size_t size() { return _size; }
-	void clear() { chunks.clear(); _size = 0; }
+	void clear() { _size = 0; chunks.clear(); }
 	bool empty() { return size() == 0; }
 
 	// returns amount of data returned, i.e. <= target_size

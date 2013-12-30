@@ -112,6 +112,7 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 		if((size_t)s > target_size) s = (int)target_size;
 		memcpy(target, chunk.data + chunk.start, s);
 		chunk.start += s;
+		_size -= s;
 		target += s;
 		target_size -= s;
 		c += s;
@@ -119,12 +120,12 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 			assert(target_size == 0);
 			break;
 		}
-		if(chunk.freeDataAvailable())
+		if(chunk.freeDataAvailable()) {
 			// push() would have filled it further
 			break;
+		}
 		chunks.pop_front();
 	}
-	_size -= c;
 	return c;	
 }
 
