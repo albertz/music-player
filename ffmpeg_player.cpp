@@ -520,9 +520,14 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 
 	if(strcmp(key, "curSong") == 0) {
-		if(player->curSong && player->inStream) { // Note: if we simply check for curSong, we need an additional curSongOpened or so because from the outside, we often want to know if we correctly loaded the current song
-			Py_INCREF(player->curSong);
-			return player->curSong;
+		// Note: if we simply check for curSong, we need an additional curSongOpened or so because from the outside, we often want to know if we correctly loaded the current song
+		if(!player->curSong) goto returnNone;
+		PlayerObject::InStreams::ItemPtr is = player->getInStream();
+		if(!is) goto returnNone;
+		if(!is->value.song) goto returnNone;
+		if(PyObject_RichCompareBool(player->curSong, is->value.song, Py_EQ) == 1) {
+			Py_INCREF(is->value.song);
+			return is->value.song;
 		}
 		goto returnNone;
 	}
