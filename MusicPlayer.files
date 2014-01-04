@@ -5796,3 +5796,4 @@ LockFreeData.hpp
 tests/test_Buffer.cpp
 Buffer.cpp
 Fader.cpp
+PlayerInStream.hpp
