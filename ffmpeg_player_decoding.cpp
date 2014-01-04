@@ -389,25 +389,25 @@ int PlayerObject::seekAbs(double pos) {
 	return ret;	
 }
 
-PyObject* PlayerObject::curSongMetadata() {
+PyObject* PlayerObject::curSongMetadata() const {
 	InStreams::ItemPtr is = getInStream();
 	if(is.get()) return is->value.metadata;
 	return NULL;
 }
 
-double PlayerObject::curSongPos() {
+double PlayerObject::curSongPos() const {
 	InStreams::ItemPtr is = getInStream();
 	if(is.get()) return is->value.playerTimePos;
 	return 0;
 }
 
-double PlayerObject::curSongLen() {
+double PlayerObject::curSongLen() const {
 	InStreams::ItemPtr is = getInStream();
 	if(is.get()) return is->value.timeLen;
 	return -1;
 }
 
-float PlayerObject::curSongGainFactor() {
+float PlayerObject::curSongGainFactor() const {
 	InStreams::ItemPtr is = getInStream();
 	if(is.get()) return is->value.gainFactor;
 	return 1;
@@ -1040,18 +1040,20 @@ PlayerObject::InStreams::ItemPtr PlayerObject::getInStream() const {
 	return inStreams.front();
 }
 
-static PlayerObject:InStreams::ItemPtr takePeekInStream(PlayerObject::PeekInStreams& list, PyObject* song) {
+static PlayerObject::InStreams::ItemPtr takePeekInStream(PlayerObject::InStreams& list, PyObject* song) {
 	PyScopedGIL gstate;
-	for(PlayerObject::InStreams::iterator it = list.begin(); it != list.end(); ++it) {
-		assert(it->get() != NULL);
-		assert(it->get()->song != NULL);
-		if(PyObject_RichCompareBool(song, it->get()->song, Py_EQ) == 1) {
-			boost::shared_ptr<PlayerInStream> inStream = *it;
-			list.erase(it);
-			return inStream;
-		}
+	while(true) {
+		PlayerObject::InStreams::ItemPtr is = list.front();
+		if(!is) break; // it's empty
+		
+		assert(is->value.song != NULL);
+		if(PyObject_RichCompareBool(song, is->value.song, Py_EQ) == 1)
+			return is;
+		
+		list.pop_front();
 	}
-	return boost::shared_ptr<PlayerInStream>();
+
+	return NULL;
 }
 
 void PlayerObject::openPeekInStreams() {
@@ -1069,7 +1071,7 @@ void PlayerObject::openPeekInStreams() {
 	PyObject* peekList = NULL;
 	PyObject* peekListIter = NULL;
 	PyObject* song = NULL;
-	PeekInStreams oldPeekList;
+	InStreams oldPeekList;
 
 	args = PyTuple_New(1);
 	if(!args) goto final;
@@ -1124,18 +1126,12 @@ final:
 
 bool PlayerObject::tryOvertakePeekInStream() {
 	assert(curSong != NULL);
-	InStreams::ItemPtr s = takePeekInStream(this->peekInStreams, curSong);
+	InStreams::ItemPtr s = takePeekInStream(this->inStreams, curSong);
 	if(s.get()) {
-		{
-			InStreams::ItemPtr inStreamOld(inStream);
-			inStream = s;
-			PyScopedUnlock unlock(this->lock);
-			inStreamOld.reset(); // reset in unlocked scope
-		}
 		// take the new Song object. it might be a different one.
 		PyScopedGIL gstate;
 		Py_XDECREF(curSong);
-		curSong = s->song;
+		curSong = s->value.song;
 		Py_INCREF(curSong);
 		return true;
 	}

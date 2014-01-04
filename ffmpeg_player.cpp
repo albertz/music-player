@@ -111,13 +111,8 @@ final:
 			assert(false);
 	}
 	
-	if(ret) {
+	if(ret)
 		openPeekInStreams();
-	} else {
-		PyScopedGIUnlock gunlock;
-		PyScopedUnlock unlock(this->lock);
-		player->inStream.reset();
-	}
 	return ret;
 }
 

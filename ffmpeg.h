@@ -103,10 +103,10 @@ struct PlayerObject {
 	Buffer* inStreamBuffer();
 	void resetBuffers();
 	bool processInStream(); // returns true if there was no error
-	PyObject* curSongMetadata();
-	double curSongPos();
-	double curSongLen();
-	float curSongGainFactor();
+	PyObject* curSongMetadata() const;
+	double curSongPos() const;
+	double curSongLen() const;
+	float curSongGainFactor() const;
 	
 	// returns the data read by the inStream.
 	// if sampleNumOut==NULL, it will fill the requested samples with silence.
