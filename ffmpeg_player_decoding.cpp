@@ -1340,7 +1340,7 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 		iss[1] = peekInStreams.front().get();
 	
 	if(player->playing || !fader.finished())
-	for(auto is : iss) {
+	for(PlayerObject::InStream* is : iss) {
 		if(!is) continue;
 	
 		is->playerStartedPlaying = true;
