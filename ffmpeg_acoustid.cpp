@@ -29,7 +29,6 @@ pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args) {
 	player->curSong = songObj;
 	if(!player->openInStream()) goto final;
 	if(PyErr_Occurred()) goto final;
-	if(player->inStream == NULL) goto final;
 	
 	// fpcalc source for reference:
 	// https://github.com/lalinsky/chromaprint/blob/master/examples/fpcalc.c

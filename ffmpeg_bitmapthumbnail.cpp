@@ -178,7 +178,6 @@ pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws) {
 	Py_INCREF(songObj);
 	player->curSong = songObj;
 	if(!player->openInStream()) goto final;
-	if(player->inStream == NULL) goto final;
 	
 	// First count totalFrameCount.
 	while(player->processInStream()) {

@@ -50,9 +50,11 @@ PyObject* pyCalcReplayGain(PyObject* self, PyObject* args, PyObject* kws);
 #include "SmoothClip.hpp"
 #include "Fader.hpp"
 #include "SampleType.hpp"
+#include "LinkedList.hpp"
+#include "PlayerInStream.hpp"
 
 #include <boost/shared_ptr.hpp>
-#include <list>
+#include <boost/atomic.hpp>
 
 
 // The player structure. Create by ffmpeg.createPlayer().
@@ -64,14 +66,14 @@ struct PlayerObject {
 	PyObject* queue;
 	PyObject* peekQueue;
 	PyObject* curSong;
-	bool playing;
+	boost::atomic<bool> playing;
 	bool soundcardOutputEnabled; // if enabled, uses PortAudio to play on soundcard. otherwise call readStreamOut manually
 	int setPlaying(bool playing);
 	void resetPlaying();
 	float volume;
 	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	bool volumeAdjustEnabled;
-	bool volumeAdjustNeeded() const;
+	bool volumeAdjustNeeded(PlayerInStream* is = NULL) const;
 	int outSamplerate;
 	int outNumChannels;
 	void setAudioTgt(int samplerate, int numchannels);
@@ -91,14 +93,13 @@ struct PlayerObject {
 	void workerProc(PyMutex& lock, bool& stopSignal);
 	PyThread workerThread;
 	
-	struct InStream;
-	boost::shared_ptr<InStream> inStream;
-	typedef std::list<boost::shared_ptr<InStream> > PeekInStreams;
-	PeekInStreams peekInStreams;
+	typedef LinkedList<PlayerInStream> InStreams;
+	InStreams inStreams;
 	bool openInStream();
 	bool tryOvertakePeekInStream();
 	void openPeekInStreams();
 	bool isInStreamOpened() const; // in case we hit EOF, it is still opened
+	InStreams::ItemPtr getInStream() const; // old interface
 	Buffer* inStreamBuffer();
 	void resetBuffers();
 	bool processInStream(); // returns true if there was no error
@@ -139,9 +140,9 @@ struct PlayerObject {
 	 */
 	PyMutex lock;
 	
-	bool getNextSongLock;
-	bool openPeekInStreamsLock;
-	bool openStreamLock;
+	boost::atomic<bool> getNextSongLock;
+	boost::atomic<bool> openPeekInStreamsLock;
+	boost::atomic<bool> openStreamLock;
 };
 
 #endif

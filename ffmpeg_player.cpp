@@ -21,11 +21,13 @@ bool PlayerObject::getNextSong(bool skipped) {
 	
 	// We must hold the player lock here.
 
-	while(getNextSongLock) {
+	{
 		PyScopedUnlock unlock(player->lock);
-		usleep(100);
+		bool expected = false;
+		while(!getNextSongLock.compare_exchange_weak(expected, true)) {
+			usleep(100);
+		}
 	}
-	getNextSongLock = true;
 	
 	bool ret = false;
 	bool errorOnOpening = false;
@@ -62,11 +64,6 @@ bool PlayerObject::getNextSong(bool skipped) {
 			// When we are in playing state, we will just skip to the next song.
 			// This can happen if we don't support the format or whatever.
 			printf("cannot open input stream\n");
-			errorOnOpening = true;
-		}
-		else if(!player->inStream) {
-			// This is strange, player_openInputStream should have returned !=0.
-			printf("strange error on open input stream\n");
 			errorOnOpening = true;
 		}
 		else
@@ -108,8 +105,12 @@ final:
 		Py_XDECREF(oldSong);
 	}
 
-	getNextSongLock = false;
-
+	{
+		bool expected = true;
+		if(!getNextSongLock.compare_exchange_strong(expected, false))
+			assert(false);
+	}
+	
 	if(ret) {
 		openPeekInStreams();
 	} else {
@@ -234,8 +235,7 @@ void player_dealloc(PyObject* obj) {
 		// we don't need a lock because in dealloc, we have the only ref to this PlayerObject.
 		// also, we must not lock it here because we cannot free inStream otherwise.
 
-		player->inStream.reset();
-		player->peekInStreams.clear();
+		player->inStreams.clear();
 		
 		Py_XDECREF(player->dict);
 		player->dict = NULL;
