@@ -23,6 +23,7 @@ public:
 
 	struct Item : public boost::intrusive_ref_counter< Item, boost::thread_safe_counter > {
 		ItemPtr prev, next;
+		ItemPtr prevBackup, nextBackup;
 		boost::atomic<ItemState> state;
 		T value;
 
@@ -43,34 +44,43 @@ public:
 
 		bool insertBefore(Item* item) {
 			ItemPtr oldPrev = prev.exchange(item);
-			if(!oldPrev) {
-				// oldPrev == NULL -> clear() or pop_front() item.
-				return false;
-			}
+			item->next = this;
+
 			while(true) {
+				if(!oldPrev) {
+					// oldPrev == NULL -> clear() or pop_front() item.
+					item->next = NULL;
+					return false;
+				}
+
 				Item* oldPrevNext;
 				bool success = oldPrev->next.compare_exchange(this, item, &oldPrevNext);
 				// If pop_front() meanwhile and oldPrev was the first item,
 				// we might have reset oldPrev->next already or will soon.
 				// In the latter case, it will set item->prev = main, ok.
 				// If pop_front() meanwhile, we might also have oldPrev==main.
-				if(success) {
+				if((success && oldPrev->state != S_PoppedOut) || (item == oldPrevNext)) {
 					item->prev = oldPrev;
 					break;
 				}
-				else if(oldPrev->state == S_MainLink) {
+				else if(!success && oldPrev->state == S_MainLink) {
 					assert(oldPrev.get() == this);
 					// and try again, wait for main->next == this
 				}
-				else {
+				else { // !success (-> popped out) or success && popped out
 					assert(oldPrev->state == S_PoppedOut);
-					assert(oldPrevNext == NULL); // pop_front() does this
-					oldPrev = oldPrev->prev;
+					if(!success) assert(oldPrevNext == NULL); // pop_front() does this
+					oldPrev = oldPrev->prevBackup;
 					// and try again
 				}
 			}
-			item->next = this;
 			return true;
+		}
+
+		void popOut() {
+			prevBackup = prev;
+			nextBackup = next;
+			state = S_PoppedOut;
 		}
 	};
 
@@ -88,7 +98,11 @@ private:
 	void _releaseMain(const ItemPtr& m) {
 		ItemPtr ptr = m;
 		while(true) {
-			ptr = ptr->next.exchange(NULL);
+			ItemPtr nextPtr = ptr->next.exchange(NULL);
+			if(!nextPtr) nextPtr = ptr->nextBackup;
+			ptr->prevBackup = NULL;
+			ptr->nextBackup = NULL;
+			ptr = nextPtr;
 			if(!ptr) break;
 		}
 		ptr = m;
@@ -108,7 +122,7 @@ public:
 
 	}
 
-	// The iterator is not thread-safe, i.e. you can't access
+	// The iterator itself is not thread-safe, i.e. you can't access
 	// a single iterator from multiple threads. However,
 	// the list can be accessed and modified from other threads.
 	struct Iterator {
@@ -122,7 +136,11 @@ public:
 
 		Iterator& operator++() {
 			if(isEnd()) return *this;
-			ptr = ptr->next;
+
+			ItemPtr newPtr = ptr->next;
+			if(!newPtr || !newPtr->isData(true))
+				newPtr = ptr->nextBackup;
+			ptr = newPtr;
 			return *this;
 		}
 
@@ -137,7 +155,7 @@ public:
 
 		bool isEnd() const {
 			if(ptr.get() == NULL) return true;
-			if(ptr->state != S_Data) return true;
+			if(!ptr->isData(true)) return true;
 			return false;
 		}
 	};
@@ -162,21 +180,36 @@ public:
 		return item;
 	}
 
-	// only single consumer supported
+	// WARNING: Not properly tested!
+	// WARNING: pop_front() must not be used meanwhile. (Can be fixed easily though.)
+	// WARNING: Probably also other functions must not be called.
+	// However, reading from this list is save meanwhile.
+	ItemPtr push_front(ItemPtr item = NULL) {
+		ItemPtr first = ItemPtr(main)->next;
+		if(!item) item.reset(new Item());
+		item->state = S_Uninitialized;
+		bool success = first->insertBefore(item);
+		assert(success);
+		item->state = S_Data;
+		return item;
+	}
+
+	// only single consumer supported.
+	// parallel reading is supported though
 	ItemPtr pop_front() {
 		ItemPtr mainCpy(main);
 		ItemPtr first = mainCpy->next;
 		if(!first || first == mainCpy || first->state != S_Data)
 			return NULL;
-		first->state = S_PoppedOut;
-		// We don't reset first->prev because we might need it in Item::insertBefore.
+		first->popOut();
 		ItemPtr firstNext = first->next.exchange(NULL);
-		if(firstNext) // can happen to be NULL when clear() meanwhile
+		if(firstNext) { // can happen to be NULL when clear() meanwhile
 			// e.g. if firstNext==main and push_front() meanwhile,
 			// main->prev != first. in that case, don't change.
 			firstNext->prev.compare_exchange(first, mainCpy);
-		if(!mainCpy->next.compare_exchange(first, firstNext))
-			assert(false); // this can only happen if there was another consumer
+			if(!mainCpy->next.compare_exchange(first, firstNext))
+				assert(false); // this can only happen if there was another consumer
+		}
 		return first;
 	}
 
@@ -189,11 +222,20 @@ public:
 		return ItemPtr(main)->isEmpty();
 	}
 
-	ItemPtr front() { return ItemPtr(main)->next; }
-	ItemPtr back() { return ItemPtr(main)->prev; }
+	ItemPtr front() const {
+		ItemPtr ptr = ItemPtr(main)->next;
+		if(ptr.get() && ptr->isData(false)) return ptr;
+		return NULL;
+	}
+	ItemPtr back() const {
+		ItemPtr ptr = ItemPtr(main)->prev;
+		if(ptr.get() && ptr->isData(false)) return ptr;
+		return NULL;
+	}
 
 
 	// not threading-safe!
+	// we don't keep a seperate size-counter by intention to simplify things for now.
 	size_t size() {
 		ItemPtr ptr = main;
 		size_t c = 0;

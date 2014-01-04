@@ -48,12 +48,12 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 void Buffer::push(const uint8_t* data, size_t size) {
 	while(size > 0) {
 		auto chunkBackPtr = chunks.back();
-		if(!chunkBackPtr->isData(false)) // it means chunks is empty
+		if(!chunkBackPtr) // it means chunks is empty
 			chunks.push_back();
 		else if(!chunkBackPtr->value.freeDataAvailable())
 			chunks.push_back();
 		auto chunkPtr = chunks.back();
-		assert(chunkPtr->isData(false));
+		assert(chunkPtr && chunkPtr->isData(false));
 		Chunk& chunk = chunkPtr->value;
 		size_t s = std::min(size, (size_t)chunk.freeDataAvailable());
 		assert(s > 0);
