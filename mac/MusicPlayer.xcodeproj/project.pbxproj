@@ -72,6 +72,9 @@
 		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
 		235A99661871180800D5CC20 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235A99651871180800D5CC20 /* Buffer.cpp */; };
 		237312E31871AEFF0052054E /* Fader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237312E21871AEFF0052054E /* Fader.cpp */; };
+		237312E7187821550052054E /* IntrusivePtr.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E4187821550052054E /* IntrusivePtr.hpp */; };
+		237312E8187821550052054E /* LockFreeData.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E5187821550052054E /* LockFreeData.hpp */; };
+		237312E9187821550052054E /* PlayerInStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E6187821550052054E /* PlayerInStream.hpp */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -394,6 +397,9 @@
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		235A99651871180800D5CC20 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buffer.cpp; path = ../Buffer.cpp; sourceTree = "<group>"; };
 		237312E21871AEFF0052054E /* Fader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Fader.cpp; path = ../Fader.cpp; sourceTree = "<group>"; };
+		237312E4187821550052054E /* IntrusivePtr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = IntrusivePtr.hpp; path = ../IntrusivePtr.hpp; sourceTree = "<group>"; };
+		237312E5187821550052054E /* LockFreeData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LockFreeData.hpp; path = ../LockFreeData.hpp; sourceTree = "<group>"; };
+		237312E6187821550052054E /* PlayerInStream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PlayerInStream.hpp; path = ../PlayerInStream.hpp; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -985,6 +991,9 @@
 		23A14A6315E3B6A200376BF6 /* ffmpeg.so */ = {
 			isa = PBXGroup;
 			children = (
+				237312E4187821550052054E /* IntrusivePtr.hpp */,
+				237312E5187821550052054E /* LockFreeData.hpp */,
+				237312E6187821550052054E /* PlayerInStream.hpp */,
 				237312E21871AEFF0052054E /* Fader.cpp */,
 				235A99651871180800D5CC20 /* Buffer.cpp */,
 				23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */,
@@ -1113,6 +1122,7 @@
 				233684F81600BD7F00A38E78 /* bit_string_reader.h in Headers */,
 				233684F91600BD7F00A38E78 /* bit_string_writer.h in Headers */,
 				233684FB1600BD7F00A38E78 /* chroma.h in Headers */,
+				237312E7187821550052054E /* IntrusivePtr.hpp in Headers */,
 				233684FD1600BD7F00A38E78 /* chroma_filter.h in Headers */,
 				23E5BA07186DEE7900A7FB9F /* SampleType.hpp in Headers */,
 				23E5BA03186DEE7900A7FB9F /* LinkedList.hpp in Headers */,
@@ -1137,6 +1147,7 @@
 				2336851A1600BD7F00A38E78 /* filter_utils.h in Headers */,
 				2336851C1600BD7F00A38E78 /* fingerprint_calculator.h in Headers */,
 				2336851E1600BD7F00A38E78 /* fingerprint_compressor.h in Headers */,
+				237312E8187821550052054E /* LockFreeData.hpp in Headers */,
 				23E5BA02186DEE7900A7FB9F /* Fader.hpp in Headers */,
 				233685201600BD7F00A38E78 /* fingerprint_decompressor.h in Headers */,
 				233685221600BD7F00A38E78 /* fingerprinter.h in Headers */,
@@ -1144,6 +1155,7 @@
 				233685261600BD7F00A38E78 /* image.h in Headers */,
 				233685281600BD7F00A38E78 /* image_builder.h in Headers */,
 				2336852A1600BD7F00A38E78 /* integral_image.h in Headers */,
+				237312E9187821550052054E /* PlayerInStream.hpp in Headers */,
 				2336852D1600BD7F00A38E78 /* moving_average.h in Headers */,
 				2336852E1600BD7F00A38E78 /* quantizer.h in Headers */,
 				233685301600BD7F00A38E78 /* silence_remover.h in Headers */,
