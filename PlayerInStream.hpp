@@ -74,9 +74,14 @@ struct PlayerInStream : PlayerInStreamRawPOD {
 		playerStartedPlaying = playerHitEnd = false;
 	}
 	~PlayerInStream();
+
 	bool open(PlayerObject* player, PyObject* song);
 	void resetBuffers();
 	void seekToStart();
+	
+	bool isOpened() {
+		return ctx != NULL;
+	}
 };
 
 

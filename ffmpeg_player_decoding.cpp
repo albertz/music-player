@@ -1026,7 +1026,7 @@ bool PlayerObject::processInStream() {
 bool PlayerObject::isInStreamOpened() const {
 	InStreams::ItemPtr is = getInStream();
 	if(is.get() == NULL) return false;
-	if(is->value.ctx == NULL) return false;
+	if(!is->value.isOpened()) return false;
 	return true;
 }
 
@@ -1143,107 +1143,84 @@ bool PlayerObject::tryOvertakePeekInStream() {
 static bool loopFrame(PlayerObject* player) {
 	// We must not hold the PyGIL here!
 	bool didSomething = false;
-	
-	{
-		PyScopedLock lock(player->lock);
+
+	auto popFront = [&](PlayerObject::InStreams::ItemPtr& is) {
+		PlayerObject::InStreams::ItemPtr frontPtr = player->inStreams.pop_front();
+		assert(frontPtr == is);
 		
-		if(!player->isInStreamOpened() && player->nextSongOnEof) {
-			if(!player->getNextSong(false)) {
-				fprintf(stderr, "cannot get next song\n");
-				PyScopedGIL gstate;
+		// InStream reset must always be in unlocked scope
+		PyScopedUnlock unlock(player->lock);
+		is.reset();
+		frontPtr.reset();
+	};
+
+	auto switchNextSong = [&]() {
+		if(!player->getNextSong(false)) {
+			fprintf(stderr, "cannot get next song\n");
+			PyScopedGIL gstate;
+			if(PyErr_Occurred())
+				PyErr_Print();
+		}
+
+		didSomething = true;
+	};
+	
+	auto pushPyEv_onSongFinished = [&](PlayerInStream* inStream) {
+		if(player->dict) {
+			PyScopedGIL gstate;
+			
+			Py_INCREF(player->dict);
+			PyObject* onSongFinished = PyDict_GetItemString(player->dict, "onSongFinished");
+			if(onSongFinished && onSongFinished != Py_None) {
+				Py_INCREF(onSongFinished);
+				
+				PyObject* kwargs = PyDict_New();
+				assert(kwargs);
+				if(inStream->song)
+					PyDict_SetItemString(kwargs, "song", inStream->song);
+				
+				PyDict_SetItemString_retain(kwargs, "finalTimePos", PyFloat_FromDouble(inStream->playerTimePos));
+				
+				PyObject* retObj = PyEval_CallObjectWithKeywords(onSongFinished, NULL, kwargs);
+				Py_XDECREF(retObj);
+				
+				// errors are not fatal from the callback, so handle it now and go on
 				if(PyErr_Occurred())
 					PyErr_Print();
+				
+				Py_DECREF(kwargs);
+				Py_DECREF(onSongFinished);
 			}
-			
-			didSomething = true;
+			Py_DECREF(player->dict);
+		}
+	};
+	
+	{
+		PyScopedLock lock(player->lock);
+		
+		PlayerObject::InStreams::ItemPtr inStreamPtr = player->inStreams.front();
+		PlayerInStream* inStream = inStreamPtr ? &inStreamPtr->value : NULL;
+
+		if(inStream && inStream->playerHitEnd) {
+			pushPyEv_onSongFinished(inStream);
+			popFront(inStreamPtr);
+			inStream = NULL;
 		}
 		
-		else if(player->isInStreamOpened() && player->inStream->playerHitEnd)
-		{
-			if(player->dict) {
-				PyScopedGIL gstate;
-				
-				Py_INCREF(player->dict);
-				PyObject* onSongFinished = PyDict_GetItemString(player->dict, "onSongFinished");
-				if(onSongFinished && onSongFinished != Py_None) {
-					Py_INCREF(onSongFinished);
-					
-					PyObject* kwargs = PyDict_New();
-					assert(kwargs);
-					if(player->curSong)
-						PyDict_SetItemString(kwargs, "song", player->curSong);
-					
-					PyDict_SetItemString_retain(kwargs, "finalTimePos", PyFloat_FromDouble(player->inStream->playerTimePos));
-					
-					PyObject* retObj = PyEval_CallObjectWithKeywords(onSongFinished, NULL, kwargs);
-					Py_XDECREF(retObj);
-					
-					// errors are not fatal from the callback, so handle it now and go on
-					if(PyErr_Occurred())
-						PyErr_Print();
-					
-					Py_DECREF(kwargs);
-					Py_DECREF(onSongFinished);
-				}
-				Py_DECREF(player->dict);
-			}
-			
-			if(player->nextSongOnEof) {
-				std::vector<boost::shared_ptr<PlayerInStream> > peekInStreams(player->peekInStreams.begin(), player->peekInStreams.end());
-				
-				// switch to next song
-				if(!player->getNextSong(false)) {
-					fprintf(stderr, "cannot switch to next song: getNextSong failed\n");
-					PyScopedGIL gstate;
-					if(PyErr_Occurred())
-						PyErr_Print();
-				}
+		if(inStream && !inStream->isOpened()) {
+			popFront(inStreamPtr);
+			inStream = NULL;
+		}
 
-				for(size_t i = 0; i < peekInStreams.size(); ++i) {
-					PlayerInStream* is = peekInStreams[i].get();
-					if(!is->playerStartedPlaying) continue;
-					if(player->inStream.get() == is) continue;
-
-					const char* inStreamDebugName = "<NULL>";
-					if(player->inStream.get())
-						inStreamDebugName = player->inStream->debugName.c_str();
-					printf("warning: peeked stream (%zu/%zu) (%s) is not the real next stream (%s)\n", i, peekInStreams.size(), is->debugName.c_str(), inStreamDebugName);
-					
-					{
-						PyScopedUnlock unlock(player->lock);
-						PyScopedLock lock(is->lock);
-						is->seekToStart();
-					}
-				}
-				
-				// InStream reset must always be in unlocked scope
-				{
-					PyScopedUnlock unlock(player->lock);
-					peekInStreams.clear();
-				}
-
-				didSomething = true;
-			}
-			else { // !player->nextSongOnEof
-				// InStream reset must always be in unlocked scope
-				PyScopedUnlock unlock(player->lock);
-				player->inStream.reset();
-			}
+		if(!inStream && player->nextSongOnEof) {
+			switchNextSong();
 		}
 	}
 	
-	std::list<boost::shared_ptr<PlayerInStream> > instreams;	
-	{
-		PyScopedLock lock(player->lock);
-		if(player->inStream.get())
-			instreams.push_back(player->inStream);
-		instreams.insert(instreams.end(), player->peekInStreams.begin(), player->peekInStreams.end());
-	}
-		
-	for(auto& it : instreams) {
-		PyScopedLock lock(it->lock);
-		if(!_buffersFullEnough(it.get())) {
-			_processInStream(player, it.get());
+	for(PlayerInStream& is : player->inStreams) {
+		PyScopedLock lock(is.lock);
+		if(!_buffersFullEnough(&is)) {
+			_processInStream(player, &is);
 			didSomething = true;
 		}
 	}
