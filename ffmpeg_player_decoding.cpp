@@ -1248,20 +1248,14 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 	PlayerObject* player = this;
 	size_t origSampleNum = sampleNum;
 	
-	PlayerInStream* iss[] = {player->inStream.get(), NULL};
-	if(!peekInStreams.empty())
-		// XXX: Why only the front and not the other ones?
-		iss[1] = peekInStreams.front().get();
-	
 	if(player->playing || !fader.finished())
-	for(PlayerInStream* is : iss) {
-		if(!is) continue;
+	for(PlayerInStream& is : player->inStreams) {
 	
-		is->playerStartedPlaying = true;
-		size_t popCount = is->outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN);
+		is.playerStartedPlaying = true;
+		size_t popCount = is.outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN);
 		popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
 				
-		if(player->volumeAdjustNeeded(is)) {
+		if(player->volumeAdjustNeeded(&is)) {
 			for(size_t i = 0; i < popCount; ++i) {
 				OUTSAMPLE_t* sampleAddr = samples + i;
 				OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
@@ -1269,7 +1263,7 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 				
 				sampleFloat *= fader.sampleFactor();
 				sampleFloat *= player->volume;
-				sampleFloat *= is->gainFactor;
+				sampleFloat *= is.gainFactor;
 				sampleFloat = player->volumeSmoothClip.get(sampleFloat);
 
 				sample = (OUTSAMPLE_t) FloatToOutSample(sampleFloat);
@@ -1282,14 +1276,16 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 		
 		samples += popCount;
 		sampleNum -= popCount;
-		is->playerTimePos += timeDelay(popCount);
+		is.playerTimePos = is.playerTimePos + timeDelay(popCount);
 
 		if(sampleNum == 0) break;
+
 		// if the reader hit not the end but we haven't filled this buffer,
 		// it means that our reading+decoding thread is behind.
 		// we can't do anything here, so break.
-		if(!is->readerHitEnd) break;
-		is->playerHitEnd = true;
+		if(!is.readerHitEnd) break;
+
+		is.playerHitEnd = true;
 	}
 	
 	if(sampleNum > 0 && sampleNumOut == NULL) {
