@@ -51,16 +51,16 @@ struct Log {
 	}
 };
 
-Log& endl(Log& s) {
+inline Log& endl(Log& s) {
 	s << "\n";
 	s.resetPrefix();
 	s.flush();
 	return s;
 }
-Log& operator<<(Log& s, Log& f(Log&)) { return f(s); }
+inline Log& operator<<(Log& s, Log& f(Log&)) { return f(s); }
 
 template<typename T>
-Log& operator<<(Log& s, const T& v) {
+inline Log& operator<<(Log& s, const T& v) {
 	std::stringstream ss;
 	ss << v;
 	s << ss.str().c_str();
