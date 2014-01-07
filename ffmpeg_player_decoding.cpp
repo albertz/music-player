@@ -1084,7 +1084,7 @@ static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 
 struct PeekItem {
 	PyObject* song;
-	PlayerObject::InStreams::ItemPtr stream;
+	PeekItem(PyObject* _song = NULL) : song(_song) {}
 };
 
 static std::vector<PeekItem> queryPeekItems(PlayerObject* player) {
@@ -1152,7 +1152,9 @@ void PlayerObject::openPeekInStreams() {
 	
 	std::vector<PeekItem> peekItems = queryPeekItems(player);
 
-	PlayerObject::InStreams::ItemPtr startAfter = player->inStreams.mainLink();
+	// Start after the first item. The first item is the currently played song.
+	PlayerObject::InStreams::ItemPtr startAfter = player->inStreams.mainLink()->next;
+	
 	for(PeekItem& it : peekItems) {
 		bool found;
 		pushPeekInStream(startAfter, it.song, found);
