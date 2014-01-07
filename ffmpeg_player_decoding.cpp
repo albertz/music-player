@@ -10,6 +10,7 @@
 
 #include "ffmpeg.h"
 #include "PyUtils.h"
+#include "Log.hpp"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -23,6 +24,9 @@ extern "C" {
 #define PROCESS_SIZE		(BUFFER_CHUNK_SIZE * 10) // how much data to proceed in processInStream()
 #define BUFFER_FILL_SIZE	(48000 * 2 * OUTSAMPLEBYTELEN * 10) // 10secs for 48kHz,stereo - around 2MB
 #define PEEKSTREAM_NUM		3
+
+
+Log workerLog("Worker");
 
 
 static int ffmpeg_lockmgr(void **mtx, enum AVLockOp op) {
@@ -1273,17 +1277,20 @@ static bool loopFrame(PlayerObject* player) {
 		PlayerInStream* inStream = inStreamPtr ? &inStreamPtr->value : NULL;
 
 		if(inStream && inStream->playerHitEnd) {
+			workerLog << "song finished" << endl;
 			pushPyEv_onSongFinished(inStream);
 			popFront(inStreamPtr);
 			inStream = NULL;
 		}
 		
 		if(inStream && !inStream->isOpened()) {
+			workerLog << "pop front stream" << endl;
 			popFront(inStreamPtr);
 			inStream = NULL;
 		}
 
 		if(!inStream && player->nextSongOnEof) {
+			workerLog << "switch song" << endl;
 			switchNextSong();
 		}
 	}
