@@ -27,6 +27,7 @@ extern "C" {
 
 
 Log workerLog("Worker");
+Log mainLog("Main");
 
 
 static int ffmpeg_lockmgr(void **mtx, enum AVLockOp op) {
@@ -741,6 +742,7 @@ final:
 }
 
 bool PlayerObject::openInStream() {	
+	mainLog << "openInStream" << endl;
 	assert(this->curSong != NULL);
 	
 	PyScopedGIUnlock gunlock;
@@ -1145,6 +1147,8 @@ final:
 
 
 void PlayerObject::openPeekInStreams() {
+	mainLog << "openPeekInStreams" << endl;
+
 	PlayerObject* player = this;
 	if(player->peekQueue == NULL) return;
 	
@@ -1203,6 +1207,8 @@ bool PlayerObject::tryOvertakePeekInStream() {
 	pushPeekInStream(startAfter, curSong, found);
 
 	if(found) {
+		mainLog << "tryOvertakePeekInStream: overtake" << endl;
+
 		// take the new Song object. it might be a different one.
 		PyScopedGIL gstate;
 		Py_XDECREF(curSong);
