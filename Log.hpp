@@ -34,7 +34,7 @@ struct Log {
 		int millisecs = (t.tv_usec / 1000) % 1000;
 		char ms_str[5];
 		sprintf(ms_str, "%.03d", millisecs);
-		(*this) << "[" << name.c_str() << ":" << timestamp << "." << ms_str << "] ";
+		std::cout << "[" << name.c_str() << ":" << timestamp << "." << ms_str << "] ";
 	}
 		
 	Log& operator<<(const char* s) {
