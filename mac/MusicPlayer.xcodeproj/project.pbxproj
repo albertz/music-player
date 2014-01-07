@@ -75,6 +75,7 @@
 		237312E7187821550052054E /* IntrusivePtr.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E4187821550052054E /* IntrusivePtr.hpp */; };
 		237312E8187821550052054E /* LockFreeData.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E5187821550052054E /* LockFreeData.hpp */; };
 		237312E9187821550052054E /* PlayerInStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E6187821550052054E /* PlayerInStream.hpp */; };
+		237312EB187C5CBE0052054E /* Log.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312EA187C5CBE0052054E /* Log.hpp */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -400,6 +401,7 @@
 		237312E4187821550052054E /* IntrusivePtr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = IntrusivePtr.hpp; path = ../IntrusivePtr.hpp; sourceTree = "<group>"; };
 		237312E5187821550052054E /* LockFreeData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LockFreeData.hpp; path = ../LockFreeData.hpp; sourceTree = "<group>"; };
 		237312E6187821550052054E /* PlayerInStream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PlayerInStream.hpp; path = ../PlayerInStream.hpp; sourceTree = "<group>"; };
+		237312EA187C5CBE0052054E /* Log.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Log.hpp; path = ../Log.hpp; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -1014,6 +1016,7 @@
 				23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */,
 				23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */,
 				23ACE7041689E4D500E45134 /* ffmpeg_replaygain.cpp */,
+				237312EA187C5CBE0052054E /* Log.hpp */,
 			);
 			name = ffmpeg.so;
 			sourceTree = "<group>";
@@ -1137,6 +1140,7 @@
 				233685061600BD7F00A38E78 /* decoder.h in Headers */,
 				23E5BA01186DEE7900A7FB9F /* Buffer.hpp in Headers */,
 				2336850C1600BD7F00A38E78 /* feature_vector_consumer.h in Headers */,
+				237312EB187C5CBE0052054E /* Log.hpp in Headers */,
 				2336850E1600BD7F00A38E78 /* fft.h in Headers */,
 				23E5BA04186DEE7900A7FB9F /* Protection.hpp in Headers */,
 				2336850F1600BD7F00A38E78 /* fft_frame.h in Headers */,
