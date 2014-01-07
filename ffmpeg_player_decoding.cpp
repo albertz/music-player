@@ -1040,21 +1040,105 @@ PlayerObject::InStreams::ItemPtr PlayerObject::getInStream() const {
 	return inStreams.front();
 }
 
-static PlayerObject::InStreams::ItemPtr takePeekInStream(PlayerObject::InStreams& list, PyObject* song) {
+static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObject* song, bool& found) {
+	std::vector<PlayerObject::InStreams::ItemPtr> popped;
+	found = false;
+	
+	{
+		PlayerObject::InStreams::Iterator it(startAfter);
+		++it; // one after startAfter
+		for(; !it.isEnd(); ++it) {
+			PlayerObject::InStreams::ItemPtr is = it.ptr;
+			assert(is);
+			assert(is->value.song != NULL);
+
+			{
+				PyScopedGIL gstate;
+				if(PyObject_RichCompareBool(song, is->value.song, Py_EQ) == 1) {
+					startAfter = is;
+					found = true;
+				}
+				
+				// pass through any Python errors
+				if(PyErr_Occurred())
+					PyErr_Print();
+
+				if(found)
+					break;
+			}
+			
+			is->popOut();
+			popped.push_back(is);
+		}
+	}
+	
+	{
+		PlayerObject::InStreams::ItemPtr insertAfterMe = startAfter;
+		for(PlayerObject::InStreams::ItemPtr isp : popped) {
+			bool res = insertAfterMe->insertAfter(isp);
+			assert(res);
+			insertAfterMe = isp;
+		}
+	}
+}
+
+struct PeekItem {
+	PyObject* song;
+	PlayerObject::InStreams::ItemPtr stream;
+};
+
+static std::vector<PeekItem> queryPeekItems(PlayerObject* player) {
+	std::vector<PeekItem> peekItems;
+	
 	PyScopedGIL gstate;
-	while(true) {
-		PlayerObject::InStreams::ItemPtr is = list.front();
-		if(!is) break; // it's empty
-		
-		assert(is->value.song != NULL);
-		if(PyObject_RichCompareBool(song, is->value.song, Py_EQ) == 1)
-			return is;
-		
-		list.pop_front();
+	PyObject* args = NULL;
+	PyObject* peekList = NULL;
+	PyObject* peekListIter = NULL;
+	PyObject* song = NULL;
+	
+	args = PyTuple_New(1);
+	if(!args) goto final;
+	PyTuple_SetItem(args, 0, PyInt_FromLong(PEEKSTREAM_NUM));
+	{
+		PyObject* peekQueue = player->peekQueue;
+		Py_INCREF(peekQueue);
+		PyScopedGIUnlock gunlock;
+		PyScopedUnlock unlock(player->lock);
+		PyScopedGIL glock;
+		peekList = PyObject_CallObject(peekQueue, args);
+		Py_DECREF(peekQueue);
+	}
+	if(!peekList) goto final;
+	
+	peekListIter = PyObject_GetIter(peekList);
+	if(!peekListIter) goto final;
+	
+	{
+		PyScopedGIUnlock gunlock; // let others use Python
+		peekItems.reserve(PEEKSTREAM_NUM);
+	}
+	
+	while((song = PyIter_Next(peekListIter)) != NULL) {
+		PeekItem item;
+		item.song = song;
+		peekItems.push_back(item);
 	}
 
-	return NULL;
+	return peekItems;
+
+final:
+	// pass through any Python errors
+	if(PyErr_Occurred())
+		PyErr_Print();
+	
+	Py_XDECREF(song);
+	Py_XDECREF(peekListIter);
+	Py_XDECREF(peekList);
+	Py_XDECREF(args);
+	return std::vector<PeekItem>();
 }
+
+
 
 void PlayerObject::openPeekInStreams() {
 	PlayerObject* player = this;
@@ -1066,72 +1150,57 @@ void PlayerObject::openPeekInStreams() {
 	}
 	openPeekInStreamsLock = true;
 	
-	PyScopedGIL gstate;
-	PyObject* args = NULL;
-	PyObject* peekList = NULL;
-	PyObject* peekListIter = NULL;
-	PyObject* song = NULL;
-	InStreams oldPeekList;
+	std::vector<PeekItem> peekItems = queryPeekItems(player);
 
-	args = PyTuple_New(1);
-	if(!args) goto final;
-	PyTuple_SetItem(args, 0, PyInt_FromLong(PEEKSTREAM_NUM));
-	{
-		PyObject* peekQueue = player->peekQueue;
-		Py_INCREF(peekQueue);		
-		PyScopedGIUnlock gunlock;
-		PyScopedUnlock unlock(player->lock);
-		PyScopedGIL glock;
-		peekList = PyObject_CallObject(peekQueue, args);
-		Py_DECREF(peekQueue);
-	}
-	if(!peekList) goto final;
-
-	peekListIter = PyObject_GetIter(peekList);
-	if(!peekListIter) goto final;
-	
-	std::swap(oldPeekList, player->peekInStreams);
-	while((song = PyIter_Next(peekListIter)) != NULL) {
-		{
-			PyScopedGIUnlock gunlock;
-			boost::shared_ptr<PlayerInStream> s = takePeekInStream(oldPeekList, song);
-			if(!s.get()) {
-				PyScopedUnlock unlock(player->lock);
-				s.reset(new PlayerInStream);
-				if(!s->open(player, song))
-					s.reset();
-			}
-			if(s.get())
-				player->peekInStreams.push_back(s);
-		}
-		Py_DECREF(song);
-	}
-	{
-		PyScopedGIUnlock gunlock;
-		PyScopedUnlock unlock(player->lock);
-		oldPeekList.clear();
-	}
-	
-final:
-	// pass through any Python errors
-	if(PyErr_Occurred())
-		PyErr_Print();
+	PlayerObject::InStreams::ItemPtr startAfter = player->inStreams.mainLink();
+	for(PeekItem& it : peekItems) {
+		bool found;
+		pushPeekInStream(startAfter, it.song, found);
 		
+		if(!found) {
+			PlayerObject::InStreams::ItemPtr s;
+			
+			{
+				PyScopedUnlock unlock(player->lock);
+				s = new PlayerObject::InStreams::Item();
+				if(!s->value.open(player, it.song))
+					s = NULL;
+			}
+			
+			if(s) {
+				startAfter->insertAfter(s);
+				startAfter = s;
+			}
+		}
+	}
+	
 	openPeekInStreamsLock = false;
-	Py_XDECREF(song);
-	Py_XDECREF(peekListIter);
-	Py_XDECREF(peekList);
-	Py_XDECREF(args);
+
+	{
+		PyScopedGIL gstate;
+
+		for(PeekItem& it : peekItems) {
+			Py_DECREF(it.song);
+		}
+
+		// pass through any Python errors
+		if(PyErr_Occurred())
+			PyErr_Print();
+	}
 }
 
 bool PlayerObject::tryOvertakePeekInStream() {
 	assert(curSong != NULL);
-	InStreams::ItemPtr s = takePeekInStream(this->inStreams, curSong);
-	if(s.get()) {
+
+	PlayerObject::InStreams::ItemPtr startAfter = inStreams.mainLink();
+	bool found;
+	pushPeekInStream(startAfter, curSong, found);
+
+	if(found) {
 		// take the new Song object. it might be a different one.
 		PyScopedGIL gstate;
 		Py_XDECREF(curSong);
-		curSong = s->value.song;
+		curSong = startAfter->value.song;
 		Py_INCREF(curSong);
 		return true;
 	}

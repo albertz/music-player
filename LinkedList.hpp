@@ -74,13 +74,58 @@ public:
 					// and try again
 				}
 			}
+
+			item->state = S_Data;
 			return true;
 		}
-
-		void popOut() {
+		
+		// WARNING: Not well tested. Also not safe with any other write-operation..
+		bool insertAfter(Item* item) {
+			ItemPtr nextBackup = next;
+			if(!nextBackup) return false;
+			assert(nextBackup->prev.get() == this);
+			bool res = nextBackup->insertBefore(item);
+			if(!res) return false;
+			assert(this->next.get() == item);
+			assert(item->prev.get() == this);
+			assert(item->next == nextBackup);
+			assert(nextBackup->prev.get() == item);
+			return true;
+		}
+		
+		void popOut(ItemPtr expectedPrev = NULL) {
 			prevBackup = prev;
 			nextBackup = next;
 			state = S_PoppedOut;
+		
+			if(!expectedPrev)
+				expectedPrev = getPrev();
+			
+			ItemPtr firstNext = next.exchange(NULL);
+			if(firstNext) { // can happen to be NULL when clear() meanwhile
+				// e.g. if firstNext==main and push_front() meanwhile,
+				// main->prev != first. in that case, don't change.
+				firstNext->prev.compare_exchange(this, expectedPrev);
+				
+				if(!expectedPrev->next.compare_exchange(this, firstNext))
+					assert(false); // this can only happen if there was another consumer
+			}
+			
+			prev = NULL;
+		}
+		
+		ItemPtr getNext() const {
+			ItemPtr newPtr = next;
+			if(!newPtr || !newPtr->isData(true))
+				newPtr = nextBackup;
+			return newPtr;
+		}
+		
+		ItemPtr getPrev() const {
+			ItemPtr newPtr = prev;
+			if(!newPtr || !newPtr->isData(true))
+				newPtr = prevBackup;
+			return newPtr;
 		}
 	};
 
@@ -135,12 +180,8 @@ public:
 		}
 
 		Iterator& operator++() {
-			if(isEnd()) return *this;
-
-			ItemPtr newPtr = ptr->next;
-			if(!newPtr || !newPtr->isData(true))
-				newPtr = ptr->nextBackup;
-			ptr = newPtr;
+			if(!isEnd())
+				ptr = ptr->getNext();
 			return *this;
 		}
 
@@ -176,7 +217,6 @@ public:
 		item->state = S_Uninitialized;
 		bool success = mainCpy->insertBefore(item);
 		assert(success);
-		item->state = S_Data;
 		return item;
 	}
 
@@ -190,7 +230,6 @@ public:
 		item->state = S_Uninitialized;
 		bool success = first->insertBefore(item);
 		assert(success);
-		item->state = S_Data;
 		return item;
 	}
 
@@ -201,15 +240,7 @@ public:
 		ItemPtr first = mainCpy->next;
 		if(!first || first == mainCpy || first->state != S_Data)
 			return NULL;
-		first->popOut();
-		ItemPtr firstNext = first->next.exchange(NULL);
-		if(firstNext) { // can happen to be NULL when clear() meanwhile
-			// e.g. if firstNext==main and push_front() meanwhile,
-			// main->prev != first. in that case, don't change.
-			firstNext->prev.compare_exchange(first, mainCpy);
-			if(!mainCpy->next.compare_exchange(first, firstNext))
-				assert(false); // this can only happen if there was another consumer
-		}
+		first->popOut(mainCpy);
 		return first;
 	}
 
@@ -232,6 +263,9 @@ public:
 		if(ptr.get() && ptr->isData(false)) return ptr;
 		return NULL;
 	}
+
+	// Be careful with this element.
+	ItemPtr mainLink() const { return main; }
 
 
 	// not threading-safe!
