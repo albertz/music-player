@@ -20,6 +20,7 @@ char* objAttrStrDup(PyObject* obj, const char* attrStr);
 #include <string>
 
 std::string objAttrStr(PyObject* obj, const std::string& attrStr);
+std::string objStr(PyObject* obj);
 
 #endif
 

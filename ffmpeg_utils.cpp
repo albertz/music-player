@@ -66,6 +66,13 @@ std::string objAttrStr(PyObject* obj, const std::string& attrStr) {
 	return s2;
 }
 
+std::string objStr(PyObject* obj) {
+	char* s = objStrDup(obj);
+	std::string s2(s);
+	free(s);
+	return s2;
+}
+
 
 
 #if defined(__APPLE__)

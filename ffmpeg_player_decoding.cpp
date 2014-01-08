@@ -742,7 +742,6 @@ final:
 }
 
 bool PlayerObject::openInStream() {	
-	mainLog << "openInStream" << endl;
 	assert(this->curSong != NULL);
 	
 	PyScopedGIUnlock gunlock;
@@ -1047,9 +1046,9 @@ PlayerObject::InStreams::ItemPtr PlayerObject::getInStream() const {
 }
 
 static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObject* song, bool& found) {
-	std::vector<PlayerObject::InStreams::ItemPtr> popped;
 	found = false;
-	
+	PlayerObject::InStreams::ItemPtr foundIs = NULL;
+
 	{
 		PlayerObject::InStreams::Iterator it(startAfter);
 		++it; // one after startAfter
@@ -1057,25 +1056,51 @@ static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 			PlayerObject::InStreams::ItemPtr is = it.ptr;
 			assert(is);
 			assert(is->value.song != NULL);
-
+			
 			{
 				PyScopedGIL gstate;
 				if(PyObject_RichCompareBool(song, is->value.song, Py_EQ) == 1) {
-					startAfter = is;
+					foundIs = is;
 					found = true;
 				}
 				
 				// pass through any Python errors
 				if(PyErr_Occurred())
 					PyErr_Print();
-
+				
 				if(found)
 					break;
 			}
-			
+		}
+	}
+	
+	if(!found)
+		return;
+	
+	std::vector<PlayerObject::InStreams::ItemPtr> popped;
+
+	{
+		found = false;
+		PlayerObject::InStreams::Iterator it(startAfter);
+		++it; // one after startAfter
+		for(; !it.isEnd(); ++it) {
+			PlayerObject::InStreams::ItemPtr is = it.ptr;
+			assert(is);
+			assert(is->value.song != NULL);
+
+			if(is == foundIs) {
+				startAfter = is;
+				found = true;
+				break;
+			}
+
+			if(mainLog.enabled)
+				mainLog << "peek streams: expected " << objStr(song) << " but got " << objStr(is->value.song) << endl;
+
 			is->popOut();
 			popped.push_back(is);
 		}
+		assert(found);
 	}
 	
 	{
@@ -1147,8 +1172,6 @@ final:
 
 
 void PlayerObject::openPeekInStreams() {
-	mainLog << "openPeekInStreams" << endl;
-
 	PlayerObject* player = this;
 	if(player->peekQueue == NULL) return;
 	
@@ -1398,11 +1421,11 @@ pySetFfmpegLogLevel(PyObject* self, PyObject* args) {
 
 PyObject *
 pyEnableDebugLog(PyObject* self, PyObject* args) {
-	int value = 0;
-	if(!PyArg_ParseTuple(args, "p:enableDebugLog", &value))
+	PyObject* value = NULL;
+	if(!PyArg_ParseTuple(args, "O:enableDebugLog", &value))
 		return NULL;
 	
-	Log::enabled = value ? true : false;
+	Log::enabled = PyObject_IsTrue(value);
 	
 	Py_INCREF(Py_None);
 	return Py_None;
