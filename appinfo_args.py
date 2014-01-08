@@ -61,6 +61,9 @@ argParser.add_argument(
 	# Used in MacOSX binary version.
 	"--nolog", action="store_true", help=argparse.SUPPRESS
 )
+argParser.add_argument(
+	"--debug", action="store_true", help="enable debugging"
+)
 
 
 class ArgParserExitException(Exception): pass

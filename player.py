@@ -68,6 +68,12 @@ initEventCallbacks()
 
 def loadPlayer(state):
 	import ffmpeg
+
+	from appinfo import args
+	import utils
+	if args.debug and utils.isMainProcess:
+		ffmpeg.enableDebugLog(True)
+
 	player = ffmpeg.createPlayer()
 	player.outSamplerate = 48000 # higher quality! :)
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
