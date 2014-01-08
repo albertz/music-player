@@ -63,4 +63,7 @@ int mlock(const void *addr, size_t len);
 }
 
 
+void setCurThreadName(const std::string& name);
+
+
 #endif // PYTHREAD_HPP

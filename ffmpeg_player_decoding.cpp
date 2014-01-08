@@ -1353,6 +1353,8 @@ static bool loopFrame(PlayerObject* player) {
 }
 
 void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
+	setCurThreadName("worker");
+	
 	while(true) {
 		{
 			PyScopedLock l(threadLock);

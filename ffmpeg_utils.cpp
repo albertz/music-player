@@ -266,3 +266,62 @@ bool ProtectionScope::isValid() {
 	if(prot.get()) return prot->isValid;
 	return false;
 }
+
+
+
+
+#if !defined(WIN32) || defined(HAVE_PTHREAD)
+#include <pthread.h>
+#ifndef HAVE_PTHREAD
+#define HAVE_PTHREAD
+#endif
+
+#ifndef HAVE_PTHREAD_NAME
+// pthread_setname_np only available since MacOSX SDK 10.6
+#if defined(__APPLE__) && defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#define HAVE_PTHREAD_NAME
+// glibc 2.12 introduced this
+#elif defined(__GLIBC_PREREQ)
+#	if __GLIBC_PREREQ(2,12)
+#		define HAVE_PTHREAD_NAME
+#	endif
+#endif
+#endif
+
+#endif
+
+
+void setCurThreadName(const std::string& name)
+{
+#ifdef _MSC_VER
+	// Code taken from http://www.codeproject.com/KB/threads/Name_threads_in_debugger.aspx
+
+	typedef struct tagTHREADNAME_INFO {
+		DWORD dwType; // Must be 0x1000.
+		LPCSTR szName; // Pointer to name (in user addr space).
+		DWORD dwThreadID; // Thread ID (-1=caller thread).
+		DWORD dwFlags; // Reserved for future use, must be zero.
+	} THREADNAME_INFO;
+	
+	THREADNAME_INFO info;
+	{
+		info.dwType = 0x1000;
+		info.szName = name.c_str();
+		info.dwThreadID = (DWORD)-1;
+		info.dwFlags = 0;
+	}
+	
+	__try {
+		RaiseException( 0x406D1388 /* MSVC EXCEPTION */, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
+	} __except (EXCEPTION_CONTINUE_EXECUTION) {}
+#endif
+
+#ifdef HAVE_PTHREAD_NAME
+	// http://stackoverflow.com/questions/2369738/can-i-set-the-name-of-a-thread-in-pthreads-linux/7989973#7989973
+#ifdef __APPLE__
+	pthread_setname_np(name.c_str());
+#else
+	pthread_setname_np(pthread_self(), name.c_str());
+#endif
+#endif
+}
