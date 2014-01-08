@@ -1186,6 +1186,14 @@ void PlayerObject::openPeekInStreams() {
 	// Start after the first item. The first item is the currently played song.
 	PlayerObject::InStreams::ItemPtr startAfter = player->inStreams.mainLink()->next;
 	
+	if(!startAfter->isData(true) // it means there is no stream at all yet
+	|| player->curSong == NULL // playing hasn't been started yet
+	|| player->curSong != startAfter->value.song
+	) {
+		// TODO: not exactly sure what to do...
+		return;
+	}
+	
 	for(PeekItem& it : peekItems) {
 		bool found;
 		pushPeekInStream(startAfter, it.song, found);
@@ -1231,7 +1239,7 @@ bool PlayerObject::tryOvertakePeekInStream() {
 
 	if(found) {
 		mainLog << "tryOvertakePeekInStream: overtake" << endl;
-
+		
 		// take the new Song object. it might be a different one.
 		PyScopedGIL gstate;
 		Py_XDECREF(curSong);
@@ -1302,6 +1310,15 @@ static bool loopFrame(PlayerObject* player) {
 	{
 		PyScopedLock lock(player->lock);
 		
+		if(!player->curSong) {
+			workerLog << "open first song" << endl;
+			switchNextSong();
+		}
+	}
+	
+	{
+		PyScopedLock lock(player->lock);
+				
 		PlayerObject::InStreams::ItemPtr inStreamPtr = player->inStreams.front();
 		PlayerInStream* inStream = inStreamPtr ? &inStreamPtr->value : NULL;
 
@@ -1357,7 +1374,7 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 	
 	if(player->playing || !fader.finished())
 	for(PlayerInStream& is : player->inStreams) {
-	
+			
 		is.playerStartedPlaying = true;
 		size_t popCount = is.outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN);
 		popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
