@@ -27,8 +27,8 @@ if __name__ == "__main__":
 	import better_exchook
 	better_exchook.install()
 
-	from appinfo_args import argParser
-	argParser.parse_args = lambda: None
+	import appinfo_args
+	appinfo_args.ignore = True
 
 	files = sys.argv[1:]
 	assert files, "usage: %s <files>" % sys.argv[0]

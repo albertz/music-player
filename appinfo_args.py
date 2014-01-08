@@ -78,3 +78,4 @@ def argParser_exit(status=0, message=None):
 	raise ArgParserExitException(message)
 argParser.exit = argParser_exit
 
+ignore = False
