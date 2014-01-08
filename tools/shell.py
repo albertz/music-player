@@ -209,7 +209,8 @@ if __name__ == "__main__":
 		readline.set_completer_delims("") # see <http://stackoverflow.com/q/16175515/133374>
 		readline.set_completer(completer)
 
-	except ImportError: pass # ignore
+	except ImportError:
+		print("(readline cannot be loaded)")
 
 	connect(verbose=True)
 
