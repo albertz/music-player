@@ -1191,6 +1191,7 @@ void PlayerObject::openPeekInStreams() {
 	|| player->curSong != startAfter->value.song
 	) {
 		// TODO: not exactly sure what to do...
+		openPeekInStreamsLock = false;
 		return;
 	}
 	
