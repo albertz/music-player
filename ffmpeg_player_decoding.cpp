@@ -1396,4 +1396,16 @@ pySetFfmpegLogLevel(PyObject* self, PyObject* args) {
 	return Py_None;
 }
 
+PyObject *
+pyEnableDebugLog(PyObject* self, PyObject* args) {
+	int value = 0;
+	if(!PyArg_ParseTuple(args, "p:enableDebugLog", &value))
+		return NULL;
+	
+	Log::enabled = value ? true : false;
+	
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 

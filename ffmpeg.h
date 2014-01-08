@@ -37,6 +37,7 @@ extern PyTypeObject Player_Type;
 
 PyObject* pyCreatePlayer(PyObject* self);
 PyObject* pySetFfmpegLogLevel(PyObject* self, PyObject* args);
+PyObject* pyEnableDebugLog(PyObject* self, PyObject* args);
 PyObject* pyGetMetadata(PyObject* self, PyObject* args);
 PyObject* pyCalcAcoustIdFingerprint(PyObject* self, PyObject* args);
 PyObject* pyCalcBitmapThumbnail(PyObject* self, PyObject* args, PyObject* kws);

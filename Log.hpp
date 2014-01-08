@@ -16,6 +16,7 @@
 #include <sys/time.h>
 
 struct Log {
+	static bool enabled;
 	std::string name;
 	bool needNewPrefix;
 
@@ -26,11 +27,12 @@ struct Log {
 	}
 
 	void printPrefix() {
+		if(!enabled) return;
 		struct timeval t;
 		gettimeofday(&t, NULL);
 		struct tm* now = gmtime( &t.tv_sec );
 		char timestamp[256];
-		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d_%H.%M.%S", now);
+		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", now);
 		int millisecs = (t.tv_usec / 1000) % 1000;
 		char ms_str[5];
 		sprintf(ms_str, "%.03d", millisecs);
@@ -38,6 +40,7 @@ struct Log {
 	}
 		
 	Log& operator<<(const char* s) {
+		if(!enabled) return *this;
 		if(needNewPrefix) {
 			printPrefix();
 			needNewPrefix = false;
@@ -47,9 +50,13 @@ struct Log {
 	}
 	
 	void flush() {
+		if(!enabled) return;
 		std::cout.flush();
 	}
 };
+
+bool Log::enabled = false;
+
 
 inline Log& endl(Log& s) {
 	s << "\n";

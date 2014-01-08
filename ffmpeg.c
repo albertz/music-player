@@ -52,6 +52,7 @@ static PyMethodDef module_methods[] = {
 	{"calcBitmapThumbnail",		(PyCFunction)pyCalcBitmapThumbnail,	METH_VARARGS|METH_KEYWORDS,	"calculate bitmap thumbnail for Song"},
 	{"calcReplayGain",		(PyCFunction)pyCalcReplayGain,	METH_VARARGS|METH_KEYWORDS,	"calculate ReplayGain for Song"},
 	{"setFfmpegLogLevel",		pySetFfmpegLogLevel,	METH_VARARGS,	"set FFmpeg log level (av_log_set_level)"},
+	{"enableDebugLog",	(PyCFunction)pyEnableDebugLog,	METH_VARARGS,	"enable/disable debug log"},
 	{NULL,				NULL}	/* sentinel */
 };
 
