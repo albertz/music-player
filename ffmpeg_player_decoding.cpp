@@ -1045,7 +1045,7 @@ PlayerObject::InStreams::ItemPtr PlayerObject::getInStream() const {
 	return inStreams.front();
 }
 
-static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObject* song, bool& found) {
+static bool pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObject* song, bool& found) {
 	found = false;
 	PlayerObject::InStreams::ItemPtr foundIs = NULL;
 
@@ -1075,7 +1075,7 @@ static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 	}
 	
 	if(!found)
-		return;
+		return false;
 	
 	std::vector<PlayerObject::InStreams::ItemPtr> popped;
 
@@ -1094,9 +1094,6 @@ static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 				break;
 			}
 
-			if(mainLog.enabled)
-				mainLog << "peek streams: expected " << objStr(song) << " but got " << objStr(is->value.song) << endl;
-
 			is->popOut();
 			popped.push_back(is);
 		}
@@ -1111,6 +1108,8 @@ static void pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 			insertAfterMe = isp;
 		}
 	}
+	
+	return !popped.empty();
 }
 
 struct PeekItem {
@@ -1195,9 +1194,10 @@ void PlayerObject::openPeekInStreams() {
 		return;
 	}
 	
+	bool modi = false;
 	for(PeekItem& it : peekItems) {
 		bool found;
-		pushPeekInStream(startAfter, it.song, found);
+		modi |= pushPeekInStream(startAfter, it.song, found);
 		
 		if(!found) {
 			PlayerObject::InStreams::ItemPtr s;
@@ -1212,8 +1212,16 @@ void PlayerObject::openPeekInStreams() {
 			if(s) {
 				startAfter->insertAfter(s);
 				startAfter = s;
+				modi = true;
 			}
 		}
+	}
+	
+	if(mainLog.enabled && modi) {
+		mainLog << "new peek streams:";
+		for(PlayerInStream& is : inStreams)
+			mainLog << " " << objStr(is.song);
+		mainLog << endl;
 	}
 	
 	openPeekInStreamsLock = false;
