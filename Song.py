@@ -475,6 +475,7 @@ class Song(object):
 		afterJoinEvent = threading.Event()
 		gotNewValueEvent = threading.Event()
 		def doCalc():
+			utils.setCurThreadName("Py %s" % threading.currentThread().name)
 			value = self.calcAndSet(attrib)
 			with lock:
 				if not afterJoinEvent.isSet():
@@ -483,7 +484,7 @@ class Song(object):
 					return
 			if callback: callback(self, attrib, value)
 		t = threading.Thread(target=doCalc, name = "Song(%s) attrib %s calc" % (self.userString.encode("utf-8"), attrib))
-		t.daemon = True
+		t.daemon = False
 		t.start()
 		t.join(timeout=timeout)
 		
