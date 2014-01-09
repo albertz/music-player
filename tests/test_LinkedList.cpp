@@ -161,6 +161,7 @@ void test4() {
 			for(auto v : l) {
 				assert(v >= 1);
 				if(old >= 50 && v == 1) {}
+				else if(old >= 50) assert(old - 1 == v);
 				else if(old >= 0) assert(old + 1 == v);
 				old = v;
 				if(v > m) m = v;
@@ -169,6 +170,7 @@ void test4() {
 			assert(count >= 2);
 			assert(count <= 100);
 			assert(count == m);
+			if(count >= 50) assert(old == 49);
 			if(count < 100) assert(endCount == 0);
 			if(count == 100) endCount++;
 			if(endCount >= 10) break;
