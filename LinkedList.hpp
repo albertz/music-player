@@ -225,10 +225,10 @@ public:
 	// WARNING: Probably also other functions must not be called.
 	// However, reading from this list is save meanwhile.
 	ItemPtr push_front(ItemPtr item = NULL) {
-		ItemPtr first = ItemPtr(main)->next;
+		ItemPtr mainCpy(main);
 		if(!item) item.reset(new Item());
 		item->state = S_Uninitialized;
-		bool success = first->insertBefore(item);
+		bool success = mainCpy->insertAfter(item);
 		assert(success);
 		return item;
 	}
