@@ -1051,8 +1051,7 @@ static bool pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 	PlayerObject::InStreams::ItemPtr foundIs = NULL;
 
 	{
-		PlayerObject::InStreams::Iterator it(startAfter);
-		++it; // one after startAfter
+		PlayerObject::InStreams::Iterator it(startAfter->next);
 		for(; !it.isEnd(); ++it) {
 			PlayerObject::InStreams::ItemPtr is = it.ptr;
 			assert(is);
@@ -1082,8 +1081,7 @@ static bool pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 
 	{
 		found = false;
-		PlayerObject::InStreams::Iterator it(startAfter);
-		++it; // one after startAfter
+		PlayerObject::InStreams::Iterator it(startAfter->next);
 		for(; !it.isEnd(); ++it) {
 			PlayerObject::InStreams::ItemPtr is = it.ptr;
 			assert(is);
