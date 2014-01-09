@@ -141,7 +141,7 @@ void test3() {
 void test4() {
 	LinkedList<int> l;
 
-	auto producer = [&l, &state](){
+	auto producer = [&l](){
 		for(int i = 3; i <= 100; ++i) {
 			LinkedList<int>::ItemPtr item(new LinkedList<int>::Item);
 			item->value = i;
@@ -150,14 +150,14 @@ void test4() {
 			else
 				l.push_front(item);
 		}
-		state++;
 	};
 
-	auto reader = [&l, &state]() {
+	auto reader = [&l]() {
 		int endCount = 0;
 		while(true) {
 			int old = -1;
 			int m = 0;
+			int count = 0;
 			for(auto v : l) {
 				assert(v >= 1);
 				if(old == 100) assert(v == 1);
