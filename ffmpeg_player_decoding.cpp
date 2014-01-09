@@ -1219,8 +1219,17 @@ void PlayerObject::openPeekInStreams() {
 	
 	if(mainLog.enabled && modi) {
 		mainLog << "new peek streams:";
-		for(PlayerInStream& is : inStreams)
-			mainLog << " " << objStr(is.song);
+		int c = 1;
+		for(PlayerInStream& is : inStreams) {
+			mainLog << "\n " << c << ": " << objStr(is.song);
+			if(c > PEEKSTREAM_NUM + 1) {
+				mainLog << "\n too many!";
+				break;
+			}
+			++c;
+		}
+		if(c == 0)
+			mainLog << " none";
 		mainLog << endl;
 	}
 	
