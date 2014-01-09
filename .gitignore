@@ -10,6 +10,7 @@ a.out
 *~
 xcuserdata
 build
+*.creator.user
 
 # from test_bmpthumb.py
 thumbnail.bmp
