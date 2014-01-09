@@ -150,6 +150,10 @@ void test4() {
 			else
 				l.push_front(item);
 		}
+		for(int i = 100; i >= 50; --i) {
+			LinkedList<int>::ItemPtr item = l.pop_front();
+			assert(item->value == i);
+		}
 	};
 
 	auto reader = [&l]() {
