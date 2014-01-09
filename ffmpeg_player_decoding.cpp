@@ -585,10 +585,11 @@ bool PlayerInStream::open(PlayerObject* pl, PyObject* song) {
 		assert(this->player == pl);
 	}
 	
-	{
+	while(true) {
 		bool expected = false;
-		while(!pl->openStreamLock.compare_exchange_weak(expected, true))
-			usleep(100);
+		if(pl->openStreamLock.compare_exchange_weak(expected, true))
+			break;
+		usleep(100);
 	}
 	
 	{
@@ -1102,7 +1103,7 @@ static bool pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 	
 	{
 		PlayerObject::InStreams::ItemPtr insertAfterMe = startAfter;
-		for(PlayerObject::InStreams::ItemPtr isp : popped) {
+		for(PlayerObject::InStreams::ItemPtr& isp : popped) {
 			bool res = insertAfterMe->insertAfter(isp);
 			assert(res);
 			insertAfterMe = isp;
@@ -1222,7 +1223,7 @@ void PlayerObject::openPeekInStreams() {
 		int c = 1;
 		for(PlayerInStream& is : inStreams) {
 			mainLog << "\n " << c << ": " << objStr(is.song);
-			if(c > PEEKSTREAM_NUM + 1) {
+			if(c > PEEKSTREAM_NUM + 10) {
 				mainLog << "\n too many!";
 				break;
 			}
