@@ -26,6 +26,7 @@ def connect(verbose=False):
 	global f, s
 	if f: return
 	s = socket.socket(socket.AF_UNIX)
+	socket.setdefaulttimeout(1.0)
 
 	sockfile = None
 	if __name__ == "__main__":
