@@ -170,9 +170,9 @@ void test4() {
 				old = v;
 				if(v > m) m = v;
 				++count;
+				assert(count <= 100);
 			}
 			assert(count >= 2);
-			assert(count <= 100);
 			assert(count == m);
 			if(count >= 50) assert(old == 49);
 			if(count < 100) assert(endCount == 0);
