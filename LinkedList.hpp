@@ -49,6 +49,8 @@ public:
 		}
 
 		bool insertBefore(Item* item) {
+			item->reset();
+
 			ItemPtr oldPrev = prev.exchange(item);
 			item->next = this;
 
@@ -219,7 +221,6 @@ public:
 	ItemPtr push_back(ItemPtr item = NULL) {
 		ItemPtr mainCpy(main);
 		if(!item) item.reset(new Item());
-		item->reset();
 		bool success = mainCpy->insertBefore(item);
 		assert(success);
 		return item;
@@ -232,7 +233,6 @@ public:
 	ItemPtr push_front(ItemPtr item = NULL) {
 		ItemPtr mainCpy(main);
 		if(!item) item.reset(new Item());
-		item->reset();
 		bool success = mainCpy->insertAfter(item);
 		assert(success);
 		return item;
