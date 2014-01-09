@@ -138,10 +138,60 @@ void test3() {
 	}
 }
 
+void test4() {
+	LinkedList<int> l;
+
+	auto producer = [&l, &state](){
+		for(int i = 3; i <= 100; ++i) {
+			LinkedList<int>::ItemPtr item(new LinkedList<int>::Item);
+			item->value = i;
+			if(i < 50)
+				l.push_back(item);
+			else
+				l.push_front(item);
+		}
+		state++;
+	};
+
+	auto reader = [&l, &state]() {
+		int endCount = 0;
+		while(true) {
+			int old = -1;
+			int m = 0;
+			for(auto v : l) {
+				assert(v >= 1);
+				if(old == 100) assert(v == 1);
+				else if(old >= 0) assert(old + 1 == v);
+				old = v;
+				if(v > m) m = v;
+				++count;
+			}
+			assert(count >= 2);
+			assert(count <= 100);
+			assert(count == m);
+			if(count < 100) assert(endCount == 0);
+			if(count == 100) endCount++;
+			if(endCount >= 10) break;
+		}
+	};
+
+	for(int i = 0; i < 1000; ++i) {
+		l.push_back()->value = 1;
+		l.push_back()->value = 2;
+
+		std::thread t1(producer), t3(reader);
+		t1.join();
+		t3.join();
+
+		l._checkSanity();
+		l.clear();
+	}
+}
 
 int main() {
 	test0();
 	test1();
 	test2();
 	test3();
+	test4();
 }
