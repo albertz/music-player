@@ -29,6 +29,12 @@ public:
 
 		Item() : state(S_Uninitialized), value() {}
 
+		void reset() {
+			state = S_Uninitialized;
+			prev = NULL; next = NULL;
+			prevBackup = NULL; nextBackup = NULL;
+		}
+
 		bool isEmpty() {
 			ItemPtr nextCpy(next);
 			if(!nextCpy) // can happen when clear() meanwhile
@@ -164,7 +170,6 @@ public:
 
 	~LinkedList() {
 		clear();
-
 	}
 
 	// The iterator itself is not thread-safe, i.e. you can't access
@@ -214,7 +219,7 @@ public:
 	ItemPtr push_back(ItemPtr item = NULL) {
 		ItemPtr mainCpy(main);
 		if(!item) item.reset(new Item());
-		item->state = S_Uninitialized;
+		item->reset();
 		bool success = mainCpy->insertBefore(item);
 		assert(success);
 		return item;
@@ -227,7 +232,7 @@ public:
 	ItemPtr push_front(ItemPtr item = NULL) {
 		ItemPtr mainCpy(main);
 		if(!item) item.reset(new Item());
-		item->state = S_Uninitialized;
+		item->reset();
 		bool success = mainCpy->insertAfter(item);
 		assert(success);
 		return item;
