@@ -23,8 +23,10 @@ bool PlayerObject::getNextSong(bool skipped) {
 
 	{
 		PyScopedUnlock unlock(player->lock);
-		bool expected = false;
-		while(!getNextSongLock.compare_exchange_weak(expected, true)) {
+		while(true) {
+			bool expected = false;
+			if(getNextSongLock.compare_exchange_weak(expected, true))
+				break;
 			usleep(100);
 		}
 	}
