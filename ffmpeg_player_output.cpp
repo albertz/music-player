@@ -77,14 +77,14 @@ struct PlayerObject::OutStream {
 		void *userData )
 	{
 		OutStream* outStream = (OutStream*) userData;
-		
-		// We must not hold the PyGIL here!
-		PyScopedLock lock(outStream->player->lock);
-		
+				
 		if(outStream->needRealtimeReset.exchange(false)) {
 			setRealtime();
 		}
 		
+		// We must not hold the PyGIL here!
+		// Also no need to hold the player lock, all is safe!
+
 		outStream->player->readOutStream((OUTSAMPLE_t*) output, frameCount * outStream->player->outNumChannels, NULL);
 		return paContinue;
 	}
