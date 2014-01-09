@@ -160,7 +160,7 @@ void test4() {
 			int count = 0;
 			for(auto v : l) {
 				assert(v >= 1);
-				if(old == 100) assert(v == 1);
+				if(old >= 50 && v == 1) {}
 				else if(old >= 0) assert(old + 1 == v);
 				old = v;
 				if(v > m) m = v;
