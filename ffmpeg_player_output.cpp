@@ -62,7 +62,8 @@ struct PlayerObject::OutStream {
 	PlayerObject* const player;
 	PaStream* stream;
 	boost::atomic<bool> needRealtimeReset; // PortAudio callback thread must set itself to realtime
-
+	boost::atomic<bool> setThreadName;
+	
 	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false) {
 		mlock(this, sizeof(*this));
 	}
@@ -78,9 +79,11 @@ struct PlayerObject::OutStream {
 	{
 		OutStream* outStream = (OutStream*) userData;
 				
-		if(outStream->needRealtimeReset.exchange(false)) {
+		if(outStream->needRealtimeReset.exchange(false))
 			setRealtime();
-		}
+		
+		if(outStream->setThreadName.exchange(false))
+			setCurThreadName("audio callback");
 		
 		// We must not hold the PyGIL here!
 		// Also no need to hold the player lock, all is safe!
@@ -190,6 +193,7 @@ struct PlayerObject::OutStream {
 		}
 
 		needRealtimeReset = true;
+		setThreadName = true;
 		Pa_StartStream(stream);
 
 #if !USE_PORTAUDIO_CALLBACK
