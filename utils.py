@@ -1559,7 +1559,8 @@ _pthread_setname_np = Uninitialized
 _pthread_self = None
 
 def setCurThreadName(name):
-	name = name[:15] # safety
+	name = convertToUnicode(name)
+	# name = name[:15] # Not sure if needed. If so, we should use shorter names...
 	name = name.encode('utf8')
 
 	global _pthread_setname_np, _pthread_self
