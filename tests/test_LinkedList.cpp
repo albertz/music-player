@@ -142,7 +142,7 @@ void test4() {
 	LinkedList<int> l;
 
 	auto producer = [&l](){
-		for(int i = 3; i <= 100; ++i) {
+		for(int i = 3; i <= 150; ++i) {
 			LinkedList<int>::ItemPtr item(new LinkedList<int>::Item);
 			item->value = i;
 			if(i < 50)
@@ -150,7 +150,8 @@ void test4() {
 			else
 				l.push_front(item);
 		}
-		for(int i = 100; i >= 50; --i) {
+
+		for(int i = 150; i > 100; --i) {
 			LinkedList<int>::ItemPtr item = l.pop_front();
 			assert(item->value == i);
 		}
@@ -170,7 +171,7 @@ void test4() {
 				old = v;
 				if(v > m) m = v;
 				++count;
-				assert(count <= 100);
+				assert(count <= 150);
 			}
 			assert(count >= 2);
 			assert(count == m);
