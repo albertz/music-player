@@ -548,7 +548,7 @@ class Module:
 	def threadMain(self):
 		better_exchook.install()
 		thread = currentThread()
-		setCurThreadName("Python %s" % repr(self))
+		setCurThreadName("PyMod %s" % self.name)
 		while True:
 			if self.module:
 				try:
@@ -1288,7 +1288,7 @@ class QueuedDaemonThread:
 					self.cond.notifyAll()
 		return handle
 	def _threadMain(self):
-		setCurThreadName("Python QueuedDaemonThread")
+		setCurThreadName("Py QueuedDaemonThread")
 		while True:
 			with self.lock:
 				if self.quit:
@@ -1329,7 +1329,7 @@ def daemonThreadCall(func, args=(), name=None, queue=None):
 		return
 	def doCall():
 		try:
-			setCurThreadName("Python daemonThreadCall: %s" % name)
+			setCurThreadName("Py daemon: %s" % name)
 			func(*args)
 		except (ForwardedKeyboardInterrupt, KeyboardInterrupt):
 			return # just ignore
