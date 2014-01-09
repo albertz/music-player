@@ -332,12 +332,6 @@ def formatFilesize(s):
 		i += 1
 	return "%.3g %s" % (s, Symbols[i])
 
-def doAsync(f, name=None):
-	from threading import Thread
-	if name is None: name = repr(f)
-	t = Thread(target = f, name = name)
-	t.start()
-
 
 def betterRepr(o):
 	# the main difference: this one is deterministic
