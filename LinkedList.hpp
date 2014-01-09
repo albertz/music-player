@@ -116,14 +116,14 @@ public:
 		
 		ItemPtr getNext() const {
 			ItemPtr newPtr = next;
-			if(!newPtr || !newPtr->isData(true))
+			if(!newPtr || state == S_PoppedOut)
 				newPtr = nextBackup;
 			return newPtr;
 		}
 		
 		ItemPtr getPrev() const {
 			ItemPtr newPtr = prev;
-			if(!newPtr || !newPtr->isData(true))
+			if(!newPtr || state == S_PoppedOut)
 				newPtr = prevBackup;
 			return newPtr;
 		}
