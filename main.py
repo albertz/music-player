@@ -39,6 +39,7 @@ import sys, time
 print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
 print "startup on", utils.formatDate(time.time())
 
+utils.setCurThreadName("Python main")
 
 
 # Import PyObjC here. This is because the first import of PyObjC *must* be
