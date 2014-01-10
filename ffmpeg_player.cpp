@@ -21,16 +21,12 @@ bool PlayerObject::getNextSong(bool skipped) {
 	
 	// We must hold the player lock here.
 
-	{
-		PyScopedUnlock unlock(player->lock);
-		while(true) {
-			bool expected = false;
-			if(getNextSongLock.compare_exchange_weak(expected, true))
-				break;
-			usleep(100);
-		}
+	while(pyQueueLock) {
+		PyScopedUnlock unlock(this->lock);
+		usleep(100);
 	}
-	
+	pyQueueLock = true;
+		
 	bool ret = false;
 	bool errorOnOpening = false;
 	
@@ -107,11 +103,7 @@ final:
 		Py_XDECREF(oldSong);
 	}
 
-	{
-		bool expected = true;
-		if(!getNextSongLock.compare_exchange_strong(expected, false))
-			assert(false);
-	}
+	pyQueueLock = false;
 	
 	if(ret)
 		openPeekInStreams();
@@ -199,7 +191,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
 	player->soundcardOutputEnabled = true;
 	
-	player->openStreamLock = player->openPeekInStreamsLock = player->getNextSongLock = false;
+	player->openStreamLock = player->pyQueueLock = false;
 	
 	{
 		// We have the Python GIL here. For setAudioTgt, we need the Player lock.

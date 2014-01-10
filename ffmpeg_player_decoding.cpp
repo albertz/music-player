@@ -586,11 +586,13 @@ bool PlayerInStream::open(PlayerObject* pl, PyObject* song) {
 		assert(this->player == pl);
 	}
 	
-	while(true) {
-		bool expected = false;
-		if(pl->openStreamLock.compare_exchange_weak(expected, true))
-			break;
-		usleep(100);
+	{
+		PyScopedLock lock(pl->lock);
+		while(pl->openStreamLock) {
+			PyScopedUnlock(pl->lock);
+			usleep(100);
+		}
+		pl->openStreamLock = true;
 	}
 	
 	{
@@ -733,11 +735,7 @@ success:
 final:
 	if(formatCtx) closeInputStream(formatCtx);
 
-	{
-		bool expected = true;
-		if(!pl->openStreamLock.compare_exchange_strong(expected, false))
-			assert(false);
-	}
+	pl->openStreamLock = false;
 	
 	if(this->ctx) return true;
 	return false;
@@ -1175,11 +1173,11 @@ void PlayerObject::openPeekInStreams() {
 	PlayerObject* player = this;
 	if(player->peekQueue == NULL) return;
 	
-	while(openPeekInStreamsLock || openStreamLock || getNextSongLock) {
+	while(pyQueueLock || openStreamLock) {
 		PyScopedUnlock unlock(this->lock);
 		usleep(100);
 	}
-	openPeekInStreamsLock = true;
+	pyQueueLock = true;
 	
 	std::vector<PeekItem> peekItems = queryPeekItems(player);
 
@@ -1191,7 +1189,7 @@ void PlayerObject::openPeekInStreams() {
 	|| player->curSong != startAfter->value.song
 	) {
 		// TODO: not exactly sure what to do...
-		openPeekInStreamsLock = false;
+		pyQueueLock = false;
 		return;
 	}
 	
@@ -1256,7 +1254,7 @@ void PlayerObject::openPeekInStreams() {
 		mainLog << endl;
 	}
 	
-	openPeekInStreamsLock = false;
+	pyQueueLock = false;
 
 	{
 		PyScopedGIL gstate;

@@ -141,8 +141,10 @@ struct PlayerObject {
 	 */
 	PyMutex lock;
 	
-	boost::atomic<bool> getNextSongLock;
-	boost::atomic<bool> openPeekInStreamsLock;
+	// Note: When enabling these, we expect to hold the player lock.
+	// So while we hold the player lock, these can not be enabled from somewhere else.
+	// These can be disabled though in unlocked scope.
+	boost::atomic<bool> pyQueueLock;
 	boost::atomic<bool> openStreamLock;
 };
 
