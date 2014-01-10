@@ -17,6 +17,16 @@ except ImportError:
 # Do this early to do some option parsing and maybe special handling.
 import appinfo
 
+# Early check for "--profile".
+# Enable profiling.
+if __name__ == '__main__' and appinfo.args.profile:
+	# No try/except. If requested and it fails -> exit.
+	import cProfile
+	profiler = cProfile.Profile()
+	profiler.enable()
+else:
+	profiler = None
+
 # Early check for "--pyshell".
 # This is a simple debug shell where we don't load anything.
 if __name__ == '__main__' and appinfo.args.pyshell:

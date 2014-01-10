@@ -64,6 +64,9 @@ argParser.add_argument(
 argParser.add_argument(
 	"--debug", action="store_true", help="enable debugging"
 )
+argParser.add_argument(
+	"--profile", action="store_true", help="enable profiling"
+)
 
 
 class ArgParserExitException(Exception): pass
