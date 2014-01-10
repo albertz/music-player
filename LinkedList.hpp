@@ -257,7 +257,7 @@ public:
 		ItemPtr last = mainCpy->prev;
 		if(!last || last == mainCpy || last->state != S_Data)
 			return NULL;
-		last->popOut(mainCpy);
+		last->popOut();
 		return last;
 	}
 
