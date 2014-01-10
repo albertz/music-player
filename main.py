@@ -42,15 +42,27 @@ if __name__ == '__main__' and appinfo.args.pyexec:
 
 
 import utils
-utils.ExecingProcess.checkExec()
+if __name__ == '__main__':
+	utils.ExecingProcess.checkExec()
 
 
 import sys, time
-print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
-print "startup on", utils.formatDate(time.time())
+if __name__ == '__main__':
+	print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
+	print "startup on", utils.formatDate(time.time())
 
-utils.setCurThreadName("Python main")
+	utils.setCurThreadName("Python main")
 
+
+if __name__ == '__main__':
+	try:
+		# Hack: Make the `__main__` module also accessible as `main`.
+		mainmod = sys.modules["__main__"]
+		sys.modules.setdefault("main", mainmod)
+		del mainmod
+	except Exception:
+		sys.excepthook(*sys.exc_info())
+		# doesn't matter, continue
 
 # Import PyObjC here. This is because the first import of PyObjC *must* be
 # in the main thread. Otherwise, the NSAutoreleasePool created automatically
