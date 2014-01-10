@@ -1243,9 +1243,11 @@ void PlayerObject::openPeekInStreams() {
 	
 	// If there is a modified peek queue, old entries might still be in there.
 	// Remove them now.
-	while(inStreams.size() > PEEKSTREAM_NUM + 1)
-		inStreams.pop_back();
-		
+	while(inStreams.size() > PEEKSTREAM_NUM + 1) {
+		if(!inStreams.pop_back())
+			assert(false);
+	}
+	
 	if(mainLog.enabled && modi) {
 		mainLog << "new peek streams:";
 		int c = 1;
