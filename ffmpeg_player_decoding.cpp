@@ -1198,7 +1198,6 @@ void PlayerObject::openPeekInStreams() {
 	for(PeekItem& it : peekItems) {
 		if(it.song == player->curSong) {
 			printf("Warning: peek queue contained current song (%s)\n", objStr(player->curSong).c_str());
-			// This happened in our player because we handled the song update event delayed.
 			it.valid = false;
 		}
 	}
