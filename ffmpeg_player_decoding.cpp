@@ -20,6 +20,7 @@ extern "C" {
 #include <math.h>
 #include <unistd.h>
 #include <vector>
+#include <set>
 
 #define PROCESS_SIZE		(BUFFER_CHUNK_SIZE * 10) // how much data to proceed in processInStream()
 #define BUFFER_FILL_SIZE	(48000 * 2 * OUTSAMPLEBYTELEN * 10) // 10secs for 48kHz,stereo - around 2MB
@@ -1113,7 +1114,8 @@ static bool pushPeekInStream(PlayerObject::InStreams::ItemPtr& startAfter, PyObj
 
 struct PeekItem {
 	PyObject* song;
-	PeekItem(PyObject* _song = NULL) : song(_song) {}
+	bool valid;
+	PeekItem(PyObject* _song = NULL) : song(_song), valid(true) {}
 };
 
 static std::vector<PeekItem> queryPeekItems(PlayerObject* player) {
@@ -1193,8 +1195,31 @@ void PlayerObject::openPeekInStreams() {
 		return;
 	}
 	
+	for(PeekItem& it : peekItems) {
+		if(it.song == player->curSong) {
+			printf("Warning: peek queue contained current song (%s)\n", objStr(player->curSong).c_str());
+			// This happened in our player because we handled the song update event delayed.
+			it.valid = false;
+		}
+	}
+	
+	{
+		std::set<PyObject*> songs;
+		for(PeekItem& it : peekItems) {
+			if(!it.valid) continue;
+			if(songs.find(it.song) == songs.end())
+				songs.insert(it.song);
+			else {
+				printf("Warning: peek queue contains same song twice (%s)\n", objStr(it.song).c_str());
+				it.valid = false;
+			}
+		}
+	}
+	
 	bool modi = false;
 	for(PeekItem& it : peekItems) {
+		if(!it.valid) continue;
+
 		bool found;
 		modi |= pushPeekInStream(startAfter, it.song, found);
 		
