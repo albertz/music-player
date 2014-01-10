@@ -4,6 +4,9 @@ cd "$(dirname "$0")"
 [ -x /usr/local/bin/git ] && alias git=/usr/local/bin/git
 gitrev="$(git show HEAD  --format=format:%h | head -n1)" || exit 1
 
+unset CC
+unset CXX
+unset CFLAGS
 xcodebuild || exit 1
 
 pushd build/Release || { echo "build/Release does not exist"; exit 1; }
