@@ -105,8 +105,8 @@ class ListWrapper: # implements the List trait
 			obj = self.list.pop(0)
 			self.onRemove(0)
 			self.list.save()
-			return obj
 		putOnModify()
+		return obj
 	def append(self, value):
 		with self.lock:
 			self.list.append(value)
