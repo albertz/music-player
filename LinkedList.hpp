@@ -249,6 +249,18 @@ public:
 		return first;
 	}
 
+	// WARNING: Not properly tested!
+	// No other writing op must be used meanwhile!
+	// Meanwhile-reading should be safe.
+	ItemPtr pop_back() {
+		ItemPtr mainCpy(main);
+		ItemPtr last = mainCpy->prev;
+		if(!last || last == mainCpy || last->state != S_Data)
+			return NULL;
+		last->popOut(mainCpy);
+		return last;
+	}
+
 	void clear() {
 		ItemPtr oldMain = main.exchange(_newMain());
 		_releaseMain(oldMain);
