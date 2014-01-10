@@ -144,8 +144,8 @@ struct PlayerObject {
 	// Note: When enabling these, we expect to hold the player lock.
 	// So while we hold the player lock, these can not be enabled from somewhere else.
 	// These can be disabled though in unlocked scope.
-	boost::atomic<bool> pyQueueLock;
-	boost::atomic<bool> openStreamLock;
+	boost::atomic<bool> pyQueueLock; // This covers anything which would potentially modifiy `queue` or `peekQueue`.
+	boost::atomic<bool> openStreamLock; // This covers the opening of a PlayerInStream. (Only because of FFmpeg issues. Maybe should be global. Should not be needed theoretically if FFmpeg would be safe.)
 };
 
 #endif
