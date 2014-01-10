@@ -23,7 +23,8 @@ extern "C" {
 #include <set>
 
 #define PROCESS_SIZE		(BUFFER_CHUNK_SIZE * 10) // how much data to proceed in processInStream()
-#define BUFFER_FILL_SIZE	(48000 * 2 * OUTSAMPLEBYTELEN * 10) // 10secs for 48kHz,stereo - around 2MB
+#define BUFFER_FILL_SECS	10
+#define BUFFER_FILL_SIZE	(48000 * 2 * OUTSAMPLEBYTELEN * BUFFER_FILL_SECS) // 10 secs for 48kHz,stereo - around 2MB
 #define PEEKSTREAM_NUM		3
 
 
@@ -294,6 +295,7 @@ void PlayerObject::resetBuffers() {
 }
 
 int PlayerObject::seekRel(double incr) {
+	outOfSync = true;
 	PlayerObject* pl = this;
 	InStreams::ItemPtr isptr = pl->getInStream();
 	if(!isptr.get()) return -1;
@@ -350,6 +352,7 @@ int PlayerObject::seekRel(double incr) {
 }
 
 int PlayerObject::seekAbs(double pos) {
+	outOfSync = true;
 	PlayerObject* pl = this;
 	InStreams::ItemPtr isptr = pl->getInStream();
 	if(!isptr.get()) return -1;
@@ -1417,45 +1420,72 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 	// We expect to have the PlayerObject lock here.
 	PlayerObject* player = this;
 	size_t origSampleNum = sampleNum;
-	
-	if(player->playing || !fader.finished())
-	for(PlayerInStream& is : player->inStreams) {
-			
-		is.playerStartedPlaying = true;
-		size_t popCount = is.outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN);
-		popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
-				
-		if(player->volumeAdjustNeeded(&is)) {
-			for(size_t i = 0; i < popCount; ++i) {
-				OUTSAMPLE_t* sampleAddr = samples + i;
-				OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
-				double sampleFloat = OutSampleAsFloat(sample);
-				
-				sampleFloat *= fader.sampleFactor();
-				sampleFloat *= player->volume;
-				sampleFloat *= is.gainFactor;
-				sampleFloat = player->volumeSmoothClip.get(sampleFloat);
+		
+	if(player->playing || !fader.finished()) {
 
-				sample = (OUTSAMPLE_t) FloatToOutSample(sampleFloat);
-				*sampleAddr = sample; // TODO: endian swap?
+		if(sampleNumOut == NULL) {
+			bool outOfSync = player->outOfSync.exchange(false);
+			
+			if(outOfSync) {
+				// check if there is enough data
+				size_t availableSize = 0;
+				bool isEnough = false;
+				for(PlayerInStream& is : player->inStreams) {
+					availableSize += is.outBuffer.size();
+					if(availableSize > BUFFER_FILL_SIZE / 2) { // half the buffer size (e.g. ~5secs)
+						isEnough = true;
+						break;
+					}
+					if(!is.readerHitEnd) break;
+				}
 				
-				if(i % player->outNumChannels == 0)
-					fader.frameTick();
+				if(!isEnough) {
+					// silence
+					memset((uint8_t*)samples, 0, sampleNum*OUTSAMPLEBYTELEN);
+					player->outOfSync = true;
+					return false;
+				}
 			}
 		}
-		
-		samples += popCount;
-		sampleNum -= popCount;
-		is.playerTimePos = is.playerTimePos + timeDelay(popCount);
+	
+		for(PlayerInStream& is : player->inStreams) {
+				
+			is.playerStartedPlaying = true;
+			size_t popCount = is.outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN);
+			popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
+					
+			if(player->volumeAdjustNeeded(&is)) {
+				for(size_t i = 0; i < popCount; ++i) {
+					OUTSAMPLE_t* sampleAddr = samples + i;
+					OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
+					double sampleFloat = OutSampleAsFloat(sample);
+					
+					sampleFloat *= fader.sampleFactor();
+					sampleFloat *= player->volume;
+					sampleFloat *= is.gainFactor;
+					sampleFloat = player->volumeSmoothClip.get(sampleFloat);
 
-		if(sampleNum == 0) break;
+					sample = (OUTSAMPLE_t) FloatToOutSample(sampleFloat);
+					*sampleAddr = sample; // TODO: endian swap?
+					
+					if(i % player->outNumChannels == 0)
+						fader.frameTick();
+				}
+			}
+			
+			samples += popCount;
+			sampleNum -= popCount;
+			is.playerTimePos = is.playerTimePos + timeDelay(popCount);
 
-		// if the reader hit not the end but we haven't filled this buffer,
-		// it means that our reading+decoding thread is behind.
-		// we can't do anything here, so break.
-		if(!is.readerHitEnd) break;
+			if(sampleNum == 0) break;
 
-		is.playerHitEnd = true;
+			// if the reader hit not the end but we haven't filled this buffer,
+			// it means that our reading+decoding thread is behind.
+			// we can't do anything here, so break.
+			if(!is.readerHitEnd) break;
+
+			is.playerHitEnd = true;
+		}
 	}
 	
 	if(sampleNum > 0 && sampleNumOut == NULL) {

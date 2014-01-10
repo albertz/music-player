@@ -80,6 +80,7 @@ struct PlayerObject {
 	void setAudioTgt(int samplerate, int numchannels);
 	double timeDelay(size_t sampleNum) { return double(sampleNum)/outSamplerate/outNumChannels; }
 	Fader fader;
+	boost::atomic<bool> outOfSync; // for readOutStream
 	
 	// private
 	PyObject* dict;

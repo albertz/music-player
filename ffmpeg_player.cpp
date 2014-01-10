@@ -21,6 +21,9 @@ bool PlayerObject::getNextSong(bool skipped) {
 	
 	// We must hold the player lock here.
 
+	if(skipped)
+		outOfSync = true;
+
 	while(pyQueueLock) {
 		PyScopedUnlock unlock(this->lock);
 		usleep(100);
@@ -54,19 +57,19 @@ bool PlayerObject::getNextSong(bool skipped) {
 
 	{
 		if(tryOvertakePeekInStream()) {
-			// nothing needs to be done anymore!
-			ret = true;
+			ret = true; // nothing needs to be done anymore!
 		}
-		else if(!player->openInStream()) {
+		else if(player->openInStream()) {
+			outOfSync = true; // new input stream
+			ret = true; // but everything is fine
+		}
+		else {
 			// This is not fatal, so don't make a Python exception.
 			// When we are in playing state, we will just skip to the next song.
 			// This can happen if we don't support the format or whatever.
 			printf("cannot open input stream\n");
 			errorOnOpening = true;
 		}
-		else
-			// everything fine!
-			ret = true;
 	}
 	
 	// make callback onSongChange
@@ -190,9 +193,10 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	player->volume = 0.9f;
 	player->volumeSmoothClip.setX(0.95f, 10.0f);
 	player->soundcardOutputEnabled = true;
+	player->outOfSync = true;
 	
 	player->openStreamLock = player->pyQueueLock = false;
-	
+
 	{
 		// We have the Python GIL here. For setAudioTgt, we need the Player lock.
 		// For performance reasons, just disable the lock and do it without locking.

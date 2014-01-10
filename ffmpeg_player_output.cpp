@@ -229,7 +229,11 @@ struct PlayerObject::OutStream {
 
 int PlayerObject::setPlaying(bool playing) {
 	PlayerObject* player = this;
-	bool oldplayingstate = false;
+	bool oldplayingstate = player->playing;
+
+	if(oldplayingstate != playing)
+		outOfSync = true;
+
 	PyScopedGIL gil;
 	{
 		PyScopedGIUnlock gunlock;
@@ -246,7 +250,6 @@ int PlayerObject::setPlaying(bool playing) {
 			}
 		}
 		
-		oldplayingstate = player->playing;
 		if(soundcardOutputEnabled && player->outStream.get() && player->outStream->isOpen() && oldplayingstate != playing)
 			fader.change(playing ? 1 : -1, outSamplerate);
 		player->playing = playing;
