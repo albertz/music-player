@@ -14,103 +14,44 @@
 		230349AF17AD730900C6033C /* Python.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496017AC522500C6033C /* Python.dylib */; };
 		2331F86316C16BC40037D148 /* faulthandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86116C16BC40037D148 /* faulthandler.c */; };
 		2331F86416C16BC40037D148 /* traceback.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86216C16BC40037D148 /* traceback.c */; };
-		233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A51600BD7F00A38E78 /* audio_consumer.h */; };
-		233684F11600BD7F00A38E78 /* audio_processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684A61600BD7F00A38E78 /* audio_processor.cpp */; };
-		233684F21600BD7F00A38E78 /* audio_processor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684A71600BD7F00A38E78 /* audio_processor.h */; };
-		233684F61600BD7F00A38E78 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684AC1600BD7F00A38E78 /* base64.cpp */; };
-		233684F71600BD7F00A38E78 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684AD1600BD7F00A38E78 /* base64.h */; };
-		233684F81600BD7F00A38E78 /* bit_string_reader.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684AE1600BD7F00A38E78 /* bit_string_reader.h */; };
-		233684F91600BD7F00A38E78 /* bit_string_writer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684AF1600BD7F00A38E78 /* bit_string_writer.h */; };
-		233684FA1600BD7F00A38E78 /* chroma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B01600BD7F00A38E78 /* chroma.cpp */; };
-		233684FB1600BD7F00A38E78 /* chroma.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B11600BD7F00A38E78 /* chroma.h */; };
-		233684FC1600BD7F00A38E78 /* chroma_filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B21600BD7F00A38E78 /* chroma_filter.cpp */; };
-		233684FD1600BD7F00A38E78 /* chroma_filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B31600BD7F00A38E78 /* chroma_filter.h */; };
-		233684FE1600BD7F00A38E78 /* chroma_normalizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B41600BD7F00A38E78 /* chroma_normalizer.h */; };
-		233684FF1600BD7F00A38E78 /* chroma_resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B51600BD7F00A38E78 /* chroma_resampler.cpp */; };
-		233685001600BD7F00A38E78 /* chroma_resampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B61600BD7F00A38E78 /* chroma_resampler.h */; };
-		233685011600BD7F00A38E78 /* chromaprint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B71600BD7F00A38E78 /* chromaprint.cpp */; };
-		233685021600BD7F00A38E78 /* chromaprint.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B81600BD7F00A38E78 /* chromaprint.h */; };
-		233685031600BD7F00A38E78 /* classifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684B91600BD7F00A38E78 /* classifier.h */; };
-		233685041600BD7F00A38E78 /* combined_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684BB1600BD7F00A38E78 /* combined_buffer.h */; };
-		233685051600BD7F00A38E78 /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684BC1600BD7F00A38E78 /* debug.h */; };
-		233685061600BD7F00A38E78 /* decoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684BD1600BD7F00A38E78 /* decoder.h */; };
-		2336850C1600BD7F00A38E78 /* feature_vector_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C41600BD7F00A38E78 /* feature_vector_consumer.h */; };
-		2336850D1600BD7F00A38E78 /* fft.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684C51600BD7F00A38E78 /* fft.cpp */; };
-		2336850E1600BD7F00A38E78 /* fft.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C61600BD7F00A38E78 /* fft.h */; };
-		2336850F1600BD7F00A38E78 /* fft_frame.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C71600BD7F00A38E78 /* fft_frame.h */; };
-		233685101600BD7F00A38E78 /* fft_frame_consumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C81600BD7F00A38E78 /* fft_frame_consumer.h */; };
-		233685111600BD7F00A38E78 /* fft_lib.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684C91600BD7F00A38E78 /* fft_lib.h */; };
-		233685121600BD7F00A38E78 /* fft_lib_avfft.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684CA1600BD7F00A38E78 /* fft_lib_avfft.cpp */; };
-		233685131600BD7F00A38E78 /* fft_lib_avfft.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684CB1600BD7F00A38E78 /* fft_lib_avfft.h */; };
-		233685181600BD7F00A38E78 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D01600BD7F00A38E78 /* filter.cpp */; };
-		233685191600BD7F00A38E78 /* filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D11600BD7F00A38E78 /* filter.h */; };
-		2336851A1600BD7F00A38E78 /* filter_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D21600BD7F00A38E78 /* filter_utils.h */; };
-		2336851B1600BD7F00A38E78 /* fingerprint_calculator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D31600BD7F00A38E78 /* fingerprint_calculator.cpp */; };
-		2336851C1600BD7F00A38E78 /* fingerprint_calculator.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D41600BD7F00A38E78 /* fingerprint_calculator.h */; };
-		2336851D1600BD7F00A38E78 /* fingerprint_compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D51600BD7F00A38E78 /* fingerprint_compressor.cpp */; };
-		2336851E1600BD7F00A38E78 /* fingerprint_compressor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D61600BD7F00A38E78 /* fingerprint_compressor.h */; };
-		2336851F1600BD7F00A38E78 /* fingerprint_decompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D71600BD7F00A38E78 /* fingerprint_decompressor.cpp */; };
-		233685201600BD7F00A38E78 /* fingerprint_decompressor.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684D81600BD7F00A38E78 /* fingerprint_decompressor.h */; };
-		233685211600BD7F00A38E78 /* fingerprinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D91600BD7F00A38E78 /* fingerprinter.cpp */; };
-		233685221600BD7F00A38E78 /* fingerprinter.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DA1600BD7F00A38E78 /* fingerprinter.h */; };
-		233685231600BD7F00A38E78 /* fingerprinter_configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */; };
-		233685241600BD7F00A38E78 /* fingerprinter_configuration.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DC1600BD7F00A38E78 /* fingerprinter_configuration.h */; };
-		233685261600BD7F00A38E78 /* image.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684DE1600BD7F00A38E78 /* image.h */; };
-		233685271600BD7F00A38E78 /* image_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DF1600BD7F00A38E78 /* image_builder.cpp */; };
-		233685281600BD7F00A38E78 /* image_builder.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E01600BD7F00A38E78 /* image_builder.h */; };
-		233685291600BD7F00A38E78 /* integral_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E11600BD7F00A38E78 /* integral_image.cpp */; };
-		2336852A1600BD7F00A38E78 /* integral_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E21600BD7F00A38E78 /* integral_image.h */; };
-		2336852D1600BD7F00A38E78 /* moving_average.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E51600BD7F00A38E78 /* moving_average.h */; };
-		2336852E1600BD7F00A38E78 /* quantizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E61600BD7F00A38E78 /* quantizer.h */; };
-		2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E71600BD7F00A38E78 /* silence_remover.cpp */; };
-		233685301600BD7F00A38E78 /* silence_remover.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684E81600BD7F00A38E78 /* silence_remover.h */; };
-		233685331600BD7F00A38E78 /* spectral_centroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684EB1600BD7F00A38E78 /* spectral_centroid.cpp */; };
-		233685341600BD7F00A38E78 /* spectral_centroid.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EC1600BD7F00A38E78 /* spectral_centroid.h */; };
-		233685351600BD7F00A38E78 /* spectrum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684ED1600BD7F00A38E78 /* spectrum.cpp */; };
-		233685361600BD7F00A38E78 /* spectrum.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EE1600BD7F00A38E78 /* spectrum.h */; };
-		233685371600BD7F00A38E78 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 233684EF1600BD7F00A38E78 /* utils.h */; };
-		2336853A1600BF0200A38E78 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 233685391600BF0200A38E78 /* config.h */; };
 		235A99661871180800D5CC20 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235A99651871180800D5CC20 /* Buffer.cpp */; };
 		237312E31871AEFF0052054E /* Fader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237312E21871AEFF0052054E /* Fader.cpp */; };
-		237312E7187821550052054E /* IntrusivePtr.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E4187821550052054E /* IntrusivePtr.hpp */; };
-		237312E8187821550052054E /* LockFreeData.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E5187821550052054E /* LockFreeData.hpp */; };
-		237312E9187821550052054E /* PlayerInStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E6187821550052054E /* PlayerInStream.hpp */; };
-		237312EB187C5CBE0052054E /* Log.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312EA187C5CBE0052054E /* Log.hpp */; };
-		237312F018818CBE0052054E /* pa_mac_core.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312EE18818CBE0052054E /* pa_mac_core.h */; };
-		237312F118818CBE0052054E /* portaudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312EF18818CBE0052054E /* portaudio.h */; };
-		237312F518818CDE0052054E /* pa_unix_hostapis.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F218818CDE0052054E /* pa_unix_hostapis.c */; };
-		237312F618818CDE0052054E /* pa_unix_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F318818CDE0052054E /* pa_unix_util.c */; };
-		237312F718818CDE0052054E /* pa_unix_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312F418818CDE0052054E /* pa_unix_util.h */; };
-		2373131018818D050052054E /* pa_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F818818D050052054E /* pa_allocation.c */; };
-		2373131118818D050052054E /* pa_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312F918818D050052054E /* pa_allocation.h */; };
-		2373131218818D050052054E /* pa_converters.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FA18818D050052054E /* pa_converters.c */; };
-		2373131318818D050052054E /* pa_converters.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312FB18818D050052054E /* pa_converters.h */; };
-		2373131418818D050052054E /* pa_cpuload.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FC18818D050052054E /* pa_cpuload.c */; };
-		2373131518818D050052054E /* pa_cpuload.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312FD18818D050052054E /* pa_cpuload.h */; };
-		2373131618818D050052054E /* pa_debugprint.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FE18818D050052054E /* pa_debugprint.c */; };
-		2373131718818D050052054E /* pa_debugprint.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312FF18818D050052054E /* pa_debugprint.h */; };
-		2373131818818D050052054E /* pa_dither.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130018818D050052054E /* pa_dither.c */; };
-		2373131918818D050052054E /* pa_dither.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130118818D050052054E /* pa_dither.h */; };
-		2373131A18818D050052054E /* pa_endianness.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130218818D050052054E /* pa_endianness.h */; };
-		2373131B18818D050052054E /* pa_front.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130318818D050052054E /* pa_front.c */; };
-		2373131C18818D050052054E /* pa_hostapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130418818D050052054E /* pa_hostapi.h */; };
-		2373131D18818D050052054E /* pa_memorybarrier.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130518818D050052054E /* pa_memorybarrier.h */; };
-		2373131E18818D050052054E /* pa_process.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130618818D050052054E /* pa_process.c */; };
-		2373131F18818D050052054E /* pa_process.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130718818D050052054E /* pa_process.h */; };
-		2373132018818D050052054E /* pa_ringbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130818818D050052054E /* pa_ringbuffer.c */; };
-		2373132118818D050052054E /* pa_ringbuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130918818D050052054E /* pa_ringbuffer.h */; };
-		2373132218818D050052054E /* pa_stream.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130A18818D050052054E /* pa_stream.c */; };
-		2373132318818D050052054E /* pa_stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130B18818D050052054E /* pa_stream.h */; };
-		2373132418818D050052054E /* pa_trace.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130C18818D050052054E /* pa_trace.c */; };
-		2373132518818D050052054E /* pa_trace.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130D18818D050052054E /* pa_trace.h */; };
-		2373132618818D050052054E /* pa_types.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130E18818D050052054E /* pa_types.h */; };
-		2373132718818D050052054E /* pa_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130F18818D050052054E /* pa_util.h */; };
-		2373132F18818D260052054E /* pa_mac_core_blocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132918818D260052054E /* pa_mac_core_blocking.c */; };
-		2373133018818D260052054E /* pa_mac_core_blocking.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373132A18818D260052054E /* pa_mac_core_blocking.h */; };
-		2373133118818D260052054E /* pa_mac_core_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373132B18818D260052054E /* pa_mac_core_internal.h */; };
-		2373133218818D260052054E /* pa_mac_core_utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132C18818D260052054E /* pa_mac_core_utilities.c */; };
-		2373133318818D260052054E /* pa_mac_core_utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373132D18818D260052054E /* pa_mac_core_utilities.h */; };
-		2373133418818D260052054E /* pa_mac_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132E18818D260052054E /* pa_mac_core.c */; };
+		2373133D188191050052054E /* pa_mac_core_blocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132918818D260052054E /* pa_mac_core_blocking.c */; };
+		23731340188191050052054E /* pa_mac_core_utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132C18818D260052054E /* pa_mac_core_utilities.c */; };
+		23731342188191050052054E /* pa_mac_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132E18818D260052054E /* pa_mac_core.c */; };
+		23731343188191050052054E /* pa_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F818818D050052054E /* pa_allocation.c */; };
+		23731345188191050052054E /* pa_converters.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FA18818D050052054E /* pa_converters.c */; };
+		23731347188191050052054E /* pa_cpuload.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FC18818D050052054E /* pa_cpuload.c */; };
+		23731349188191050052054E /* pa_debugprint.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FE18818D050052054E /* pa_debugprint.c */; };
+		2373134B188191050052054E /* pa_dither.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130018818D050052054E /* pa_dither.c */; };
+		2373134E188191050052054E /* pa_front.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130318818D050052054E /* pa_front.c */; };
+		23731351188191050052054E /* pa_process.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130618818D050052054E /* pa_process.c */; };
+		23731353188191050052054E /* pa_ringbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130818818D050052054E /* pa_ringbuffer.c */; };
+		23731355188191050052054E /* pa_stream.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130A18818D050052054E /* pa_stream.c */; };
+		23731357188191050052054E /* pa_trace.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130C18818D050052054E /* pa_trace.c */; };
+		2373135B188191050052054E /* pa_unix_hostapis.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F218818CDE0052054E /* pa_unix_hostapis.c */; };
+		2373135C188191050052054E /* pa_unix_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F318818CDE0052054E /* pa_unix_util.c */; };
+		23731362188191F30052054E /* libportaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2373133918818FFB0052054E /* libportaudio.a */; };
+		237313751881924F0052054E /* audio_processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684A61600BD7F00A38E78 /* audio_processor.cpp */; };
+		237313771881924F0052054E /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684AC1600BD7F00A38E78 /* base64.cpp */; };
+		2373137B1881924F0052054E /* chroma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B01600BD7F00A38E78 /* chroma.cpp */; };
+		2373137D1881924F0052054E /* chroma_filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B21600BD7F00A38E78 /* chroma_filter.cpp */; };
+		237313801881924F0052054E /* chroma_resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B51600BD7F00A38E78 /* chroma_resampler.cpp */; };
+		237313821881924F0052054E /* chromaprint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684B71600BD7F00A38E78 /* chromaprint.cpp */; };
+		237313891881924F0052054E /* fft.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684C51600BD7F00A38E78 /* fft.cpp */; };
+		2373138E1881924F0052054E /* fft_lib_avfft.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684CA1600BD7F00A38E78 /* fft_lib_avfft.cpp */; };
+		237313901881924F0052054E /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D01600BD7F00A38E78 /* filter.cpp */; };
+		237313931881924F0052054E /* fingerprint_calculator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D31600BD7F00A38E78 /* fingerprint_calculator.cpp */; };
+		237313951881924F0052054E /* fingerprint_compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D51600BD7F00A38E78 /* fingerprint_compressor.cpp */; };
+		237313971881924F0052054E /* fingerprint_decompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D71600BD7F00A38E78 /* fingerprint_decompressor.cpp */; };
+		237313991881924F0052054E /* fingerprinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684D91600BD7F00A38E78 /* fingerprinter.cpp */; };
+		2373139B1881924F0052054E /* fingerprinter_configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DB1600BD7F00A38E78 /* fingerprinter_configuration.cpp */; };
+		2373139E1881924F0052054E /* image_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684DF1600BD7F00A38E78 /* image_builder.cpp */; };
+		237313A01881924F0052054E /* integral_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E11600BD7F00A38E78 /* integral_image.cpp */; };
+		237313A41881924F0052054E /* silence_remover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684E71600BD7F00A38E78 /* silence_remover.cpp */; };
+		237313A61881924F0052054E /* spectral_centroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684EB1600BD7F00A38E78 /* spectral_centroid.cpp */; };
+		237313A81881924F0052054E /* spectrum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684ED1600BD7F00A38E78 /* spectrum.cpp */; };
+		237313AD188192D10052054E /* libchromaprint.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2373136F1881923C0052054E /* libchromaprint.a */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -270,14 +211,6 @@
 		23B071DF17AD79DF00524C82 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B071DD17AD79DF00524C82 /* debugger.cpp */; };
 		23B071E017AD79DF00524C82 /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B071DE17AD79DF00524C82 /* debugger.h */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
-		23E5BA01186DEE7900A7FB9F /* Buffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */; };
-		23E5BA02186DEE7900A7FB9F /* Fader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FA186DEE7900A7FB9F /* Fader.hpp */; };
-		23E5BA03186DEE7900A7FB9F /* LinkedList.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */; };
-		23E5BA04186DEE7900A7FB9F /* Protection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FC186DEE7900A7FB9F /* Protection.hpp */; };
-		23E5BA05186DEE7900A7FB9F /* PyThreading.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FD186DEE7900A7FB9F /* PyThreading.hpp */; };
-		23E5BA06186DEE7900A7FB9F /* PyUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FE186DEE7900A7FB9F /* PyUtils.h */; };
-		23E5BA07186DEE7900A7FB9F /* SampleType.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */; };
-		23E5BA08186DEE7900A7FB9F /* SmoothClip.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */; };
 		23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA09186E15A500A7FB9F /* NSFlippedView.h */; };
 		23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */; };
 		23E5BA11186E15A500A7FB9F /* PythonBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */; };
@@ -314,6 +247,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2331F81716C16B720037D148;
 			remoteInfo = faulthandler.so;
+		};
+		23731360188191CB0052054E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2373133818818FFB0052054E;
+			remoteInfo = portaudio;
+		};
+		237313AB188192960052054E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2373136E1881923C0052054E;
+			remoteInfo = chromaprint;
 		};
 		238E9877169664E200C42074 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -473,6 +420,8 @@
 		2373132C18818D260052054E /* pa_mac_core_utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_mac_core_utilities.c; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core_utilities.c; sourceTree = "<group>"; };
 		2373132D18818D260052054E /* pa_mac_core_utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_mac_core_utilities.h; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core_utilities.h; sourceTree = "<group>"; };
 		2373132E18818D260052054E /* pa_mac_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_mac_core.c; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core.c; sourceTree = "<group>"; };
+		2373133918818FFB0052054E /* libportaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libportaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2373136F1881923C0052054E /* libchromaprint.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libchromaprint.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -674,6 +623,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2373133618818FFB0052054E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2373136C1881923C0052054E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		238E9869169664B400C42074 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -702,6 +665,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				237313AD188192D10052054E /* libchromaprint.a in Frameworks */,
+				23731362188191F30052054E /* libportaudio.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1058,6 +1023,8 @@
 				2331F86016C16B720037D148 /* faulthandler.so */,
 				2303499F17AD724900C6033C /* debugger.so */,
 				239D88DA182BC5A10068F287 /* _objc.so */,
+				2373133918818FFB0052054E /* libportaudio.a */,
+				2373136F1881923C0052054E /* libchromaprint.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1164,6 +1131,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2373133718818FFB0052054E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2373136D1881923C0052054E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		238E986A169664B400C42074 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1233,75 +1214,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2373131118818D050052054E /* pa_allocation.h in Headers */,
-				2373131718818D050052054E /* pa_debugprint.h in Headers */,
-				233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */,
-				233684F21600BD7F00A38E78 /* audio_processor.h in Headers */,
-				23E5BA05186DEE7900A7FB9F /* PyThreading.hpp in Headers */,
-				233684F71600BD7F00A38E78 /* base64.h in Headers */,
-				233684F81600BD7F00A38E78 /* bit_string_reader.h in Headers */,
-				2373131A18818D050052054E /* pa_endianness.h in Headers */,
-				233684F91600BD7F00A38E78 /* bit_string_writer.h in Headers */,
-				233684FB1600BD7F00A38E78 /* chroma.h in Headers */,
-				237312E7187821550052054E /* IntrusivePtr.hpp in Headers */,
-				233684FD1600BD7F00A38E78 /* chroma_filter.h in Headers */,
-				2373131F18818D050052054E /* pa_process.h in Headers */,
-				237312F718818CDE0052054E /* pa_unix_util.h in Headers */,
-				23E5BA07186DEE7900A7FB9F /* SampleType.hpp in Headers */,
-				2373132118818D050052054E /* pa_ringbuffer.h in Headers */,
-				23E5BA03186DEE7900A7FB9F /* LinkedList.hpp in Headers */,
-				233684FE1600BD7F00A38E78 /* chroma_normalizer.h in Headers */,
-				233685001600BD7F00A38E78 /* chroma_resampler.h in Headers */,
-				2373131918818D050052054E /* pa_dither.h in Headers */,
-				233685021600BD7F00A38E78 /* chromaprint.h in Headers */,
-				233685031600BD7F00A38E78 /* classifier.h in Headers */,
-				233685041600BD7F00A38E78 /* combined_buffer.h in Headers */,
-				237312F018818CBE0052054E /* pa_mac_core.h in Headers */,
-				233685051600BD7F00A38E78 /* debug.h in Headers */,
-				23E5BA08186DEE7900A7FB9F /* SmoothClip.hpp in Headers */,
-				2373133018818D260052054E /* pa_mac_core_blocking.h in Headers */,
-				23E5BA06186DEE7900A7FB9F /* PyUtils.h in Headers */,
-				233685061600BD7F00A38E78 /* decoder.h in Headers */,
-				2373131518818D050052054E /* pa_cpuload.h in Headers */,
-				23E5BA01186DEE7900A7FB9F /* Buffer.hpp in Headers */,
-				2336850C1600BD7F00A38E78 /* feature_vector_consumer.h in Headers */,
-				2373132518818D050052054E /* pa_trace.h in Headers */,
-				237312EB187C5CBE0052054E /* Log.hpp in Headers */,
-				2336850E1600BD7F00A38E78 /* fft.h in Headers */,
-				23E5BA04186DEE7900A7FB9F /* Protection.hpp in Headers */,
-				2373131D18818D050052054E /* pa_memorybarrier.h in Headers */,
-				2336850F1600BD7F00A38E78 /* fft_frame.h in Headers */,
-				233685101600BD7F00A38E78 /* fft_frame_consumer.h in Headers */,
-				2373131318818D050052054E /* pa_converters.h in Headers */,
-				233685111600BD7F00A38E78 /* fft_lib.h in Headers */,
-				233685131600BD7F00A38E78 /* fft_lib_avfft.h in Headers */,
-				233685191600BD7F00A38E78 /* filter.h in Headers */,
-				2336851A1600BD7F00A38E78 /* filter_utils.h in Headers */,
-				2336851C1600BD7F00A38E78 /* fingerprint_calculator.h in Headers */,
-				2336851E1600BD7F00A38E78 /* fingerprint_compressor.h in Headers */,
-				237312E8187821550052054E /* LockFreeData.hpp in Headers */,
-				23E5BA02186DEE7900A7FB9F /* Fader.hpp in Headers */,
-				233685201600BD7F00A38E78 /* fingerprint_decompressor.h in Headers */,
-				233685221600BD7F00A38E78 /* fingerprinter.h in Headers */,
-				233685241600BD7F00A38E78 /* fingerprinter_configuration.h in Headers */,
-				233685261600BD7F00A38E78 /* image.h in Headers */,
-				2373132318818D050052054E /* pa_stream.h in Headers */,
-				233685281600BD7F00A38E78 /* image_builder.h in Headers */,
-				2373132718818D050052054E /* pa_util.h in Headers */,
-				2336852A1600BD7F00A38E78 /* integral_image.h in Headers */,
-				237312E9187821550052054E /* PlayerInStream.hpp in Headers */,
-				2373131C18818D050052054E /* pa_hostapi.h in Headers */,
-				2336852D1600BD7F00A38E78 /* moving_average.h in Headers */,
-				2336852E1600BD7F00A38E78 /* quantizer.h in Headers */,
-				233685301600BD7F00A38E78 /* silence_remover.h in Headers */,
-				2373133118818D260052054E /* pa_mac_core_internal.h in Headers */,
-				2373133318818D260052054E /* pa_mac_core_utilities.h in Headers */,
-				233685341600BD7F00A38E78 /* spectral_centroid.h in Headers */,
-				233685361600BD7F00A38E78 /* spectrum.h in Headers */,
-				2373132618818D050052054E /* pa_types.h in Headers */,
-				233685371600BD7F00A38E78 /* utils.h in Headers */,
-				2336853A1600BF0200A38E78 /* config.h in Headers */,
-				237312F118818CBE0052054E /* portaudio.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1341,6 +1253,40 @@
 			productName = ffmpeg.so;
 			productReference = 2331F86016C16B720037D148 /* faulthandler.so */;
 			productType = "com.apple.product-type.library.dynamic";
+		};
+		2373133818818FFB0052054E /* portaudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2373133A18818FFB0052054E /* Build configuration list for PBXNativeTarget "portaudio" */;
+			buildPhases = (
+				2373133518818FFB0052054E /* Sources */,
+				2373133618818FFB0052054E /* Frameworks */,
+				2373133718818FFB0052054E /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = portaudio;
+			productName = portaudio;
+			productReference = 2373133918818FFB0052054E /* libportaudio.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		2373136E1881923C0052054E /* chromaprint */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 237313701881923C0052054E /* Build configuration list for PBXNativeTarget "chromaprint" */;
+			buildPhases = (
+				2373136B1881923C0052054E /* Sources */,
+				2373136C1881923C0052054E /* Frameworks */,
+				2373136D1881923C0052054E /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = chromaprint;
+			productName = chromaprint;
+			productReference = 2373136F1881923C0052054E /* libchromaprint.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		238E986B169664B400C42074 /* guiCocoaCommon */ = {
 			isa = PBXNativeTarget;
@@ -1413,6 +1359,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				237313AC188192960052054E /* PBXTargetDependency */,
+				23731361188191CB0052054E /* PBXTargetDependency */,
 			);
 			name = ffmpeg.so;
 			productName = ffmpeg.so;
@@ -1452,6 +1400,8 @@
 				2331F81716C16B720037D148 /* faulthandler.so */,
 				2303499E17AD724900C6033C /* debugger */,
 				239D8892182BC5A10068F287 /* _objc.so */,
+				2373133818818FFB0052054E /* portaudio */,
+				2373136E1881923C0052054E /* chromaprint */,
 			);
 		};
 /* End PBXProject section */
@@ -1510,6 +1460,54 @@
 			files = (
 				2331F86316C16BC40037D148 /* faulthandler.c in Sources */,
 				2331F86416C16BC40037D148 /* traceback.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2373133518818FFB0052054E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2373133D188191050052054E /* pa_mac_core_blocking.c in Sources */,
+				23731340188191050052054E /* pa_mac_core_utilities.c in Sources */,
+				23731342188191050052054E /* pa_mac_core.c in Sources */,
+				23731343188191050052054E /* pa_allocation.c in Sources */,
+				23731345188191050052054E /* pa_converters.c in Sources */,
+				23731347188191050052054E /* pa_cpuload.c in Sources */,
+				23731349188191050052054E /* pa_debugprint.c in Sources */,
+				2373134B188191050052054E /* pa_dither.c in Sources */,
+				2373134E188191050052054E /* pa_front.c in Sources */,
+				23731351188191050052054E /* pa_process.c in Sources */,
+				23731353188191050052054E /* pa_ringbuffer.c in Sources */,
+				23731355188191050052054E /* pa_stream.c in Sources */,
+				23731357188191050052054E /* pa_trace.c in Sources */,
+				2373135B188191050052054E /* pa_unix_hostapis.c in Sources */,
+				2373135C188191050052054E /* pa_unix_util.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2373136B1881923C0052054E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237313751881924F0052054E /* audio_processor.cpp in Sources */,
+				237313771881924F0052054E /* base64.cpp in Sources */,
+				2373137B1881924F0052054E /* chroma.cpp in Sources */,
+				2373137D1881924F0052054E /* chroma_filter.cpp in Sources */,
+				237313801881924F0052054E /* chroma_resampler.cpp in Sources */,
+				237313821881924F0052054E /* chromaprint.cpp in Sources */,
+				237313891881924F0052054E /* fft.cpp in Sources */,
+				2373138E1881924F0052054E /* fft_lib_avfft.cpp in Sources */,
+				237313901881924F0052054E /* filter.cpp in Sources */,
+				237313931881924F0052054E /* fingerprint_calculator.cpp in Sources */,
+				237313951881924F0052054E /* fingerprint_compressor.cpp in Sources */,
+				237313971881924F0052054E /* fingerprint_decompressor.cpp in Sources */,
+				237313991881924F0052054E /* fingerprinter.cpp in Sources */,
+				2373139B1881924F0052054E /* fingerprinter_configuration.cpp in Sources */,
+				2373139E1881924F0052054E /* image_builder.cpp in Sources */,
+				237313A01881924F0052054E /* integral_image.cpp in Sources */,
+				237313A41881924F0052054E /* silence_remover.cpp in Sources */,
+				237313A61881924F0052054E /* spectral_centroid.cpp in Sources */,
+				237313A81881924F0052054E /* spectrum.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1637,50 +1635,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */,
-				233684F11600BD7F00A38E78 /* audio_processor.cpp in Sources */,
-				2373132018818D050052054E /* pa_ringbuffer.c in Sources */,
-				233684F61600BD7F00A38E78 /* base64.cpp in Sources */,
-				233684FA1600BD7F00A38E78 /* chroma.cpp in Sources */,
-				2373132F18818D260052054E /* pa_mac_core_blocking.c in Sources */,
-				233684FC1600BD7F00A38E78 /* chroma_filter.cpp in Sources */,
-				233684FF1600BD7F00A38E78 /* chroma_resampler.cpp in Sources */,
-				233685011600BD7F00A38E78 /* chromaprint.cpp in Sources */,
-				2336850D1600BD7F00A38E78 /* fft.cpp in Sources */,
-				2373131418818D050052054E /* pa_cpuload.c in Sources */,
-				237312F518818CDE0052054E /* pa_unix_hostapis.c in Sources */,
-				233685121600BD7F00A38E78 /* fft_lib_avfft.cpp in Sources */,
-				233685181600BD7F00A38E78 /* filter.cpp in Sources */,
-				2336851B1600BD7F00A38E78 /* fingerprint_calculator.cpp in Sources */,
-				2336851D1600BD7F00A38E78 /* fingerprint_compressor.cpp in Sources */,
-				2373133418818D260052054E /* pa_mac_core.c in Sources */,
-				2336851F1600BD7F00A38E78 /* fingerprint_decompressor.cpp in Sources */,
-				2373131018818D050052054E /* pa_allocation.c in Sources */,
-				2373131818818D050052054E /* pa_dither.c in Sources */,
-				233685211600BD7F00A38E78 /* fingerprinter.cpp in Sources */,
-				233685231600BD7F00A38E78 /* fingerprinter_configuration.cpp in Sources */,
-				237312F618818CDE0052054E /* pa_unix_util.c in Sources */,
-				233685271600BD7F00A38E78 /* image_builder.cpp in Sources */,
-				233685291600BD7F00A38E78 /* integral_image.cpp in Sources */,
-				2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */,
-				2373132418818D050052054E /* pa_trace.c in Sources */,
-				233685331600BD7F00A38E78 /* spectral_centroid.cpp in Sources */,
 				235A99661871180800D5CC20 /* Buffer.cpp in Sources */,
-				2373131E18818D050052054E /* pa_process.c in Sources */,
-				2373132218818D050052054E /* pa_stream.c in Sources */,
-				233685351600BD7F00A38E78 /* spectrum.cpp in Sources */,
-				2373131B18818D050052054E /* pa_front.c in Sources */,
-				2373133218818D260052054E /* pa_mac_core_utilities.c in Sources */,
 				23ACE7001689E24A00E45134 /* ffmpeg_getmetadata.cpp in Sources */,
 				23ACE7031689E39600E45134 /* ffmpeg_acoustid.cpp in Sources */,
 				23ACE7051689E4D500E45134 /* ffmpeg_replaygain.cpp in Sources */,
-				2373131618818D050052054E /* pa_debugprint.c in Sources */,
 				23ACE7071689E54300E45134 /* ffmpeg_player.cpp in Sources */,
 				23ACE7091689E66500E45134 /* ffmpeg_player_decoding.cpp in Sources */,
 				23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */,
 				23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */,
 				237312E31871AEFF0052054E /* Fader.cpp in Sources */,
 				23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */,
-				2373131218818D050052054E /* pa_converters.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1701,6 +1665,16 @@
 			isa = PBXTargetDependency;
 			target = 2331F81716C16B720037D148 /* faulthandler.so */;
 			targetProxy = 2331F86516C16BCE0037D148 /* PBXContainerItemProxy */;
+		};
+		23731361188191CB0052054E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2373133818818FFB0052054E /* portaudio */;
+			targetProxy = 23731360188191CB0052054E /* PBXContainerItemProxy */;
+		};
+		237313AC188192960052054E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2373136E1881923C0052054E /* chromaprint */;
+			targetProxy = 237313AB188192960052054E /* PBXContainerItemProxy */;
 		};
 		238E9878169664E200C42074 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1809,6 +1783,87 @@
 			};
 			name = Release;
 		};
+		2373133B18818FFB0052054E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				OTHER_CFLAGS = "-DPA_USE_COREAUDIO";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2373133C18818FFB0052054E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				OTHER_CFLAGS = "-DPA_USE_COREAUDIO";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		237313711881923C0052054E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				EXECUTABLE_PREFIX = lib;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		237313721881923C0052054E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				EXECUTABLE_PREFIX = lib;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		238E9875169664B400C42074 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1899,6 +1954,8 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
+					"$(PROJECT_DIR)/../external/portaudio/include",
+					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../external/ffmpeg/target/lib";
 				ONLY_ACTIVE_ARCH = YES;
@@ -1922,6 +1979,8 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
+					"$(PROJECT_DIR)/../external/portaudio/include",
+					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../external/ffmpeg/target/lib";
 				SDKROOT = macosx10.6;
@@ -1957,14 +2016,7 @@
 			buildSettings = {
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
-					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
-					"$(PROJECT_DIR)/../external/portaudio/include",
-					"$(PROJECT_DIR)/../chromaprint",
-				);
 				LD_DYLIB_INSTALL_NAME = "";
-				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
 					"-lavformat",
 					"-lavutil",
@@ -1982,14 +2034,7 @@
 			buildSettings = {
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
-					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
-					"$(PROJECT_DIR)/../external/portaudio/include",
-					"$(PROJECT_DIR)/../chromaprint",
-				);
 				LD_DYLIB_INSTALL_NAME = "";
-				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				OTHER_LDFLAGS = (
 					"-lavformat",
 					"-lavutil",
@@ -2022,6 +2067,22 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		2373133A18818FFB0052054E /* Build configuration list for PBXNativeTarget "portaudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2373133B18818FFB0052054E /* Debug */,
+				2373133C18818FFB0052054E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		237313701881923C0052054E /* Build configuration list for PBXNativeTarget "chromaprint" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				237313711881923C0052054E /* Debug */,
+				237313721881923C0052054E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */ = {
 			isa = XCConfigurationList;
