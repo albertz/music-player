@@ -25,7 +25,7 @@
 #include <mach/mach_error.h>
 #include <mach/mach_time.h>
 #endif
-static void setRealtime();
+static void setRealtime(double dutyCicleMs);
 
 /*
 The implementation with the PortAudio callback was there first.
@@ -84,9 +84,10 @@ struct PlayerObject::OutStream {
 		void *userData )
 	{
 		OutStream* outStream = (OutStream*) userData;
+		PlayerObject* player = outStream->player;
 				
 		if(outStream->needRealtimeReset.exchange(false))
-			setRealtime();
+			setRealtime(1000.0 * frameCount / player->outSamplerate);
 		
 		if(outStream->setThreadName.exchange(false))
 			setCurThreadName("audio callback");
@@ -99,7 +100,7 @@ struct PlayerObject::OutStream {
 		// We must not hold the PyGIL here!
 		// Also no need to hold the player lock, all is safe!
 
-		outStream->player->readOutStream((OUTSAMPLE_t*) output, frameCount * outStream->player->outNumChannels, NULL);
+		player->readOutStream((OUTSAMPLE_t*) output, frameCount * outStream->player->outNumChannels, NULL);
 		return paContinue;
 	}
 #else
@@ -314,7 +315,7 @@ void PlayerObject::resetPlaying() {
 // https://developer.apple.com/library/mac/#documentation/Darwin/Conceptual/KernelProgramming/scheduler/scheduler.html
 // Also, from Google Native Client, osx/nacl_thread_nice.c has some related code.
 // Or, from Google Chrome, platform_thread_mac.mm. http://src.chromium.org/svn/trunk/src/base/threading/platform_thread_mac.mm
-void setRealtime() {
+void setRealtime(double dutyCicleMs) {
 	kern_return_t ret;
 	thread_port_t threadport = pthread_mach_thread_np(pthread_self());
 	
@@ -347,9 +348,10 @@ void setRealtime() {
 	double timeFact = ((double)tb_info.denom / (double)tb_info.numer) * 1000000;
 	
 	thread_time_constraint_policy_data_t ttcpolicy;
-	ttcpolicy.period = 2.9 * timeFact; // in Chrome: 2.9ms ~= 128 frames @44.1KHz
-	ttcpolicy.computation = 0.75 * ttcpolicy.period;
-	ttcpolicy.constraint = 0.85 * ttcpolicy.period;
+	// in Chrome: period = 2.9ms ~= 128 frames @44.1KHz, comp = 0.75 * period, constr = 0.85 * period.
+	ttcpolicy.period = dutyCicleMs * timeFact;
+	ttcpolicy.computation = dutyCicleMs * 0.75 * timeFact;
+	ttcpolicy.constraint = dutyCicleMs * 0.85 * timeFact;
 	ttcpolicy.preemptible = 0;
 	
 	ret = thread_policy_set(threadport,
@@ -362,7 +364,7 @@ void setRealtime() {
 	}
 }
 #else
-void setRealtime() {} // not implemented yet
+void setRealtime(double dutyCicleMs) {} // not implemented yet
 #endif
 
 
