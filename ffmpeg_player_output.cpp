@@ -46,6 +46,12 @@ int initPlayerOutput() {
 	return 0;
 }
 
+void reinitPlayerOutput() {
+	if(Pa_Terminate() != paNoError)
+		printf("Warning: Pa_Terminate() failed\n");
+	initPlayerOutput();
+}
+
 template<typename T> struct OutPaSampleFormat{};
 template<> struct OutPaSampleFormat<int16_t> {
 	static const PaSampleFormat format = paInt16;
@@ -160,6 +166,7 @@ struct PlayerObject::OutStream {
 		
 		outputParameters.device = Pa_GetDefaultOutputDevice();
 		if (outputParameters.device == paNoDevice) {
+			PyScopedGIL gil;
 			PyErr_SetString(PyExc_RuntimeError, "Pa_GetDefaultOutputDevice didn't returned a device");
 			return false;
 		}
@@ -195,7 +202,10 @@ struct PlayerObject::OutStream {
 			);
 		
 		if(ret != paNoError) {
-			PyErr_Format(PyExc_RuntimeError, "Pa_OpenStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
+			{
+				PyScopedGIL gil;
+				PyErr_Format(PyExc_RuntimeError, "Pa_OpenStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
+			}
 			if(stream)
 				close();
 			return false;
@@ -296,6 +306,7 @@ void PlayerObject::resetPlaying() {
 		this->setPlaying(false);
 	if(this->outStream.get() != NULL)
 		this->outStream.reset();
+	reinitPlayerOutput();
 }
 
 
