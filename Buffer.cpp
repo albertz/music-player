@@ -8,18 +8,16 @@
 Buffer::Chunk::Chunk() : start(0), end(0) { mlock(this, sizeof(*this)); }
 Buffer::Buffer() : _size(0) { mlock(this, sizeof(*this)); }
 
-size_t Buffer::pop(uint8_t* target, size_t target_size) {
+size_t Buffer::pop(uint8_t* target, size_t target_size, bool doCleanup) {
 	size_t c = 0;
-	while(!chunks.empty()) {
-		auto chunkPtr = chunks.front();
-		assert(chunkPtr->isData(false));
-		Chunk& chunk = chunkPtr->value;
+	for(Chunk& chunk : chunks) {
 		Chunk::Idx chunkEnd = chunk.end;
-		int s = chunkEnd - chunk.start;
-		if(s == 0) {
+		if(chunk.start == 0 && chunkEnd == 0) {
 			// push() but not yet any data added
 			break;
 		}
+		int s = chunkEnd - chunk.start;
+		if(s == 0) continue;
 		if((size_t)s > target_size) s = (int)target_size;
 		memcpy(target, chunk.data + chunk.start, s);
 		chunk.start += s;
@@ -38,9 +36,9 @@ size_t Buffer::pop(uint8_t* target, size_t target_size) {
 		assert(chunk.start == chunkEnd);
 		assert(chunkEnd == Chunk::BufferSize());
 
-		// Is `free` lock-free? If not, we might let the push()
-		// do the pop_front().
-		chunks.pop_front();
+		// This can be heavy (the `free`ing), so we might want to do it elsewhere.
+		if(doCleanup)
+			chunks.pop_front();
 	}
 	return c;
 }
@@ -65,3 +63,12 @@ void Buffer::push(const uint8_t* data, size_t size) {
 	}
 }
 
+void Buffer::cleanup() {
+	while(!chunks.empty()) {
+		auto chunkPtr = chunks.front();
+		Chunk& chunk = chunkPtr->value;
+		if(chunk.end < Chunk::BufferSize()) break;
+		if(chunk.size() > 0) break;
+		chunks.pop_front();
+	}
+}

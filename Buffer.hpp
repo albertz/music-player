@@ -31,10 +31,12 @@ struct Buffer {
 
 	// returns amount of data returned, i.e. <= target_size
 	// single consumer supported
-	size_t pop(uint8_t* target, size_t target_size);
+	size_t pop(uint8_t* target, size_t target_size, bool doCleanup = true);
 
 	// single producer supported
 	void push(const uint8_t* data, size_t size);
+	
+	void cleanup();
 };
 
 #endif // BUFFER_HPP

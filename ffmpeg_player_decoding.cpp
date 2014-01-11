@@ -68,6 +68,7 @@ int initPlayerDecoder() {
  For y in [x1,x2], we use a cubic spline interpolation to just make it smooth.
  Use smoothClip_setX() to set the spline factors.
  */
+inline
 double SmoothClipCalc::get(double y) {
 	SmoothClipCalc* s = this;
 	if(y < 0) return -get(-y);
@@ -1019,6 +1020,7 @@ static bool _buffersFullEnough(PlayerInStream* is) {
 }
 
 static bool _processInStream(PlayerObject* player, PlayerInStream* is) {
+	is->outBuffer.cleanup();
 	return audio_decode_frame(player, is, PROCESS_SIZE) >= 0;
 }
 
@@ -1453,7 +1455,7 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 		for(PlayerInStream& is : player->inStreams) {
 				
 			is.playerStartedPlaying = true;
-			size_t popCount = is.outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN);
+			size_t popCount = is.outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN, false);
 			popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
 					
 			if(player->volumeAdjustNeeded(&is)) {
