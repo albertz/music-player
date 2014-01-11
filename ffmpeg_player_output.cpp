@@ -85,6 +85,11 @@ struct PlayerObject::OutStream {
 		if(outStream->setThreadName.exchange(false))
 			setCurThreadName("audio callback");
 		
+		if(statusFlags & paOutputUnderflow)
+			printf("audio: paOutputUnderflow\n");
+		if(statusFlags & paOutputOverflow)
+			printf("audio: paOutputOverflow\n");
+		
 		// We must not hold the PyGIL here!
 		// Also no need to hold the player lock, all is safe!
 
@@ -133,7 +138,10 @@ struct PlayerObject::OutStream {
 	bool open() {
 		if(stream) close();
 		assert(stream == NULL);
-				
+		
+		// For reference:
+		// Mixxx code: http://bazaar.launchpad.net/~mixxxdevelopers/mixxx/trunk/view/head:/mixxx/src/sounddeviceportaudio.cpp
+		
 		PaStreamParameters outputParameters;
 		
 #if defined(__APPLE__)
@@ -158,7 +166,8 @@ struct PlayerObject::OutStream {
 		outputParameters.channelCount = player->outNumChannels;
 		outputParameters.sampleFormat = OutPaSampleFormat<OUTSAMPLE_t>::format;
 		
-		unsigned long bufferSize = (player->outSamplerate * player->outNumChannels / 1000) * LATENCY_IN_MS / 4;
+		//unsigned long bufferSize = (player->outSamplerate * player->outNumChannels / 1000) * LATENCY_IN_MS / 4;
+		unsigned long bufferSize = paFramesPerBufferUnspecified; // support any buffer size
 		if(bufferSize == paFramesPerBufferUnspecified)
 			outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
 		else
@@ -327,7 +336,7 @@ void setRealtime() {
 	double timeFact = ((double)tb_info.denom / (double)tb_info.numer) * 1000000;
 	
 	thread_time_constraint_policy_data_t ttcpolicy;
-	ttcpolicy.period = 2.9 * timeFact; // about 128 frames @44.1KHz
+	ttcpolicy.period = 2.9 * timeFact; // in Chrome: 2.9ms ~= 128 frames @44.1KHz
 	ttcpolicy.computation = 0.75 * ttcpolicy.period;
 	ttcpolicy.constraint = 0.85 * ttcpolicy.period;
 	ttcpolicy.preemptible = 0;
