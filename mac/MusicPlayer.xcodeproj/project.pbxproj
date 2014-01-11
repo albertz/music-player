@@ -76,6 +76,41 @@
 		237312E8187821550052054E /* LockFreeData.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E5187821550052054E /* LockFreeData.hpp */; };
 		237312E9187821550052054E /* PlayerInStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312E6187821550052054E /* PlayerInStream.hpp */; };
 		237312EB187C5CBE0052054E /* Log.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 237312EA187C5CBE0052054E /* Log.hpp */; };
+		237312F018818CBE0052054E /* pa_mac_core.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312EE18818CBE0052054E /* pa_mac_core.h */; };
+		237312F118818CBE0052054E /* portaudio.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312EF18818CBE0052054E /* portaudio.h */; };
+		237312F518818CDE0052054E /* pa_unix_hostapis.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F218818CDE0052054E /* pa_unix_hostapis.c */; };
+		237312F618818CDE0052054E /* pa_unix_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F318818CDE0052054E /* pa_unix_util.c */; };
+		237312F718818CDE0052054E /* pa_unix_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312F418818CDE0052054E /* pa_unix_util.h */; };
+		2373131018818D050052054E /* pa_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312F818818D050052054E /* pa_allocation.c */; };
+		2373131118818D050052054E /* pa_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312F918818D050052054E /* pa_allocation.h */; };
+		2373131218818D050052054E /* pa_converters.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FA18818D050052054E /* pa_converters.c */; };
+		2373131318818D050052054E /* pa_converters.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312FB18818D050052054E /* pa_converters.h */; };
+		2373131418818D050052054E /* pa_cpuload.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FC18818D050052054E /* pa_cpuload.c */; };
+		2373131518818D050052054E /* pa_cpuload.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312FD18818D050052054E /* pa_cpuload.h */; };
+		2373131618818D050052054E /* pa_debugprint.c in Sources */ = {isa = PBXBuildFile; fileRef = 237312FE18818D050052054E /* pa_debugprint.c */; };
+		2373131718818D050052054E /* pa_debugprint.h in Headers */ = {isa = PBXBuildFile; fileRef = 237312FF18818D050052054E /* pa_debugprint.h */; };
+		2373131818818D050052054E /* pa_dither.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130018818D050052054E /* pa_dither.c */; };
+		2373131918818D050052054E /* pa_dither.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130118818D050052054E /* pa_dither.h */; };
+		2373131A18818D050052054E /* pa_endianness.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130218818D050052054E /* pa_endianness.h */; };
+		2373131B18818D050052054E /* pa_front.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130318818D050052054E /* pa_front.c */; };
+		2373131C18818D050052054E /* pa_hostapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130418818D050052054E /* pa_hostapi.h */; };
+		2373131D18818D050052054E /* pa_memorybarrier.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130518818D050052054E /* pa_memorybarrier.h */; };
+		2373131E18818D050052054E /* pa_process.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130618818D050052054E /* pa_process.c */; };
+		2373131F18818D050052054E /* pa_process.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130718818D050052054E /* pa_process.h */; };
+		2373132018818D050052054E /* pa_ringbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130818818D050052054E /* pa_ringbuffer.c */; };
+		2373132118818D050052054E /* pa_ringbuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130918818D050052054E /* pa_ringbuffer.h */; };
+		2373132218818D050052054E /* pa_stream.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130A18818D050052054E /* pa_stream.c */; };
+		2373132318818D050052054E /* pa_stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130B18818D050052054E /* pa_stream.h */; };
+		2373132418818D050052054E /* pa_trace.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373130C18818D050052054E /* pa_trace.c */; };
+		2373132518818D050052054E /* pa_trace.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130D18818D050052054E /* pa_trace.h */; };
+		2373132618818D050052054E /* pa_types.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130E18818D050052054E /* pa_types.h */; };
+		2373132718818D050052054E /* pa_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373130F18818D050052054E /* pa_util.h */; };
+		2373132F18818D260052054E /* pa_mac_core_blocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132918818D260052054E /* pa_mac_core_blocking.c */; };
+		2373133018818D260052054E /* pa_mac_core_blocking.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373132A18818D260052054E /* pa_mac_core_blocking.h */; };
+		2373133118818D260052054E /* pa_mac_core_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373132B18818D260052054E /* pa_mac_core_internal.h */; };
+		2373133218818D260052054E /* pa_mac_core_utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132C18818D260052054E /* pa_mac_core_utilities.c */; };
+		2373133318818D260052054E /* pa_mac_core_utilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 2373132D18818D260052054E /* pa_mac_core_utilities.h */; };
+		2373133418818D260052054E /* pa_mac_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132E18818D260052054E /* pa_mac_core.c */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -402,6 +437,42 @@
 		237312E5187821550052054E /* LockFreeData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LockFreeData.hpp; path = ../LockFreeData.hpp; sourceTree = "<group>"; };
 		237312E6187821550052054E /* PlayerInStream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PlayerInStream.hpp; path = ../PlayerInStream.hpp; sourceTree = "<group>"; };
 		237312EA187C5CBE0052054E /* Log.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Log.hpp; path = ../Log.hpp; sourceTree = "<group>"; };
+		237312EE18818CBE0052054E /* pa_mac_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_mac_core.h; path = ../external/portaudio/include/pa_mac_core.h; sourceTree = "<group>"; };
+		237312EF18818CBE0052054E /* portaudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = portaudio.h; path = ../external/portaudio/include/portaudio.h; sourceTree = "<group>"; };
+		237312F218818CDE0052054E /* pa_unix_hostapis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_unix_hostapis.c; path = ../external/portaudio/src/os/unix/pa_unix_hostapis.c; sourceTree = "<group>"; };
+		237312F318818CDE0052054E /* pa_unix_util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_unix_util.c; path = ../external/portaudio/src/os/unix/pa_unix_util.c; sourceTree = "<group>"; };
+		237312F418818CDE0052054E /* pa_unix_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_unix_util.h; path = ../external/portaudio/src/os/unix/pa_unix_util.h; sourceTree = "<group>"; };
+		237312F818818D050052054E /* pa_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_allocation.c; path = ../external/portaudio/src/common/pa_allocation.c; sourceTree = "<group>"; };
+		237312F918818D050052054E /* pa_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_allocation.h; path = ../external/portaudio/src/common/pa_allocation.h; sourceTree = "<group>"; };
+		237312FA18818D050052054E /* pa_converters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_converters.c; path = ../external/portaudio/src/common/pa_converters.c; sourceTree = "<group>"; };
+		237312FB18818D050052054E /* pa_converters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_converters.h; path = ../external/portaudio/src/common/pa_converters.h; sourceTree = "<group>"; };
+		237312FC18818D050052054E /* pa_cpuload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_cpuload.c; path = ../external/portaudio/src/common/pa_cpuload.c; sourceTree = "<group>"; };
+		237312FD18818D050052054E /* pa_cpuload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_cpuload.h; path = ../external/portaudio/src/common/pa_cpuload.h; sourceTree = "<group>"; };
+		237312FE18818D050052054E /* pa_debugprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_debugprint.c; path = ../external/portaudio/src/common/pa_debugprint.c; sourceTree = "<group>"; };
+		237312FF18818D050052054E /* pa_debugprint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_debugprint.h; path = ../external/portaudio/src/common/pa_debugprint.h; sourceTree = "<group>"; };
+		2373130018818D050052054E /* pa_dither.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_dither.c; path = ../external/portaudio/src/common/pa_dither.c; sourceTree = "<group>"; };
+		2373130118818D050052054E /* pa_dither.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_dither.h; path = ../external/portaudio/src/common/pa_dither.h; sourceTree = "<group>"; };
+		2373130218818D050052054E /* pa_endianness.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_endianness.h; path = ../external/portaudio/src/common/pa_endianness.h; sourceTree = "<group>"; };
+		2373130318818D050052054E /* pa_front.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_front.c; path = ../external/portaudio/src/common/pa_front.c; sourceTree = "<group>"; };
+		2373130418818D050052054E /* pa_hostapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_hostapi.h; path = ../external/portaudio/src/common/pa_hostapi.h; sourceTree = "<group>"; };
+		2373130518818D050052054E /* pa_memorybarrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_memorybarrier.h; path = ../external/portaudio/src/common/pa_memorybarrier.h; sourceTree = "<group>"; };
+		2373130618818D050052054E /* pa_process.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_process.c; path = ../external/portaudio/src/common/pa_process.c; sourceTree = "<group>"; };
+		2373130718818D050052054E /* pa_process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_process.h; path = ../external/portaudio/src/common/pa_process.h; sourceTree = "<group>"; };
+		2373130818818D050052054E /* pa_ringbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_ringbuffer.c; path = ../external/portaudio/src/common/pa_ringbuffer.c; sourceTree = "<group>"; };
+		2373130918818D050052054E /* pa_ringbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_ringbuffer.h; path = ../external/portaudio/src/common/pa_ringbuffer.h; sourceTree = "<group>"; };
+		2373130A18818D050052054E /* pa_stream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_stream.c; path = ../external/portaudio/src/common/pa_stream.c; sourceTree = "<group>"; };
+		2373130B18818D050052054E /* pa_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_stream.h; path = ../external/portaudio/src/common/pa_stream.h; sourceTree = "<group>"; };
+		2373130C18818D050052054E /* pa_trace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_trace.c; path = ../external/portaudio/src/common/pa_trace.c; sourceTree = "<group>"; };
+		2373130D18818D050052054E /* pa_trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_trace.h; path = ../external/portaudio/src/common/pa_trace.h; sourceTree = "<group>"; };
+		2373130E18818D050052054E /* pa_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_types.h; path = ../external/portaudio/src/common/pa_types.h; sourceTree = "<group>"; };
+		2373130F18818D050052054E /* pa_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_util.h; path = ../external/portaudio/src/common/pa_util.h; sourceTree = "<group>"; };
+		2373132818818D260052054E /* notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = notes.txt; path = ../external/portaudio/src/hostapi/coreaudio/notes.txt; sourceTree = "<group>"; };
+		2373132918818D260052054E /* pa_mac_core_blocking.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_mac_core_blocking.c; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core_blocking.c; sourceTree = "<group>"; };
+		2373132A18818D260052054E /* pa_mac_core_blocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_mac_core_blocking.h; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core_blocking.h; sourceTree = "<group>"; };
+		2373132B18818D260052054E /* pa_mac_core_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_mac_core_internal.h; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core_internal.h; sourceTree = "<group>"; };
+		2373132C18818D260052054E /* pa_mac_core_utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_mac_core_utilities.c; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core_utilities.c; sourceTree = "<group>"; };
+		2373132D18818D260052054E /* pa_mac_core_utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_mac_core_utilities.h; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core_utilities.h; sourceTree = "<group>"; };
+		2373132E18818D260052054E /* pa_mac_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_mac_core.c; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core.c; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -730,6 +801,49 @@
 			path = ../chromaprint;
 			sourceTree = "<group>";
 		};
+		237312ED188185B80052054E /* portaudio */ = {
+			isa = PBXGroup;
+			children = (
+				2373132818818D260052054E /* notes.txt */,
+				2373132918818D260052054E /* pa_mac_core_blocking.c */,
+				2373132A18818D260052054E /* pa_mac_core_blocking.h */,
+				2373132B18818D260052054E /* pa_mac_core_internal.h */,
+				2373132C18818D260052054E /* pa_mac_core_utilities.c */,
+				2373132D18818D260052054E /* pa_mac_core_utilities.h */,
+				2373132E18818D260052054E /* pa_mac_core.c */,
+				237312F818818D050052054E /* pa_allocation.c */,
+				237312F918818D050052054E /* pa_allocation.h */,
+				237312FA18818D050052054E /* pa_converters.c */,
+				237312FB18818D050052054E /* pa_converters.h */,
+				237312FC18818D050052054E /* pa_cpuload.c */,
+				237312FD18818D050052054E /* pa_cpuload.h */,
+				237312FE18818D050052054E /* pa_debugprint.c */,
+				237312FF18818D050052054E /* pa_debugprint.h */,
+				2373130018818D050052054E /* pa_dither.c */,
+				2373130118818D050052054E /* pa_dither.h */,
+				2373130218818D050052054E /* pa_endianness.h */,
+				2373130318818D050052054E /* pa_front.c */,
+				2373130418818D050052054E /* pa_hostapi.h */,
+				2373130518818D050052054E /* pa_memorybarrier.h */,
+				2373130618818D050052054E /* pa_process.c */,
+				2373130718818D050052054E /* pa_process.h */,
+				2373130818818D050052054E /* pa_ringbuffer.c */,
+				2373130918818D050052054E /* pa_ringbuffer.h */,
+				2373130A18818D050052054E /* pa_stream.c */,
+				2373130B18818D050052054E /* pa_stream.h */,
+				2373130C18818D050052054E /* pa_trace.c */,
+				2373130D18818D050052054E /* pa_trace.h */,
+				2373130E18818D050052054E /* pa_types.h */,
+				2373130F18818D050052054E /* pa_util.h */,
+				237312F218818CDE0052054E /* pa_unix_hostapis.c */,
+				237312F318818CDE0052054E /* pa_unix_util.c */,
+				237312F418818CDE0052054E /* pa_unix_util.h */,
+				237312EE18818CBE0052054E /* pa_mac_core.h */,
+				237312EF18818CBE0052054E /* portaudio.h */,
+			);
+			name = portaudio;
+			sourceTree = "<group>";
+		};
 		238E98621696608E00C42074 /* guiCocoaCommon.so */ = {
 			isa = PBXGroup;
 			children = (
@@ -927,6 +1041,7 @@
 				238E98621696608E00C42074 /* guiCocoaCommon.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
+				237312ED188185B80052054E /* portaudio */,
 				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A3815E3B2CC00376BF6 /* Frameworks */,
@@ -1118,33 +1233,46 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2373131118818D050052054E /* pa_allocation.h in Headers */,
+				2373131718818D050052054E /* pa_debugprint.h in Headers */,
 				233684F01600BD7F00A38E78 /* audio_consumer.h in Headers */,
 				233684F21600BD7F00A38E78 /* audio_processor.h in Headers */,
 				23E5BA05186DEE7900A7FB9F /* PyThreading.hpp in Headers */,
 				233684F71600BD7F00A38E78 /* base64.h in Headers */,
 				233684F81600BD7F00A38E78 /* bit_string_reader.h in Headers */,
+				2373131A18818D050052054E /* pa_endianness.h in Headers */,
 				233684F91600BD7F00A38E78 /* bit_string_writer.h in Headers */,
 				233684FB1600BD7F00A38E78 /* chroma.h in Headers */,
 				237312E7187821550052054E /* IntrusivePtr.hpp in Headers */,
 				233684FD1600BD7F00A38E78 /* chroma_filter.h in Headers */,
+				2373131F18818D050052054E /* pa_process.h in Headers */,
+				237312F718818CDE0052054E /* pa_unix_util.h in Headers */,
 				23E5BA07186DEE7900A7FB9F /* SampleType.hpp in Headers */,
+				2373132118818D050052054E /* pa_ringbuffer.h in Headers */,
 				23E5BA03186DEE7900A7FB9F /* LinkedList.hpp in Headers */,
 				233684FE1600BD7F00A38E78 /* chroma_normalizer.h in Headers */,
 				233685001600BD7F00A38E78 /* chroma_resampler.h in Headers */,
+				2373131918818D050052054E /* pa_dither.h in Headers */,
 				233685021600BD7F00A38E78 /* chromaprint.h in Headers */,
 				233685031600BD7F00A38E78 /* classifier.h in Headers */,
 				233685041600BD7F00A38E78 /* combined_buffer.h in Headers */,
+				237312F018818CBE0052054E /* pa_mac_core.h in Headers */,
 				233685051600BD7F00A38E78 /* debug.h in Headers */,
 				23E5BA08186DEE7900A7FB9F /* SmoothClip.hpp in Headers */,
+				2373133018818D260052054E /* pa_mac_core_blocking.h in Headers */,
 				23E5BA06186DEE7900A7FB9F /* PyUtils.h in Headers */,
 				233685061600BD7F00A38E78 /* decoder.h in Headers */,
+				2373131518818D050052054E /* pa_cpuload.h in Headers */,
 				23E5BA01186DEE7900A7FB9F /* Buffer.hpp in Headers */,
 				2336850C1600BD7F00A38E78 /* feature_vector_consumer.h in Headers */,
+				2373132518818D050052054E /* pa_trace.h in Headers */,
 				237312EB187C5CBE0052054E /* Log.hpp in Headers */,
 				2336850E1600BD7F00A38E78 /* fft.h in Headers */,
 				23E5BA04186DEE7900A7FB9F /* Protection.hpp in Headers */,
+				2373131D18818D050052054E /* pa_memorybarrier.h in Headers */,
 				2336850F1600BD7F00A38E78 /* fft_frame.h in Headers */,
 				233685101600BD7F00A38E78 /* fft_frame_consumer.h in Headers */,
+				2373131318818D050052054E /* pa_converters.h in Headers */,
 				233685111600BD7F00A38E78 /* fft_lib.h in Headers */,
 				233685131600BD7F00A38E78 /* fft_lib_avfft.h in Headers */,
 				233685191600BD7F00A38E78 /* filter.h in Headers */,
@@ -1157,16 +1285,23 @@
 				233685221600BD7F00A38E78 /* fingerprinter.h in Headers */,
 				233685241600BD7F00A38E78 /* fingerprinter_configuration.h in Headers */,
 				233685261600BD7F00A38E78 /* image.h in Headers */,
+				2373132318818D050052054E /* pa_stream.h in Headers */,
 				233685281600BD7F00A38E78 /* image_builder.h in Headers */,
+				2373132718818D050052054E /* pa_util.h in Headers */,
 				2336852A1600BD7F00A38E78 /* integral_image.h in Headers */,
 				237312E9187821550052054E /* PlayerInStream.hpp in Headers */,
+				2373131C18818D050052054E /* pa_hostapi.h in Headers */,
 				2336852D1600BD7F00A38E78 /* moving_average.h in Headers */,
 				2336852E1600BD7F00A38E78 /* quantizer.h in Headers */,
 				233685301600BD7F00A38E78 /* silence_remover.h in Headers */,
+				2373133118818D260052054E /* pa_mac_core_internal.h in Headers */,
+				2373133318818D260052054E /* pa_mac_core_utilities.h in Headers */,
 				233685341600BD7F00A38E78 /* spectral_centroid.h in Headers */,
 				233685361600BD7F00A38E78 /* spectrum.h in Headers */,
+				2373132618818D050052054E /* pa_types.h in Headers */,
 				233685371600BD7F00A38E78 /* utils.h in Headers */,
 				2336853A1600BF0200A38E78 /* config.h in Headers */,
+				237312F118818CBE0052054E /* portaudio.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1503,34 +1638,49 @@
 			files = (
 				23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */,
 				233684F11600BD7F00A38E78 /* audio_processor.cpp in Sources */,
+				2373132018818D050052054E /* pa_ringbuffer.c in Sources */,
 				233684F61600BD7F00A38E78 /* base64.cpp in Sources */,
 				233684FA1600BD7F00A38E78 /* chroma.cpp in Sources */,
+				2373132F18818D260052054E /* pa_mac_core_blocking.c in Sources */,
 				233684FC1600BD7F00A38E78 /* chroma_filter.cpp in Sources */,
 				233684FF1600BD7F00A38E78 /* chroma_resampler.cpp in Sources */,
 				233685011600BD7F00A38E78 /* chromaprint.cpp in Sources */,
 				2336850D1600BD7F00A38E78 /* fft.cpp in Sources */,
+				2373131418818D050052054E /* pa_cpuload.c in Sources */,
+				237312F518818CDE0052054E /* pa_unix_hostapis.c in Sources */,
 				233685121600BD7F00A38E78 /* fft_lib_avfft.cpp in Sources */,
 				233685181600BD7F00A38E78 /* filter.cpp in Sources */,
 				2336851B1600BD7F00A38E78 /* fingerprint_calculator.cpp in Sources */,
 				2336851D1600BD7F00A38E78 /* fingerprint_compressor.cpp in Sources */,
+				2373133418818D260052054E /* pa_mac_core.c in Sources */,
 				2336851F1600BD7F00A38E78 /* fingerprint_decompressor.cpp in Sources */,
+				2373131018818D050052054E /* pa_allocation.c in Sources */,
+				2373131818818D050052054E /* pa_dither.c in Sources */,
 				233685211600BD7F00A38E78 /* fingerprinter.cpp in Sources */,
 				233685231600BD7F00A38E78 /* fingerprinter_configuration.cpp in Sources */,
+				237312F618818CDE0052054E /* pa_unix_util.c in Sources */,
 				233685271600BD7F00A38E78 /* image_builder.cpp in Sources */,
 				233685291600BD7F00A38E78 /* integral_image.cpp in Sources */,
 				2336852F1600BD7F00A38E78 /* silence_remover.cpp in Sources */,
+				2373132418818D050052054E /* pa_trace.c in Sources */,
 				233685331600BD7F00A38E78 /* spectral_centroid.cpp in Sources */,
 				235A99661871180800D5CC20 /* Buffer.cpp in Sources */,
+				2373131E18818D050052054E /* pa_process.c in Sources */,
+				2373132218818D050052054E /* pa_stream.c in Sources */,
 				233685351600BD7F00A38E78 /* spectrum.cpp in Sources */,
+				2373131B18818D050052054E /* pa_front.c in Sources */,
+				2373133218818D260052054E /* pa_mac_core_utilities.c in Sources */,
 				23ACE7001689E24A00E45134 /* ffmpeg_getmetadata.cpp in Sources */,
 				23ACE7031689E39600E45134 /* ffmpeg_acoustid.cpp in Sources */,
 				23ACE7051689E4D500E45134 /* ffmpeg_replaygain.cpp in Sources */,
+				2373131618818D050052054E /* pa_debugprint.c in Sources */,
 				23ACE7071689E54300E45134 /* ffmpeg_player.cpp in Sources */,
 				23ACE7091689E66500E45134 /* ffmpeg_player_decoding.cpp in Sources */,
 				23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */,
 				23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */,
 				237312E31871AEFF0052054E /* Fader.cpp in Sources */,
 				23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */,
+				2373131218818D050052054E /* pa_converters.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1810,6 +1960,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
+					"$(PROJECT_DIR)/../external/portaudio/include",
 					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LD_DYLIB_INSTALL_NAME = "";
@@ -1819,7 +1970,6 @@
 					"-lavutil",
 					"-lavcodec",
 					"-lswresample",
-					"-lportaudio",
 					"-undefined",
 					dynamic_lookup,
 				);
@@ -1835,6 +1985,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
+					"$(PROJECT_DIR)/../external/portaudio/include",
 					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LD_DYLIB_INSTALL_NAME = "";
@@ -1844,7 +1995,6 @@
 					"-lavutil",
 					"-lavcodec",
 					"-lswresample",
-					"-lportaudio",
 					"-undefined",
 					dynamic_lookup,
 				);
