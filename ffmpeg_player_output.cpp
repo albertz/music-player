@@ -293,7 +293,7 @@ void PlayerObject::resetPlaying() {
 #ifdef __APPLE__
 // https://developer.apple.com/library/mac/#documentation/Darwin/Conceptual/KernelProgramming/scheduler/scheduler.html
 // Also, from Google Native Client, osx/nacl_thread_nice.c has some related code.
-// Or, from Google Chrome, platform_thread_mac.mm.
+// Or, from Google Chrome, platform_thread_mac.mm. http://src.chromium.org/svn/trunk/src/base/threading/platform_thread_mac.mm
 void setRealtime() {
 	kern_return_t ret;
 	thread_port_t threadport = pthread_mach_thread_np(pthread_self());
@@ -320,15 +320,17 @@ void setRealtime() {
 		return;
 	}
 	
+	// Get the conversion factor from milliseconds to absolute time
+	// which is what the time-constraints call needs.
 	mach_timebase_info_data_t tb_info;
 	mach_timebase_info(&tb_info);
 	double timeFact = ((double)tb_info.denom / (double)tb_info.numer) * 1000000;
 	
 	thread_time_constraint_policy_data_t ttcpolicy;
 	ttcpolicy.period = 2.9 * timeFact; // about 128 frames @44.1KHz
-	ttcpolicy.computation = 0.75 * 2.9 * timeFact;
-	ttcpolicy.constraint = 0.85 * 2.9 * timeFact;
-	ttcpolicy.preemptible = 1;
+	ttcpolicy.computation = 0.75 * ttcpolicy.period;
+	ttcpolicy.constraint = 0.85 * ttcpolicy.period;
+	ttcpolicy.preemptible = 0;
 	
 	ret = thread_policy_set(threadport,
 							THREAD_TIME_CONSTRAINT_POLICY,
