@@ -347,8 +347,10 @@ void setRealtime(double dutyCicleMs) {
 	mach_timebase_info(&tb_info);
 	double timeFact = ((double)tb_info.denom / (double)tb_info.numer) * 1000000;
 	
+	// In Chrome: period = 2.9ms ~= 128 frames @44.1KHz, comp = 0.75 * period, constr = 0.85 * period.
+	// Also read: http://lists.apple.com/archives/coreaudio-api/2009/Jun/msg00059.html
+	// Or: http://web.archiveorange.com/archive/v/q7bubBVFSGH286ErO0zz
 	thread_time_constraint_policy_data_t ttcpolicy;
-	// in Chrome: period = 2.9ms ~= 128 frames @44.1KHz, comp = 0.75 * period, constr = 0.85 * period.
 	ttcpolicy.period = dutyCicleMs * timeFact;
 	ttcpolicy.computation = dutyCicleMs * 0.75 * timeFact;
 	ttcpolicy.constraint = dutyCicleMs * 0.85 * timeFact;
