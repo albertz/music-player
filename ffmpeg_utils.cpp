@@ -179,7 +179,7 @@ PyThread::~PyThread() {
 
 static void PyThread_thread(void* p) {
 	PyThread* t = (PyThread*)p;
-	t->func(t->lock, t->stopSignal);
+	t->func(t->stopSignal);
 	{
 		PyScopedLock l(t->lock);
 		t->running = false;
@@ -190,12 +190,15 @@ bool PyThread::start() {
 	PyScopedLock l(lock);
 	if(running) return true;
 	stopSignal = false;
-	running = true;
-	ident = PyThread_start_new_thread(PyThread_thread, this);
-	if(ident == -1) {
-		running = false;
-		return false;
+	bool expectedRunning = false;
+	if(running.compare_exchange_strong(expectedRunning, true)) {
+		ident = PyThread_start_new_thread(PyThread_thread, this);
+		if(ident == -1) {
+			running = false;
+			return false;
+		}
 	}
+	else assert(false);
 	return true;
 }
 
@@ -205,7 +208,7 @@ void PyThread::wait() {
 			PyScopedLock l(lock);
 			if(!running) return;
 		}
-		usleep(1000);
+		usleep(100);
 	}
 }
 

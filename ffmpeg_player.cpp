@@ -206,7 +206,7 @@ int player_init(PyObject* self, PyObject* args, PyObject* kwds) {
 		player->lock.enabled = true;
 	}
 	
-	player->workerThread.func = boost::bind(&PlayerObject::workerProc, player, _1, _2);
+	player->workerThread.func = boost::bind(&PlayerObject::workerProc, player, _1);
 	
 	return 0;
 }

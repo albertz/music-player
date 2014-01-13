@@ -6,6 +6,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
+#include <boost/atomic.hpp>
 
 
 struct PyMutex {
@@ -47,9 +48,9 @@ struct PyScopedGIUnlock : boost::noncopyable {
 
 struct PyThread : boost::noncopyable {
 	PyMutex lock;
-	bool running;
-	bool stopSignal;
-	boost::function<void(PyMutex& lock, bool& stopSignal)> func;
+	boost::atomic<bool> running;
+	boost::atomic<bool> stopSignal;
+	boost::function<void(boost::atomic<bool>& stopSignal)> func;
 	long ident;
 	PyThread(); ~PyThread();
 	bool start();

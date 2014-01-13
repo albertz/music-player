@@ -92,7 +92,7 @@ struct PlayerObject {
 	int seekAbs(double pos);
 	bool getNextSong(bool skipped);
 	
-	void workerProc(PyMutex& lock, bool& stopSignal);
+	void workerProc(boost::atomic<bool>& stopSignal);
 	PyThread workerThread;
 	
 	typedef LinkedList<PlayerInStream> InStreams;

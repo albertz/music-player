@@ -1403,14 +1403,11 @@ static bool loopFrame(PlayerObject* player) {
 	return didSomething;
 }
 
-void PlayerObject::workerProc(PyMutex& threadLock, bool& stopSignal) {
+void PlayerObject::workerProc(boost::atomic<bool>& stopSignal) {
 	setCurThreadName("worker");
 	
 	while(true) {
-		{
-			PyScopedLock l(threadLock);
-			if(stopSignal) return;
-		}
+		if(stopSignal) return;
 		
 		bool didSomething = loopFrame(this);
 		if(!didSomething)
