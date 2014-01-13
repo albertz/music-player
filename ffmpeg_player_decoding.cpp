@@ -1383,17 +1383,16 @@ static bool loopFrame(PlayerObject* player) {
 			bool ret = player->openInStream();
 			if(ret && player->nextSongOnEof)
 				player->openPeekInStreams();
-			return true;
 		}
-
-		if(inStream && inStream->playerHitEnd) {
+		
+		else if(inStream && inStream->playerHitEnd) {
 			workerLog << "song finished" << endl;
 			pushPyEv_onSongFinished(inStream);
 			popFront(inStreamPtr);
 			inStream = NULL;
 		}
 		
-		if(inStream && !inStream->isOpened()) {
+		else if(inStream && !inStream->isOpened()) {
 			workerLog << "pop front stream" << endl;
 			popFront(inStreamPtr);
 			inStream = NULL;
@@ -1403,6 +1402,7 @@ static bool loopFrame(PlayerObject* player) {
 			workerLog << "switch song" << endl;
 			switchNextSong();
 		}
+		
 	}
 	
 	for(PlayerInStream& is : player->inStreams) {
