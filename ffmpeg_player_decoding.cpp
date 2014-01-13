@@ -1438,6 +1438,9 @@ void PlayerObject::workerProc(boost::atomic<bool>& stopSignal) {
 	}
 }
 
+void PlayerObject::startWorkerThread() {
+	workerThread.start();
+}
 
 
 bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t* sampleNumOut) {

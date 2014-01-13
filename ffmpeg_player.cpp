@@ -363,6 +363,29 @@ static PyMethodDef md_reloadPeekStreams = {
 	NULL
 };
 
+
+static
+PyObject* player_method_startWorkerThread(PyObject* self, PyObject* _unused_arg) {
+	PlayerObject* player = (PlayerObject*) self;
+	Py_INCREF(self);
+	Py_BEGIN_ALLOW_THREADS
+	{
+		PyScopedLock lock(player->lock);
+		player->startWorkerThread();
+	}
+	Py_END_ALLOW_THREADS
+	Py_DECREF(self);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMethodDef md_startWorkerThread = {
+	"startWorkerThread",
+	player_method_startWorkerThread,
+	METH_NOARGS,
+	NULL
+};
+
 static
 PyObject* player_method_readOutStream(PyObject* self, PyObject* args, PyObject* kws) {
 	PlayerObject* player = (PlayerObject*) self;
@@ -462,7 +485,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		const Py_ssize_t C = 22;
+		const Py_ssize_t C = 23;
 		PyObject* mlist = PyList_New(C);
 		int i = 0;
 		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
@@ -478,6 +501,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, i++, PyString_FromString("seekRel"));
 		PyList_SetItem(mlist, i++, PyString_FromString("nextSong"));
 		PyList_SetItem(mlist, i++, PyString_FromString("reloadPeekStreams"));
+		PyList_SetItem(mlist, i++, PyString_FromString("startWorkerThread"));
 		PyList_SetItem(mlist, i++, PyString_FromString("readOutStream"));
 		PyList_SetItem(mlist, i++, PyString_FromString("volume"));
 		PyList_SetItem(mlist, i++, PyString_FromString("volumeSmoothClip"));
@@ -568,6 +592,10 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	
 	if(strcmp(key, "reloadPeekStreams") == 0) {
 		return PyCFunction_New(&md_reloadPeekStreams, (PyObject*) player);
+	}
+
+	if(strcmp(key, "startWorkerThread") == 0) {
+		return PyCFunction_New(&md_startWorkerThread, (PyObject*) player);
 	}
 
 	if(strcmp(key, "readOutStream") == 0) {

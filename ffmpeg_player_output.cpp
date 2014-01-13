@@ -285,7 +285,7 @@ int PlayerObject::setPlaying(bool playing) {
 		PyScopedGIUnlock gunlock;
 		
 		if(playing)
-			player->workerThread.start(); // if not running yet, start
+			startWorkerThread(); // if not running yet, start
 		
 		if(playing && !openOutStream())
 			playing = false;

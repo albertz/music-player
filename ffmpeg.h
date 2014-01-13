@@ -97,6 +97,7 @@ struct PlayerObject {
 	
 	void workerProc(boost::atomic<bool>& stopSignal);
 	PyThread workerThread;
+	void startWorkerThread();
 	
 	typedef LinkedList<PlayerInStream> InStreams;
 	InStreams inStreams;
