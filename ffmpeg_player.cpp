@@ -56,11 +56,7 @@ bool PlayerObject::getNextSong(bool skipped) {
 	}
 
 	{
-		if(tryOvertakePeekInStream()) {
-			ret = true; // nothing needs to be done anymore!
-		}
-		else if(player->openInStream()) {
-			outOfSync = true; // new input stream
+		if(player->openInStream()) {
 			ret = true; // but everything is fine
 		}
 		else {

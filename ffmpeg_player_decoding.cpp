@@ -747,7 +747,10 @@ final:
 
 bool PlayerObject::openInStream() {	
 	assert(this->curSong != NULL);
-	
+
+	if(tryOvertakePeekInStream())
+		return true;
+		
 	PyScopedGIUnlock gunlock;
 
 	InStreams::ItemPtr is;
@@ -771,6 +774,7 @@ bool PlayerObject::openInStream() {
 		}
 	}
 	
+	outOfSync = true; // new input stream
 	inStreams.push_front(is);
 	
 	return true;
@@ -1372,6 +1376,11 @@ static bool loopFrame(PlayerObject* player) {
 				
 		PlayerObject::InStreams::ItemPtr inStreamPtr = player->inStreams.front();
 		PlayerInStream* inStream = inStreamPtr ? &inStreamPtr->value : NULL;
+
+		if(inStream && player->curSong != inStream->song) {
+			workerLog << "current " << objStr(player->curSong)
+			<< " is not the same as the first stream " << objStr(inStream->song) << endl;
+		}
 
 		if(inStream && inStream->playerHitEnd) {
 			workerLog << "song finished" << endl;
