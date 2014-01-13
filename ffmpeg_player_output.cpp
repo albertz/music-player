@@ -245,6 +245,32 @@ struct PlayerObject::OutStream {
 
 
 
+bool PlayerObject::openOutStream() {
+	if(!soundcardOutputEnabled)
+		return true;
+	
+	if(!outStream.get())
+		outStream.reset(new OutStream(this));
+	assert(outStream.get() != NULL);
+
+	if(!outStream->isOpen()) {
+		if(!outStream->open())
+			return false;
+	}
+	
+	return true;
+}
+
+bool PlayerObject::isOutStreamOpen() {
+	if(!outStream.get()) return false;
+	return outStream->isOpen();
+}
+
+void PlayerObject::closeOutStream() {
+	if(!outStream.get()) return;
+	if(!outStream->isOpen()) return;
+	outStream->close();
+}
 
 
 int PlayerObject::setPlaying(bool playing) {
@@ -258,17 +284,11 @@ int PlayerObject::setPlaying(bool playing) {
 	{
 		PyScopedGIUnlock gunlock;
 		
-		player->workerThread.start(); // if not running yet, start
-		if(!player->outStream.get())
-			player->outStream.reset(new OutStream(this));
-		assert(player->outStream.get() != NULL);
+		if(playing)
+			player->workerThread.start(); // if not running yet, start
 		
-		if(soundcardOutputEnabled) {
-			if(playing && !player->outStream->isOpen()) {
-				if(!player->outStream->open())
-					playing = false;
-			}
-		}
+		if(playing && !openOutStream())
+			playing = false;
 		
 		if(soundcardOutputEnabled && player->outStream.get() && player->outStream->isOpen() && oldplayingstate != playing)
 			fader.change(playing ? 1 : -1, outSamplerate);

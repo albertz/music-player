@@ -1414,6 +1414,14 @@ static bool loopFrame(PlayerObject* player) {
 			didSomething = true;
 		}
 	}
+
+	{
+		PyScopedLock lock(player->lock);
+		if(player->isOutStreamOpen() && !player->playing && player->fader.finished()) {
+			workerLog << "close output stream" << endl;
+			player->closeOutStream();
+		}
+	}
 	
 	return didSomething;
 }
