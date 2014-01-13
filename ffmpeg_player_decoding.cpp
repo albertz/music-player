@@ -1369,6 +1369,9 @@ static bool loopFrame(PlayerObject* player) {
 			workerLog << "open first song" << endl;
 			switchNextSong();
 		}
+		
+		if(!player->curSong)
+			return true;
 	}
 	
 	{
