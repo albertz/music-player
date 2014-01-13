@@ -56,9 +56,8 @@ bool PlayerObject::getNextSong(bool skipped) {
 	}
 
 	{
-		if(player->openInStream()) {
-			ret = true; // but everything is fine
-		}
+		if(player->openInStream())
+			ret = true;
 		else {
 			// This is not fatal, so don't make a Python exception.
 			// When we are in playing state, we will just skip to the next song.
