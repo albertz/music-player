@@ -750,7 +750,8 @@ bool PlayerObject::openInStream() {
 
 	if(tryOvertakePeekInStream())
 		return true;
-		
+	outOfSync = true; // new input stream
+	
 	PyScopedGIUnlock gunlock;
 
 	InStreams::ItemPtr is;
@@ -774,9 +775,7 @@ bool PlayerObject::openInStream() {
 		}
 	}
 	
-	outOfSync = true; // new input stream
 	inStreams.push_front(is);
-	
 	return true;
 }
 
