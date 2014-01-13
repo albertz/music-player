@@ -103,7 +103,7 @@ final:
 
 	pyQueueLock = false;
 	
-	if(ret)
+	if(ret && nextSongOnEof)
 		openPeekInStreams();
 	return ret;
 }

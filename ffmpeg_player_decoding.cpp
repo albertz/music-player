@@ -1380,6 +1380,10 @@ static bool loopFrame(PlayerObject* player) {
 		if(inStream && player->curSong != inStream->song) {
 			workerLog << "current " << objStr(player->curSong)
 			<< " is not the same as the first stream " << objStr(inStream->song) << endl;
+			bool ret = player->openInStream();
+			if(ret && player->nextSongOnEof)
+				player->openPeekInStreams();
+			return true;
 		}
 
 		if(inStream && inStream->playerHitEnd) {
