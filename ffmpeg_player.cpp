@@ -34,7 +34,6 @@ bool PlayerObject::getNextSong(bool skipped) {
 	bool errorOnOpening = false;
 	
 	PyObject* oldSong = player->curSong;
-	player->curSong = NULL;
 
 	{
 		PyScopedGIL gstate;
@@ -48,11 +47,15 @@ bool PlayerObject::getNextSong(bool skipped) {
 		// using CPython 2.7 headers. Anyway, just calling PyIter_Next directly
 		// is also ok since it will do the check itself.
 		
-		player->curSong = PyIter_Next(player->queue);
+		PyObject* newSong = PyIter_Next(player->queue);
 		
-		// pass through any Python errors
-		if(!player->curSong || PyErr_Occurred())
+		if(!newSong || PyErr_Occurred()) { // pass through any Python errors
+			Py_XDECREF(newSong);
 			goto final;
+		}
+		
+		assert(newSong);
+		player->curSong = newSong;
 	}
 
 	{
