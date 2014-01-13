@@ -83,6 +83,9 @@ def loadPlayer(state):
 	player.queue = songsQueue(state)
 	player.peekQueue = songsPeekQueue()
 	player.volume = state.volume
+
+	player.startWorkerThread()
+
 	return player
 
 def playerMain():
