@@ -82,9 +82,6 @@ int main(int argc, char *argv[])
 	sys_argc = argc;
 	sys_argv = argv;
 	//return NSApplicationMain(argc, (const char **)argv);
-
-	// Not used in ARC-enabled code?
-	//NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	forkExecProc = haveArg("--forkExecProc");
 	bool shell = haveArg("--shell");
@@ -102,42 +99,45 @@ int main(int argc, char *argv[])
 			   );
 	}
 	
-	NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
-	Py_SetProgramName(argv[0]);
-	if(!forkExecProc)
-		printf("Python version: %s, prefix: %s, main: %s\n", Py_GetVersion(), Py_GetPrefix(), [mainPyFilename UTF8String]);
-	
-	Py_Initialize();
-	PyEval_InitThreads();
-	addPyPath();
+	@autoreleasepool
+	{
+		NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
+		Py_SetProgramName(argv[0]);
+		if(!forkExecProc)
+			printf("Python version: %s, prefix: %s, main: %s\n", Py_GetVersion(), Py_GetPrefix(), [mainPyFilename UTF8String]);
+		
+		Py_Initialize();
+		PyEval_InitThreads();
+		addPyPath();
 
-	// Preload imp and thread. I hope to fix this bug: https://github.com/albertz/music-player/issues/8 , there was a crash in initthread which itself has called initimp
-	PyObject* m = NULL;
-	m = PyImport_ImportModule("imp");
-	Py_XDECREF(m);
-	m = PyImport_ImportModule("thread");
-	Py_XDECREF(m);
-	
-	PySys_SetArgvEx(argc, argv, 0);
-	
-	if(pyShell || shell || forkExecProc || help) {} // be quiet
-	else if(AmIBeingDebugged()) {
-		printf("debugger detected, not redirecting stdout/stderr\n");
+		// Preload imp and thread. I hope to fix this bug: https://github.com/albertz/music-player/issues/8 , there was a crash in initthread which itself has called initimp
+		PyObject* m = NULL;
+		m = PyImport_ImportModule("imp");
+		Py_XDECREF(m);
+		m = PyImport_ImportModule("thread");
+		Py_XDECREF(m);
+		
+		PySys_SetArgvEx(argc, argv, 0);
+		
+		if(pyShell || shell || forkExecProc || help) {} // be quiet
+		else if(AmIBeingDebugged()) {
+			printf("debugger detected, not redirecting stdout/stderr\n");
+		}
+		else if(noLog) {
+			printf("not redirecting stdout/stderr\n");
+		}
+		else {
+			// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
+			printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
+			freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
+			freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stderr);
+			PyRun_SimpleString("print 'hello there'");
+		}
+		
+		FILE* fp = fopen((char*)[mainPyFilename UTF8String], "r");
+		assert(fp);
+		PyRun_SimpleFile(fp, "main.py");
 	}
-	else if(noLog) {
-		printf("not redirecting stdout/stderr\n");
-	}
-	else {
-		// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
-		printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
-		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
-		freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stderr);
-		PyRun_SimpleString("print 'hello there'");
-	}
-	
-	FILE* fp = fopen((char*)[mainPyFilename UTF8String], "r");
-	assert(fp);
-	PyRun_SimpleFile(fp, "main.py");
 	
 	return 0;
 }
