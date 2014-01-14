@@ -55,6 +55,8 @@
 		237313AF188564CF0052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313AE188564CF0052054E /* Foundation.framework */; };
 		237313B1188564E00052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B0188564E00052054E /* CoreFoundation.framework */; };
 		237313B3188564EA0052054E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B2188564EA0052054E /* Cocoa.framework */; };
+		237313B618859A550052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B418859A550052054E /* CoreFoundation.framework */; };
+		237313B718859A550052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B518859A550052054E /* Foundation.framework */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -427,6 +429,8 @@
 		237313AE188564CF0052054E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		237313B0188564E00052054E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
 		237313B2188564EA0052054E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
+		237313B418859A550052054E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
+		237313B518859A550052054E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -646,6 +650,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				237313B618859A550052054E /* CoreFoundation.framework in Frameworks */,
+				237313B718859A550052054E /* Foundation.framework in Frameworks */,
 				238E986D169664B400C42074 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1039,6 +1045,8 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				237313B418859A550052054E /* CoreFoundation.framework */,
+				237313B518859A550052054E /* Foundation.framework */,
 				237313B2188564EA0052054E /* Cocoa.framework */,
 				237313B0188564E00052054E /* CoreFoundation.framework */,
 				237313AE188564CF0052054E /* Foundation.framework */,
