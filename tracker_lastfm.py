@@ -15,6 +15,10 @@ import appinfo
 import lastfm
 
 def track(event, args, kwargs):
+	# Note that we can get an `onSongChange` when we are not playing,
+	# e.g. at startup (first song) or when the user presses `nextSong`.
+	# So it might make sense to delay that here...
+	# We don't for now for simplicity reasons...
 	if event is PlayerEventCallbacks.onSongChange:
 		oldSong = kwargs["oldSong"]
 		newSong = kwargs["newSong"]
