@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
 		forkExecProc = haveArg("--forkExecProc");
 		bool shell = haveArg("--shell");
 		bool pyShell = haveArg("--pyshell");
+		bool pyExec = haveArg("--pyexec");
 		bool noLog = haveArg("--nolog");
 		bool help = haveArg("--help") || haveArg("-h");
 		bool beingDebugged = AmIBeingDebugged();
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
 		bool logEnabled = false;
 		const char* logDisabledReason = NULL;
 		NSString* logFilename = @"~/Library/Logs/com.albertzeyer.MusicPlayer.log";
-		if(pyShell || shell || forkExecProc || help) {} // be quiet
+		if(pyShell || pyExec || shell || forkExecProc || help) {} // be quiet
 		else if(beingDebugged) {
 			logDisabledReason = "debugger detected, not redirecting stdout/stderr";
 		}
@@ -184,7 +185,7 @@ int main(int argc, char *argv[])
 		assert(fp);
 		PyRun_SimpleFile(fp, "main.py");
 		
-		if(!forkExecProc && !help && !pyShell && !shell) {
+		if(!forkExecProc && !help && !pyShell && !pyExec && !shell) {
 			bool successStartup = checkStartupSuccess();
 			if(!successStartup) {
 				printf("Error at startup.\n");
