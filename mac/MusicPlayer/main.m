@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Python.h>
+#include <stdio.h>
 
 
 // for AmIBeingDebugged
@@ -77,30 +78,90 @@ static bool haveArg(const char* arg) {
 	return false;
 }
 
+static bool checkStartupSuccess() {
+	PyObject* mods = PyImport_GetModuleDict();
+	if(!mods) return false;
+	PyObject* m = PyDict_GetItemString(mods, "main");
+	if(!m) return false;
+
+	PyObject* successObj = PyObject_GetAttrString(m, "successStartup");
+	bool success = false;
+	if(successObj)
+		success = PyObject_IsTrue(successObj);
+	
+	Py_XDECREF(successObj);
+	mods = NULL; // borrowed
+	m = NULL; // borrowed
+	
+	return success;
+}
+
+const char* StartupStr = "Hello from MusicPlayer on MacOSX.\n";
+
+static NSString* getRelevantLogOutput(const char* filename) {
+	fflush(stdout);
+	FILE* f = fopen(filename, "r");
+	if(!f) return nil;
+	
+	NSMutableString* buffer = [NSMutableString stringWithCapacity:10000];
+	char lineBuffer[4096];
+	while(!feof(f) && !ferror(f)) {
+		if(fgets(lineBuffer, sizeof(lineBuffer), f) == NULL) break;
+		if(strcmp(lineBuffer, StartupStr) == 0)
+			[buffer setString:@""];
+		[buffer appendString:[NSString stringWithUTF8String:lineBuffer]];
+	}
+	fclose(f);
+	
+	return buffer;
+}
+
 int main(int argc, char *argv[])
 {
-	sys_argc = argc;
-	sys_argv = argv;
-	//return NSApplicationMain(argc, (const char **)argv);
-	
-	forkExecProc = haveArg("--forkExecProc");
-	bool shell = haveArg("--shell");
-	bool pyShell = haveArg("--pyshell");
-	bool noLog = haveArg("--nolog");
-	bool help = haveArg("--help") || haveArg("-h");
-
-	if(!forkExecProc)
-		printf("Hello from MusicPlayer on MacOSX.\n");
-
-	if(help) {
-		printf(
-			   "Help: Available MacOSX options:\n"
-			   "  --nolog		: don't redirect stdout/stderr to log. also implied when run in debugger\n"
-			   );
-	}
-	
 	@autoreleasepool
 	{
+		sys_argc = argc;
+		sys_argv = argv;
+		//return NSApplicationMain(argc, (const char **)argv);
+		
+		forkExecProc = haveArg("--forkExecProc");
+		bool shell = haveArg("--shell");
+		bool pyShell = haveArg("--pyshell");
+		bool noLog = haveArg("--nolog");
+		bool help = haveArg("--help") || haveArg("-h");
+		bool beingDebugged = AmIBeingDebugged();
+		
+		bool logEnabled = false;
+		const char* logDisabledReason = NULL;
+		NSString* logFilename = @"~/Library/Logs/com.albertzeyer.MusicPlayer.log";
+		if(pyShell || shell || forkExecProc || help) {} // be quiet
+		else if(beingDebugged) {
+			logDisabledReason = "debugger detected, not redirecting stdout/stderr";
+		}
+		else if(noLog) {
+			logDisabledReason = "not redirecting stdout/stderr";
+		}
+		else {
+			// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
+			logEnabled = true;
+			printf("MusicPlayer: stdout/stderr goes to %s now\n", [logFilename UTF8String]);
+			freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stdout);
+			freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stderr);
+		}
+
+		if(!forkExecProc)
+			printf("%s", StartupStr);
+
+		if(help) {
+			printf(
+				   "Help: Available MacOSX options:\n"
+				   "  --nolog		: don't redirect stdout/stderr to log. also implied when run in debugger\n"
+				   );
+		}
+	
+		if(!logEnabled && logDisabledReason)
+			printf("%s\n", logDisabledReason);
+	
 		NSString* mainPyFilename = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/Python/main.py"];
 		Py_SetProgramName(argv[0]);
 		if(!forkExecProc)
@@ -118,25 +179,53 @@ int main(int argc, char *argv[])
 		Py_XDECREF(m);
 		
 		PySys_SetArgvEx(argc, argv, 0);
-		
-		if(pyShell || shell || forkExecProc || help) {} // be quiet
-		else if(AmIBeingDebugged()) {
-			printf("debugger detected, not redirecting stdout/stderr\n");
-		}
-		else if(noLog) {
-			printf("not redirecting stdout/stderr\n");
-		}
-		else {
-			// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
-			printf("stdout/stderr goes to ~/Library/Logs/com.albertzeyer.MusicPlayer.log now\n");
-			freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stdout);
-			freopen([[@"~/Library/Logs/com.albertzeyer.MusicPlayer.log" stringByExpandingTildeInPath] UTF8String], "a", stderr);
-			PyRun_SimpleString("print 'hello there'");
-		}
-		
+				
 		FILE* fp = fopen((char*)[mainPyFilename UTF8String], "r");
 		assert(fp);
 		PyRun_SimpleFile(fp, "main.py");
+		
+		if(!forkExecProc && !help && !pyShell && !shell) {
+			bool successStartup = checkStartupSuccess();
+			if(!successStartup) {
+				printf("Error at startup.\n");
+
+				{
+					[NSApplication sharedApplication];
+					[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+
+					NSAlert* alert = [NSAlert
+					alertWithMessageText:@"There was an error at startup."
+					defaultButton:@"OK" alternateButton:@"Check homepage for new versions." otherButton:nil
+					informativeTextWithFormat:@"Unknown error."];
+					[alert setAlertStyle:NSCriticalAlertStyle];
+
+					if(logEnabled) {
+						NSString* logOutput = getRelevantLogOutput([[logFilename stringByExpandingTildeInPath] UTF8String]);
+						if(logOutput) {
+							[alert setInformativeText:
+							@"The error is displayed below. You might want to forward this info"
+							" to the developer (mailto:albzey+musicplayer@gmail.com) so that it can be fixed."];
+							
+							NSTextView *textView = [[NSTextView alloc] initWithFrame:NSMakeRect(0,0,400,300)];
+							[textView setFont:[NSFont userFixedPitchFontOfSize:10.0f]];
+							[textView insertText:logOutput];
+							[textView setEditable:NO];
+							NSScrollView *scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,400,300)];
+							[scrollview setHasVerticalScroller:YES];
+							[scrollview setHasHorizontalScroller:NO];
+							[scrollview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+							[scrollview setDocumentView:textView];
+							[alert setAccessoryView:scrollview];
+						}
+					}
+
+					NSInteger res = [alert runModal];
+					if(res == NSAlertAlternateReturn) {
+						[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://albertz.github.io/music-player/"]];
+					}
+				}
+			}
+		}
 	}
 	
 	return 0;

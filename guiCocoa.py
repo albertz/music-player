@@ -111,10 +111,13 @@ class PyAppDelegate(NSObject):
 	def applicationDidFinishLaunching_(self, notification):
 		print "AppDelegate didFinishLaunching"
 		try:
+			import main
+			main.successStartup = True
+
 			from State import modules
 			for m in modules: m.start()
 			setupAfterAppFinishedLaunching(self)
-		except:
+		except BaseException:
 			sys.excepthook(*sys.exc_info())
 
 	def applicationShouldTerminate_(self, app):

@@ -4,6 +4,9 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+# This is set to True when the startup was successful.
+successStartup = False
+
 import better_exchook
 better_exchook.install()
 
@@ -105,6 +108,8 @@ if __name__ == '__main__':
 		raise
 	
 	for m in modules: m.start()
+
+	successStartup = True
 
 	# Note on quit behavior: Simply iterating state.updates
 	# and waiting for its end does not work because we would
