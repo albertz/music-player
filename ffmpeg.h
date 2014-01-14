@@ -73,7 +73,7 @@ struct PlayerObject {
 	void resetPlaying();
 	bool openOutStream();
 	bool isOutStreamOpen();
-	void closeOutStream();
+	void closeOutStream(bool waitForPendingAudioBuffers);
 	float volume;
 	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	bool volumeAdjustEnabled;

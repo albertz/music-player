@@ -73,7 +73,7 @@ struct PlayerObject::OutStream {
 	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false) {
 		mlock(this, sizeof(*this));
 	}
-	~OutStream() { close(); }
+	~OutStream() { close(false); }
 
 #if USE_PORTAUDIO_CALLBACK
 	static int paStreamCallback(
@@ -143,7 +143,7 @@ struct PlayerObject::OutStream {
 #endif
 
 	bool open() {
-		if(stream) close();
+		if(stream) return true;
 		assert(stream == NULL);
 		
 		// For reference:
@@ -208,7 +208,7 @@ struct PlayerObject::OutStream {
 				PyErr_Format(PyExc_RuntimeError, "Pa_OpenStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
 			}
 			if(stream)
-				close();
+				close(false);
 			return false;
 		}
 
@@ -223,7 +223,7 @@ struct PlayerObject::OutStream {
 		return true;
 	}
 	
-	void close() {
+	void close(bool waitForPendingAudioBuffers) {
 		if(this->stream == NULL) return;
 		// we expect that we have the player lock here.
 		// reset fader.
@@ -235,6 +235,8 @@ struct PlayerObject::OutStream {
 #if !USE_PORTAUDIO_CALLBACK
 		audioThread.stop();
 #endif
+		if(waitForPendingAudioBuffers)
+			Pa_StopStream(stream);
 		Pa_CloseStream(stream);
 	}
 	
@@ -253,12 +255,7 @@ bool PlayerObject::openOutStream() {
 		outStream.reset(new OutStream(this));
 	assert(outStream.get() != NULL);
 
-	if(!outStream->isOpen()) {
-		if(!outStream->open())
-			return false;
-	}
-	
-	return true;
+	return outStream->open();
 }
 
 bool PlayerObject::isOutStreamOpen() {
@@ -266,10 +263,10 @@ bool PlayerObject::isOutStreamOpen() {
 	return outStream->isOpen();
 }
 
-void PlayerObject::closeOutStream() {
+void PlayerObject::closeOutStream(bool waitForPendingAudioBuffers) {
 	if(!outStream.get()) return;
 	if(!outStream->isOpen()) return;
-	outStream->close();
+	outStream->close(waitForPendingAudioBuffers);
 }
 
 
