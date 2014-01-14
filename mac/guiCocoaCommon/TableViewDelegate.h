@@ -13,7 +13,7 @@ typedef void (^OnSelectionChange)(NSArray*);
 
 @interface _TableViewDelegate : NSObject<NSTableViewDelegate>
 
-@property OnSelectionChange onSelectionChange;
+@property (nonatomic,strong) OnSelectionChange onSelectionChange;
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification;
 

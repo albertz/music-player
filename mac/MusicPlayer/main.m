@@ -64,7 +64,6 @@ static void addPyPath() {
 	PySys_SetPath((char*)[pathStr UTF8String]);
 	if(!forkExecProc)
 		printf("Python path: %s\n", [pathStr UTF8String]);
-	[pathStr release];
 }
 
 static int sys_argc;
@@ -84,7 +83,8 @@ int main(int argc, char *argv[])
 	sys_argv = argv;
 	//return NSApplicationMain(argc, (const char **)argv);
 
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	// Not used in ARC-enabled code?
+	//NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	forkExecProc = haveArg("--forkExecProc");
 	bool shell = haveArg("--shell");
@@ -139,6 +139,5 @@ int main(int argc, char *argv[])
 	assert(fp);
 	PyRun_SimpleFile(fp, "main.py");
 	
-	[pool release];
 	return 0;
 }

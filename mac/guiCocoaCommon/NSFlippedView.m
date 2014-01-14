@@ -23,7 +23,6 @@
 - (void)dealloc
 {
 	[self setBackgroundColor:nil];
-	[super dealloc];
 }
 
 - (BOOL)isFlipped
@@ -35,18 +34,16 @@
 {
 	_drawsBackground = value;
 	if(value && !_backgroundColor)
-		_backgroundColor = [[NSColor whiteColor] retain];
+		_backgroundColor = [NSColor whiteColor];
 	[self setNeedsDisplay:YES];
 }
 
 - (void)setBackgroundColor:(NSColor*)value
 {
-	if(_backgroundColor) {
-		[_backgroundColor release];
+	if(_backgroundColor)
 		_backgroundColor = nil;
-	}
 	if(value) {
-		_backgroundColor = [value retain];
+		_backgroundColor = value;
 		[self setNeedsDisplay:YES];
 	}
 }
