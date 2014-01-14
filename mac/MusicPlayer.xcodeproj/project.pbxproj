@@ -52,6 +52,9 @@
 		237313A61881924F0052054E /* spectral_centroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684EB1600BD7F00A38E78 /* spectral_centroid.cpp */; };
 		237313A81881924F0052054E /* spectrum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 233684ED1600BD7F00A38E78 /* spectrum.cpp */; };
 		237313AD188192D10052054E /* libchromaprint.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2373136F1881923C0052054E /* libchromaprint.a */; };
+		237313AF188564CF0052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313AE188564CF0052054E /* Foundation.framework */; };
+		237313B1188564E00052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B0188564E00052054E /* CoreFoundation.framework */; };
+		237313B3188564EA0052054E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B2188564EA0052054E /* Cocoa.framework */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -194,7 +197,6 @@
 		239D89F6182BC76E0068F287 /* varlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D896F182BC76E0068F287 /* varlist.h */; };
 		239D89F7182BC76E0068F287 /* varlist.m in Sources */ = {isa = PBXBuildFile; fileRef = 239D8970182BC76E0068F287 /* varlist.m */; };
 		239D89F8182BC76E0068F287 /* wrapper-const-table.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D8971182BC76E0068F287 /* wrapper-const-table.h */; };
-		23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
 		23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */; };
@@ -422,6 +424,9 @@
 		2373132E18818D260052054E /* pa_mac_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_mac_core.c; path = ../external/portaudio/src/hostapi/coreaudio/pa_mac_core.c; sourceTree = "<group>"; };
 		2373133918818FFB0052054E /* libportaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libportaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2373136F1881923C0052054E /* libchromaprint.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libchromaprint.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		237313AE188564CF0052054E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
+		237313B0188564E00052054E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
+		237313B2188564EA0052054E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -656,8 +661,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				237313B1188564E00052054E /* CoreFoundation.framework in Frameworks */,
+				237313AF188564CF0052054E /* Foundation.framework in Frameworks */,
+				237313B3188564EA0052054E /* Cocoa.framework in Frameworks */,
 				2303496317AC535A00C6033C /* Python.dylib in Frameworks */,
-				23A14A3A15E3B2CC00376BF6 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1032,6 +1039,9 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				237313B2188564EA0052054E /* Cocoa.framework */,
+				237313B0188564E00052054E /* CoreFoundation.framework */,
+				237313AE188564CF0052054E /* Foundation.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
 				2303498F17AD646700C6033C /* CoreFoundation.framework */,
 				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
@@ -1867,11 +1877,8 @@
 		238E9875169664B400C42074 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				LD_DYLIB_INSTALL_NAME = "";
 				PRODUCT_NAME = "_$(TARGET_NAME)";
 			};
@@ -1880,6 +1887,7 @@
 		238E9876169664B400C42074 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				LD_DYLIB_INSTALL_NAME = "";
 				PRODUCT_NAME = "_$(TARGET_NAME)";
@@ -1983,13 +1991,15 @@
 					"$(PROJECT_DIR)/../chromaprint",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../external/ffmpeg/target/lib";
-				SDKROOT = macosx10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx10.7;
 			};
 			name = Release;
 		};
 		23A14A5415E3B2CC00376BF6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
@@ -2002,6 +2012,7 @@
 		23A14A5515E3B2CC00376BF6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
