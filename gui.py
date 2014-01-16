@@ -39,7 +39,7 @@ class GuiObject:
 	attr = None # if this is a child of something, this is the access attrib of the parent.subjectObject
 	pos = (0,0)
 	size = (0,0)
-	autoresize = (False,False,False,False) # wether to modify x,y,w,h on resize
+	autoresize = (False,False,False,False) # whether to modify x,y,w,h on resize
 	nativeGuiObject = None	
 	subjectObject = None
 	DefaultSpace = (8,8)
