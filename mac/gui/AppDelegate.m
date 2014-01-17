@@ -27,7 +27,15 @@ PyObject* getModule(const char* name) {
 	return PyDict_GetItemString(modules, name); // borrowed ref
 }
 
+
 @implementation AppDelegate
+
+NSWindow* mainWindow;
+
+- (void)setupMainWindow
+{
+	
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
@@ -95,6 +103,55 @@ final:
 	
 	return NSTerminateNow;
 }
+
+- (BOOL)applicationOpenUntitledFile:(NSApplication *)sender
+{
+	if(!mainWindow)
+		[self setupMainWindow];
+	else
+		[NSApp activateIgnoringOtherApps:YES];
+	return YES;
+}
+
+// for NSUserNotificationCenterDelegate, >= MacOSX 10.8
+- (BOOL)userNotificationCenter:(id)center shouldPresentNotification:(id)notification
+{
+	return YES;
+}
+
+- (void)openMainWindow:(id)sender
+{
+	[self setupMainWindow];
+}
+
+- (void)openSearchWindow:(id)sender
+{
+	// ...
+}
+
+//	def openSearchWindow_(self, app):
+//		setupSearchWindow()
+//	
+//	def openSongEditWindow_(self, app):
+//		setupSongEditWindow()
+//
+//	def about_(self, app):
+//		import gui
+//		gui.about()
+//
+//	def playPause_(self, app):
+//		from State import state
+//		state.playPause()
+//	
+//	def nextSong_(self, app):
+//		from State import state
+//		state.nextSong()
+//
+//	def resetPlayer_(self, app):
+//		from State import state
+//		state.player.resetPlaying()
+
+
 
 - (void)dealloc
 {

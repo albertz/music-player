@@ -127,20 +127,6 @@ class PyAppDelegate(AppKit.NSObject):
 	# Doc for AppDelegate protocol:
 	# https://developer.apple.com/library/mac/#documentation/Cocoa/Reference/NSApplicationDelegate_Protocol/Reference/Reference.html
 
-	def applicationShouldTerminate_(self, app):
-		print "AppDelegate quit"
-		return AppKit.NSTerminateNow
-
-	def applicationOpenUntitledFile_(self, app):
-		if not getWindow("mainWindow"):
-			setupMainWindow()
-		else:
-			app.activateIgnoringOtherApps_(True)
-		return True
-
-	def userNotificationCenter_shouldPresentNotification_(self, notifCenter, notif):
-		return True
-
 	def openMainWindow_(self, app):
 		setupMainWindow()
 	
