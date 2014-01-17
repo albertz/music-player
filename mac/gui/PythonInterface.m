@@ -51,11 +51,10 @@ guiCocoaMain(PyObject* self) {
 
 
 PyObject *
-guiCocoaMain(PyObject* self) {
-	BOOL res = [NSApp terminate];
-	PyObject* pyRes = res ? Py_True : Py_False;
-	Py_INCREF(pyRes);
-	return pyRes;
+guiCocoaQuit(PyObject* self) {
+	[NSApp terminate:nil];
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 
