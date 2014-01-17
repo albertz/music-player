@@ -600,7 +600,6 @@
 		23A14A4115E3B2CC00376BF6 /* MusicPlayer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MusicPlayer-Info.plist"; sourceTree = "<group>"; };
 		23A14A4315E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		23A14A4515E3B2CC00376BF6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		23A14A4715E3B2CC00376BF6 /* MusicPlayer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MusicPlayer-Prefix.pch"; sourceTree = "<group>"; };
 		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
 		23ACE6FD1689E1CF00E45134 /* ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ffmpeg.h; path = ../ffmpeg.h; sourceTree = "<group>"; };
@@ -1122,7 +1121,6 @@
 				23A14A4115E3B2CC00376BF6 /* MusicPlayer-Info.plist */,
 				23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */,
 				23A14A4515E3B2CC00376BF6 /* main.m */,
-				23A14A4715E3B2CC00376BF6 /* MusicPlayer-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1987,7 +1985,6 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -2092,6 +2089,7 @@
 					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../external/portaudio/include",
 					"$(PROJECT_DIR)/../chromaprint",
+					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../external/ffmpeg/target/lib";
 				ONLY_ACTIVE_ARCH = YES;
@@ -2116,6 +2114,7 @@
 					"$(PROJECT_DIR)/../external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../external/portaudio/include",
 					"$(PROJECT_DIR)/../chromaprint",
+					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../external/ffmpeg/target/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -2128,8 +2127,6 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
 				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -2141,8 +2138,6 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MusicPlayer/MusicPlayer-Prefix.pch";
 				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
