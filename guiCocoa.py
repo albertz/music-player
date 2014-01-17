@@ -24,7 +24,7 @@ def setupAppleMenu():
 	m = AppKit.NSMenu.alloc().initWithTitle_("Apple")
 
 	# strange hack
-	app.setAppleMenu_(m)
+	AppKit.NSApp.setAppleMenu_(m)
 	mainMenu.setSubmenu_forItem_(m, mi)
 	
 	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
@@ -67,21 +67,21 @@ def setupAppleMenu():
 	m.addItemWithTitle_action_keyEquivalent_('Play', 'playPause:', '')
 	m.addItemWithTitle_action_keyEquivalent_('Next song', 'nextSong:', '')
 	
-	app.delegate().dockMenu = m
-	app.setDockMenu_(m)
+	AppKit.NSApp.delegate().dockMenu = m
+	AppKit.NSApp.setDockMenu_(m)
 
 	# new supermenu
 	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Debug", None, "")
-	m = NSMenu.alloc().initWithTitle_("Debug")
+	m = AppKit.NSMenu.alloc().initWithTitle_("Debug")
 	mainMenu.setSubmenu_forItem_(m, mi)
 
 	m.addItemWithTitle_action_keyEquivalent_('reset player', 'resetPlayer:', '')
 
-	app.setMainMenu_(mainMenu)
+	AppKit.NSApp.setMainMenu_(mainMenu)
 
 def updateControlMenu():
-	if not app: return
-	menu = getattr(app.delegate(), "dockMenu", None)
+	if not AppKit.NSApp: return
+	menu = getattr(AppKit.NSApp.delegate(), "dockMenu", None)
 	if not menu: return
 	from State import state
 	if not state: return
@@ -96,10 +96,10 @@ def updateControlMenu():
 def setupAfterAppFinishedLaunching(delegate):
 	setupAppleMenu()
 	setupMainWindow()
-	app.updateWindows()
+	AppKit.NSApp.updateWindows()
 	print "setupAfterAppFinishedLaunching ready"
 
-class PyAppDelegate(NSObject):
+class PyAppDelegate(AppKit.NSObject):
 	__metaclass__ = ObjCClassAutorenamer
 
 	# Doc for AppDelegate protocol:
@@ -1074,7 +1074,7 @@ def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	win.makeMainWindow()
 	win.makeKeyWindow()
 	
-	app.activateIgnoringOtherApps_(True)
+	AppKit.NSApp.activateIgnoringOtherApps_(True)
 	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
 	win.retain()
 
@@ -1114,13 +1114,13 @@ else:
 def reloadModuleHandling():
 	print "GUI module reload handler ..."
 
-	for w in app.windows():
+	for w in AppKit.NSApp.windows():
 		w.close()
 	global windows
 	windows.clear()
 	
 	appDelegate = PyAppDelegate.alloc().init()
-	app.setDelegate_(appDelegate)
+	AppKit.NSApp.setDelegate_(appDelegate)
 	appDelegate.retain()
 
 	try:
