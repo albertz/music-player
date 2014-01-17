@@ -2,8 +2,8 @@
 //  AppDelegate.h
 //  MusicPlayer
 //
-//  Created by Albert Zeyer on 21.08.12.
-//  Copyright (c) 2012 Albert Zeyer. All rights reserved.
+//  Created by Albert Zeyer on 17.01.14.
+//  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

@@ -122,7 +122,6 @@ int main(int argc, char *argv[])
 	{
 		sys_argc = argc;
 		sys_argv = argv;
-		//return NSApplicationMain(argc, (const char **)argv);
 		
 		forkExecProc = haveArg("--forkExecProc");
 		bool shell = haveArg("--shell");

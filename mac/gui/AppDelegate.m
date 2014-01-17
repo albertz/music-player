@@ -2,8 +2,8 @@
 //  AppDelegate.m
 //  MusicPlayer
 //
-//  Created by Albert Zeyer on 21.08.12.
-//  Copyright (c) 2012 Albert Zeyer. All rights reserved.
+//  Created by Albert Zeyer on 17.01.14.
+//  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
 #import "AppDelegate.h"
@@ -13,6 +13,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	// Insert code here to initialize your application
+	printf("My app delegate: finish launching\n");
 }
 
 @end

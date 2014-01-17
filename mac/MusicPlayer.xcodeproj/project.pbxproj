@@ -57,6 +57,13 @@
 		237313B3188564EA0052054E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B2188564EA0052054E /* Cocoa.framework */; };
 		237313B618859A550052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B418859A550052054E /* CoreFoundation.framework */; };
 		237313B718859A550052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B518859A550052054E /* Foundation.framework */; };
+		237313C01889634B0052054E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B2188564EA0052054E /* Cocoa.framework */; };
+		237313E0188963D00052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B518859A550052054E /* Foundation.framework */; };
+		237313E31889642A0052054E /* AppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 237313E11889642A0052054E /* AppDelegate.h */; };
+		237313E41889642A0052054E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 237313E21889642A0052054E /* AppDelegate.m */; };
+		237313E6188965D10052054E /* PythonInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 237313E5188965D10052054E /* PythonInterface.m */; };
+		237313E9188969400052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B418859A550052054E /* CoreFoundation.framework */; };
+		237313EB188969470052054E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313EA188969460052054E /* AppKit.framework */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -201,8 +208,6 @@
 		239D89F8182BC76E0068F287 /* wrapper-const-table.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D8971182BC76E0068F287 /* wrapper-const-table.h */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
-		23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */; };
-		23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */; };
 		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
 		23ACE7001689E24A00E45134 /* ffmpeg_getmetadata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */; };
 		23ACE7031689E39600E45134 /* ffmpeg_acoustid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */; };
@@ -265,6 +270,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2373136E1881923C0052054E;
 			remoteInfo = chromaprint;
+		};
+		237313E7188966B30052054E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 237313BE1889634B0052054E;
+			remoteInfo = _guiCocoa;
 		};
 		238E9877169664E200C42074 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -431,6 +443,12 @@
 		237313B2188564EA0052054E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
 		237313B418859A550052054E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
 		237313B518859A550052054E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
+		237313BF1889634B0052054E /* gui.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = gui.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		237313CC1889634C0052054E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		237313E11889642A0052054E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = gui/AppDelegate.h; sourceTree = "<group>"; };
+		237313E21889642A0052054E /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = gui/AppDelegate.m; sourceTree = "<group>"; };
+		237313E5188965D10052054E /* PythonInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PythonInterface.m; path = gui/PythonInterface.m; sourceTree = "<group>"; };
+		237313EA188969460052054E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -583,9 +601,6 @@
 		23A14A4315E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		23A14A4515E3B2CC00376BF6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		23A14A4715E3B2CC00376BF6 /* MusicPlayer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MusicPlayer-Prefix.pch"; sourceTree = "<group>"; };
-		23A14A4B15E3B2CC00376BF6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		23A14A4F15E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
 		23ACE6FD1689E1CF00E45134 /* ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ffmpeg.h; path = ../ffmpeg.h; sourceTree = "<group>"; };
@@ -643,6 +658,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		237313BC1889634B0052054E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237313EB188969470052054E /* AppKit.framework in Frameworks */,
+				237313E9188969400052054E /* CoreFoundation.framework in Frameworks */,
+				237313E0188963D00052054E /* Foundation.framework in Frameworks */,
+				237313C01889634B0052054E /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -822,7 +848,17 @@
 			name = portaudio;
 			sourceTree = "<group>";
 		};
-		238E98621696608E00C42074 /* guiCocoaCommon.so */ = {
+		237313BA188963100052054E /* _guiCocoa.so */ = {
+			isa = PBXGroup;
+			children = (
+				237313E11889642A0052054E /* AppDelegate.h */,
+				237313E21889642A0052054E /* AppDelegate.m */,
+				237313E5188965D10052054E /* PythonInterface.m */,
+			);
+			name = _guiCocoa.so;
+			sourceTree = "<group>";
+		};
+		238E98621696608E00C42074 /* _guiCocoaCommon.so */ = {
 			isa = PBXGroup;
 			children = (
 				23E5BA09186E15A500A7FB9F /* NSFlippedView.h */,
@@ -832,7 +868,7 @@
 				23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */,
 				23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */,
 			);
-			name = guiCocoaCommon.so;
+			name = _guiCocoaCommon.so;
 			sourceTree = "<group>";
 		};
 		239D88DB182BC6EA0068F287 /* pyobjc-core */ = {
@@ -1016,7 +1052,8 @@
 				239D88DB182BC6EA0068F287 /* pyobjc-core */,
 				2331F81616C16A750037D148 /* faulthandler */,
 				23B071DC17AD79DF00524C82 /* debugger */,
-				238E98621696608E00C42074 /* guiCocoaCommon.so */,
+				238E98621696608E00C42074 /* _guiCocoaCommon.so */,
+				237313BA188963100052054E /* _guiCocoa.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				237312ED188185B80052054E /* portaudio */,
@@ -1038,6 +1075,7 @@
 				239D88DA182BC5A10068F287 /* _objc.so */,
 				2373133918818FFB0052054E /* libportaudio.a */,
 				2373136F1881923C0052054E /* libchromaprint.a */,
+				237313BF1889634B0052054E /* gui.so */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1045,6 +1083,7 @@
 		23A14A3815E3B2CC00376BF6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				237313EA188969460052054E /* AppKit.framework */,
 				237313B418859A550052054E /* CoreFoundation.framework */,
 				237313B518859A550052054E /* Foundation.framework */,
 				237313B2188564EA0052054E /* Cocoa.framework */,
@@ -1052,6 +1091,7 @@
 				237313AE188564CF0052054E /* Foundation.framework */,
 				23A14A3915E3B2CC00376BF6 /* Cocoa.framework */,
 				2303498F17AD646700C6033C /* CoreFoundation.framework */,
+				237313CC1889634C0052054E /* XCTest.framework */,
 				23A14A3B15E3B2CC00376BF6 /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -1070,9 +1110,6 @@
 		23A14A3F15E3B2CC00376BF6 /* MusicPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				23A14A4B15E3B2CC00376BF6 /* AppDelegate.h */,
-				23A14A4C15E3B2CC00376BF6 /* AppDelegate.m */,
-				23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */,
 				23A14A4015E3B2CC00376BF6 /* Supporting Files */,
 			);
 			path = MusicPlayer;
@@ -1160,6 +1197,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		237313BD1889634B0052054E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237313E31889642A0052054E /* AppDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1306,6 +1351,23 @@
 			productReference = 2373136F1881923C0052054E /* libchromaprint.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		237313BE1889634B0052054E /* _guiCocoa */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 237313DA1889634C0052054E /* Build configuration list for PBXNativeTarget "_guiCocoa" */;
+			buildPhases = (
+				237313BB1889634B0052054E /* Sources */,
+				237313BC1889634B0052054E /* Frameworks */,
+				237313BD1889634B0052054E /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = _guiCocoa;
+			productName = gui;
+			productReference = 237313BF1889634B0052054E /* gui.so */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		238E986B169664B400C42074 /* guiCocoaCommon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */;
@@ -1354,6 +1416,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				237313E8188966B30052054E /* PBXTargetDependency */,
 				239D8A01182BCAF90068F287 /* PBXTargetDependency */,
 				230349AD17AD72CC00C6033C /* PBXTargetDependency */,
 				2303496217AC524100C6033C /* PBXTargetDependency */,
@@ -1420,6 +1483,7 @@
 				239D8892182BC5A10068F287 /* _objc.so */,
 				2373133818818FFB0052054E /* portaudio */,
 				2373136E1881923C0052054E /* chromaprint */,
+				237313BE1889634B0052054E /* _guiCocoa */,
 			);
 		};
 /* End PBXProject section */
@@ -1441,7 +1505,6 @@
 			files = (
 				23BEFDE015F42EB20003A05B /* icon.icns in Resources */,
 				23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */,
-				23A14A5015E3B2CC00376BF6 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1526,6 +1589,15 @@
 				237313A41881924F0052054E /* silence_remover.cpp in Sources */,
 				237313A61881924F0052054E /* spectral_centroid.cpp in Sources */,
 				237313A81881924F0052054E /* spectrum.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		237313BB1889634B0052054E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237313E41889642A0052054E /* AppDelegate.m in Sources */,
+				237313E6188965D10052054E /* PythonInterface.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1644,7 +1716,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				23A14A4615E3B2CC00376BF6 /* main.m in Sources */,
-				23A14A4D15E3B2CC00376BF6 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1694,6 +1765,11 @@
 			target = 2373136E1881923C0052054E /* chromaprint */;
 			targetProxy = 237313AB188192960052054E /* PBXContainerItemProxy */;
 		};
+		237313E8188966B30052054E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 237313BE1889634B0052054E /* _guiCocoa */;
+			targetProxy = 237313E7188966B30052054E /* PBXContainerItemProxy */;
+		};
 		238E9878169664E200C42074 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 238E986B169664B400C42074 /* guiCocoaCommon */;
@@ -1718,14 +1794,6 @@
 				23A14A4315E3B2CC00376BF6 /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		23A14A4E15E3B2CC00376BF6 /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				23A14A4F15E3B2CC00376BF6 /* en */,
-			);
-			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1878,6 +1946,59 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		237313DB1889634C0052054E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LD_DYLIB_INSTALL_NAME = "";
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		237313DC1889634C0052054E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_EXTENSION = so;
+				EXECUTABLE_PREFIX = "";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LD_DYLIB_INSTALL_NAME = "";
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -2098,6 +2219,14 @@
 			buildConfigurations = (
 				237313711881923C0052054E /* Debug */,
 				237313721881923C0052054E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		237313DA1889634C0052054E /* Build configuration list for PBXNativeTarget "_guiCocoa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				237313DB1889634C0052054E /* Debug */,
+				237313DC1889634C0052054E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
