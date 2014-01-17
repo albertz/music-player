@@ -43,21 +43,18 @@ if __name__ == '__main__' and appinfo.args.pyexec:
 	exec(compile(sourcecode, "<pyexec>", "exec"))
 	raise SystemExit
 
+def main():
 
-import utils
-if __name__ == '__main__':
+	import utils
 	utils.ExecingProcess.checkExec()
 
 
-import sys, time
-if __name__ == '__main__':
+	import sys, time
 	print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
 	print "startup on", utils.formatDate(time.time())
 
 	utils.setCurThreadName("Python main")
 
-
-if __name__ == '__main__':
 	try:
 		# Hack: Make the `__main__` module also accessible as `main`.
 		mainmod = sys.modules["__main__"]
@@ -67,37 +64,33 @@ if __name__ == '__main__':
 		sys.excepthook(*sys.exc_info())
 		# doesn't matter, continue
 
-# Import PyObjC here. This is because the first import of PyObjC *must* be
-# in the main thread. Otherwise, the NSAutoreleasePool created automatically
-# by PyObjC on the first import would be released at exit by the main thread
-# which would crash (because it was created in a different thread).
-# http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
-objc, AppKit = None, None
-try:
-	import objc
-except Exception:
-	if sys.platform == "darwin":
-		print "Error while importing objc"
+	# Import PyObjC here. This is because the first import of PyObjC *must* be
+	# in the main thread. Otherwise, the NSAutoreleasePool created automatically
+	# by PyObjC on the first import would be released at exit by the main thread
+	# which would crash (because it was created in a different thread).
+	# http://pyobjc.sourceforge.net/documentation/pyobjc-core/intro.html
+	objc, AppKit = None, None
+	try:
+		import objc
+	except Exception:
+		if sys.platform == "darwin":
+			print "Error while importing objc"
+			sys.excepthook(*sys.exc_info())
+		# Otherwise it doesn't matter.
+	try:
+		# Seems that the `objc` module is not enough. Without `AppKit`,
+		# I still get a lot of
+		#   __NSAutoreleaseNoPool(): ... autoreleased with no pool in place - just leaking
+		# errors.
+		if objc:
+			import AppKit
+	except Exception:
+		# Print error in any case, also ImportError, because we would expect that this works.
+		print "Error while importing AppKit"
 		sys.excepthook(*sys.exc_info())
-	# Otherwise it doesn't matter.
-try:
-	# Seems that the `objc` module is not enough. Without `AppKit`,
-	# I still get a lot of
-	#   __NSAutoreleaseNoPool(): ... autoreleased with no pool in place - just leaking
-	# errors.
-	if objc:
-		import AppKit
-except Exception:
-	# Print error in any case, also ImportError, because we would expect that this works.
-	print "Error while importing AppKit"
-	sys.excepthook(*sys.exc_info())
 
 
-
-from State import state, modules
-
-if __name__ == '__main__':
-
+	from State import state, modules
 	import stdinconsole
 	import gui
 
@@ -140,4 +133,7 @@ if __name__ == '__main__':
 			break
 	for m in modules: m.stop()
 
+
+if __name__ == '__main__':
+	main()
 
