@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 
 
+static AppDelegate* appDelegate = NULL;
 
 
 PyObject *
@@ -39,10 +40,11 @@ guiCocoaMain(PyObject* self) {
 //	else:
 //		print "icon.icns not found"
 
-	// I don't quite understand why we need the delegate to be in a variable here.
+	// Keep own ref to appDelegate because NSApp's ref is only weak.
 	// See: http://stackoverflow.com/q/21189168/133374
-	AppDelegate* appDelegate = [[AppDelegate alloc] init];
+	appDelegate = [[AppDelegate alloc] init];
 	[NSApp setDelegate:appDelegate];
+
 	[NSApp run];
 	
 	PyErr_SetString(PyExc_SystemExit, "return from app run");
