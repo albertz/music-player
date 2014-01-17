@@ -7,15 +7,12 @@ import sys, os
 if sys.platform != "darwin":
 	print "GUI: your platform is probably not supported yet"
 
+from _guiCocoa import *
 from guiCocoaCommon import *
 from utils import *
 from weakref import ref
 import Traits
 
-try:
-	app
-except NameError: # only declare if not yet declared
-	app = None
 
 def setupAppleMenu():
 
@@ -157,9 +154,9 @@ class PyAppDelegate(NSObject):
 		setupSongEditWindow()
 
 	def about_(self, app):
-		import webbrowser
-		webbrowser.open("http://albertz.github.io/music-player/")
-	
+		import gui
+		gui.about()
+
 	def playPause_(self, app):
 		from State import state
 		state.playPause()
@@ -181,29 +178,6 @@ def getWindow(name):
 
 def quit():
 	app.terminate_(None)
-
-def setup():
-	# Note: not needed when bundled...
-	mydir = os.path.dirname(__file__)
-	if os.path.exists(mydir + "/icon.icns"):
-		try:
-			icon = NSImage.alloc().initWithContentsOfFile_(mydir + "/icon.icns")
-		except Exception as e:
-			print "icon.icns failed to load: %s" % e
-		else:
-			if icon:
-				app.setApplicationIconImage_(icon)
-			else:
-				print "icon.icns invalid"
-	else:
-		print "icon.icns not found"
-
-	appDelegate = PyAppDelegate.alloc().init()
-	app.setDelegate_(appDelegate)
-	appDelegate.retain()
-
-	app.finishLaunching()
-
 
 
 
@@ -1166,6 +1140,8 @@ def guiMain():
 	from State import state
 	for ev,args,kwargs in state.updates.read():
 		try:
+			# Note: This shouldn't be needed. Each GUI object should
+			# get an event itself about some change.
 			global windows
 			for w in windows.values():
 				w.updateContent(ev,args,kwargs)
@@ -1175,18 +1151,6 @@ def guiMain():
 			sys.excepthook(*sys.exc_info())
 	del pool
 
-def main():
-	""" This is called from main.py and will enter the NSApp main loop """
-	assert NSThread.isMainThread()
-	global app
-
-	app = NSApplication.sharedApplication()
-	setup()
-
-	print "entering GUI main loop"
-	app.run()
-
-	sys.exit()
 
 if isReload:
 	do_in_mainthread(reloadModuleHandling)

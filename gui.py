@@ -13,6 +13,10 @@ def guiMain(): pass
 def locateFile(filename):
 	print "locateFile", utils.convertToUnicode(filename).encode("utf-8")
 
+def about():
+	import webbrowser
+	webbrowser.open("http://albertz.github.io/music-player/")
+
 try:
 	# Right now, we can only enable qtgui via cmdline and the only
 	# two implementations are Cocoa and Qt. And we always try to enable
