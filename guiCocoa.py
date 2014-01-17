@@ -1104,30 +1104,6 @@ def locateFile(filename):
 
 
 
-
-if "isReload" in globals():
-	isReload = True
-else:
-	isReload = False
-
-
-def reloadModuleHandling():
-	print "GUI module reload handler ..."
-
-	for w in AppKit.NSApp.windows():
-		w.close()
-	global windows
-	windows.clear()
-	
-	appDelegate = PyAppDelegate.alloc().init()
-	AppKit.NSApp.setDelegate_(appDelegate)
-	appDelegate.retain()
-
-	try:
-		setupAfterAppFinishedLaunching(appDelegate)
-	except Exception:
-		sys.excepthook(*sys.exc_info())
-
 def guiMain():
 	from player import PlayerEventCallbacks
 	pool = AppKit.NSAutoreleasePool.alloc().init()
@@ -1146,6 +1122,12 @@ def guiMain():
 	del pool
 
 
+
+if "isReload" in globals():
+	isReload = True
+else:
+	isReload = False
+
 if isReload:
-	do_in_mainthread(reloadModuleHandling)
+	print "Reloading GUI not really supported..."
 
