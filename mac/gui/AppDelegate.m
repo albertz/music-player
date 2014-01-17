@@ -12,8 +12,12 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-	// Insert code here to initialize your application
 	printf("My app delegate: finish launching\n");
+}
+
+-(void)dealloc
+{
+	printf("My app delegate dealloc\n");
 }
 
 @end

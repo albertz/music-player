@@ -17,14 +17,12 @@ guiCocoaMain(PyObject* self) {
 	// Basically we do a replacement of NSApplicationMain().
 	
 	assert([NSThread isMainThread]);
-	
-	printf("Hello from guiCocoaMain!\n");
-	
-	NSApplication* app = [NSApplication sharedApplication];
-	assert(app);
+		
+	[NSApplication sharedApplication];
 	
 	// Note: not needed when bundled...
-	printf("bundle: %s\n", [[[NSBundle mainBundle] bundlePath] UTF8String]);
+
+	// I'm not sure how to get my path name, if we are not bundled...
 
 //	mydir = os.path.dirname(__file__)
 //	if os.path.exists(mydir + "/icon.icns"):
@@ -40,9 +38,8 @@ guiCocoaMain(PyObject* self) {
 //	else:
 //		print "icon.icns not found"
 
-	//[app setDelegate:[[AppDelegate alloc] init]];
-	//[app finishLaunching];
-	//[app run];
+	AppDelegate* appDelegate = [[AppDelegate alloc] init];
+	[NSApp setDelegate:appDelegate];
 	[NSApp run];
 	
 	PyErr_SetString(PyExc_SystemExit, "return from app run");
