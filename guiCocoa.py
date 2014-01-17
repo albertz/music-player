@@ -19,26 +19,26 @@ def setupAppleMenu():
 	# http://www.cocoabuilder.com/archive/cocoa/192181-initializing-the-menubar-without-interface-builder.html
 	# By Robert Nikander
 
-	mainMenu = NSMenu.alloc().initWithTitle_("MainMenu")
+	mainMenu = AppKit.NSMenu.alloc().initWithTitle_("MainMenu")
 	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Apple", None, "")
-	m = NSMenu.alloc().initWithTitle_("Apple")
+	m = AppKit.NSMenu.alloc().initWithTitle_("Apple")
 
 	# strange hack
 	app.setAppleMenu_(m)
 	mainMenu.setSubmenu_forItem_(m, mi)
 	
 	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
-	m.addItem_(NSMenuItem.separatorItem())
+	m.addItem_(AppKit.NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Hide MusicPlayer', 'hide:', 'h')
 	mii = m.addItemWithTitle_action_keyEquivalent_('Hide Others', 'hideOtherApplications:', 'h')
-	mii.setKeyEquivalentModifierMask_(NSAlternateKeyMask|NSCommandKeyMask)
+	mii.setKeyEquivalentModifierMask_(AppKit.NSAlternateKeyMask|AppKit.NSCommandKeyMask)
 	m.addItemWithTitle_action_keyEquivalent_('Show All', 'unhideAllApplications:', '')
-	m.addItem_(NSMenuItem.separatorItem())
+	m.addItem_(AppKit.NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Quit', 'terminate:', 'q')
 
 	# new supermenu
 	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Edit", None, "")
-	m = NSMenu.alloc().initWithTitle_("Edit")
+	m = AppKit.NSMenu.alloc().initWithTitle_("Edit")
 	mainMenu.setSubmenu_forItem_(m, mi)
 
 	m.addItemWithTitle_action_keyEquivalent_('Cut', 'cut:', 'x')
@@ -48,19 +48,19 @@ def setupAppleMenu():
 
 	# new supermenu
 	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Window", None, "")
-	m = NSMenu.alloc().initWithTitle_("Window")
+	m = AppKit.NSMenu.alloc().initWithTitle_("Window")
 	mainMenu.setSubmenu_forItem_(m, mi)
 
 	m.addItemWithTitle_action_keyEquivalent_('Main window', 'openMainWindow:', '1')
 	m.addItemWithTitle_action_keyEquivalent_('Search window', 'openSearchWindow:', '2')
 	m.addItemWithTitle_action_keyEquivalent_('Song edit window', 'openSongEditWindow:', 'i')
-	m.addItem_(NSMenuItem.separatorItem())
+	m.addItem_(AppKit.NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Minimize window', 'miniaturize:', 'm')
 	m.addItemWithTitle_action_keyEquivalent_('Close window', 'performClose:', 'w')		
 
 	# new supermenu
 	mi = mainMenu.addItemWithTitle_action_keyEquivalent_("Control", None, "")
-	m = NSMenu.alloc().initWithTitle_("Control")
+	m = AppKit.NSMenu.alloc().initWithTitle_("Control")
 	mainMenu.setSubmenu_forItem_(m, mi)
 
 	m.addItemWithTitle_action_keyEquivalent_('no song yet', '', '')
@@ -132,7 +132,7 @@ class PyAppDelegate(NSObject):
 		# now join all
 		for m in modules: m.stop()
 		print "Bye!"
-		return NSTerminateNow
+		return AppKit.NSTerminateNow
 
 	def applicationOpenUntitledFile_(self, app):
 		if not getWindow("mainWindow"):
@@ -176,16 +176,11 @@ def getWindow(name):
 		return windows[name].nativeGuiObject.window()
 	return None
 
-def quit():
-	app.terminate_(None)
-
-
-
 
 
 def buildControlAction(control):
-	button = NSButton.alloc().initWithFrame_(((0,0), (50.0, 25.0)))
-	button.setBezelStyle_(NSRoundedBezelStyle)
+	button = AppKit.NSButton.alloc().initWithFrame_(((0,0), (50.0, 25.0)))
+	button.setBezelStyle_(AppKit.NSRoundedBezelStyle)
 	actionTarget = ButtonActionHandler.alloc().initWithArgs(control.attr, control.parent.subjectObject)
 	control.buttonActionHandler = actionTarget # keep ref here. button.target() is only a weakref
 	button.setTarget_(actionTarget)
@@ -203,13 +198,13 @@ def buildControlAction(control):
 
 def backgroundColor(control):
 	if any([(c.attr and c.attr.highlight) for c in control.allParents()]):
-		return NSColor.blueColor()
+		return AppKit.NSColor.blueColor()
 	return None
 
 def foregroundColor(control):
 	if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
-		return NSColor.disabledControlTextColor()
-	return NSColor.blackColor()		
+		return AppKit.NSColor.disabledControlTextColor()
+	return AppKit.NSColor.blackColor()
 	
 
 def buildControlOneLineText(control):
@@ -217,17 +212,17 @@ def buildControlOneLineText(control):
 	label.setBordered_(False)
 	if control.attr.withBorder:
 		label.setBezeled_(True)
-		label.setBezelStyle_(NSTextFieldRoundedBezel)
+		label.setBezelStyle_(AppKit.NSTextFieldRoundedBezel)
 	label.setDrawsBackground_(False)
 	label.setEditable_(False)
 	label.cell().setUsesSingleLineMode_(True)
-	label.cell().setLineBreakMode_(NSLineBreakByTruncatingTail)
+	label.cell().setLineBreakMode_(AppKit.NSLineBreakByTruncatingTail)
 	control.nativeGuiObject = label
 	control.getTextObj = lambda: control.subjectObject
 	def getTextColor():
 		if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
-			return NSColor.disabledControlTextColor()
-		return NSColor.blackColor()		
+			return AppKit.NSColor.disabledControlTextColor()
+		return AppKit.NSColor.blackColor()
 	control.getTextColor = getTextColor
 	
 	def update(ev=None, args=None, kwargs=None):
@@ -266,10 +261,10 @@ def buildControlClickableLabel(control):
 
 	label = control.nativeGuiObject
 	def onMouseEntered(ev):
-		if label.backgroundColor() == NSColor.blueColor():
-			label.setTextColor_(NSColor.grayColor())			
+		if label.backgroundColor() == AppKit.NSColor.blueColor():
+			label.setTextColor_(AppKit.NSColor.grayColor())
 		else:
-			label.setTextColor_(NSColor.blueColor())
+			label.setTextColor_(AppKit.NSColor.blueColor())
 	label.onMouseEntered = onMouseEntered
 	label.onMouseExited = lambda ev: label.setTextColor_(foregroundColor(control))
 	def onMouseDown(ev):
@@ -285,10 +280,10 @@ def buildControlClickableLabel(control):
 def buildControlEditableText(control):
 	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
 	if control.attr.searchLook:
-		label.setCell_(NSSearchFieldCell.alloc().init())
+		label.setCell_(AppKit.NSSearchFieldCell.alloc().init())
 	label.setBordered_(False)
 	label.setBezeled_(True)
-	label.setBezelStyle_(NSTextFieldRoundedBezel)
+	label.setBezelStyle_(AppKit.NSTextFieldRoundedBezel)
 	label.setDrawsBackground_(True)
 	label.setEditable_(True)
 	label.cell().setUsesSingleLineMode_(True)
@@ -325,17 +320,17 @@ def buildControlEditableText(control):
 
 def buildControlList(control):
 	list = control.subjectObject
-	scrollview = NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
-	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
-	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	scrollview = AppKit.NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
+	scrollview.setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
+	scrollview.contentView().setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
 	scrollview.setDocumentView_(NSFlippedView.alloc().initWithFrame_(((0,0),scrollview.contentSize())))
-	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
+	scrollview.documentView().setAutoresizingMask_(AppKit.NSViewWidthSizable)
 	scrollview.setHasVerticalScroller_(True)
 	scrollview.setDrawsBackground_(False)
-	scrollview.setBorderType_(NSBezelBorder)
+	scrollview.setBorderType_(AppKit.NSBezelBorder)
 	#scrollview.setBorderType_(NSGrooveBorder)
 	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
-	view.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	view.setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
 	view.addSubview_(scrollview)
 	view.control = ref(control)
 	
@@ -446,7 +441,7 @@ def buildControlList(control):
 			@ExceptionCatcherDecorator
 			def deselect(self):
 				if self.index is not None:
-					control.guiObjectList[self.index].nativeGuiObject.setBackgroundColor_(NSColor.textBackgroundColor())
+					control.guiObjectList[self.index].nativeGuiObject.setBackgroundColor_(AppKit.NSColor.textBackgroundColor())
 					self.index = None
 			@ExceptionCatcherDecorator
 			def select(self, index=None):
@@ -456,7 +451,7 @@ def buildControlList(control):
 					index = 0
 				self.index = index
 				guiObj = control.guiObjectList[index].nativeGuiObject
-				guiObj.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
+				guiObj.setBackgroundColor_(AppKit.NSColor.selectedTextBackgroundColor())
 				
 				# special handling for gui.ctx().curSelectedSong
 				if control.guiObjectList[index].subjectObject.__class__.__name__ == "Song":
@@ -513,7 +508,7 @@ def buildControlList(control):
 				view.window().makeFirstResponder_(view)
 				mouseLoc = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
 				for index,obj in enumerate(control.guiObjectList):
-					if NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
+					if AppKit.NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
 						self.select(index)
 						return True
 			@ExceptionCatcherDecorator
@@ -533,19 +528,19 @@ def buildControlList(control):
 	
 	control.dragHandler = None
 	if control.attr.dragHandler:
-		view.registerForDraggedTypes_([NSFilenamesPboardType])
+		view.registerForDraggedTypes_([AppKit.NSFilenamesPboardType])
 		class DragHandler:
 			index = None
 			def __init__(self):
 				view = NSFlippedView.alloc().initWithFrame_(((0,0),(scrollview.contentSize().width,2)))
-				view.setAutoresizingMask_(NSViewWidthSizable)
-				view.setBackgroundColor_(NSColor.blackColor())
+				view.setAutoresizingMask_(AppKit.NSViewWidthSizable)
+				view.setBackgroundColor_(AppKit.NSColor.blackColor())
 				self.guiCursor = view
 				scrollview.documentView().addSubview_(view)
 			@ExceptionCatcherDecorator
 			def onDraggingUpdated(self, sender):
 				self.guiCursor.setDrawsBackground_(True)
-				scrollview.documentView().addSubview_positioned_relativeTo_(self.guiCursor, NSWindowAbove, None)
+				scrollview.documentView().addSubview_positioned_relativeTo_(self.guiCursor, AppKit.NSWindowAbove, None)
 				dragLoc = scrollview.documentView().convertPoint_toView_(sender.draggingLocation(), None)
 				self.index = 0
 				y = 0
@@ -559,7 +554,7 @@ def buildControlList(control):
 				self.guiCursor.setFrameOrigin_((0,y - 1))
 
 				visibleFrame = scrollview.contentView().documentVisibleRect()
-				mouseLoc = NSPoint(dragLoc.x - visibleFrame.origin.x, dragLoc.y - visibleFrame.origin.y)
+				mouseLoc = AppKit.NSPoint(dragLoc.x - visibleFrame.origin.x, dragLoc.y - visibleFrame.origin.y)
 				ScrollLimit = 30
 				Limit = 15
 				y = None
@@ -583,7 +578,7 @@ def buildControlList(control):
 				self.guiCursor.setDrawsBackground_(False)
 				import __builtin__
 				try:
-					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(NSFilenamesPboardType))
+					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(AppKit.NSFilenamesPboardType))
 					filenames = map(convertToUnicode, filenames)
 					index = self.index
 					internalDragCallback = getattr(sender.draggingSource(), "onInternalDrag", None)
@@ -658,22 +653,22 @@ def buildControlList(control):
 	return control
 
 def buildControlTable(control):
-	scrollview = NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
-	scrollview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
-	scrollview.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	scrollview = AppKit.NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
+	scrollview.setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
+	scrollview.contentView().setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
 	scrollview.setHasVerticalScroller_(True)
 	scrollview.setDrawsBackground_(False)
-	scrollview.setBorderType_(NSBezelBorder)
+	scrollview.setBorderType_(AppKit.NSBezelBorder)
 	
 	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
-	view.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	view.setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
 	view.addSubview_(scrollview)
 	view.control = ref(control)
 	control.nativeGuiObject = view
 
-	table = NSTableView.alloc().initWithFrame_(((0,0),(80,80)))
+	table = AppKit.NSTableView.alloc().initWithFrame_(((0,0),(80,80)))
 	scrollview.setDocumentView_(table)
-	scrollview.documentView().setAutoresizingMask_(NSViewWidthSizable)
+	scrollview.documentView().setAutoresizingMask_(AppKit.NSViewWidthSizable)
 	
 	#array = NSArrayController.alloc().init()
 	dataSource = TableViewDataSource.alloc().init()
@@ -688,13 +683,13 @@ def buildControlTable(control):
 		control.tableDelegate = delegate
 		table.setDelegate_(delegate)
 	
-	table.setColumnAutoresizingStyle_(NSTableViewUniformColumnAutoresizingStyle)
+	table.setColumnAutoresizingStyle_(AppKit.NSTableViewUniformColumnAutoresizingStyle)
 	for key in control.attr.type.keys:
-		column = NSTableColumn.alloc().initWithIdentifier_(key)
+		column = AppKit.NSTableColumn.alloc().initWithIdentifier_(key)
 		column.headerCell().setStringValue_(convertToUnicode(key.capitalize())) # title
 		column.setEditable_(False)
 		column.setMinWidth_(30)
-		column.setSortDescriptorPrototype_(NSSortDescriptor.sortDescriptorWithKey_ascending_(key, True))
+		column.setSortDescriptorPrototype_(AppKit.NSSortDescriptor.sortDescriptorWithKey_ascending_(key, True))
 		table.addTableColumn_(column)
 	
 	table.setAllowsMultipleSelection_(True)	
@@ -760,8 +755,8 @@ def _buildControlObject_post(control):
 
 	if control.attr.canHaveFocus:
 		subview.setDrawsBackground_(True)
-		subview.onResignFirstResponder = lambda: subview.setBackgroundColor_(NSColor.textBackgroundColor())		
-		subview.onBecomeFirstResponder = lambda: subview.setBackgroundColor_(NSColor.selectedTextBackgroundColor())
+		subview.onResignFirstResponder = lambda: subview.setBackgroundColor_(AppKit.NSColor.textBackgroundColor())
+		subview.onBecomeFirstResponder = lambda: subview.setBackgroundColor_(AppKit.NSColor.selectedTextBackgroundColor())
 		
 	if backgroundColor(control):
 		subview.setDrawsBackground_(True)
@@ -778,10 +773,10 @@ def _buildControlObject_post(control):
 		filename = getattr(subjectObj, "url", None)
 		if not filename: return False
 		filename = convertToUnicode(filename)
-		pboard = NSPasteboard.pasteboardWithName_(NSDragPboard)
-		pboard.declareTypes_owner_([NSFilenamesPboardType], None)
-		pboard.setPropertyList_forType_([filename], NSFilenamesPboardType)
-		dragImage = NSWorkspace.sharedWorkspace().iconForFile_(filename)
+		pboard = AppKit.NSPasteboard.pasteboardWithName_(AppKit.NSDragPboard)
+		pboard.declareTypes_owner_([AppKit.NSFilenamesPboardType], None)
+		pboard.setPropertyList_forType_([filename], AppKit.NSFilenamesPboardType)
+		dragImage = AppKit.NSWorkspace.sharedWorkspace().iconForFile_(filename)
 		dragPosition = subview.convertPoint_toView_(ev.locationInWindow(), None)
 		dragPosition.x -= 16
 		dragPosition.y += 32
@@ -790,7 +785,7 @@ def _buildControlObject_post(control):
 		subview.dragImage_at_offset_event_pasteboard_source_slideBack_(
 			dragImage,
 			dragPosition,
-			NSZeroSize,
+			AppKit.NSZeroSize,
 			ev,
 			pboard,
 			dragSource,
@@ -821,10 +816,10 @@ def buildControlSongDisplay(control):
 	userAttr = control.attr
 	inst = control.parent.subjectObject
 	try:
-		class SongDisplayView(NSBox):
+		class SongDisplayView(AppKit.NSBox):
 			def mouseDown_(self, event):
 				location = self.convertPoint_fromView_(event.locationInWindow(), None)
-				if NSPointInRect(location, self.bounds()):
+				if AppKit.NSPointInRect(location, self.bounds()):
 					x = float(location.x) / self.bounds().size.width
 					if x < 0 or x > 1: return
 					SongDisplayView_MouseClickCallback(x)
@@ -832,16 +827,16 @@ def buildControlSongDisplay(control):
 		SongDisplayView = objc.lookUpClass("SongDisplayView") # already defined earlier
 
 	subview = SongDisplayView.alloc().initWithFrame_(((10.0, 10.0), (80.0, 80.0)))
-	subview.setTitlePosition_(NSNoTitle)
+	subview.setTitlePosition_(AppKit.NSNoTitle)
 	#subview.setContentViewMargins_((0,0))
-	imgview = NSImageView.alloc().initWithFrame_(subview.contentView().bounds())
-	imgview.setImageScaling_(NSScaleToFit)
-	imgview2 = NSImageView.alloc().initWithFrame_(((0,0), (10, subview.contentView().bounds().size.height)))
-	imgview2.setImageScaling_(NSScaleToFit)
+	imgview = AppKit.NSImageView.alloc().initWithFrame_(subview.contentView().bounds())
+	imgview.setImageScaling_(AppKit.NSScaleToFit)
+	imgview2 = AppKit.NSImageView.alloc().initWithFrame_(((0,0), (10, subview.contentView().bounds().size.height)))
+	imgview2.setImageScaling_(AppKit.NSScaleToFit)
 	subview.contentView().addSubview_(imgview)
 	subview.contentView().addSubview_(imgview2)
-	imgview.setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
-	imgview2.setAutoresizingMask_(NSViewHeightSizable|NSViewMinXMargin|NSViewMaxXMargin)
+	imgview.setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
+	imgview2.setAutoresizingMask_(AppKit.NSViewHeightSizable|AppKit.NSViewMinXMargin|AppKit.NSViewMaxXMargin)
 
 	from threading import Lock
 	from State import state
@@ -852,25 +847,25 @@ def buildControlSongDisplay(control):
 			self.curSong = None
 
 		def initSongCursorImg(self):
-			img2 = NSImage.alloc().initWithSize_((5,1))
+			img2 = AppKit.NSImage.alloc().initWithSize_((5,1))
 			img2.lockFocus()
 			for i in range(5):
 				a = 100 - abs(i - 2) * 50
-				NSColor.colorWithDeviceRed_green_blue_alpha_(0.0,0.0,0.0,a).setFill()
-				NSBezierPath.fillRect_(((i,0),(1,1)))
+				AppKit.NSColor.colorWithDeviceRed_green_blue_alpha_(0.0,0.0,0.0,a).setFill()
+				AppKit.NSBezierPath.fillRect_(((i,0),(1,1)))
 			img2.unlockFocus()
 			do_in_mainthread(lambda: imgview2.setImage_(img2))
 
 		def setSongBitmap(self, bmpData, wait=True):
 			with self.lock:
 				if state.player.curSong is not self.curSong: return None
-			data = NSData.alloc().initWithBytes_length_(bmpData, len(bmpData))
-			img = NSImage.alloc().initWithData_(data)
+			data = AppKit.NSData.alloc().initWithBytes_length_(bmpData, len(bmpData))
+			img = AppKit.NSImage.alloc().initWithData_(data)
 			do_in_mainthread(lambda: imgview.setImage_(img), wait=wait)
 
 		def getBmpData(self):
 			better_exchook.install()
-			pool = NSAutoreleasePool.alloc().init() # for setSongBitmap
+			pool = AppKit.NSAutoreleasePool.alloc().init() # for setSongBitmap
 
 			bmpData = None
 			with self.lock:
@@ -925,7 +920,7 @@ def buildControlSongDisplay(control):
 
 		def playCursorUpdater(self):
 			better_exchook.install()
-			pool = NSAutoreleasePool.alloc().init()
+			pool = AppKit.NSAutoreleasePool.alloc().init()
 
 			def updateCursor():
 				with self.lock:
@@ -1023,15 +1018,15 @@ class CocoaGuiObject(object):
 	@DoInMainthreadDecorator
 	def autoresize(self):
 		flags = self.nativeGuiObject.autoresizingMask()
-		return (flags & NSViewMinXMargin, flags & NSViewMinYMargin, flags & NSViewWidthSizable, flags & NSViewHeightSizable)
+		return (flags & AppKit.NSViewMinXMargin, flags & AppKit.NSViewMinYMargin, flags & AppKit.NSViewWidthSizable, flags & AppKit.NSViewHeightSizable)
 	@autoresize.setter
 	@DoInMainthreadDecorator
 	def autoresize(self, value):
 		flags = 0
-		if value[0]: flags |= NSViewMinXMargin
-		if value[1]: flags |= NSViewMinYMargin
-		if value[2]: flags |= NSViewWidthSizable
-		if value[3]: flags |= NSViewHeightSizable
+		if value[0]: flags |= AppKit.NSViewMinXMargin
+		if value[1]: flags |= AppKit.NSViewMinYMargin
+		if value[2]: flags |= AppKit.NSViewWidthSizable
+		if value[3]: flags |= AppKit.NSViewHeightSizable
 		self.nativeGuiObject.setAutoresizingMask_(flags)
 		
 	@DoInMainthreadDecorator
@@ -1044,22 +1039,22 @@ def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	# https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ControlCell/ControlCell.html#//apple_ref/doc/uid/10000015i
 	# http://cocoadev.com/wiki/FlowLayoutView
 
-	assert NSThread.isMainThread()
+	assert AppKit.NSThread.isMainThread()
 
 	if getWindow(windowName):
 		getWindow(windowName).makeKeyAndOrderFront_(None)
 		return
 
-	win = NSWindow.alloc()
+	win = AppKit.NSWindow.alloc()
 	win.initWithContentRect_styleMask_backing_defer_(
 		((200.0, 500.0), (400.0, 600.0)),
-		NSTitledWindowMask |
-		NSClosableWindowMask |
-		NSMiniaturizableWindowMask |
-		NSResizableWindowMask,
-		NSBackingStoreBuffered, False)
+		AppKit.NSTitledWindowMask |
+		AppKit.NSClosableWindowMask |
+		AppKit.NSMiniaturizableWindowMask |
+		AppKit.NSResizableWindowMask,
+		AppKit.NSBackingStoreBuffered, False)
 	win.setContentView_(NSFlippedView.alloc().init())
-	win.contentView().setAutoresizingMask_(NSViewWidthSizable|NSViewHeightSizable)
+	win.contentView().setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
 	
 	win.setTitle_(title)
 
@@ -1104,18 +1099,17 @@ def setupSongEditWindow():
 	setupWindow(ctx.songEdit, windowName="songEditWindow", title="Song edit")	
 	
 def locateFile(filename):
-	ws = NSWorkspace.sharedWorkspace()
+	ws = AppKit.NSWorkspace.sharedWorkspace()
 	ws.selectFile_inFileViewerRootedAtPath_(filename, None)
 
 
 
 
-try:
-	isReload
-except NameError:
-	isReload = False
-else:
+if "isReload" in globals():
 	isReload = True
+else:
+	isReload = False
+
 
 def reloadModuleHandling():
 	print "GUI module reload handler ..."
@@ -1136,7 +1130,7 @@ def reloadModuleHandling():
 
 def guiMain():
 	from player import PlayerEventCallbacks
-	pool = NSAutoreleasePool.alloc().init()
+	pool = AppKit.NSAutoreleasePool.alloc().init()
 	from State import state
 	for ev,args,kwargs in state.updates.read():
 		try:

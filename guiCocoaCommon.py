@@ -4,15 +4,15 @@
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 import objc
-from AppKit import *
+import AppKit
 import utils
 
-from collections import deque
-try: pools
-except NameError: pools = deque()
+if "pools" not in globals():
+	from collections import deque
+	pools = deque()
 
 # just in case that we are not the main thread
-pools.append(NSAutoreleasePool.alloc().init())
+pools.append(AppKit.NSAutoreleasePool.alloc().init())
 
 # we have some native code in a dylib.
 # later, maybe most of the code here can be recoded natively.
@@ -38,38 +38,38 @@ try:
 		def acceptsFirstResponder(self):
 			return utils.attrChain(self, "control", "attr", "canHaveFocus", default=False)
 		def becomeFirstResponder(self):
-			if NSView.becomeFirstResponder(self):
+			if AppKit.NSView.becomeFirstResponder(self):
 				if self.onBecomeFirstResponder: self.onBecomeFirstResponder()
 				return True
 			else:
 				return False
 		def resignFirstResponder(self):
-			if NSView.resignFirstResponder(self):
+			if AppKit.NSView.resignFirstResponder(self):
 				if self.onResignFirstResponder: self.onResignFirstResponder()				
 				return True
 			else:
 				return False
 		def keyDown_(self, ev):
 			if not self.onKeyDown or not self.onKeyDown(ev):
-				NSView.keyDown_(self, ev)
+				AppKit.NSView.keyDown_(self, ev)
 		def keyUp_(self, ev):
 			if not self.onKeyUp or not self.onKeyUp(ev):
-				NSView.keyUp_(self, ev)
+				AppKit.NSView.keyUp_(self, ev)
 		def mouseDown_(self, ev):
 			if not self.onMouseDown or not self.onMouseDown(ev):
-				NSView.mouseDown_(self, ev)
+				AppKit.NSView.mouseDown_(self, ev)
 		def mouseDragged_(self, ev):
 			if not self.onMouseDragged or not self.onMouseDragged(ev):
-				NSView.mouseDragged_(self, ev)
+				AppKit.NSView.mouseDragged_(self, ev)
 		def mouseUp_(self, ev):
 			if not self.onMouseUp or not self.onMouseUp(ev):
-				NSView.mouseUp_(self, ev)
+				AppKit.NSView.mouseUp_(self, ev)
 		def draggingEntered_(self, sender):
 			if self.onDraggingEntered: self.onDraggingEntered(sender)
 			return self.draggingUpdated_(sender)
 		def draggingUpdated_(self, sender):
 			if self.onDraggingUpdated: self.onDraggingUpdated(sender)
-			return NSDragOperationGeneric
+			return AppKit.NSDragOperationGeneric
 		def draggingExited_(self, sender):
 			if self.onDraggingExited: self.onDraggingExited(sender)
 		def prepareForDragOperation_(self, sender):
@@ -83,7 +83,7 @@ except Exception:
 	NSFlippedView = objc.lookUpClass("NSFlippedView")
 
 try:
-	class NSExtendedTextField(NSTextField):
+	class NSExtendedTextField(AppKit.NSTextField):
 		onMouseEntered = None
 		onMouseExited = None
 		onMouseDown = None
@@ -92,21 +92,21 @@ try:
 		onTextChange = None
 		def mouseEntered_(self, ev):
 			if self.onMouseEntered: self.onMouseEntered(ev)
-			else: NSTextField.mouseEntered_(self, ev)
+			else: AppKit.NSTextField.mouseEntered_(self, ev)
 		def mouseExited_(self, ev):
 			if self.onMouseExited: self.onMouseExited(ev)
-			else: NSTextField.mouseExited_(self, ev)
+			else: AppKit.NSTextField.mouseExited_(self, ev)
 		def mouseDown_(self, ev):
 			if not self.onMouseDown or not self.onMouseDown(ev):
-				NSView.mouseDown_(self, ev)
+				AppKit.NSView.mouseDown_(self, ev)
 		def mouseDragged_(self, ev):
 			if not self.onMouseDragged or not self.onMouseDragged(ev):
-				NSView.mouseDragged_(self, ev)
+				AppKit.NSView.mouseDragged_(self, ev)
 		def mouseUp_(self, ev):
 			if not self.onMouseUp or not self.onMouseUp(ev):
-				NSView.mouseUp_(self, ev)
+				AppKit.NSView.mouseUp_(self, ev)
 		def textDidChange_(self, notif):
-			NSTextField.textDidChange_(self, notif)
+			AppKit.NSTextField.textDidChange_(self, notif)
 			if self.onTextChange:
 				self.onTextChange()
 
@@ -114,10 +114,10 @@ except Exception:
 	NSExtendedTextField = objc.lookUpClass("NSExtendedTextField")
 
 try:
-	class NSExtendedSlider(NSSlider):
+	class NSExtendedSlider(AppKit.NSSlider):
 		onValueChange = None
 		def initWithFrame_(self, frame):
-			NSSlider.initWithFrame_(self, frame)
+			AppKit.NSSlider.initWithFrame_(self, frame)
 			self.setTarget_(self)
 			self.setAction_("valueChange")
 			return self
@@ -128,7 +128,7 @@ except Exception:
 	NSExtendedSlider = objc.lookUpClass("NSExtendedSlider")
 
 try:
-	class TableViewDataSource(NSObject):
+	class TableViewDataSource(AppKit.NSObject):
 		data = ()
 		formaters = {}
 		lock = None
@@ -209,15 +209,15 @@ try:
 				rowIndexes.enumerateIndexesUsingBlock_(handleRowIndex)
 			if not possibleSources: return False
 
-			pboard.declareTypes_owner_([NSFilenamesPboardType], None)
-			pboard.setPropertyList_forType_(possibleSources, NSFilenamesPboardType)
+			pboard.declareTypes_owner_([AppKit.NSFilenamesPboardType], None)
+			pboard.setPropertyList_forType_(possibleSources, AppKit.NSFilenamesPboardType)
 			return True
 			
 except Exception:
 	TableViewDataSource = objc.lookUpClass("TableViewDataSource")
 
 try:
-	class TableViewDelegate(NSObject):
+	class TableViewDelegate(AppKit.NSObject):
 		onSelectionChange = None
 		def tableViewSelectionDidChange_(self, notif):
 			if self.onSelectionChange:
@@ -240,7 +240,7 @@ except Exception:
 
 
 try:
-	class ButtonActionHandler(NSObject):
+	class ButtonActionHandler(AppKit.NSObject):
 		def initWithArgs(self, userAttr, inst):
 			self.init()
 			self.userAttr = userAttr
@@ -255,12 +255,12 @@ except Exception:
 
 
 try:
-	class DragSource(NSObject):
+	class DragSource(AppKit.NSObject):
 		onDragEnded = None
 		onInternalDrag = None
 		@objc.typedSelector('i@:@i')
 		def draggingSession_sourceOperationMaskForDraggingContext_(self, session, context):
-			return NSDragOperationAll
+			return AppKit.NSDragOperationAll
 		@objc.typedSelector('v@:@{CGPoint=dd}i')
 		def draggingSession_endedAtPoint_operation_(self, session, screenPoint, operation):
 			if self.onDragEnded: self.onDragEnded(operation)
