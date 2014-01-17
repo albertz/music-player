@@ -38,6 +38,8 @@ guiCocoaMain(PyObject* self) {
 //	else:
 //		print "icon.icns not found"
 
+	// I don't quite understand why we need the delegate to be in a variable here.
+	// See: http://stackoverflow.com/q/21189168/133374
 	AppDelegate* appDelegate = [[AppDelegate alloc] init];
 	[NSApp setDelegate:appDelegate];
 	[NSApp run];
