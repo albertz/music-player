@@ -45,7 +45,11 @@ guiCocoaMain(PyObject* self) {
 	appDelegate = [[AppDelegate alloc] init];
 	[NSApp setDelegate:appDelegate];
 
+	Py_BEGIN_ALLOW_THREADS
 	[NSApp run];
+	// We should normally not return from `run`.
+	printf("Warning: Returned from NSApp run.\n");
+	Py_END_ALLOW_THREADS
 	
 	PyErr_SetString(PyExc_SystemExit, "return from app run");
 	return NULL;

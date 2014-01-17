@@ -33,6 +33,8 @@ PyObject* getModule(const char* name) {
 {
 	printf("My app delegate: finish launching\n");
 	
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	
 	const char* fatalErrorMsg = NULL;
 	PyObject* mod = getModule("guiCocoa"); // borrowed
 	PyObject* callback = NULL;
@@ -59,14 +61,15 @@ final:
 		handleFatalError(fatalErrorMsg);
 	
 	Py_XDECREF(ret);
-	Py_XDECREF(callback);
+	Py_XDECREF(callback);	
+	PyGILState_Release(gstate);
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSNotification *)aNotification
 {
 	printf("My app delegate: should terminate\n");
 
-	Py_BEGIN_ALLOW_THREADS
+	PyGILState_STATE gstate = PyGILState_Ensure();
 		
 	PyObject* mod = getModule("guiCocoa"); // borrowed
 	PyObject* callback = NULL;
@@ -88,7 +91,7 @@ final:
 	
 	Py_XDECREF(ret);
 	Py_XDECREF(callback);
-	Py_END_ALLOW_THREADS
+	PyGILState_Release(gstate);
 	
 	return NSTerminateNow;
 }
