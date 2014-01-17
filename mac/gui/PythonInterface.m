@@ -50,11 +50,18 @@ guiCocoaMain(PyObject* self) {
 }
 
 
-
+PyObject *
+guiCocoaMain(PyObject* self) {
+	BOOL res = [NSApp terminate];
+	PyObject* pyRes = res ? Py_True : Py_False;
+	Py_INCREF(pyRes);
+	return pyRes;
+}
 
 
 static PyMethodDef module_methods[] = {
-	{"main",	(PyCFunction)guiCocoaMain,	METH_NOARGS,	"creates new player"},
+	{"main",	(PyCFunction)guiCocoaMain,	METH_NOARGS,	"overtakes main()"},
+	{"quit",	(PyCFunction)guiCocoaQuit,	METH_NOARGS,	"quit application"},
 	{NULL,				NULL}	/* sentinel */
 };
 
