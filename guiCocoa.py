@@ -93,11 +93,33 @@ def updateControlMenu():
 	else:
 		playPauseEntry.setTitle_("Play")		
 
-def setupAfterAppFinishedLaunching(delegate):
+def setupAfterAppFinishedLaunching():
+	import main
+	main.successStartup = True
+
+	from State import modules
+	for m in modules: m.start()
+
 	setupAppleMenu()
 	setupMainWindow()
 	AppKit.NSApp.updateWindows()
 	print "setupAfterAppFinishedLaunching ready"
+
+def handleApplicationQuit():
+	from State import modules
+	utils.quit = True
+	# first set/send signals to all modules
+	for m in modules: m.stop(join=False)
+	try:
+		# in case there are any subprocesses, interrupt them
+		# maybe some modules are hanging and waiting for such
+		import sys, os, signal
+		os.kill(0, signal.SIGINT)
+	except Exception: pass
+	# now join all
+	for m in modules: m.stop()
+	print "Bye!"
+
 
 class PyAppDelegate(AppKit.NSObject):
 	__metaclass__ = ObjCClassAutorenamer
@@ -105,33 +127,8 @@ class PyAppDelegate(AppKit.NSObject):
 	# Doc for AppDelegate protocol:
 	# https://developer.apple.com/library/mac/#documentation/Cocoa/Reference/NSApplicationDelegate_Protocol/Reference/Reference.html
 
-	def applicationDidFinishLaunching_(self, notification):
-		print "AppDelegate didFinishLaunching"
-		try:
-			import main
-			main.successStartup = True
-
-			from State import modules
-			for m in modules: m.start()
-			setupAfterAppFinishedLaunching(self)
-		except BaseException:
-			sys.excepthook(*sys.exc_info())
-
 	def applicationShouldTerminate_(self, app):
 		print "AppDelegate quit"
-		from State import modules
-		utils.quit = True
-		# first set/send signals to all modules
-		for m in modules: m.stop(join=False)
-		try:
-			# in case there are any subprocesses, interrupt them
-			# maybe some modules are hanging and waiting for such
-			import sys, os, signal
-			os.kill(0, signal.SIGINT)
-		except: pass
-		# now join all
-		for m in modules: m.stop()
-		print "Bye!"
 		return AppKit.NSTerminateNow
 
 	def applicationOpenUntitledFile_(self, app):

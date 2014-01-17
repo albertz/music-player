@@ -116,6 +116,48 @@ static NSString* getRelevantLogOutput(const char* filename) {
 	return buffer;
 }
 
+bool logEnabled = false;
+NSString* logFilename = @"~/Library/Logs/com.albertzeyer.MusicPlayer.log";
+
+__attribute__((visibility("default")))
+void handleFatalError(const char* msg) {
+	[NSApplication sharedApplication];
+	[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+	
+	NSAlert* alert = [NSAlert
+					  alertWithMessageText:[NSString stringWithUTF8String:msg]
+					  defaultButton:@"OK" alternateButton:@"Check homepage for new versions." otherButton:nil
+					  informativeTextWithFormat:@"Unknown error."];
+	[alert setAlertStyle:NSCriticalAlertStyle];
+	
+	if(logEnabled) {
+		NSString* logOutput = getRelevantLogOutput([[logFilename stringByExpandingTildeInPath] UTF8String]);
+		if(logOutput) {
+			[alert setInformativeText:
+			 @"The error is displayed below. You might want to forward this info"
+			 " to the developer (mailto:albzey+musicplayer@gmail.com) so that it can be fixed."];
+			
+			NSTextView *textView = [[NSTextView alloc] initWithFrame:NSMakeRect(0,0,400,300)];
+			[textView setFont:[NSFont userFixedPitchFontOfSize:10.0f]];
+			[textView insertText:logOutput];
+			[textView setEditable:NO];
+			NSScrollView *scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,400,300)];
+			[scrollview setHasVerticalScroller:YES];
+			[scrollview setHasHorizontalScroller:NO];
+			[scrollview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+			[scrollview setDocumentView:textView];
+			[alert setAccessoryView:scrollview];
+		}
+	}
+	
+	NSInteger res = [alert runModal];
+	if(res == NSAlertAlternateReturn) {
+		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://albertz.github.io/music-player/"]];
+	}
+	
+	exit(1);
+}
+
 int main(int argc, char *argv[])
 {
 	@autoreleasepool
@@ -131,9 +173,7 @@ int main(int argc, char *argv[])
 		bool help = haveArg("--help") || haveArg("-h");
 		bool beingDebugged = AmIBeingDebugged();
 		
-		bool logEnabled = false;
 		const char* logDisabledReason = NULL;
-		NSString* logFilename = @"~/Library/Logs/com.albertzeyer.MusicPlayer.log";
 		if(pyShell || pyExec || shell || forkExecProc || help) {} // be quiet
 		else if(beingDebugged) {
 			logDisabledReason = "debugger detected, not redirecting stdout/stderr";
@@ -188,42 +228,7 @@ int main(int argc, char *argv[])
 			bool successStartup = checkStartupSuccess();
 			if(!successStartup) {
 				printf("Error at startup.\n");
-
-				{
-					[NSApplication sharedApplication];
-					[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateIgnoringOtherApps];
-
-					NSAlert* alert = [NSAlert
-					alertWithMessageText:@"There was an error at startup."
-					defaultButton:@"OK" alternateButton:@"Check homepage for new versions." otherButton:nil
-					informativeTextWithFormat:@"Unknown error."];
-					[alert setAlertStyle:NSCriticalAlertStyle];
-
-					if(logEnabled) {
-						NSString* logOutput = getRelevantLogOutput([[logFilename stringByExpandingTildeInPath] UTF8String]);
-						if(logOutput) {
-							[alert setInformativeText:
-							@"The error is displayed below. You might want to forward this info"
-							" to the developer (mailto:albzey+musicplayer@gmail.com) so that it can be fixed."];
-							
-							NSTextView *textView = [[NSTextView alloc] initWithFrame:NSMakeRect(0,0,400,300)];
-							[textView setFont:[NSFont userFixedPitchFontOfSize:10.0f]];
-							[textView insertText:logOutput];
-							[textView setEditable:NO];
-							NSScrollView *scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,400,300)];
-							[scrollview setHasVerticalScroller:YES];
-							[scrollview setHasHorizontalScroller:NO];
-							[scrollview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-							[scrollview setDocumentView:textView];
-							[alert setAccessoryView:scrollview];
-						}
-					}
-
-					NSInteger res = [alert runModal];
-					if(res == NSAlertAlternateReturn) {
-						[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://albertz.github.io/music-player/"]];
-					}
-				}
+				handleFatalError("There was an error at startup.");
 			}
 		}
 	}

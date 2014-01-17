@@ -15,9 +15,10 @@ PyObject *
 guiCocoaMain(PyObject* self) {
 	// This is called from Python and replaces the main() control.
 	// Basically we do a replacement of NSApplicationMain().
+	// For reference: http://www.cocoawithlove.com/2009/01/demystifying-nsapplication-by.html
 	
 	assert([NSThread isMainThread]);
-		
+	
 	[NSApplication sharedApplication];
 	
 	// Note: not needed when bundled...
