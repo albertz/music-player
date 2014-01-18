@@ -6,26 +6,60 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
+#import <Cocoa/Cocoa.h>
 #include "CocoaGuiObject.hpp"
+#include "PyObjCBridge.h"
 
-static Vec imp_get_pos(GuiObject*) {
-	// TODO
-	return Vec();
+void runOnMainQueue(void (^block)(void)) {
+	if([NSThread isMainThread])
+		block();
+	else
+		dispatch_sync(dispatch_get_main_queue(), block);
 }
 
-static Vec imp_get_size(GuiObject*) {
-	// TODO
-	return Vec();
+static Vec imp_get_pos(GuiObject* obj) {
+	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	if(!view) return Vec();
+	__block CGPoint pos;
+	runOnMainQueue(^{
+		pos = [view frame].origin;
+	});
+	return Vec((int)pos.x, (int)pos.y);
 }
 
-static Vec imp_get_innnerSize(GuiObject*) {
-	// TODO
-	return Vec();
+static Vec imp_get_size(GuiObject* obj) {
+	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	if(!view) return Vec();
+	__block CGSize size;
+	runOnMainQueue(^{
+		size = [view frame].size;
+	});
+	return Vec((int)size.width, (int)size.height);
 }
 
-static Autoresize imp_get_autoresize(GuiObject*) {
-	// TODO
-	return Autoresize();
+static Vec imp_get_innnerSize(GuiObject* obj) {
+	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	if(!view) return Vec();
+	__block CGSize size;
+	runOnMainQueue(^{
+		size = [view bounds].size;
+	});
+	return Vec((int)size.width, (int)size.height);
+}
+
+static Autoresize imp_get_autoresize(GuiObject* obj) {
+	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	if(!view) return Autoresize();
+	__block NSUInteger flags;
+	runOnMainQueue(^{
+		flags = [view autoresizingMask];
+	});
+	Autoresize r;
+	r.x = flags & NSViewMinXMargin;
+	r.y = flags & NSViewMinYMargin;
+	r.w = flags & NSViewWidthSizable;
+	r.h = flags & NSViewHeightSizable;
+	return r;
 }
 
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
