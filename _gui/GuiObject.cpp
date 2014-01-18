@@ -41,7 +41,10 @@ static PyObject* returnObj(PyObject* obj) {
 			PyErr_Format(PyExc_AttributeError, "GuiObject attribute '%.400s' must be specified in subclass", key); \
 			return NULL; \
 		} \
-		return (* get_ ## attr)(this).asPyObject(); \
+		PyThreadState *_save = PyEval_SaveThread(); \
+		auto res = (* get_ ## attr)(this); \
+		PyEval_RestoreThread(_save); \
+		return res.asPyObject(); \
 	} }
 
 PyObject* GuiObject::getattr(const char* key) {
@@ -107,6 +110,13 @@ bool Autoresize::initFromPyObject(PyObject* obj) {
 	return true;
 }
 
+#define _SetAttr(attr) { \
+	if(strcmp(key, #attr) == 0) { \
+		attr = value; \
+		Py_INCREF(value); \
+		return 0; \
+	} }
+
 #define _SetCustomAttr(attr, ValueType) { \
 	if(strcmp(key, #attr) == 0) { \
 		if(set_ ## attr == 0) { \
@@ -116,11 +126,19 @@ bool Autoresize::initFromPyObject(PyObject* obj) {
 		ValueType v; \
 		if(!v.initFromPyObject(value)) \
 			return -1; \
+		Py_BEGIN_ALLOW_THREADS \
 		(* set_ ## attr)(this, v); \
+		Py_END_ALLOW_THREADS \
 		return 0; \
 	} }
 
 int GuiObject::setattr(const char* key, PyObject* value) {
+	_SetAttr(root);
+	_SetAttr(parent);
+	_SetAttr(attr);
+	_SetAttr(subjectObject);
+	_SetAttr(nativeGuiObject);
+
 	_SetCustomAttr(pos, Vec);
 	_SetCustomAttr(size, Vec);
 	_SetCustomAttr(autoresize, Autoresize);
@@ -131,4 +149,12 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 	int ret = PyObject_GenericSetAttr((PyObject*) this, s, value);
 	Py_XDECREF(s);
 	return ret;
+}
+
+GuiObject::~GuiObject() {
+	Py_XDECREF(root); root = NULL;
+	Py_XDECREF(parent); parent = NULL;
+	Py_XDECREF(attr); attr = NULL;
+	Py_XDECREF(subjectObject); subjectObject = NULL;
+	Py_XDECREF(nativeGuiObject.get()); nativeGuiObject = NULL;
 }

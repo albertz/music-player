@@ -91,6 +91,20 @@ static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
 	});
 }
 
+
+NSView* CocoaGuiObject::getNativeObj() {
+	return PyObjCObj_GetNativeObj(nativeGuiObject);
+}
+
+void CocoaGuiObject::addChild(NSView* child) {
+	NSView* view = getNativeObj();
+	if(!view) return;
+	runOnMainQueue(^{
+		[view addSubview:child];
+	});
+}
+
+
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	GuiObject::init(args, kwds);
 	get_pos = imp_get_pos;
