@@ -90,7 +90,6 @@ PyDoc_STRVAR(module_doc,
 PyMODINIT_FUNC
 init_guiCocoa(void)
 {
-	//printf("initffmpeg\n");
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 	PyObject* m = Py_InitModule3("_guiCocoa", module_methods, module_doc);
 	if(!m) {
