@@ -128,7 +128,7 @@ void handleModuleCommand_noReturn(const char* modName, const char* cmd, const ch
 
 NSString* _convertToUnicode(PyObject* obj) {
 	NSString* resStr = nil;
-	PyObject* res = handleModuleCommand("utils", "convertToUnicode", "(o)", obj);
+	PyObject* res = handleModuleCommand("utils", "convertToUnicode", "(O)", obj);
 	if(!res) resStr = @"<convertToUnicode error>";
 	else if(PyString_Check(res)) {
 		const char* s = PyString_AS_STRING(res);
