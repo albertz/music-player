@@ -21,6 +21,7 @@ struct Vec {
 	PyObject* asPyObject() const;
 };
 
+// whether to modify x,y,w,h on resize
 struct Autoresize {
 	bool x,y,w,h;
 	Autoresize() : x(false), y(false), w(false), h(false) {}
@@ -47,7 +48,7 @@ struct GuiObject {
 	
 	PyObject* root;
 	PyObject* parent;
-	PyObject* attr;
+	PyObject* attr; // if this is a child of something, this is the access attrib of the parent.subjectObject
 	PyObject* subjectObject;
 	IntrusivePtr<PyObject> nativeGuiObject; // atomic so that we can access without the GIL
 
