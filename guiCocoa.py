@@ -927,49 +927,7 @@ try:
 except NameError:
 	windows = {}
 
-class CocoaGuiObject(object):
-	def __init__(self):
-		# Do that late because we cannot import gui globally here. (circular dep)
-		import gui
-		self.__class__.__bases__ = (gui.GuiObject, object)
-	
-	nativeGuiObject = None
-	
-	@property
-	@DoInMainthreadDecorator
-	def pos(self): return (self.nativeGuiObject.frame().origin.x, self.nativeGuiObject.frame().origin.y)	
-	@pos.setter
-	@DoInMainthreadDecorator
-	def pos(self, value): self.nativeGuiObject.setFrameOrigin_(value)
-	@property
-	@DoInMainthreadDecorator
-	def size(self): return (self.nativeGuiObject.frame().size.width, self.nativeGuiObject.frame().size.height)
-	@size.setter
-	@DoInMainthreadDecorator
-	def size(self, value): self.nativeGuiObject.setFrameSize_(value)
-	@property
-	@DoInMainthreadDecorator
-	def innerSize(self): return (self.nativeGuiObject.bounds().size.width, self.nativeGuiObject.bounds().size.height)
 
-	@property
-	@DoInMainthreadDecorator
-	def autoresize(self):
-		flags = self.nativeGuiObject.autoresizingMask()
-		return (flags & AppKit.NSViewMinXMargin, flags & AppKit.NSViewMinYMargin, flags & AppKit.NSViewWidthSizable, flags & AppKit.NSViewHeightSizable)
-	@autoresize.setter
-	@DoInMainthreadDecorator
-	def autoresize(self, value):
-		flags = 0
-		if value[0]: flags |= AppKit.NSViewMinXMargin
-		if value[1]: flags |= AppKit.NSViewMinYMargin
-		if value[2]: flags |= AppKit.NSViewWidthSizable
-		if value[3]: flags |= AppKit.NSViewHeightSizable
-		self.nativeGuiObject.setAutoresizingMask_(flags)
-		
-	@DoInMainthreadDecorator
-	def addChild(self, child):
-		self.nativeGuiObject.addSubview_(child.nativeGuiObject)
-		
 def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	# some example code: http://lists.apple.com/archives/cocoa-dev/2004/Jan/msg01389.html
 	# also, these might be helpful:

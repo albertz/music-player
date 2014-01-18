@@ -34,7 +34,7 @@ try:
 except Exception:
 	print "error in loading GUI implementation"
 	sys.excepthook(*sys.exc_info())
-		
+	
 class GuiObject:
 	"This defines the protocol we must support"
 	

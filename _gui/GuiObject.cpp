@@ -25,6 +25,70 @@ PyObject* Autoresize::asPyObject() const {
 	return t;
 }
 
+bool Vec::initFromPyObject(PyObject* obj) {
+	if(!PyTuple_Check(obj)) {
+		PyErr_Format(PyExc_ValueError, "Vec: We expect a tuple");
+		return false;
+	}
+	if(PyTuple_GET_SIZE(obj) != 2) {
+		PyErr_Format(PyExc_ValueError, "Vec: We expect a tuple with 2 elements");
+		return false;
+	}
+	x = (int)PyInt_AsLong(PyTuple_GET_ITEM(obj, 0));
+	y = (int)PyInt_AsLong(PyTuple_GET_ITEM(obj, 1));
+	if(PyErr_Occurred())
+		return false;
+	return true;
+}
+
+bool Autoresize::initFromPyObject(PyObject* obj) {
+	if(!PyTuple_Check(obj)) {
+		PyErr_Format(PyExc_ValueError, "Autoresize: We expect a tuple");
+		return false;
+	}
+	if(PyTuple_GET_SIZE(obj) != 4) {
+		PyErr_Format(PyExc_ValueError, "Autoresize: We expect a tuple with 4 elements");
+		return false;
+	}
+	x = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 0));
+	y = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 1));
+	w = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 2));
+	h = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 3));
+	if(PyErr_Occurred())
+		return false;
+	return true;
+}
+
+
+
+static
+PyObject* guiObject_method_addChild(PyObject* _self, PyObject* _arg) {
+	GuiObject* self = (GuiObject*) _self;
+	if(!PyType_IsSubtype(Py_TYPE(_arg), &GuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "GuiObject.addChild: we expect a GuiObject");
+		return NULL;
+	}
+	GuiObject* arg = (GuiObject*) _arg;
+	auto func = self->meth_addChild;
+	if(!func) {
+		PyErr_Format(PyExc_AttributeError, "GuiObject.addChild: must be specified in subclass");
+		return NULL;
+	}
+	Py_BEGIN_ALLOW_THREADS
+	func(self, arg);
+	Py_END_ALLOW_THREADS
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMethodDef md_addChild = {
+	"addChild",
+	guiObject_method_addChild,
+	METH_O,
+	NULL
+};
+
+
 static PyObject* returnObj(PyObject* obj) {
 	if(!obj) obj = Py_None;
 	Py_INCREF(obj);
@@ -62,8 +126,7 @@ PyObject* GuiObject::getattr(const char* key) {
 	_ReturnCustomAttr(autoresize);
 	
 	if(strcmp(key, "addChild") == 0) {
-		PyErr_Format(PyExc_AttributeError, "GuiObject attribute '%.400s' must be specified in subclass", key);
-		return NULL;
+		return PyCFunction_New(&md_addChild, (PyObject*) this);
 	}
 	
 	PyErr_Format(PyExc_AttributeError, "GuiObject has no attribute '%.400s'", key);
@@ -75,40 +138,6 @@ returnNone:
 }
 
 
-
-bool Vec::initFromPyObject(PyObject* obj) {
-	if(!PyTuple_Check(obj)) {
-		PyErr_Format(PyExc_ValueError, "Vec: We expect a tuple");
-		return false;
-	}
-	if(PyTuple_GET_SIZE(obj) != 2) {
-		PyErr_Format(PyExc_ValueError, "Vec: We expect a tuple with 2 elements");
-		return false;
-	}
-	x = (int)PyInt_AsLong(PyTuple_GET_ITEM(obj, 0));
-	y = (int)PyInt_AsLong(PyTuple_GET_ITEM(obj, 1));
-	if(PyErr_Occurred())
-		return false;
-	return true;
-}
-
-bool Autoresize::initFromPyObject(PyObject* obj) {
-	if(!PyTuple_Check(obj)) {
-		PyErr_Format(PyExc_ValueError, "Autoresize: We expect a tuple");
-		return false;
-	}
-	if(PyTuple_GET_SIZE(obj) != 4) {
-		PyErr_Format(PyExc_ValueError, "Autoresize: We expect a tuple with 4 elements");
-		return false;
-	}
-	x = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 0));
-	y = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 1));
-	w = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 2));
-	h = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 3));
-	if(PyErr_Occurred())
-		return false;
-	return true;
-}
 
 #define _SetAttr(attr) { \
 	if(strcmp(key, #attr) == 0) { \
