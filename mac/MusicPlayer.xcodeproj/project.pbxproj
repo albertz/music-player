@@ -455,7 +455,7 @@
 		237313B2188564EA0052054E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
 		237313B418859A550052054E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
 		237313B518859A550052054E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
-		237313BF1889634B0052054E /* gui.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = gui.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		237313BF1889634B0052054E /* gui.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = gui.so; path = _guiCocoa.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		237313CC1889634C0052054E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		237313E11889642A0052054E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = gui/AppDelegate.h; sourceTree = "<group>"; };
 		237313E21889642A0052054E /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = gui/AppDelegate.m; sourceTree = "<group>"; };
@@ -2346,6 +2346,7 @@
 				2373133C18818FFB0052054E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		237313701881923C0052054E /* Build configuration list for PBXNativeTarget "chromaprint" */ = {
 			isa = XCConfigurationList;
@@ -2354,6 +2355,7 @@
 				237313721881923C0052054E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		237313DA1889634C0052054E /* Build configuration list for PBXNativeTarget "_guiCocoa" */ = {
 			isa = XCConfigurationList;
@@ -2362,6 +2364,7 @@
 				237313DC1889634C0052054E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		23731404188AAE090052054E /* Build configuration list for PBXNativeTarget "_gui" */ = {
 			isa = XCConfigurationList;
