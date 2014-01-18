@@ -59,19 +59,24 @@ final:
 }
 
 inline
+PyObject* modAttrChain(const char* modName, const char* name) {
+	PyObject* mod = getModule(modName); // borrowed
+	if(!mod) {
+		PyErr_Format(PyExc_ImportError, "failed to find '%.400s' module", modName);
+		return NULL;
+	}
+	return attrChain(mod, name);
+}
+
+inline
 PyObject* _handleModuleCommand(const char* modName, const char* cmd, const char* paramFormat, va_list va) {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyObject* mod = getModule(modName); // borrowed
 	PyObject* func = NULL;
 	PyObject* args = NULL;
 	PyObject* ret = NULL;
 	
-	if(!mod) {
-		printf("Warning: Did not found module %s.\n", modName);
-		goto final;
-	}
-	func = attrChain(mod, cmd);
+	func = modAttrChain(modName, cmd);
 	if(!func) {
 		printf("Warning: Did not get %s.%s.\n", modName, cmd);
 		goto final;

@@ -3,10 +3,36 @@
 #import "PythonHelpers.h"
 
 
+#define _PyReset(ref) { Py_XDECREF(ref); ref = NULL; }
+
+void uninitTypeObject(PyTypeObject* t) {
+	t->tp_flags &= ~Py_TPFLAGS_READY; // force reinit
+	_PyReset(t->tp_bases);
+	_PyReset(t->tp_dict);
+	_PyReset(t->tp_mro);
+	PyType_Modified(t);
+}
 
 int GuiObject::init(PyObject* args, PyObject* kwds) {
+	// If the GuiObject type has no base set,
+	// grab _GuiObject from the gui module and set it as the base.
+	if(GuiObject_Type.tp_base == NULL) {
+		uninitTypeObject(&GuiObject_Type);
 
-
+		PyObject* base = modAttrChain("gui", "_GuiCocoa");
+		if(!base || PyErr_Occurred()) {
+			if(PyErr_Occurred())
+				PyErr_Print();
+			Py_FatalError("Did not found gui._GuiCocoa.");
+		}
+		if(!PyType_Check(base))
+			Py_FatalError("gui._GuiCocoa is not a type.");
+		GuiObject_Type.tp_base = (PyTypeObject*) base;
+		
+		if(PyType_Ready(&GuiObject_Type) < 0)
+			Py_FatalError("Was not able to reinit type GuiObject.");
+	}
+	
 	DefaultSpace = Vec(8,8);
 	OuterSpace = Vec(8,8);
 	return 0;
