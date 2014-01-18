@@ -10,7 +10,9 @@
 #define MusicPlayer_PythonHelpers_h
 
 #include <Python.h>
+#ifdef __OBJC__
 #import <Foundation/Foundation.h>
+#endif
 
 inline
 PyObject* getModule(const char* name) {
@@ -122,6 +124,7 @@ void handleModuleCommand_noReturn(const char* modName, const char* cmd, const ch
 	PyGILState_Release(gstate);
 }
 
+#ifdef __OBJC__
 inline
 NSString* convertToStr(PyObject* obj) {
 	NSString* resStr = nil;
@@ -142,6 +145,6 @@ NSString* convertToStr(PyObject* obj) {
 	else resStr = @"<convertToUnicode invalid>";
 	return resStr;
 }
-
+#endif
 
 #endif
