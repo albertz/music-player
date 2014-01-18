@@ -56,6 +56,8 @@ static int guiobject_setattr(PyObject* self, char* key, PyObject* value) {
 	return ((GuiObject*) self)->setattr(key, value);
 }
 
+// http://docs.python.org/2/c-api/typeobj.html
+
 PyTypeObject GuiObject_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
 	"GuiObject",
@@ -110,7 +112,7 @@ init_gui(void) {
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 
 	if (PyType_Ready(&GuiObject_Type) < 0) {
-		Py_FatalError("Can't initialize player type");
+		Py_FatalError("Can't initialize GuiObject type");
 		return;
 	}
 	

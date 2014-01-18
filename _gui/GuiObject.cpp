@@ -24,30 +24,23 @@ static PyObject* returnVec(const Vec& v) {
 
 #define _ReturnAttrVec(attr) { if(strcmp(key, #attr) == 0) return returnVec(attr); }
 
-static PyObject* returnAutoresize(const Autoresize& v) {
-	PyObject* t = PyTuple_New(4);
-	if(!t) return NULL;
-	PyTuple_SET_ITEM(t, 0, PyBool_FromLong(v.x));
-	PyTuple_SET_ITEM(t, 1, PyBool_FromLong(v.y));
-	PyTuple_SET_ITEM(t, 2, PyBool_FromLong(v.w));
-	PyTuple_SET_ITEM(t, 3, PyBool_FromLong(v.h));
-	return t;
-}
-
 PyObject* GuiObject::getattr(const char* key) {
 	_ReturnAttr(root);
 	_ReturnAttr(parent);
 	_ReturnAttr(attr);
 	_ReturnAttr(nativeGuiObject);
 	_ReturnAttr(subjectObject);
-	_ReturnAttrVec(pos);
-	_ReturnAttrVec(size);
 	_ReturnAttrVec(DefaultSpace);
 	_ReturnAttrVec(OuterSpace);
-		
-	if(strcmp(key, "autoresize") == 0)
-		return returnAutoresize(autoresize);
-
+	
+	if(strcmp(key, "autoresize") == 0
+	|| strcmp(key, "pos") == 0
+	|| strcmp(key, "size") == 0
+	|| strcmp(key, "addChild") == 0) {
+		PyErr_Format(PyExc_AttributeError, "GuiObject attribute '%.400s' must be specified in subclass", key);
+		return NULL;
+	}
+	
 	PyErr_Format(PyExc_AttributeError, "GuiObject has no attribute '%.400s'", key);
 	return NULL;
 	

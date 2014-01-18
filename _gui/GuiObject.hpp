@@ -29,9 +29,6 @@ struct GuiObject {
 	PyObject* root;
 	PyObject* parent;
 	PyObject* attr;
-	Vec pos;
-	Vec size;
-	Autoresize autoresize;
 	PyObject* nativeGuiObject;
 	PyObject* subjectObject;
 
