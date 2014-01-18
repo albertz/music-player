@@ -6,13 +6,6 @@ int GuiObject::init(PyObject* args, PyObject* kwds) {
 	return 0;
 }
 
-static PyObject* returnObj(PyObject* obj) {
-	if(!obj) obj = Py_None;
-	Py_INCREF(obj);
-	return obj;
-}
-
-#define _ReturnAttr(attr) { if(strcmp(key, #attr) == 0) return returnObj(attr); }
 
 PyObject* Vec::asPyObject() const {
 	PyObject* t = PyTuple_New(2);
@@ -31,6 +24,14 @@ PyObject* Autoresize::asPyObject() const {
 	PyTuple_SET_ITEM(t, 3, PyBool_FromLong(h));
 	return t;
 }
+
+static PyObject* returnObj(PyObject* obj) {
+	if(!obj) obj = Py_None;
+	Py_INCREF(obj);
+	return obj;
+}
+
+#define _ReturnAttr(attr) { if(strcmp(key, #attr) == 0) return returnObj(attr); }
 
 #define _ReturnAttrVec(attr) { if(strcmp(key, #attr) == 0) return attr.asPyObject(); }
 
@@ -70,7 +71,60 @@ returnNone:
 	return Py_None;
 }
 
+
+
+bool Vec::initFromPyObject(PyObject* obj) {
+	if(!PyTuple_Check(obj)) {
+		PyErr_Format(PyExc_ValueError, "Vec: We expect a tuple");
+		return false;
+	}
+	if(PyTuple_GET_SIZE(obj) != 2) {
+		PyErr_Format(PyExc_ValueError, "Vec: We expect a tuple with 2 elements");
+		return false;
+	}
+	x = (int)PyInt_AsLong(PyTuple_GET_ITEM(obj, 0));
+	y = (int)PyInt_AsLong(PyTuple_GET_ITEM(obj, 1));
+	if(PyErr_Occurred())
+		return false;
+	return true;
+}
+
+bool Autoresize::initFromPyObject(PyObject* obj) {
+	if(!PyTuple_Check(obj)) {
+		PyErr_Format(PyExc_ValueError, "Autoresize: We expect a tuple");
+		return false;
+	}
+	if(PyTuple_GET_SIZE(obj) != 4) {
+		PyErr_Format(PyExc_ValueError, "Autoresize: We expect a tuple with 4 elements");
+		return false;
+	}
+	x = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 0));
+	y = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 1));
+	w = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 2));
+	h = PyObject_IsTrue(PyTuple_GET_ITEM(obj, 3));
+	if(PyErr_Occurred())
+		return false;
+	return true;
+}
+
+#define _SetCustomAttr(attr, ValueType) { \
+	if(strcmp(key, #attr) == 0) { \
+		if(set_ ## attr == 0) { \
+			PyErr_Format(PyExc_AttributeError, "GuiObject attribute '%.400s' must be specified in subclass", key); \
+			return -1; \
+		} \
+		ValueType v; \
+		if(!v.initFromPyObject(value)) \
+			return -1; \
+		(* set_ ## attr)(this, v); \
+		return 0; \
+	} }
+
 int GuiObject::setattr(const char* key, PyObject* value) {
+	_SetCustomAttr(pos, Vec);
+	_SetCustomAttr(size, Vec);
+	_SetCustomAttr(autoresize, Autoresize);
+
 	PyObject* s = PyString_FromString(key);
 	if(!s) return -1;
 	// While we have no own __dict__, this will fail. But that is what we want.

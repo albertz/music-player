@@ -62,12 +62,44 @@ static Autoresize imp_get_autoresize(GuiObject* obj) {
 	return r;
 }
 
+static void imp_set_pos(GuiObject* obj, const Vec& v) {
+	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	if(!view) return;
+	runOnMainQueue(^{
+		[view setFrameOrigin:NSMakePoint(v.x, v.y)];
+	});
+}
+
+static void imp_set_size(GuiObject* obj, const Vec& v) {
+	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	if(!view) return;
+	runOnMainQueue(^{
+		[view setFrameSize:NSMakeSize(v.x, v.y)];
+	});
+}
+
+static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
+	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	if(!view) return;
+	NSUInteger flags = 0;
+	if(r.x) flags |= NSViewMinXMargin;
+	if(r.y) flags |= NSViewMinYMargin;
+	if(r.w) flags |= NSViewWidthSizable;
+	if(r.h) flags |= NSViewHeightSizable;
+	runOnMainQueue(^{
+		[view setAutoresizingMask:flags];
+	});
+}
+
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	GuiObject::init(args, kwds);
 	get_pos = imp_get_pos;
 	get_size = imp_get_size;
 	get_innerSize = imp_get_innnerSize;
 	get_autoresize = imp_get_autoresize;
+	set_pos = imp_set_pos;
+	set_size = imp_set_size;
+	set_autoresize = imp_set_autoresize;
 	return 0;
 }
 
