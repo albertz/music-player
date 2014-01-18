@@ -163,6 +163,7 @@ PyObject* player_alloc(PyTypeObject *type, Py_ssize_t nitems) {
     if (obj == NULL)
         return PyErr_NoMemory();
 	
+	// This is why we need this custom alloc: To call the C++ constructor.
     memset(obj, '\0', size);
 	new ((PlayerObject*) obj) PlayerObject();
 	
