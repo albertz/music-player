@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Python.h>
 #include <stdio.h>
+#include <signal.h>
 
 
 // for AmIBeingDebugged
@@ -158,6 +159,18 @@ void handleFatalError(const char* msg) {
 	exit(1);
 }
 
+void signal_handler(int sig) {
+	handleFatalError("There was a fatal error.");
+}
+
+void install_signal_handler() {
+	signal(SIGABRT, signal_handler);
+	signal(SIGBUS, signal_handler);
+	signal(SIGSEGV, signal_handler);
+	signal(SIGFPE, signal_handler);
+	signal(SIGILL, signal_handler);
+}
+
 int main(int argc, char *argv[])
 {
 	@autoreleasepool
@@ -189,9 +202,11 @@ int main(int argc, char *argv[])
 			freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stderr);
 		}
 
-		if(!forkExecProc)
+		if(!forkExecProc) {
 			printf("%s", StartupStr);
-
+			install_signal_handler();
+		}
+		
 		if(help) {
 			printf(
 				   "Help: Available MacOSX options:\n"
