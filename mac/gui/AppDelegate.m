@@ -8,6 +8,7 @@
 
 #include <Python.h>
 #include <dlfcn.h>
+#import "PyObjCBridge.h"
 #import "AppDelegate.h"
 
 
@@ -62,70 +63,164 @@ final:
 	return res;
 }
 
-void handlePlayerStateCommand(const char* cmd) {
+PyObject* _handleModuleCommand(const char* modName, const char* cmd, const char* paramFormat, va_list va) {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	PyObject* state = getPlayerState();
+	PyObject* mod = getModule(modName); // borrowed
 	PyObject* func = NULL;
+	PyObject* args = NULL;
 	PyObject* ret = NULL;
 
-	if(!state) {
-		printf("Warning: Did not get State.state.\n");
+	if(!mod) {
+		printf("Warning: Did not found module %s.\n", modName);
 		goto final;
-	}
-	func = attrChain(state, cmd);
+	}	
+	func = attrChain(mod, cmd);
 	if(!func) {
-		printf("Warning: Did not get State.state.%s.\n", cmd);
+		printf("Warning: Did not get %s.%s.\n", modName, cmd);
 		goto final;
 	}
-	ret = PyObject_CallFunction(func, NULL);
+
+    if (paramFormat && *paramFormat) {
+        args = Py_VaBuildValue(paramFormat, va);
+		if(!args) goto final;
+
+		if (!PyTuple_Check(args)) {
+			PyObject* newArgs = PyTuple_New(1);
+			if(!newArgs) goto final;
+			PyTuple_SET_ITEM(newArgs, 0, args);
+			args = newArgs;
+		}
+    }
+    else
+        args = PyTuple_New(0);
+	
+	ret = PyObject_Call(func, args, NULL);
 	
 final:
 	if(PyErr_Occurred())
 		PyErr_Print();
 	
-	Py_XDECREF(state);
 	Py_XDECREF(func);
+	Py_XDECREF(args);
+	PyGILState_Release(gstate);
+	
+	return ret;
+}
+
+PyObject* handleModuleCommand(const char* modName, const char* cmd, const char* paramFormat, ...) {
+	va_list va;
+	va_start(va, paramFormat);
+	PyObject* ret = _handleModuleCommand(modName, cmd, paramFormat, va);
+	va_end(va);
+	return ret;
+}
+
+void handleModuleCommand_noReturn(const char* modName, const char* cmd, const char* paramFormat, ...) {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	va_list va;
+	va_start(va, paramFormat);
+	PyObject* ret = _handleModuleCommand(modName, cmd, paramFormat, va);
+	va_end(va);
 	Py_XDECREF(ret);
 	PyGILState_Release(gstate);
 }
 
-@implementation AppDelegate
+NSString* _convertToUnicode(PyObject* obj) {
+	NSString* resStr = nil;
+	PyObject* res = handleModuleCommand("utils", "convertToUnicode", "(o)", obj);
+	if(!res) resStr = @"<convertToUnicode error>";
+	else if(PyString_Check(res)) {
+		const char* s = PyString_AS_STRING(res);
+		if(!s) resStr = @"<NULL>";
+		else resStr = [NSString stringWithUTF8String:s];
+	}
+	else if(PyUnicode_Check(res)) {
+		PyObject* utf8Str = PyUnicode_AsUTF8String(res);
+		if(!utf8Str) resStr = @"<conv-utf8 failed>";
+		const char* s = PyString_Check(utf8Str) ? PyString_AS_STRING(utf8Str) : NULL;
+		if(!s) resStr = @"<conv-utf8 error>";
+		else resStr = [NSString stringWithUTF8String:s];
+	}
+	else resStr = @"<convertToUnicode invalid>";
+	return resStr;
+}
 
-NSWindow* mainWindow;
+NSWindow* getWindow(const char* name) {
+	NSWindow* res = NULL;
+
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	PyObject* w = handleModuleCommand("guiCocoa", "getWindow", "(s)", name);
+	if(!w) goto final;
+	res = PyObjCObj_GetNativeObj(w);
+	
+final:
+	Py_XDECREF(w);
+	PyGILState_Release(gstate);
+	
+	return res;
+}
+
+
+@implementation AppDelegate
 
 - (void)setupMainWindow
 {
-	
+	handleModuleCommand_noReturn("guiCocoa", "setupMainWindow", NULL);
 }
 
 - (void)setupSearchWindow
 {
-	
+	handleModuleCommand_noReturn("guiCocoa", "setupSearchWindow", NULL);
 }
 
 - (void)setupSongEditWindow
 {
-	
+	handleModuleCommand_noReturn("guiCocoa", "setupSongEditWindow", NULL);
 }
 
-MSMenu* dockMenu;
+NSMenu* dockMenu;
+
+- (void)setDockMenu:(NSMenu*)m
+{
+	dockMenu = m;
+}
 
 - (void)updateControlMenu
 {
-//	if not AppKit.NSApp: return
-//	menu = getattr(AppKit.NSApp.delegate(), "dockMenu", None)
-//	if not menu: return
-//	from State import state
-//	if not state: return
-//	songEntry = menu.itemAtIndex_(0)
-//	playPauseEntry = menu.itemAtIndex_(1)
-//	songEntry.setTitle_(convertToUnicode(state.curSong.userString))
-//	if state.player.playing:
-//		playPauseEntry.setTitle_("Pause")
-//	else:
-//		playPauseEntry.setTitle_("Play")		
+	if(!dockMenu) return;
 
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	PyObject* mod = getModule("State"); // borrowed
+	PyObject* state = NULL;
+	PyObject* songTitle = NULL;
+	PyObject* playingState = NULL;
+	
+	if(!mod) goto final;
+	state = attrChain(mod, "state");
+	if(!state || PyObject_IsTrue(state) <= 0) goto final;
+	
+	songTitle = attrChain(mod, "state.curSong.userString");
+	if(!songTitle) goto final;
+	playingState = attrChain(mod, "state.player.playing");
+	if(!playingState) goto final;
+		
+	{
+		NSMenuItem* songEntry = [dockMenu itemAtIndex:0];
+		NSMenuItem* playPauseEntry = [dockMenu itemAtIndex:1];
+
+		[songEntry setTitle:_convertToUnicode(songTitle)];
+		[playPauseEntry setTitle:((PyObject_IsTrue(playingState) > 0) ? @"Pause" : @"Play")];
+	}
+	
+final:
+	if(PyErr_Occurred())
+		PyErr_Print();
+
+	Py_XDECREF(state);
+	Py_XDECREF(songTitle);
+	Py_XDECREF(playingState);
+	PyGILState_Release(gstate);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
@@ -167,37 +262,13 @@ final:
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSNotification *)aNotification
 {
 	printf("My app delegate: should terminate\n");
-
-	PyGILState_STATE gstate = PyGILState_Ensure();
-		
-	PyObject* mod = getModule("guiCocoa"); // borrowed
-	PyObject* callback = NULL;
-	PyObject* ret = NULL;
-	if(!mod) {
-		printf("Warning: Did not find guiCocoa.\n");
-		goto final;
-	}
-	callback = PyObject_GetAttrString(mod, "handleApplicationQuit");
-	if(!callback) {
-		printf("Warning: handleApplicationQuit not found.\n");
-		goto final;
-	}
-	ret = PyObject_CallFunction(callback, NULL);
-	
-final:
-	if(PyErr_Occurred())
-		PyErr_Print();
-	
-	Py_XDECREF(ret);
-	Py_XDECREF(callback);
-	PyGILState_Release(gstate);
-	
+	handleModuleCommand_noReturn("guiCocoa", "handleApplicationQuit", NULL);
 	return NSTerminateNow;
 }
 
 - (BOOL)applicationOpenUntitledFile:(NSApplication *)sender
 {
-	if(!mainWindow)
+	if(!getWindow("mainWindow"))
 		[self setupMainWindow];
 	else
 		[NSApp activateIgnoringOtherApps:YES];
@@ -254,17 +325,17 @@ final:
 
 - (void)playPause:(id)sender
 {
-	handlePlayerStateCommand("playPause");
+	handleModuleCommand_noReturn("State", "state.playPause", NULL);
 }
 
 - (void)nextSong:(id)sender
 {
-	handlePlayerStateCommand("nextSong");
+	handleModuleCommand_noReturn("State", "state.nextSong", NULL);
 }
 
 - (void)resetPlayer:(id)sender
 {
-	handlePlayerStateCommand("player.resetPlaying");
+	handleModuleCommand_noReturn("State", "state.player.resetPlaying", NULL);
 }
 
 - (void)dealloc

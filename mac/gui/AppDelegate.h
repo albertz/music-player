@@ -11,4 +11,6 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
+- (void)updateControlMenu;
+
 @end

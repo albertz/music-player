@@ -67,7 +67,7 @@ def setupAppleMenu():
 	m.addItemWithTitle_action_keyEquivalent_('Play', 'playPause:', '')
 	m.addItemWithTitle_action_keyEquivalent_('Next song', 'nextSong:', '')
 	
-	AppKit.NSApp.delegate().dockMenu = m
+	AppKit.NSApp.delegate().setDockMenu_(m)
 	AppKit.NSApp.setDockMenu_(m)
 
 	# new supermenu
