@@ -34,21 +34,9 @@ try:
 except Exception:
 	print "error in loading GUI implementation"
 	sys.excepthook(*sys.exc_info())
-	
-class GuiObject:
-	"This defines the protocol we must support"
-	
-	root = None
-	parent = None
-	attr = None # if this is a child of something, this is the access attrib of the parent.subjectObject
-	pos = (0,0)
-	size = (0,0)
-	autoresize = (False,False,False,False) # whether to modify x,y,w,h on resize
-	nativeGuiObject = None	
-	subjectObject = None
-	DefaultSpace = (8,8)
-	OuterSpace = (8,8)
-	
+
+class _GuiObject:
+
 	def __repr__(self): return "<%s %r %r>" % (self.__class__.__name__, self.subjectObject, self.attr)
 
 	@safe_property
