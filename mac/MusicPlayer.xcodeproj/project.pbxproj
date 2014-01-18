@@ -64,6 +64,8 @@
 		237313E6188965D10052054E /* PythonInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 237313E5188965D10052054E /* PythonInterface.m */; };
 		237313E9188969400052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B418859A550052054E /* CoreFoundation.framework */; };
 		237313EB188969470052054E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313EA188969460052054E /* AppKit.framework */; };
+		237313F3188A962A0052054E /* PyObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 237313F2188A962A0052054E /* PyObjCBridge.h */; };
+		237313F5188A96EF0052054E /* PyObjCBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 237313F4188A96EF0052054E /* PyObjCBridge.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -449,6 +451,8 @@
 		237313E21889642A0052054E /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = gui/AppDelegate.m; sourceTree = "<group>"; };
 		237313E5188965D10052054E /* PythonInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PythonInterface.m; path = gui/PythonInterface.m; sourceTree = "<group>"; };
 		237313EA188969460052054E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
+		237313F2188A962A0052054E /* PyObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyObjCBridge.h; path = gui/PyObjCBridge.h; sourceTree = "<group>"; };
+		237313F4188A96EF0052054E /* PyObjCBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PyObjCBridge.m; path = gui/PyObjCBridge.m; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -853,6 +857,8 @@
 				237313E11889642A0052054E /* AppDelegate.h */,
 				237313E21889642A0052054E /* AppDelegate.m */,
 				237313E5188965D10052054E /* PythonInterface.m */,
+				237313F2188A962A0052054E /* PyObjCBridge.h */,
+				237313F4188A96EF0052054E /* PyObjCBridge.m */,
 			);
 			name = _guiCocoa.so;
 			sourceTree = "<group>";
@@ -1203,6 +1209,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				237313E31889642A0052054E /* AppDelegate.h in Headers */,
+				237313F3188A962A0052054E /* PyObjCBridge.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1596,6 +1603,7 @@
 			files = (
 				237313E41889642A0052054E /* AppDelegate.m in Sources */,
 				237313E6188965D10052054E /* PythonInterface.m in Sources */,
+				237313F5188A96EF0052054E /* PyObjCBridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1965,6 +1973,10 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
+					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
+				);
 				LD_DYLIB_INSTALL_NAME = "";
 				OTHER_LDFLAGS = (
 					"-undefined",
@@ -1991,6 +2003,10 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
+					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
+				);
 				LD_DYLIB_INSTALL_NAME = "";
 				OTHER_LDFLAGS = (
 					"-undefined",
