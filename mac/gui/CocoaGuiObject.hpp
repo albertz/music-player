@@ -12,11 +12,6 @@
 #include "GuiObject.hpp"
 
 struct CocoaGuiObject : GuiObject {
-
-	PyObject* getPos();
-	PyObject* getSize();
-	PyObject* getAutoresize();
-
 	int init(PyObject* args, PyObject* kwds);
 	PyObject* getattr(const char* key);
 	int setattr(const char* key, PyObject* value);

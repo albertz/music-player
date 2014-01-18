@@ -14,7 +14,7 @@ static PyObject* returnObj(PyObject* obj) {
 
 #define _ReturnAttr(attr) { if(strcmp(key, #attr) == 0) return returnObj(attr); }
 
-PyObject* Vec::asTuple() const {
+PyObject* Vec::asPyObject() const {
 	PyObject* t = PyTuple_New(2);
 	if(!t) return NULL;
 	PyTuple_SET_ITEM(t, 0, PyInt_FromLong(x));
@@ -22,7 +22,26 @@ PyObject* Vec::asTuple() const {
 	return t;
 }
 
-#define _ReturnAttrVec(attr) { if(strcmp(key, #attr) == 0) return attr.asTuple(); }
+PyObject* Autoresize::asPyObject() const {
+	PyObject* t = PyTuple_New(4);
+	if(!t) return NULL;
+	PyTuple_SET_ITEM(t, 0, PyBool_FromLong(x));
+	PyTuple_SET_ITEM(t, 1, PyBool_FromLong(y));
+	PyTuple_SET_ITEM(t, 2, PyBool_FromLong(w));
+	PyTuple_SET_ITEM(t, 3, PyBool_FromLong(h));
+	return t;
+}
+
+#define _ReturnAttrVec(attr) { if(strcmp(key, #attr) == 0) return attr.asPyObject(); }
+
+#define _ReturnCustomAttr(attr) { \
+	if(strcmp(key, #attr) == 0) { \
+		if(get_ ## attr == 0) { \
+			PyErr_Format(PyExc_AttributeError, "GuiObject attribute '%.400s' must be specified in subclass", key); \
+			return NULL; \
+		} \
+		return (* get_ ## attr)(this).asPyObject(); \
+	} }
 
 PyObject* GuiObject::getattr(const char* key) {
 	_ReturnAttr(root);
@@ -33,10 +52,12 @@ PyObject* GuiObject::getattr(const char* key) {
 	_ReturnAttrVec(DefaultSpace);
 	_ReturnAttrVec(OuterSpace);
 	
-	if(strcmp(key, "autoresize") == 0
-	|| strcmp(key, "pos") == 0
-	|| strcmp(key, "size") == 0
-	|| strcmp(key, "addChild") == 0) {
+	_ReturnCustomAttr(pos);
+	_ReturnCustomAttr(size);
+	_ReturnCustomAttr(innerSize);
+	_ReturnCustomAttr(autoresize);
+	
+	if(strcmp(key, "addChild") == 0) {
 		PyErr_Format(PyExc_AttributeError, "GuiObject attribute '%.400s' must be specified in subclass", key);
 		return NULL;
 	}

@@ -8,53 +8,37 @@
 
 #include "CocoaGuiObject.hpp"
 
+static Vec imp_get_pos(GuiObject*) {
+	// TODO
+	return Vec();
+}
+
+static Vec imp_get_size(GuiObject*) {
+	// TODO
+	return Vec();
+}
+
+static Vec imp_get_innnerSize(GuiObject*) {
+	// TODO
+	return Vec();
+}
+
+static Autoresize imp_get_autoresize(GuiObject*) {
+	// TODO
+	return Autoresize();
+}
+
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	GuiObject::init(args, kwds);
+	get_pos = imp_get_pos;
+	get_size = imp_get_size;
+	get_innerSize = imp_get_innnerSize;
+	get_autoresize = imp_get_autoresize;
 	return 0;
 }
 
-struct Autoresize {
-	bool x,y,w,h;
-	Autoresize() : x(false), y(false), w(false), h(false) {}
-};
-
-static PyObject* returnAutoresize(const Autoresize& v) {
-	PyObject* t = PyTuple_New(4);
-	if(!t) return NULL;
-	PyTuple_SET_ITEM(t, 0, PyBool_FromLong(v.x));
-	PyTuple_SET_ITEM(t, 1, PyBool_FromLong(v.y));
-	PyTuple_SET_ITEM(t, 2, PyBool_FromLong(v.w));
-	PyTuple_SET_ITEM(t, 3, PyBool_FromLong(v.h));
-	return t;
-}
-
-PyObject* CocoaGuiObject::getPos() {
-	// TODO
-	return Vec().asTuple();
-}
-
-PyObject* CocoaGuiObject::getSize() {
-	// TODO
-	return Vec().asTuple();
-}
-
-PyObject* CocoaGuiObject::getAutoresize() {
-	// TODO
-	Autoresize r;
-	return returnAutoresize(r);
-}
-
 PyObject* CocoaGuiObject::getattr(const char* key) {
-	if(strcmp(key, "pos") == 0)
-		return getPos();
-		
-	if(strcmp(key, "size") == 0)
-		return getSize();
-	
-	if(strcmp(key, "autoresize") == 0)
-		return getAutoresize();
-
-	// fallthrough
+	// fallthrough for now
 	return GuiObject::getattr(key);
 }
 
