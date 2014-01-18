@@ -1,6 +1,12 @@
+
 #include "GuiObject.hpp"
+#import "PythonHelpers.h"
+
+
 
 int GuiObject::init(PyObject* args, PyObject* kwds) {
+
+
 	DefaultSpace = Vec(8,8);
 	OuterSpace = Vec(8,8);
 	return 0;
@@ -129,12 +135,10 @@ PyObject* GuiObject::getattr(const char* key) {
 		return PyCFunction_New(&md_addChild, (PyObject*) this);
 	}
 	
-	PyErr_Format(PyExc_AttributeError, "GuiObject has no attribute '%.400s'", key);
-	return NULL;
-	
-returnNone:
-	Py_INCREF(Py_None);
-	return Py_None;
+	// Fallthrough to generic getattr. In case we got another base type, this might work.
+	PyObject* s = PyString_FromString(key);
+	if(!s) return NULL;
+	return PyObject_GenericGetAttr((PyObject*) this, s);
 }
 
 
@@ -172,9 +176,9 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 	_SetCustomAttr(size, Vec);
 	_SetCustomAttr(autoresize, Autoresize);
 
+	// Fallthrough to generic setattr. In case we got another base type, this might work.
 	PyObject* s = PyString_FromString(key);
 	if(!s) return -1;
-	// While we have no own __dict__, this will fail. But that is what we want.
 	int ret = PyObject_GenericSetAttr((PyObject*) this, s, value);
 	Py_XDECREF(s);
 	return ret;
