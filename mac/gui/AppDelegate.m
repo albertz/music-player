@@ -27,12 +27,84 @@ PyObject* getModule(const char* name) {
 	return PyDict_GetItemString(modules, name); // borrowed ref
 }
 
+PyObject* getPlayerState() {
+	PyObject* mod = getModule("State"); // borrowed
+	if(!mod) return NULL;
+	return PyObject_GetAttrString(mod, "state");
+}
+
+PyObject* attrChain(PyObject* base, const char* name) {
+	PyObject* res = NULL;
+	Py_INCREF(base);
+	
+	while(true) {
+		char* dot = strchr(name, '.');
+		if(!dot) break;
+		
+		PyObject* attrName = PyString_FromStringAndSize(name, dot - name);
+		if(!attrName)
+			goto final;
+			
+		PyObject* nextObj = PyObject_GetAttr(base, attrName);
+		Py_DECREF(attrName);
+		if(!nextObj)
+			goto final;
+
+		Py_DECREF(base);
+		base = nextObj;
+		name = dot + 1;
+	}
+	
+	res = PyObject_GetAttrString(base, name);
+	
+final:
+	Py_XDECREF(base);
+	return res;
+}
+
+void handlePlayerStateCommand(const char* cmd) {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	
+	PyObject* state = getPlayerState();
+	PyObject* func = NULL;
+	PyObject* ret = NULL;
+
+	if(!state) {
+		printf("Warning: Did not get State.state.\n");
+		goto final;
+	}
+	func = attrChain(state, cmd);
+	if(!func) {
+		printf("Warning: Did not get State.state.%s.\n", cmd);
+		goto final;
+	}
+	ret = PyObject_CallFunction(func, NULL);
+	
+final:
+	if(PyErr_Occurred())
+		PyErr_Print();
+	
+	Py_XDECREF(state);
+	Py_XDECREF(func);
+	Py_XDECREF(ret);
+	PyGILState_Release(gstate);
+}
 
 @implementation AppDelegate
 
 NSWindow* mainWindow;
 
 - (void)setupMainWindow
+{
+	
+}
+
+- (void)setupSearchWindow
+{
+	
+}
+
+- (void)setupSongEditWindow
 {
 	
 }
@@ -69,7 +141,7 @@ final:
 		handleFatalError(fatalErrorMsg);
 	
 	Py_XDECREF(ret);
-	Py_XDECREF(callback);	
+	Py_XDECREF(callback);
 	PyGILState_Release(gstate);
 }
 
@@ -126,32 +198,55 @@ final:
 
 - (void)openSearchWindow:(id)sender
 {
-	// ...
+	[self setupSearchWindow];
 }
 
-//	def openSearchWindow_(self, app):
-//		setupSearchWindow()
-//	
-//	def openSongEditWindow_(self, app):
-//		setupSongEditWindow()
-//
-//	def about_(self, app):
-//		import gui
-//		gui.about()
-//
-//	def playPause_(self, app):
-//		from State import state
-//		state.playPause()
-//	
-//	def nextSong_(self, app):
-//		from State import state
-//		state.nextSong()
-//
-//	def resetPlayer_(self, app):
-//		from State import state
-//		state.player.resetPlaying()
+- (void)openSongEditWindow:(id)sender
+{
+	[self setupSongEditWindow];
+}
 
+- (void)about:(id)sender
+{
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	
+	PyObject* mod = getModule("gui"); // borrowed
+	PyObject* callback = NULL;
+	PyObject* ret = NULL;
+	if(!mod) {
+		printf("Warning: Did not find gui module.\n");
+		goto final;
+	}
+	callback = PyObject_GetAttrString(mod, "about");
+	if(!callback) {
+		printf("Warning: gui.about not found.\n");
+		goto final;
+	}
+	ret = PyObject_CallFunction(callback, NULL);
+	
+final:
+	if(PyErr_Occurred())
+		PyErr_Print();
+	
+	Py_XDECREF(ret);
+	Py_XDECREF(callback);
+	PyGILState_Release(gstate);
+}
 
+- (void)playPause:(id)sender
+{
+	handlePlayerStateCommand("playPause");
+}
+
+- (void)nextSong:(id)sender
+{
+	handlePlayerStateCommand("nextSong");
+}
+
+- (void)resetPlayer:(id)sender
+{
+	handlePlayerStateCommand("player.resetPlaying");
+}
 
 - (void)dealloc
 {
