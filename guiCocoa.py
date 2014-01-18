@@ -79,30 +79,16 @@ def setupAppleMenu():
 
 	AppKit.NSApp.setMainMenu_(mainMenu)
 
-def updateControlMenu():
-	if not AppKit.NSApp: return
-	menu = getattr(AppKit.NSApp.delegate(), "dockMenu", None)
-	if not menu: return
-	from State import state
-	if not state: return
-	songEntry = menu.itemAtIndex_(0)
-	playPauseEntry = menu.itemAtIndex_(1)
-	songEntry.setTitle_(convertToUnicode(state.curSong.userString))
-	if state.player.playing:
-		playPauseEntry.setTitle_("Pause")
-	else:
-		playPauseEntry.setTitle_("Play")		
-
 def setupAfterAppFinishedLaunching():
-	import main
-	main.successStartup = True
-
 	from State import modules
 	for m in modules: m.start()
 
 	setupAppleMenu()
 	setupMainWindow()
 	AppKit.NSApp.updateWindows()
+
+	import main
+	main.successStartup = True
 	print "setupAfterAppFinishedLaunching ready"
 
 def handleApplicationQuit():

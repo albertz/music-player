@@ -13,7 +13,7 @@ static AppDelegate* appDelegate = NULL;
 
 
 PyObject *
-guiCocoaMain(PyObject* self) {
+guiCocoa_main(PyObject* self) {
 	// This is called from Python and replaces the main() control.
 	// Basically we do a replacement of NSApplicationMain().
 	// For reference: http://www.cocoawithlove.com/2009/01/demystifying-nsapplication-by.html
@@ -57,16 +57,29 @@ guiCocoaMain(PyObject* self) {
 
 
 PyObject *
-guiCocoaQuit(PyObject* self) {
+guiCocoa_quit(PyObject* self) {
+	Py_BEGIN_ALLOW_THREADS
 	[NSApp terminate:nil];
+	Py_END_ALLOW_THREADS
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+PyObject*
+guiCocoa_updateControlMenu(PyObject* self) {
+	Py_BEGIN_ALLOW_THREADS
+	[[NSApp delegate] updateControlMenu];
+	Py_END_ALLOW_THREADS
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 
 static PyMethodDef module_methods[] = {
-	{"main",	(PyCFunction)guiCocoaMain,	METH_NOARGS,	"overtakes main()"},
-	{"quit",	(PyCFunction)guiCocoaQuit,	METH_NOARGS,	"quit application"},
+	{"main",	(PyCFunction)guiCocoa_main,	METH_NOARGS,	"overtakes main()"},
+	{"quit",	(PyCFunction)guiCocoa_quit,	METH_NOARGS,	"quit application"},
+	{"updateControlMenu",	(PyCFunction)guiCocoa_updateControlMenu,	METH_NOARGS,	""},
 	{NULL,				NULL}	/* sentinel */
 };
 

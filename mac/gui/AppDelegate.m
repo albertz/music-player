@@ -109,6 +109,25 @@ NSWindow* mainWindow;
 	
 }
 
+MSMenu* dockMenu;
+
+- (void)updateControlMenu
+{
+//	if not AppKit.NSApp: return
+//	menu = getattr(AppKit.NSApp.delegate(), "dockMenu", None)
+//	if not menu: return
+//	from State import state
+//	if not state: return
+//	songEntry = menu.itemAtIndex_(0)
+//	playPauseEntry = menu.itemAtIndex_(1)
+//	songEntry.setTitle_(convertToUnicode(state.curSong.userString))
+//	if state.player.playing:
+//		playPauseEntry.setTitle_("Pause")
+//	else:
+//		playPauseEntry.setTitle_("Play")		
+
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	printf("My app delegate: finish launching\n");
