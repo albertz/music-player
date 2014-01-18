@@ -67,6 +67,8 @@
 		237313F3188A962A0052054E /* PyObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 237313F2188A962A0052054E /* PyObjCBridge.h */; };
 		237313F5188A96EF0052054E /* PyObjCBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 237313F4188A96EF0052054E /* PyObjCBridge.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		23731409188AAE830052054E /* PythonInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23731408188AAE830052054E /* PythonInterface.cpp */; };
+		2373140B188AAFB90052054E /* GuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2373140A188AAFB90052054E /* GuiObject.hpp */; };
+		2373140F188AB3F60052054E /* GuiObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2373140E188AB3F60052054E /* GuiObject.cpp */; };
 		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
@@ -281,6 +283,13 @@
 			remoteGlobalIDString = 237313BE1889634B0052054E;
 			remoteInfo = _guiCocoa;
 		};
+		2373140C188AB2A40052054E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 237313F7188AAE090052054E;
+			remoteInfo = _gui;
+		};
 		238E9877169664E200C42074 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
@@ -456,6 +465,8 @@
 		237313F4188A96EF0052054E /* PyObjCBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PyObjCBridge.m; path = gui/PyObjCBridge.m; sourceTree = "<group>"; };
 		23731407188AAE090052054E /* _gui.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _gui.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23731408188AAE830052054E /* PythonInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PythonInterface.cpp; path = ../_gui/PythonInterface.cpp; sourceTree = "<group>"; };
+		2373140A188AAFB90052054E /* GuiObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = GuiObject.hpp; path = ../_gui/GuiObject.hpp; sourceTree = "<group>"; };
+		2373140E188AB3F60052054E /* GuiObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GuiObject.cpp; path = ../_gui/GuiObject.cpp; sourceTree = "<group>"; };
 		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
@@ -877,6 +888,8 @@
 			isa = PBXGroup;
 			children = (
 				23731408188AAE830052054E /* PythonInterface.cpp */,
+				2373140A188AAFB90052054E /* GuiObject.hpp */,
+				2373140E188AB3F60052054E /* GuiObject.cpp */,
 			);
 			name = _gui.so;
 			sourceTree = "<group>";
@@ -1237,6 +1250,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2373140B188AAFB90052054E /* GuiObject.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1465,6 +1479,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				2373140D188AB2A40052054E /* PBXTargetDependency */,
 				237313E8188966B30052054E /* PBXTargetDependency */,
 				239D8A01182BCAF90068F287 /* PBXTargetDependency */,
 				230349AD17AD72CC00C6033C /* PBXTargetDependency */,
@@ -1656,6 +1671,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2373140F188AB3F60052054E /* GuiObject.cpp in Sources */,
 				23731409188AAE830052054E /* PythonInterface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1828,6 +1844,11 @@
 			isa = PBXTargetDependency;
 			target = 237313BE1889634B0052054E /* _guiCocoa */;
 			targetProxy = 237313E7188966B30052054E /* PBXContainerItemProxy */;
+		};
+		2373140D188AB2A40052054E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 237313F7188AAE090052054E /* _gui */;
+			targetProxy = 2373140C188AB2A40052054E /* PBXContainerItemProxy */;
 		};
 		238E9878169664E200C42074 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
