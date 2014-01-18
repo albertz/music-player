@@ -4,6 +4,7 @@
 #include <Python.h>
 #include <pythread.h>
 
+#include <iostream>
 #include "GuiObject.hpp"
 
 
