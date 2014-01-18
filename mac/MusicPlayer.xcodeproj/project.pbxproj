@@ -61,7 +61,7 @@
 		237313E0188963D00052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B518859A550052054E /* Foundation.framework */; };
 		237313E31889642A0052054E /* AppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 237313E11889642A0052054E /* AppDelegate.h */; };
 		237313E41889642A0052054E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 237313E21889642A0052054E /* AppDelegate.m */; };
-		237313E6188965D10052054E /* PythonInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 237313E5188965D10052054E /* PythonInterface.m */; };
+		237313E6188965D10052054E /* PythonInterface.mm in Sources */ = {isa = PBXBuildFile; fileRef = 237313E5188965D10052054E /* PythonInterface.mm */; };
 		237313E9188969400052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B418859A550052054E /* CoreFoundation.framework */; };
 		237313EB188969470052054E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313EA188969460052054E /* AppKit.framework */; };
 		237313F3188A962A0052054E /* PyObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 237313F2188A962A0052054E /* PyObjCBridge.h */; };
@@ -225,6 +225,8 @@
 		23B071DF17AD79DF00524C82 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B071DD17AD79DF00524C82 /* debugger.cpp */; };
 		23B071E017AD79DF00524C82 /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B071DE17AD79DF00524C82 /* debugger.h */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
+		23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */; };
+		23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */; };
 		23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA09186E15A500A7FB9F /* NSFlippedView.h */; };
 		23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */; };
 		23E5BA11186E15A500A7FB9F /* PythonBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */; };
@@ -459,7 +461,7 @@
 		237313CC1889634C0052054E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		237313E11889642A0052054E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = gui/AppDelegate.h; sourceTree = "<group>"; };
 		237313E21889642A0052054E /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = gui/AppDelegate.m; sourceTree = "<group>"; };
-		237313E5188965D10052054E /* PythonInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PythonInterface.m; path = gui/PythonInterface.m; sourceTree = "<group>"; };
+		237313E5188965D10052054E /* PythonInterface.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PythonInterface.mm; path = gui/PythonInterface.mm; sourceTree = "<group>"; };
 		237313EA188969460052054E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		237313F2188A962A0052054E /* PyObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyObjCBridge.h; path = gui/PyObjCBridge.h; sourceTree = "<group>"; };
 		237313F4188A96EF0052054E /* PyObjCBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PyObjCBridge.m; path = gui/PyObjCBridge.m; sourceTree = "<group>"; };
@@ -633,6 +635,8 @@
 		23B071DE17AD79DF00524C82 /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
+		23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CocoaGuiObject.mm; path = gui/CocoaGuiObject.mm; sourceTree = "<group>"; };
+		23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CocoaGuiObject.hpp; path = gui/CocoaGuiObject.hpp; sourceTree = "<group>"; };
 		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
 		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
 		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
@@ -877,9 +881,11 @@
 			children = (
 				237313E11889642A0052054E /* AppDelegate.h */,
 				237313E21889642A0052054E /* AppDelegate.m */,
-				237313E5188965D10052054E /* PythonInterface.m */,
+				237313E5188965D10052054E /* PythonInterface.mm */,
 				237313F2188A962A0052054E /* PyObjCBridge.h */,
 				237313F4188A96EF0052054E /* PyObjCBridge.m */,
+				23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */,
+				23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */,
 			);
 			name = _guiCocoa.so;
 			sourceTree = "<group>";
@@ -1242,6 +1248,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				237313E31889642A0052054E /* AppDelegate.h in Headers */,
+				23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */,
 				237313F3188A962A0052054E /* PyObjCBridge.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1661,8 +1668,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */,
 				237313E41889642A0052054E /* AppDelegate.m in Sources */,
-				237313E6188965D10052054E /* PythonInterface.m in Sources */,
+				237313E6188965D10052054E /* PythonInterface.mm in Sources */,
 				237313F5188A96EF0052054E /* PyObjCBridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
