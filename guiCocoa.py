@@ -121,38 +121,6 @@ def handleApplicationQuit():
 	print "Bye!"
 
 
-class PyAppDelegate(AppKit.NSObject):
-	__metaclass__ = ObjCClassAutorenamer
-
-	# Doc for AppDelegate protocol:
-	# https://developer.apple.com/library/mac/#documentation/Cocoa/Reference/NSApplicationDelegate_Protocol/Reference/Reference.html
-
-	def openMainWindow_(self, app):
-		setupMainWindow()
-	
-	def openSearchWindow_(self, app):
-		setupSearchWindow()
-	
-	def openSongEditWindow_(self, app):
-		setupSongEditWindow()
-
-	def about_(self, app):
-		import gui
-		gui.about()
-
-	def playPause_(self, app):
-		from State import state
-		state.playPause()
-	
-	def nextSong_(self, app):
-		from State import state
-		state.nextSong()
-
-	def resetPlayer_(self, app):
-		from State import state
-		state.player.resetPlaying()
-
-
 def getWindow(name):
 	global windows
 	if windows.get(name, None):
