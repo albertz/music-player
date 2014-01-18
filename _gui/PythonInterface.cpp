@@ -111,16 +111,24 @@ PyMODINIT_FUNC
 init_gui(void) {
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 
-	if (PyType_Ready(&GuiObject_Type) < 0) {
+	if(PyType_Ready(&GuiObject_Type) < 0) {
 		Py_FatalError("Can't initialize GuiObject type");
 		return;
 	}
 	
 	PyObject* m = Py_InitModule3("_gui", module_methods, module_doc);
-	if(!m) {
-		Py_FatalError("Can't initialize _guiCocoa module");
-		return;
-	}
+	if(!m)
+		goto fail;
+		
+	if(PyModule_AddObject(m, "GuiObject", (PyObject*) &GuiObject_Type) != 0)
+		goto fail;
+
+	return;
 	
+fail:
+	if(PyErr_Occurred())
+		PyErr_Print();
+	
+	Py_FatalError("_gui module init error");
 }
 
