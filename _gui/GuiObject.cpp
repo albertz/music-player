@@ -14,15 +14,15 @@ static PyObject* returnObj(PyObject* obj) {
 
 #define _ReturnAttr(attr) { if(strcmp(key, #attr) == 0) return returnObj(attr); }
 
-static PyObject* returnVec(const Vec& v) {
+PyObject* Vec::asTuple() const {
 	PyObject* t = PyTuple_New(2);
 	if(!t) return NULL;
-	PyTuple_SET_ITEM(t, 0, PyInt_FromLong(v.x));
-	PyTuple_SET_ITEM(t, 1, PyInt_FromLong(v.y));
+	PyTuple_SET_ITEM(t, 0, PyInt_FromLong(x));
+	PyTuple_SET_ITEM(t, 1, PyInt_FromLong(y));
 	return t;
 }
 
-#define _ReturnAttrVec(attr) { if(strcmp(key, #attr) == 0) return returnVec(attr); }
+#define _ReturnAttrVec(attr) { if(strcmp(key, #attr) == 0) return attr.asTuple(); }
 
 PyObject* GuiObject::getattr(const char* key) {
 	_ReturnAttr(root);

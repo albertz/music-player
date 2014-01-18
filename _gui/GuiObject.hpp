@@ -16,11 +16,7 @@ extern PyTypeObject GuiObject_Type;
 struct Vec {
 	int x, y;
 	Vec(int _x = 0, int _y = 0) : x(_x), y(_y) {}
-};
-
-struct Autoresize {
-	bool x,y,w,h;
-	Autoresize() : x(false), y(false), w(false), h(false) {}
+	PyObject* asTuple() const;
 };
 
 struct GuiObject {

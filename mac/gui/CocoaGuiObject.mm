@@ -13,6 +13,11 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	return 0;
 }
 
+struct Autoresize {
+	bool x,y,w,h;
+	Autoresize() : x(false), y(false), w(false), h(false) {}
+};
+
 static PyObject* returnAutoresize(const Autoresize& v) {
 	PyObject* t = PyTuple_New(4);
 	if(!t) return NULL;
@@ -23,19 +28,32 @@ static PyObject* returnAutoresize(const Autoresize& v) {
 	return t;
 }
 
-PyObject* CocoaGuiObject::getattr(const char* key) {
-	if(strcmp(key, "autoresize") == 0) {
-		Autoresize r;
-		return returnAutoresize(r);
-	}
+PyObject* CocoaGuiObject::getPos() {
+	// TODO
+	return Vec().asTuple();
+}
 
-	if(strcmp(key, "pos") == 0) {
-		//TODO
-	}
-	if(strcmp(key, "size") == 0) {
-		//TODO
-	}
+PyObject* CocoaGuiObject::getSize() {
+	// TODO
+	return Vec().asTuple();
+}
+
+PyObject* CocoaGuiObject::getAutoresize() {
+	// TODO
+	Autoresize r;
+	return returnAutoresize(r);
+}
+
+PyObject* CocoaGuiObject::getattr(const char* key) {
+	if(strcmp(key, "pos") == 0)
+		return getPos();
+		
+	if(strcmp(key, "size") == 0)
+		return getSize();
 	
+	if(strcmp(key, "autoresize") == 0)
+		return getAutoresize();
+
 	// fallthrough
 	return GuiObject::getattr(key);
 }
