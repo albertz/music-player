@@ -2,14 +2,12 @@
 // Import Python first. This will define _GNU_SOURCE. This is needed to get strdup (and maybe others). We could also define _GNU_SOURCE ourself, but pyconfig.h from Python has troubles then and redeclares some other stuff. So, to just import Python first is the simplest way.
 #include <Python.h>
 #include <pythread.h>
-
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
-
+#include <iostream>
 #import "AppDelegate.h"
 #import "CocoaGuiObject.hpp"
-
-#include <iostream>
+#import "PythonHelpers.h"
 
 
 static PyObject* CocoaGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
@@ -93,7 +91,7 @@ PyTypeObject CocoaGuiObject_Type = {
 	0, // methods
 	0, //PlayerMembers, // members
 	0, // getset
-	&GuiObject_Type, // base
+	0, // base
 	0, // dict
 	0, // descr_get
 	0, // descr_set
@@ -187,9 +185,21 @@ init_guiCocoa(void)
 {
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 
-	if(PyType_Ready(&CocoaGuiObject_Type) < 0) {
-		Py_FatalError("Can't initialize CocoaGuiObject type");
-		return;
+	{
+		PyObject* base = modAttrChain("_gui", "GuiObject");
+		if(!base || PyErr_Occurred()) {
+			if(PyErr_Occurred())
+				PyErr_Print();
+			Py_FatalError("Cannot get _gui.GuiObject");
+		}
+		if(!PyType_Check(base))
+			Py_FatalError("_gui.GuiObject is not a type.");
+		
+		CocoaGuiObject_Type.tp_base = (PyTypeObject*) base;
+		if(PyType_Ready(&CocoaGuiObject_Type) < 0) {
+			Py_FatalError("Can't initialize CocoaGuiObject type");
+			return;
+		}
 	}
 
 	PyObject* m = Py_InitModule3("_guiCocoa", module_methods, module_doc);
