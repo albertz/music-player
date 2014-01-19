@@ -9,8 +9,11 @@
 #ifndef __MusicPlayer__CocoaGuiObject__
 #define __MusicPlayer__CocoaGuiObject__
 
+#include <Python.h>
 #import <Cocoa/Cocoa.h>
 #include "GuiObject.hpp"
+
+extern PyTypeObject CocoaGuiObject_Type;
 
 struct CocoaGuiObject : GuiObject {
 	int init(PyObject* args, PyObject* kwds);

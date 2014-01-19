@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #include "CocoaGuiObject.hpp"
 #include "PyObjCBridge.h"
+#include "PythonHelpers.h"
 
 void runOnMainQueue(void (^block)(void)) {
 	if([NSThread isMainThread])
@@ -111,7 +112,33 @@ void CocoaGuiObject::addChild(NSView* child) {
 
 
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
-	Py_TYPE(this)->tp_base->tp_init((PyObject*) this, args, kwds);
+	PyObject* base = (PyObject*) Py_TYPE(this)->tp_base;
+
+	// We didn't set _gui.GuiObject as the base yet, so dynamically grab it.
+	if(base == NULL) {
+		base = modAttrChain("_gui", "GuiObject");
+		if(!base || PyErr_Occurred()) {
+			if(PyErr_Occurred())
+				PyErr_Print();
+			Py_FatalError("Cannot get _gui.GuiObject");
+		}
+		if(!PyType_Check(base))
+			Py_FatalError("_gui.GuiObject is not a type.");
+	}
+	
+	((PyTypeObject*) base)->tp_init((PyObject*) this, args, kwds);
+
+	// If the base was not set, set it.
+	// Note that we must call base->tp_init earlier because
+	// _gui.GuiObject.tp_init will also dynamically set its base.
+	// This is important so that we get a correct mro here.
+	if(Py_TYPE(this)->tp_base == NULL) {
+		uninitTypeObject(&CocoaGuiObject_Type);
+		CocoaGuiObject_Type.tp_base = (PyTypeObject*) base;
+		if(PyType_Ready(&CocoaGuiObject_Type) < 0)
+			Py_FatalError("Can't initialize CocoaGuiObject type");
+	}
+
 	get_pos = imp_get_pos;
 	get_size = imp_get_size;
 	get_innerSize = imp_get_innnerSize;

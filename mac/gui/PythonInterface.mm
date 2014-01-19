@@ -185,21 +185,9 @@ init_guiCocoa(void)
 {
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 
-	{
-		PyObject* base = modAttrChain("_gui", "GuiObject");
-		if(!base || PyErr_Occurred()) {
-			if(PyErr_Occurred())
-				PyErr_Print();
-			Py_FatalError("Cannot get _gui.GuiObject");
-		}
-		if(!PyType_Check(base))
-			Py_FatalError("_gui.GuiObject is not a type.");
-		
-		CocoaGuiObject_Type.tp_base = (PyTypeObject*) base;
-		if(PyType_Ready(&CocoaGuiObject_Type) < 0) {
-			Py_FatalError("Can't initialize CocoaGuiObject type");
-			return;
-		}
+	if(PyType_Ready(&CocoaGuiObject_Type) < 0) {
+		Py_FatalError("Can't initialize CocoaGuiObject type");
+		return;
 	}
 
 	PyObject* m = Py_InitModule3("_guiCocoa", module_methods, module_doc);

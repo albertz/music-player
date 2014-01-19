@@ -3,16 +3,6 @@
 #include "PythonHelpers.h"
 
 
-#define _PyReset(ref) { Py_XDECREF(ref); ref = NULL; }
-
-void uninitTypeObject(PyTypeObject* t) {
-	t->tp_flags &= ~Py_TPFLAGS_READY; // force reinit
-	_PyReset(t->tp_bases);
-	_PyReset(t->tp_dict);
-	_PyReset(t->tp_mro);
-	PyType_Modified(t);
-}
-
 int GuiObject::init(PyObject* args, PyObject* kwds) {
 	// If the GuiObject type has no base set,
 	// grab _GuiObject from the gui module and set it as the base.
