@@ -3,6 +3,8 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+from _gui import *
+
 import sys
 import utils, appinfo
 from utils import safe_property
@@ -247,7 +249,7 @@ class _GuiObject:
 		# Handy for now. This return might change.
 		return (maxX + self.OuterSpace[0], maxY + self.OuterSpace[1])
 
-	
+
 # This function is later supposed to give the right gui context
 # depending where we call it from. This can maybe be managed/set via
 # contextlib or so.
