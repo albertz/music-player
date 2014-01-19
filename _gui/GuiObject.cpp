@@ -18,6 +18,7 @@ int GuiObject::init(PyObject* args, PyObject* kwds) {
 		if(!PyType_Check(base))
 			Py_FatalError("gui._GuiCocoa is not a type.");
 		GuiObject_Type.tp_base = (PyTypeObject*) base;
+		Py_INCREF(base);
 		
 		if(PyType_Ready(&GuiObject_Type) < 0)
 			Py_FatalError("Was not able to reinit type GuiObject.");

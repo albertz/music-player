@@ -135,6 +135,7 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	if(Py_TYPE(this)->tp_base == NULL) {
 		uninitTypeObject(&CocoaGuiObject_Type);
 		CocoaGuiObject_Type.tp_base = (PyTypeObject*) base;
+		Py_INCREF(base);
 		if(PyType_Ready(&CocoaGuiObject_Type) < 0)
 			Py_FatalError("Can't initialize CocoaGuiObject type");
 	}
