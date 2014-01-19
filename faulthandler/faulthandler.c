@@ -283,6 +283,11 @@ faulthandler_fatal_error(int signum)
 #endif
     handler->enabled = 0;
 
+	// NOTE: This was added because we most probably have some data in it.
+	// This is *unsafe* but works mostly fine!
+	fflush(stdout);
+	fflush(stderr);
+
     PUTS(fd, "Fatal Python error: ");
     PUTS(fd, handler->name);
     PUTS(fd, "\n\n");
