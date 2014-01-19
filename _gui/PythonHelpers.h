@@ -14,21 +14,25 @@
 #import <Foundation/Foundation.h>
 #endif
 
-inline
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static inline
 PyObject* getModule(const char* name) {
 	PyObject *modules = PyImport_GetModuleDict(); // borrowed ref
 	if(!modules) return NULL;
 	return PyDict_GetItemString(modules, name); // borrowed ref
 }
 
-inline
+static inline
 PyObject* getPlayerState() {
 	PyObject* mod = getModule("State"); // borrowed
 	if(!mod) return NULL;
 	return PyObject_GetAttrString(mod, "state");
 }
 
-inline
+static inline
 PyObject* attrChain(PyObject* base, const char* name) {
 	PyObject* res = NULL;
 	Py_INCREF(base);
@@ -58,7 +62,7 @@ final:
 	return res;
 }
 
-inline
+static inline
 PyObject* modAttrChain(const char* modName, const char* name) {
 	PyObject* mod = getModule(modName); // borrowed
 	if(!mod) {
@@ -68,7 +72,7 @@ PyObject* modAttrChain(const char* modName, const char* name) {
 	return attrChain(mod, name);
 }
 
-inline
+static inline
 PyObject* _handleModuleCommand(const char* modName, const char* cmd, const char* paramFormat, va_list va) {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
@@ -109,7 +113,7 @@ final:
 	return ret;
 }
 
-inline
+static inline
 PyObject* handleModuleCommand(const char* modName, const char* cmd, const char* paramFormat, ...) {
 	va_list va;
 	va_start(va, paramFormat);
@@ -118,7 +122,7 @@ PyObject* handleModuleCommand(const char* modName, const char* cmd, const char* 
 	return ret;
 }
 
-inline
+static inline
 void handleModuleCommand_noReturn(const char* modName, const char* cmd, const char* paramFormat, ...) {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	va_list va;
@@ -130,7 +134,7 @@ void handleModuleCommand_noReturn(const char* modName, const char* cmd, const ch
 }
 
 #ifdef __OBJC__
-inline
+static inline
 NSString* convertToStr(PyObject* obj) {
 	NSString* resStr = nil;
 	PyObject* res = handleModuleCommand("utils", "convertToUnicode", "(O)", obj);
@@ -151,5 +155,10 @@ NSString* convertToStr(PyObject* obj) {
 	return resStr;
 }
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+		
 
 #endif

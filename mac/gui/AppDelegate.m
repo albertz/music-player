@@ -9,7 +9,7 @@
 #include <Python.h>
 #include <dlfcn.h>
 #import "PyObjCBridge.h"
-#import "PythonHelpers.h"
+#include "PythonHelpers.h"
 #import "AppDelegate.h"
 
 

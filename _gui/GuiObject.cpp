@@ -1,6 +1,6 @@
 
 #include "GuiObject.hpp"
-#import "PythonHelpers.h"
+#include "PythonHelpers.h"
 
 
 #define _PyReset(ref) { Py_XDECREF(ref); ref = NULL; }
