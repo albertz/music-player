@@ -98,7 +98,7 @@ PyTypeObject CocoaGuiObject_Type = {
 	0, /* do we need a dict? */ //offsetof(PlayerObject, dict), // dictoffset
 	CocoaGuiObject_init, // tp_init
 	CocoaGuiObject_alloc, // alloc
-	0, // new
+	PyType_GenericNew, // new
 };
 
 
