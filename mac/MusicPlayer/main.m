@@ -198,8 +198,10 @@ int main(int argc, char *argv[])
 			// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
 			logEnabled = true;
 			printf("MusicPlayer: stdout/stderr goes to %s now\n", [logFilename UTF8String]);
-			freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stdout);
-			freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stderr);
+			int newFd = open([[logFilename stringByExpandingTildeInPath] UTF8String], O_WRONLY|O_APPEND|O_CREAT);
+			dup2(newFd, fileno(stdout));
+			dup2(newFd, fileno(stderr));
+			close(newFd);
 		}
 
 		if(!forkExecProc) {
