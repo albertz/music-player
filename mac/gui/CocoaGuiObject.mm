@@ -111,7 +111,7 @@ void CocoaGuiObject::addChild(NSView* child) {
 
 
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
-	GuiObject::init(args, kwds);
+	Py_TYPE(this)->tp_base->tp_init((PyObject*) this, args, kwds);
 	get_pos = imp_get_pos;
 	get_size = imp_get_size;
 	get_innerSize = imp_get_innnerSize;
@@ -125,10 +125,10 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 
 PyObject* CocoaGuiObject::getattr(const char* key) {
 	// fallthrough for now
-	return GuiObject::getattr(key);
+	return Py_TYPE(this)->tp_base->tp_getattr((PyObject*) this, (char*) key);
 }
 
 int CocoaGuiObject::setattr(const char* key, PyObject* value) {
 	// fallthrough for now
-	return GuiObject::setattr(key, value);
+	return Py_TYPE(this)->tp_base->tp_setattr((PyObject*) this, (char*) key, value);
 }

@@ -210,10 +210,3 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 	return ret;
 }
 
-GuiObject::~GuiObject() {
-	Py_XDECREF(root); root = NULL;
-	Py_XDECREF(parent); parent = NULL;
-	Py_XDECREF(attr); attr = NULL;
-	Py_XDECREF(subjectObject); subjectObject = NULL;
-	Py_XDECREF(nativeGuiObject.get()); nativeGuiObject = NULL;
-}

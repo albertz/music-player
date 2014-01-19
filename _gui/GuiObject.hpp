@@ -44,7 +44,14 @@ struct GuiObject {
 	int init(PyObject* args, PyObject* kwds);
 	PyObject* getattr(const char* key);
 	int setattr(const char* key, PyObject* value);
-	~GuiObject();
+	GuiObject() {}
+	~GuiObject() {
+		Py_XDECREF(root); root = NULL;
+		Py_XDECREF(parent); parent = NULL;
+		Py_XDECREF(attr); attr = NULL;
+		Py_XDECREF(subjectObject); subjectObject = NULL;
+		Py_XDECREF(nativeGuiObject.get()); nativeGuiObject = NULL;
+	}
 	
 	PyObject* root;
 	PyObject* parent;
