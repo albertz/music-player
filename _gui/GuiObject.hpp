@@ -36,17 +36,36 @@ struct GuiObject {
 	int init(PyObject* args, PyObject* kwds);
 	PyObject* getattr(const char* key);
 	int setattr(const char* key, PyObject* value);
+
+	int traverse(visitproc visit, void *arg) {
+		Py_VISIT(__dict__);
+		Py_VISIT(root);
+		Py_VISIT(parent);
+		Py_VISIT(attr);
+		Py_VISIT(subjectObject);
+		{ PyObject* o = nativeGuiObject; Py_VISIT(o); }
+		return 0;
+	}
+	int clear() {
+		Py_CLEAR(__dict__);
+		Py_CLEAR(root);
+		Py_CLEAR(parent);
+		Py_CLEAR(attr);
+		Py_CLEAR(subjectObject);
+		Py_DecRef(nativeGuiObject.exchange(NULL));
+		return 0;
+	}
+	
 	GuiObject() {}
 	~GuiObject() {
-		Py_XDECREF(__dict__); __dict__ = NULL;
-		Py_XDECREF(root); root = NULL;
-		Py_XDECREF(parent); parent = NULL;
-		Py_XDECREF(attr); attr = NULL;
-		Py_XDECREF(subjectObject); subjectObject = NULL;
-		nativeGuiObject.operate([](PyObject*& ptr) { Py_XDECREF(ptr); ptr = NULL; });
+		if(weakreflist)
+			PyObject_ClearWeakRefs((PyObject*) this);
+		clear();
 	}
 	
 	PyObject* __dict__;
+	PyObject* weakreflist;
+	
 	PyObject* root;
 	PyObject* parent;
 	PyObject* attr; // if this is a child of something, this is the access attrib of the parent.subjectObject

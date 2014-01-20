@@ -80,12 +80,12 @@ PyTypeObject CocoaGuiObject_Type = {
 	0, // tp_getattro
 	0, // tp_setattro
 	0, // tp_as_buffer
-	Py_TPFLAGS_HAVE_CLASS, // flags
+	Py_TPFLAGS_HAVE_CLASS|Py_TPFLAGS_HAVE_WEAKREFS|Py_TPFLAGS_HAVE_GC, // flags
 	"CocoaGuiObject type", // doc
 	0, // tp_traverse
 	0, // tp_clear
 	0, // tp_richcompare
-	0, // weaklistoffset
+	offsetof(CocoaGuiObject, weakreflist), // weaklistoffset
 	0, // iter
 	0, // iternext
 	0, // methods
@@ -95,7 +95,7 @@ PyTypeObject CocoaGuiObject_Type = {
 	0, // dict
 	0, // descr_get
 	0, // descr_set
-	0, /* do we need a dict? */ //offsetof(PlayerObject, dict), // dictoffset
+	offsetof(CocoaGuiObject, __dict__), // dictoffset
 	CocoaGuiObject_init, // tp_init
 	CocoaGuiObject_alloc, // alloc
 	PyType_GenericNew, // new

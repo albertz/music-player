@@ -26,6 +26,12 @@ public:
 		value = _v;
 	}
 
+	T exchange(T _v) {
+		AtomicMutex::Scope lock(mutex);
+		std::swap(value, _v);
+		return _v;
+	}
+	
 	T get() {
 		AtomicMutex::Scope lock(mutex);
 		return value;
@@ -37,9 +43,10 @@ public:
 		ScopedLock(SafeValue& _v) : lock(_v.mutex), value(_v.value) {}
 	};
 	
-	void operate(boost::function<void(T&)> op) {
+	template<typename ResType>
+	ResType operate(boost::function<ResType(T&)> op) {
 		AtomicMutex::Scope lock(mutex);
-		op(value);
+		return op(value);
 	}
 	
 	SafeValue& operator=(const T& _v) { set(_v); return *this; }

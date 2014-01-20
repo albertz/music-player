@@ -156,15 +156,15 @@ NSString* convertToStr(PyObject* obj) {
 }
 #endif
 
-	
-#define _PyReset(ref) { Py_XDECREF(ref); ref = NULL; }
-	
+
 static inline
 void uninitTypeObject(PyTypeObject* t) {
 	t->tp_flags &= ~Py_TPFLAGS_READY; // force reinit
-	_PyReset(t->tp_bases);
-	_PyReset(t->tp_dict);
-	_PyReset(t->tp_mro);
+	Py_CLEAR(t->tp_bases);
+	Py_CLEAR(t->tp_dict);
+	Py_CLEAR(t->tp_mro);
+	t->tp_repr = NULL;
+	t->tp_str = NULL;
 	PyType_Modified(t);
 }
 

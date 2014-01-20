@@ -106,7 +106,7 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 NSView* CocoaGuiObject::getNativeObj() {
 	// This function can be called without the Python GIL.
 	id nativeObj = nil;
-	nativeGuiObject.operate([&](PyObject* ptr) { nativeObj = PyObjCObj_GetNativeObj(ptr); });
+	nativeGuiObject.operate<void>([&](PyObject* ptr) { nativeObj = PyObjCObj_GetNativeObj(ptr); });
 	return nativeObj;
 }
 
@@ -145,6 +145,12 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 		selfType->tp_base = (PyTypeObject*) base; // overtake ref
 		if(PyType_Ready(selfType) < 0)
 			Py_FatalError("Can't initialize CocoaGuiObject type");
+		
+		// Just to be sure that we correctly inited the GC stuff.
+		// This should inherit just from our base right now.
+		assert(PyType_IS_GC(selfType));
+		assert(selfType->tp_traverse != NULL);
+		assert(selfType->tp_clear != NULL);
 	}
 	else
 		((PyTypeObject*) base)->tp_init((PyObject*) this, args, kwds);

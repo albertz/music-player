@@ -56,6 +56,14 @@ static int guiobject_setattr(PyObject* self, char* key, PyObject* value) {
 	return ((GuiObject*) self)->setattr(key, value);
 }
 
+static int guiobject_traverse(PyObject* self, visitproc visit, void *arg) {
+	return ((GuiObject*) self)->traverse(visit, arg);
+}
+
+static int guiobject_clear(PyObject* self) {
+	return ((GuiObject*) self)->clear();
+}
+
 // http://docs.python.org/2/c-api/typeobj.html
 
 PyTypeObject GuiObject_Type = {
@@ -78,12 +86,12 @@ PyTypeObject GuiObject_Type = {
 	0, // tp_getattro
 	0, // tp_setattro
 	0, // tp_as_buffer
-	Py_TPFLAGS_HAVE_CLASS|Py_TPFLAGS_BASETYPE, // flags
+	Py_TPFLAGS_HAVE_CLASS|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_WEAKREFS|Py_TPFLAGS_HAVE_GC, // flags
 	"GuiObject type", // doc
-	0, // tp_traverse
-	0, // tp_clear
+	guiobject_traverse, // tp_traverse
+	guiobject_clear, // tp_clear
 	0, // tp_richcompare
-	0, // weaklistoffset
+	offsetof(GuiObject, weakreflist), // weaklistoffset
 	0, // iter
 	0, // iternext
 	0, // methods
