@@ -19,7 +19,7 @@ void runOnMainQueue(void (^block)(void)) {
 }
 
 static Vec imp_get_pos(GuiObject* obj) {
-	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 	if(!view) return Vec();
 	__block CGPoint pos;
 	runOnMainQueue(^{
@@ -29,7 +29,7 @@ static Vec imp_get_pos(GuiObject* obj) {
 }
 
 static Vec imp_get_size(GuiObject* obj) {
-	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 	if(!view) return Vec();
 	__block CGSize size;
 	runOnMainQueue(^{
@@ -39,7 +39,7 @@ static Vec imp_get_size(GuiObject* obj) {
 }
 
 static Vec imp_get_innnerSize(GuiObject* obj) {
-	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 	if(!view) return Vec();
 	__block CGSize size;
 	runOnMainQueue(^{
@@ -49,7 +49,7 @@ static Vec imp_get_innnerSize(GuiObject* obj) {
 }
 
 static Autoresize imp_get_autoresize(GuiObject* obj) {
-	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 	if(!view) return Autoresize();
 	__block NSUInteger flags;
 	runOnMainQueue(^{
@@ -64,7 +64,7 @@ static Autoresize imp_get_autoresize(GuiObject* obj) {
 }
 
 static void imp_set_pos(GuiObject* obj, const Vec& v) {
-	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 	if(!view) return;
 	runOnMainQueue(^{
 		[view setFrameOrigin:NSMakePoint(v.x, v.y)];
@@ -72,7 +72,7 @@ static void imp_set_pos(GuiObject* obj, const Vec& v) {
 }
 
 static void imp_set_size(GuiObject* obj, const Vec& v) {
-	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 	if(!view) return;
 	runOnMainQueue(^{
 		[view setFrameSize:NSMakeSize(v.x, v.y)];
@@ -80,7 +80,7 @@ static void imp_set_size(GuiObject* obj, const Vec& v) {
 }
 
 static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
-	NSView* view = PyObjCObj_GetNativeObj(obj->nativeGuiObject);
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 	if(!view) return;
 	NSUInteger flags = 0;
 	if(r.x) flags |= NSViewMinXMargin;
@@ -93,13 +93,19 @@ static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
 }
 
 static void imp_addChild(GuiObject* obj, GuiObject* child) {
-	NSView* childView = PyObjCObj_GetNativeObj(child->nativeGuiObject);
+	if(!PyType_IsSubtype(Py_TYPE(child), &CocoaGuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "CocoaGuiObject.addChild: we expect a CocoaGuiObject");
+		return;
+	}
+
+	NSView* childView = ((CocoaGuiObject*) child)->getNativeObj();
 	if(!childView) return;
 	((CocoaGuiObject*) obj)->addChild(childView);
 }
 
 NSView* CocoaGuiObject::getNativeObj() {
-	return PyObjCObj_GetNativeObj(nativeGuiObject);
+	auto pyObjectPtrCpy = nativeGuiObject;
+	return PyObjCObj_GetNativeObj(pyObjectPtrCpy);
 }
 
 void CocoaGuiObject::addChild(NSView* child) {
