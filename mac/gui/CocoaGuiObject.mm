@@ -120,8 +120,10 @@ void CocoaGuiObject::addChild(NSView* child) {
 
 
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
-	PyObject* base = (PyObject*) Py_TYPE(this)->tp_base;
-
+	PyTypeObject* const selfType = &CocoaGuiObject_Type;
+	PyObject* base = (PyObject*) selfType->tp_base;
+	if(base == (PyObject*) &PyBaseObject_Type) base = NULL;
+	
 	// We didn't set _gui.GuiObject as the base yet, so dynamically grab it.
 	if(base == NULL) {
 		base = modAttrChain("_gui", "GuiObject");
@@ -140,11 +142,11 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	// Note that we must call base->tp_init earlier because
 	// _gui.GuiObject.tp_init will also dynamically set its base.
 	// This is important so that we get a correct mro here.
-	if(Py_TYPE(this)->tp_base == NULL) {
-		uninitTypeObject(&CocoaGuiObject_Type);
-		CocoaGuiObject_Type.tp_base = (PyTypeObject*) base;
+	if(selfType->tp_base == NULL || selfType->tp_base == &PyBaseObject_Type) {
+		uninitTypeObject(selfType);
+		selfType->tp_base = (PyTypeObject*) base;
 		Py_INCREF(base);
-		if(PyType_Ready(&CocoaGuiObject_Type) < 0)
+		if(PyType_Ready(selfType) < 0)
 			Py_FatalError("Can't initialize CocoaGuiObject type");
 	}
 

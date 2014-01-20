@@ -6,8 +6,9 @@
 int GuiObject::init(PyObject* args, PyObject* kwds) {
 	// If the GuiObject type has no base set,
 	// grab _GuiObject from the gui module and set it as the base.
-	if(GuiObject_Type.tp_base == NULL) {
-		uninitTypeObject(&GuiObject_Type);
+	PyTypeObject* const selfType = &GuiObject_Type;
+	if(selfType->tp_base == NULL || selfType->tp_base == &PyBaseObject_Type) {
+		uninitTypeObject(selfType);
 
 		PyObject* base = modAttrChain("gui", "_GuiCocoa");
 		if(!base || PyErr_Occurred()) {
@@ -17,10 +18,10 @@ int GuiObject::init(PyObject* args, PyObject* kwds) {
 		}
 		if(!PyType_Check(base))
 			Py_FatalError("gui._GuiCocoa is not a type.");
-		GuiObject_Type.tp_base = (PyTypeObject*) base;
+		selfType->tp_base = (PyTypeObject*) base;
 		Py_INCREF(base);
 		
-		if(PyType_Ready(&GuiObject_Type) < 0)
+		if(PyType_Ready(selfType) < 0)
 			Py_FatalError("Was not able to reinit type GuiObject.");
 	}
 	
