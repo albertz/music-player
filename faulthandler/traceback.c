@@ -80,23 +80,36 @@ dump_hexadecimal(int width, unsigned long value, int fd)
    This function is signal safe. */
 
 static void
-dump_ascii(int fd, PyObject *text)
+dump_ascii(int fd, PyObject *text, int baseFileName)
 {
     Py_ssize_t i, size;
     int truncated;
 #if PY_MAJOR_VERSION >= 3
-    Py_UNICODE *u;
+	typedef Py_UNICODE _Char;
+    _Char *s;
     char c;
 
     size = PyUnicode_GET_SIZE(text);
-    u = PyUnicode_AS_UNICODE(text);
+    s = PyUnicode_AS_UNICODE(text);
 #else
-    char *s;
+	typedef char _Char;
+    _Char *s;
     unsigned char c;
 
     size = PyString_GET_SIZE(text);
     s = PyString_AS_STRING(text);
 #endif
+
+	if(baseFileName) {
+		_Char* newStart = s + size;
+		while(newStart > s) {
+			if(*(newStart - 1) == '/')
+				break;
+			newStart--;
+		}
+		size -= newStart - s;
+		s = newStart;
+	}
 
     if (MAX_STRING_LENGTH < size) {
         size = MAX_STRING_LENGTH;
@@ -106,27 +119,27 @@ dump_ascii(int fd, PyObject *text)
         truncated = 0;
 
 #if PY_MAJOR_VERSION >= 3
-    for (i=0; i < size; i++, u++) {
-        if (*u < 128) {
-            c = (char)*u;
+    for (i=0; i < size; i++, s++) {
+        if (*s < 128) {
+            c = (char)*s;
             write(fd, &c, 1);
         }
-        else if (*u < 256) {
+        else if (*s < 256) {
             PUTS(fd, "\\x");
-            dump_hexadecimal(2, *u, fd);
+            dump_hexadecimal(2, *s, fd);
         }
         else
 #ifdef Py_UNICODE_WIDE
-        if (*u < 65536)
+        if (*s < 65536)
 #endif
         {
             PUTS(fd, "\\u");
-            dump_hexadecimal(4, *u, fd);
+            dump_hexadecimal(4, *s, fd);
 #ifdef Py_UNICODE_WIDE
         }
         else {
             PUTS(fd, "\\U");
-            dump_hexadecimal(8, *u, fd);
+            dump_hexadecimal(8, *s, fd);
 #endif
         }
     }
@@ -162,7 +175,7 @@ dump_frame(int fd, PyFrameObject *frame)
         && PYSTRING_CHECK(code->co_filename))
     {
         write(fd, "\"", 1);
-        dump_ascii(fd, code->co_filename);
+        dump_ascii(fd, code->co_filename, 1);
         write(fd, "\"", 1);
     } else {
         PUTS(fd, "???");
@@ -181,7 +194,7 @@ dump_frame(int fd, PyFrameObject *frame)
 
     if (code != NULL && code->co_name != NULL
         && PYSTRING_CHECK(code->co_name))
-        dump_ascii(fd, code->co_name);
+        dump_ascii(fd, code->co_name, 0);
     else
         PUTS(fd, "???");
 
