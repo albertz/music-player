@@ -104,8 +104,10 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 }
 
 NSView* CocoaGuiObject::getNativeObj() {
-	auto pyObjectPtrCpy = nativeGuiObject;
-	return PyObjCObj_GetNativeObj(pyObjectPtrCpy);
+	// This function can be called without the Python GIL.
+	id nativeObj = nil;
+	nativeGuiObject.operate([&](PyObject* ptr) { nativeObj = PyObjCObj_GetNativeObj(ptr); });
+	return nativeObj;
 }
 
 void CocoaGuiObject::addChild(NSView* child) {

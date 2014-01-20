@@ -10,7 +10,7 @@
 #define MusicPlayer_GuiObject_hpp
 
 #include <Python.h>
-#include "IntrusivePtr.hpp"
+#include "SafeValue.hpp"
 
 extern PyTypeObject GuiObject_Type;
 
@@ -29,14 +29,6 @@ struct Autoresize {
 	PyObject* asPyObject() const;
 };
 
-inline void intrusive_ptr_add_ref(PyObject* obj) {
-	Py_INCREF(obj);
-}
-
-inline void intrusive_ptr_release(PyObject* obj) {
-	Py_DECREF(obj);
-}
-
 
 struct GuiObject {
 	PyObject_HEAD
@@ -50,14 +42,14 @@ struct GuiObject {
 		Py_XDECREF(parent); parent = NULL;
 		Py_XDECREF(attr); attr = NULL;
 		Py_XDECREF(subjectObject); subjectObject = NULL;
-		Py_XDECREF(nativeGuiObject.get()); nativeGuiObject = NULL;
+		nativeGuiObject.operate([](PyObject*& ptr) { Py_XDECREF(ptr); ptr = NULL; });
 	}
 	
 	PyObject* root;
 	PyObject* parent;
 	PyObject* attr; // if this is a child of something, this is the access attrib of the parent.subjectObject
 	PyObject* subjectObject;
-	IntrusivePtr<PyObject> nativeGuiObject; // atomic so that we can access without the GIL
+	SafeValue<PyObject*> nativeGuiObject; // safe so that we can access without the GIL
 
 	Vec DefaultSpace;
 	Vec OuterSpace;
