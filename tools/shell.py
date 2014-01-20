@@ -21,41 +21,73 @@ import appinfo
 import tempfile
 from glob import glob
 
-s = f = None
+f = None
 def connect(verbose=False):
-	global f, s
+	global f
 	if f: return
-	s = socket.socket(socket.AF_UNIX)
 	socket.setdefaulttimeout(1.0)
 
-	sockfile = None
+	sockfiles = []
 	if __name__ == "__main__":
 		if len(sys.argv) > 1:
 			sockfile = sys.argv[1]
 			assert os.path.exists(sockfile)
+			sockfiles = [sockfile]
 
-			s.connect(sockfile)
-
-	if not sockfile:
+	if not sockfiles:
 		tmpdir = tempfile.gettempdir()
-		files = glob("%s/%s-*-socketcontrol" % (tmpdir, appinfo.appid))
-		assert files, "no socket files found"
+		sockfiles = glob("%s/%s-*-socketcontrol" % (tmpdir, appinfo.appid))
+		if not sockfiles:
+			print "No socket files found. MusicPlayer is probably not running."
+			sys.exit(1)
 
-		for fn in files:
-			sockfile = fn
+	import threading
+	class ConnectThread(threading.Thread):
+		def __init__(self, sockfile):
+			threading.Thread.__init__(self)
+			self.daemon = True
+			self.sockfile = sockfile
+			self.res = None
+			self.file = None
+			self.start()
+
+		def run(self):
 			try:
-				s.connect(sockfile)
-			except socket.error:
-				pass
+				s = socket.socket(socket.AF_UNIX)
+				s.connect(self.sockfile)
+				f = s.makefile()
+				res = binstruct.read(f)
+			except socket.error as e:
+				self.res = e
+				if e.errno == 61: # Connection refused
+					# Cleanup
+					os.remove(self.sockfile)
 			else:
-				if verbose: print "socket:", sockfile
+				s.setblocking(True) # No timeout from now on.
+				self.file = f
+				self.res = res
+
+	connects = list(map(ConnectThread, sockfiles))
+	while not f:
+		anyoneAlive = False
+		for t in connects:
+			if t.isAlive():
+				anyoneAlive = True
+			elif t.file:
+				sockfile = t.sockfile
+				f = t.file
+				res = t.res
 				break
-		assert s
+		if not anyoneAlive:
+			print "Cannot connect to any socket:"
+			for t in connects:
+				print t.res
+			print "MusicPlayer is probably not running."
+			sys.exit(1)
 
-	s.setblocking(True)
-	f = s.makefile()
+	if verbose: print "socket:", sockfile
 
-	serverappid,servername,serverver = binstruct.read(f)
+	serverappid,servername,serverver = res
 	if verbose: print "connected to", serverappid, servername, serverver
 	assert serverappid == appinfo.appid
 	assert serverver == 0.1
