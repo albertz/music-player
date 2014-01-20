@@ -176,6 +176,15 @@ PyObject* GuiObject::getattr(const char* key) {
 		return 0; \
 	} }
 
+#define _SetAttrVec(attr) { \
+	if(strcmp(key, #attr) == 0) { \
+		Vec v; \
+		if(!v.initFromPyObject(value)) \
+			return -1; \
+		attr = v; \
+		return 0; \
+	} }
+
 #define _SetCustomAttr(attr, ValueType) { \
 	if(strcmp(key, #attr) == 0) { \
 		if(set_ ## attr == 0) { \
@@ -191,17 +200,28 @@ PyObject* GuiObject::getattr(const char* key) {
 		return 0; \
 	} }
 
+#define _SetAttr_ErrReadOnly(attr) { \
+	if(strcmp(key, #attr) == 0) { \
+		PyErr_Format(PyExc_AttributeError, "GuiObject attribute '%.400s' is readonly", key); \
+		return -1; \
+	} }
+
 int GuiObject::setattr(const char* key, PyObject* value) {
 	_SetAttr(root);
 	_SetAttr(parent);
 	_SetAttr(attr);
 	_SetAttr(subjectObject);
 	_SetAttr(nativeGuiObject);
-
+	_SetAttrVec(DefaultSpace);
+	_SetAttrVec(OuterSpace);
+	
 	_SetCustomAttr(pos, Vec);
 	_SetCustomAttr(size, Vec);
 	_SetCustomAttr(autoresize, Autoresize);
 
+	_SetAttr_ErrReadOnly(innerSize);
+	_SetAttr_ErrReadOnly(addChild);
+	
 	// Fallthrough to generic setattr. In case we got another base type, this might work.
 	PyObject* s = PyString_FromString(key);
 	if(!s) return -1;
