@@ -54,13 +54,7 @@ class _GuiObject:
 				name = obj.subjectObject.__class__.__name__ + name
 				break
 		return name
-	
-	@safe_property
-	@property
-	def innerSize(self): return self.size
-	
-	def addChild(self, childGuiObject): pass
-	
+		
 	def allParents(self):
 		obj = self
 		while obj:
