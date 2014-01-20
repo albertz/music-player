@@ -156,7 +156,8 @@ void handleFatalError(const char* msg) {
 		[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://albertz.github.io/music-player/"]];
 	}
 	
-	exit(1);
+	// No cleanup. We might call this from a signal handler or so.
+	_exit(1);
 }
 
 void signal_handler(int sig) {
