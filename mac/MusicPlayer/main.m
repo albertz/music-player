@@ -199,12 +199,14 @@ int main(int argc, char *argv[])
 			// current workaround to log stdout/stderr. see http://stackoverflow.com/questions/13104588/how-to-get-stdout-into-console-app
 			logEnabled = true;
 			printf("MusicPlayer: stdout/stderr goes to %s now\n", [logFilename UTF8String]);
+			fflush(stdout);
 			int newFd = open([[logFilename stringByExpandingTildeInPath] UTF8String], O_WRONLY|O_APPEND|O_CREAT);
 			dup2(newFd, fileno(stdout));
 			dup2(newFd, fileno(stderr));
 			close(newFd);
 			//freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stdout);
 			//freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stderr);
+			stderr = stdout; // well, hack, ... I don't like two seperate buffers. just messes up the output
 		}
 
 		if(!forkExecProc) {
@@ -230,6 +232,11 @@ int main(int argc, char *argv[])
 		Py_Initialize();
 		PyEval_InitThreads();
 		addPyPath();
+
+		if(logEnabled) {
+			PySys_SetObject("stdout", PyFile_FromFile(stdout, "<stdout>", "w", fclose));
+			PySys_SetObject("stderr", PySys_GetObject("stdout"));
+		}
 
 		// Preload imp and thread. I hope to fix this bug: https://github.com/albertz/music-player/issues/8 , there was a crash in initthread which itself has called initimp
 		PyObject* m = NULL;
