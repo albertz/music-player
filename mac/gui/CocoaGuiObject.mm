@@ -124,8 +124,10 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	PyObject* base = (PyObject*) selfType->tp_base;
 	if(base == (PyObject*) &PyBaseObject_Type) base = NULL;
 	
-	// We didn't set _gui.GuiObject as the base yet, so dynamically grab it.
+	// We didn't set _gui.GuiObject as the base yet, so set it.
 	if(base == NULL) {
+		// We need to grab it dynamically because we don't directly link
+		// the GuiObject_Type in here.
 		base = modAttrChain("_gui", "GuiObject");
 		if(!base || PyErr_Occurred()) {
 			if(PyErr_Occurred())
@@ -135,15 +137,16 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 		if(!PyType_Check(base))
 			Py_FatalError("_gui.GuiObject is not a type.");
 	
+		// Call the base->tp_init first because GuiObject_Type
+		// also dynamically inits its base on the first tp_init.
+		// We must have the selfType->base->tp_base correct in order to
+		// build up a correct selfType->tp_mro.
 		((PyTypeObject*) base)->tp_init((PyObject*) this, args, kwds);
 
-		// Set our base.
-		// Note that we must call base->tp_init before because
-		// _gui.GuiObject.tp_init will also dynamically set its base.
-		// This is important so that we get a correct mro here.
+		// Now reinit selfType.
 		uninitTypeObject(selfType);
 		selfType->tp_base = (PyTypeObject*) base; // overtake ref
-
+		
 		// Just to be sure that we correctly inited the GC stuff.
 		// Just inherit from our base right now.
 		assert(PyType_IS_GC(selfType));
