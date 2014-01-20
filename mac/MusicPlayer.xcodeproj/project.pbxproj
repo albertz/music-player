@@ -638,6 +638,8 @@
 		23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CocoaGuiObject.mm; path = gui/CocoaGuiObject.mm; sourceTree = "<group>"; };
 		23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CocoaGuiObject.hpp; path = gui/CocoaGuiObject.hpp; sourceTree = "<group>"; };
 		23DC6269188AECFD00E1DFE3 /* PythonHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PythonHelpers.h; path = ../_gui/PythonHelpers.h; sourceTree = "<group>"; };
+		23DC626A188D2BBE00E1DFE3 /* SafeValue.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = SafeValue.hpp; path = ../_gui/SafeValue.hpp; sourceTree = "<group>"; };
+		23DC626B188D2D1000E1DFE3 /* AtomicMutex.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = AtomicMutex.hpp; path = ../_gui/AtomicMutex.hpp; sourceTree = "<group>"; };
 		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
 		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
 		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
@@ -898,6 +900,8 @@
 				2373140A188AAFB90052054E /* GuiObject.hpp */,
 				2373140E188AB3F60052054E /* GuiObject.cpp */,
 				23DC6269188AECFD00E1DFE3 /* PythonHelpers.h */,
+				23DC626A188D2BBE00E1DFE3 /* SafeValue.hpp */,
+				23DC626B188D2D1000E1DFE3 /* AtomicMutex.hpp */,
 			);
 			name = _gui.so;
 			sourceTree = "<group>";
