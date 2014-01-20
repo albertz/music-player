@@ -10,14 +10,14 @@ int GuiObject::init(PyObject* args, PyObject* kwds) {
 	if(selfType->tp_base == NULL || selfType->tp_base == &PyBaseObject_Type) {
 		uninitTypeObject(selfType);
 
-		PyObject* base = modAttrChain("gui", "_GuiCocoa");
+		PyObject* base = modAttrChain("gui", "_GuiObject");
 		if(!base || PyErr_Occurred()) {
 			if(PyErr_Occurred())
 				PyErr_Print();
-			Py_FatalError("Did not found gui._GuiCocoa.");
+			Py_FatalError("Did not found gui._GuiObject.");
 		}
 		if(!PyType_Check(base))
-			Py_FatalError("gui._GuiCocoa is not a type.");
+			Py_FatalError("gui._GuiObject is not a type.");
 		selfType->tp_base = (PyTypeObject*) base;
 		Py_INCREF(base);
 		
