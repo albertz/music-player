@@ -20,7 +20,7 @@ static void handleFatalError(const char* msg) {
 		handler(msg);
 	else
 		printf("Error^2: Error handler not found. This is probably not executed within the orig exec.\n");
-	exit(1);
+	_exit(1);
 }
 
 NSWindow* getWindow(const char* name) {
