@@ -78,7 +78,7 @@ PyTypeObject GuiObject_Type = {
 	0, // tp_getattro
 	0, // tp_setattro
 	0, // tp_as_buffer
-	Py_TPFLAGS_HAVE_CLASS, // flags
+	Py_TPFLAGS_HAVE_CLASS|Py_TPFLAGS_BASETYPE, // flags
 	"GuiObject type", // doc
 	0, // tp_traverse
 	0, // tp_clear

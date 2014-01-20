@@ -132,23 +132,22 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 				PyErr_Print();
 			Py_FatalError("Cannot get _gui.GuiObject");
 		}
-		if(!PyType_Check(base) && !PyClass_Check(base))
+		if(!PyType_Check(base))
 			Py_FatalError("_gui.GuiObject is not a type.");
-	}
 	
-	((PyTypeObject*) base)->tp_init((PyObject*) this, args, kwds);
+		((PyTypeObject*) base)->tp_init((PyObject*) this, args, kwds);
 
-	// If the base was not set, set it.
-	// Note that we must call base->tp_init earlier because
-	// _gui.GuiObject.tp_init will also dynamically set its base.
-	// This is important so that we get a correct mro here.
-	if(selfType->tp_base == NULL || selfType->tp_base == &PyBaseObject_Type) {
+		// If the base was not set, set it.
+		// Note that we must call base->tp_init earlier because
+		// _gui.GuiObject.tp_init will also dynamically set its base.
+		// This is important so that we get a correct mro here.
 		uninitTypeObject(selfType);
-		selfType->tp_base = (PyTypeObject*) base;
-		Py_INCREF(base);
+		selfType->tp_base = (PyTypeObject*) base; // overtake ref
 		if(PyType_Ready(selfType) < 0)
 			Py_FatalError("Can't initialize CocoaGuiObject type");
 	}
+	else
+		((PyTypeObject*) base)->tp_init((PyObject*) this, args, kwds);
 
 	get_pos = imp_get_pos;
 	get_size = imp_get_size;

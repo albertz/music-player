@@ -16,10 +16,10 @@ int GuiObject::init(PyObject* args, PyObject* kwds) {
 				PyErr_Print();
 			Py_FatalError("Did not found gui._GuiObject.");
 		}
-		if(!PyType_Check(base) && !PyClass_Check(base))
-			Py_FatalError("gui._GuiObject is not a type.");
-		selfType->tp_base = (PyTypeObject*) base;
-		Py_INCREF(base);
+		if(!PyClass_Check(base))
+			Py_FatalError("gui._GuiObject is not a class.");
+		selfType->tp_bases = PyTuple_Pack(1, base);
+		Py_DECREF(base);
 		
 		if(PyType_Ready(selfType) < 0)
 			Py_FatalError("Was not able to reinit type GuiObject.");
