@@ -38,6 +38,7 @@ struct GuiObject {
 	int setattr(const char* key, PyObject* value);
 	GuiObject() {}
 	~GuiObject() {
+		Py_XDECREF(__dict__); __dict__ = NULL;
 		Py_XDECREF(root); root = NULL;
 		Py_XDECREF(parent); parent = NULL;
 		Py_XDECREF(attr); attr = NULL;
@@ -45,6 +46,7 @@ struct GuiObject {
 		nativeGuiObject.operate([](PyObject*& ptr) { Py_XDECREF(ptr); ptr = NULL; });
 	}
 	
+	PyObject* __dict__;
 	PyObject* root;
 	PyObject* parent;
 	PyObject* attr; // if this is a child of something, this is the access attrib of the parent.subjectObject

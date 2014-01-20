@@ -93,7 +93,7 @@ PyTypeObject GuiObject_Type = {
 	0, // dict
 	0, // descr_get
 	0, // descr_set
-	0, /* do we need a dict? */ //offsetof(PlayerObject, dict), // dictoffset
+	offsetof(GuiObject, __dict__), // dictoffset
 	guiobject_init, // tp_init
 	guiobject_alloc, // alloc
 	PyType_GenericNew, // new

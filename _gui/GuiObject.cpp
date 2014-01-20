@@ -152,6 +152,14 @@ PyObject* GuiObject::getattr(const char* key) {
 	if(strcmp(key, "addChild") == 0) {
 		return PyCFunction_New(&md_addChild, (PyObject*) this);
 	}
+
+	if(strcmp(key, "__dict__") == 0) {
+		if(!__dict__)
+			__dict__ = PyDict_New();
+		if(!__dict__)
+			return NULL;
+		return returnObj(__dict__);
+	}
 	
 	// Fallthrough to generic getattr. In case we got another base type, this might work.
 	PyObject* s = PyString_FromString(key);
