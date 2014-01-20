@@ -132,7 +132,7 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 				PyErr_Print();
 			Py_FatalError("Cannot get _gui.GuiObject");
 		}
-		if(!PyType_Check(base))
+		if(!PyType_Check(base) && !PyClass_Check(base))
 			Py_FatalError("_gui.GuiObject is not a type.");
 	}
 	
