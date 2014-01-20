@@ -54,7 +54,7 @@ class _GuiObject:
 				name = obj.subjectObject.__class__.__name__ + name
 				break
 		return name
-		
+
 	def allParents(self):
 		obj = self
 		while obj:
