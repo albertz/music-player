@@ -203,6 +203,8 @@ int main(int argc, char *argv[])
 			dup2(newFd, fileno(stdout));
 			dup2(newFd, fileno(stderr));
 			close(newFd);
+			//freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stdout);
+			//freopen([[logFilename stringByExpandingTildeInPath] UTF8String], "a", stderr);
 		}
 
 		if(!forkExecProc) {
