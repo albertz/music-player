@@ -221,6 +221,7 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 
 	_SetAttr_ErrReadOnly(innerSize);
 	_SetAttr_ErrReadOnly(addChild);
+	_SetAttr_ErrReadOnly(__dict__);
 	
 	// Fallthrough to generic setattr. In case we got another base type, this might work.
 	PyObject* s = PyString_FromString(key);
