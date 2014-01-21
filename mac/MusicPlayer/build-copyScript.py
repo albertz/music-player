@@ -18,7 +18,7 @@ sys.path += [env["PROJECT_DIR"] + "/.."]
 import better_exchook
 better_exchook.install()
 
-pylibs = ["ffmpeg.so", "faulthandler.so", "debugger.so", "_gui.so", "_guiCocoa.so", "_guiCocoaCommon.dylib"]
+pylibs = ["ffmpeg.so", "faulthandler.so", "debugger.so", "_gui.so", "_guiCocoa.so"]
 for l in pylibs:
 	assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/" + l)
 
