@@ -6,6 +6,23 @@
 
 #import <Cocoa/Cocoa.h>
 
+/*
+This is the base of NSFlippedView in the Python guiCocoaCommon.py.
+When we use this within our pure ObjC++ code, we will just use
+this one and make our own specialized subclasses.
+
+The situation about having references to Python objects here:
+It's quite complicated with regards to GC. The standard ObjC wrapper
+Python object PyObjCObject does not support tp_traverse, thus Python
+will not know about any Python references.
+A safe option would probably be to always use Python weakrefs.
+The PyObjC wrapper ObjC object OC_PythonObject would probably be
+the good if we needed to make some instance var or method usable
+from within Python code.
+Note that we also cannot use ObjC weakrefs because that is not
+supported on MacOSX 10.6.
+*/
+
 @interface _NSFlippedView : NSView
 {
 @private
