@@ -870,6 +870,10 @@
 				23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */,
 				23DC626C188E719B00E1DFE3 /* ListControl.h */,
 				23DC626D188E719B00E1DFE3 /* ListControl.m */,
+				23DC6270188E73A100E1DFE3 /* NSFlippedView.h */,
+				23DC6271188E73A100E1DFE3 /* NSFlippedView.m */,
+				23DC6272188E73A100E1DFE3 /* TableViewDelegate.h */,
+				23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */,
 			);
 			name = _guiCocoa.so;
 			sourceTree = "<group>";
@@ -877,10 +881,6 @@
 		237313F6188AAD7E0052054E /* _gui.so */ = {
 			isa = PBXGroup;
 			children = (
-				23DC6270188E73A100E1DFE3 /* NSFlippedView.h */,
-				23DC6271188E73A100E1DFE3 /* NSFlippedView.m */,
-				23DC6272188E73A100E1DFE3 /* TableViewDelegate.h */,
-				23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */,
 				23731408188AAE830052054E /* PythonInterface.cpp */,
 				2373140A188AAFB90052054E /* GuiObject.hpp */,
 				2373140E188AB3F60052054E /* GuiObject.cpp */,
