@@ -227,10 +227,10 @@
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 		23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */; };
 		23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */; };
+		23DC626E188E719B00E1DFE3 /* ListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC626C188E719B00E1DFE3 /* ListControl.h */; };
+		23DC626F188E719B00E1DFE3 /* ListControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC626D188E719B00E1DFE3 /* ListControl.m */; };
 		23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA09186E15A500A7FB9F /* NSFlippedView.h */; };
 		23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */; };
-		23E5BA11186E15A500A7FB9F /* PythonBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */; };
-		23E5BA12186E15A500A7FB9F /* PythonBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA0C186E15A500A7FB9F /* PythonBridge.h */; };
 		23E5BA13186E15A500A7FB9F /* TableViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */; };
 		23E5BA14186E15A500A7FB9F /* TableViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */; };
 /* End PBXBuildFile section */
@@ -640,6 +640,8 @@
 		23DC6269188AECFD00E1DFE3 /* PythonHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PythonHelpers.h; path = ../_gui/PythonHelpers.h; sourceTree = "<group>"; };
 		23DC626A188D2BBE00E1DFE3 /* SafeValue.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = SafeValue.hpp; path = ../_gui/SafeValue.hpp; sourceTree = "<group>"; };
 		23DC626B188D2D1000E1DFE3 /* AtomicMutex.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = AtomicMutex.hpp; path = ../_gui/AtomicMutex.hpp; sourceTree = "<group>"; };
+		23DC626C188E719B00E1DFE3 /* ListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ListControl.h; path = gui/ListControl.h; sourceTree = "<group>"; };
+		23DC626D188E719B00E1DFE3 /* ListControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ListControl.m; path = gui/ListControl.m; sourceTree = "<group>"; };
 		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
 		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
 		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
@@ -650,8 +652,6 @@
 		23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SmoothClip.hpp; path = ../SmoothClip.hpp; sourceTree = "<group>"; };
 		23E5BA09186E15A500A7FB9F /* NSFlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = guiCocoaCommon/NSFlippedView.h; sourceTree = "<group>"; };
 		23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = guiCocoaCommon/NSFlippedView.m; sourceTree = "<group>"; };
-		23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PythonBridge.cpp; path = guiCocoaCommon/PythonBridge.cpp; sourceTree = "<group>"; };
-		23E5BA0C186E15A500A7FB9F /* PythonBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PythonBridge.h; path = guiCocoaCommon/PythonBridge.h; sourceTree = "<group>"; };
 		23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TableViewDelegate.h; path = guiCocoaCommon/TableViewDelegate.h; sourceTree = "<group>"; };
 		23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TableViewDelegate.m; path = guiCocoaCommon/TableViewDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -889,6 +889,8 @@
 				237313F4188A96EF0052054E /* PyObjCBridge.m */,
 				23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */,
 				23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */,
+				23DC626C188E719B00E1DFE3 /* ListControl.h */,
+				23DC626D188E719B00E1DFE3 /* ListControl.m */,
 			);
 			name = _guiCocoa.so;
 			sourceTree = "<group>";
@@ -911,8 +913,6 @@
 			children = (
 				23E5BA09186E15A500A7FB9F /* NSFlippedView.h */,
 				23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */,
-				23E5BA0B186E15A500A7FB9F /* PythonBridge.cpp */,
-				23E5BA0C186E15A500A7FB9F /* PythonBridge.h */,
 				23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */,
 				23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */,
 			);
@@ -1253,6 +1253,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23DC626E188E719B00E1DFE3 /* ListControl.h in Headers */,
 				237313E31889642A0052054E /* AppDelegate.h in Headers */,
 				23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */,
 				237313F3188A962A0052054E /* PyObjCBridge.h in Headers */,
@@ -1272,7 +1273,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */,
-				23E5BA12186E15A500A7FB9F /* PythonBridge.h in Headers */,
 				23E5BA13186E15A500A7FB9F /* TableViewDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1674,6 +1674,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23DC626F188E719B00E1DFE3 /* ListControl.m in Sources */,
 				23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */,
 				237313E41889642A0052054E /* AppDelegate.m in Sources */,
 				237313E6188965D10052054E /* PythonInterface.mm in Sources */,
@@ -1694,7 +1695,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23E5BA11186E15A500A7FB9F /* PythonBridge.cpp in Sources */,
 				23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */,
 				23E5BA14186E15A500A7FB9F /* TableViewDelegate.m in Sources */,
 			);
