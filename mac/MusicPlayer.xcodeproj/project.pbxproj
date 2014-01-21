@@ -55,8 +55,6 @@
 		237313AF188564CF0052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313AE188564CF0052054E /* Foundation.framework */; };
 		237313B1188564E00052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B0188564E00052054E /* CoreFoundation.framework */; };
 		237313B3188564EA0052054E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B2188564EA0052054E /* Cocoa.framework */; };
-		237313B618859A550052054E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B418859A550052054E /* CoreFoundation.framework */; };
-		237313B718859A550052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B518859A550052054E /* Foundation.framework */; };
 		237313C01889634B0052054E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B2188564EA0052054E /* Cocoa.framework */; };
 		237313E0188963D00052054E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237313B518859A550052054E /* Foundation.framework */; };
 		237313E31889642A0052054E /* AppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 237313E11889642A0052054E /* AppDelegate.h */; };
@@ -69,7 +67,6 @@
 		23731409188AAE830052054E /* PythonInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23731408188AAE830052054E /* PythonInterface.cpp */; };
 		2373140B188AAFB90052054E /* GuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2373140A188AAFB90052054E /* GuiObject.hpp */; };
 		2373140F188AB3F60052054E /* GuiObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2373140E188AB3F60052054E /* GuiObject.cpp */; };
-		238E986D169664B400C42074 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A14A3915E3B2CC00376BF6 /* Cocoa.framework */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
 		239D88E5182BC72C0068F287 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DF182BC72C0068F287 /* darwin64.S */; };
@@ -229,10 +226,10 @@
 		23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */; };
 		23DC626E188E719B00E1DFE3 /* ListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC626C188E719B00E1DFE3 /* ListControl.h */; };
 		23DC626F188E719B00E1DFE3 /* ListControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC626D188E719B00E1DFE3 /* ListControl.m */; };
-		23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA09186E15A500A7FB9F /* NSFlippedView.h */; };
-		23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */; };
-		23E5BA13186E15A500A7FB9F /* TableViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */; };
-		23E5BA14186E15A500A7FB9F /* TableViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */; };
+		23DC6274188E73A100E1DFE3 /* NSFlippedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6270188E73A100E1DFE3 /* NSFlippedView.h */; };
+		23DC6275188E73A100E1DFE3 /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6271188E73A100E1DFE3 /* NSFlippedView.m */; };
+		23DC6276188E73A100E1DFE3 /* TableViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6272188E73A100E1DFE3 /* TableViewDelegate.h */; };
+		23DC6277188E73A100E1DFE3 /* TableViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -291,13 +288,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 237313F7188AAE090052054E;
 			remoteInfo = _gui;
-		};
-		238E9877169664E200C42074 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 23A14A2C15E3B2CB00376BF6 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 238E986B169664B400C42074;
-			remoteInfo = guiCocoaCommon;
 		};
 		239D8A00182BCAF90068F287 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -469,7 +459,6 @@
 		23731408188AAE830052054E /* PythonInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PythonInterface.cpp; path = ../_gui/PythonInterface.cpp; sourceTree = "<group>"; };
 		2373140A188AAFB90052054E /* GuiObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = GuiObject.hpp; path = ../_gui/GuiObject.hpp; sourceTree = "<group>"; };
 		2373140E188AB3F60052054E /* GuiObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GuiObject.cpp; path = ../_gui/GuiObject.cpp; sourceTree = "<group>"; };
-		238E986C169664B400C42074 /* _guiCocoaCommon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoaCommon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
 		239D88DE182BC72C0068F287 /* types.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = types.c; path = "pyobjc-core/libffi-src/types.c"; sourceTree = "<group>"; };
@@ -642,6 +631,10 @@
 		23DC626B188D2D1000E1DFE3 /* AtomicMutex.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = AtomicMutex.hpp; path = ../_gui/AtomicMutex.hpp; sourceTree = "<group>"; };
 		23DC626C188E719B00E1DFE3 /* ListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ListControl.h; path = gui/ListControl.h; sourceTree = "<group>"; };
 		23DC626D188E719B00E1DFE3 /* ListControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ListControl.m; path = gui/ListControl.m; sourceTree = "<group>"; };
+		23DC6270188E73A100E1DFE3 /* NSFlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = gui/NSFlippedView.h; sourceTree = "<group>"; };
+		23DC6271188E73A100E1DFE3 /* NSFlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = gui/NSFlippedView.m; sourceTree = "<group>"; };
+		23DC6272188E73A100E1DFE3 /* TableViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TableViewDelegate.h; path = gui/TableViewDelegate.h; sourceTree = "<group>"; };
+		23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TableViewDelegate.m; path = gui/TableViewDelegate.m; sourceTree = "<group>"; };
 		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
 		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
 		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
@@ -650,10 +643,6 @@
 		23E5B9FE186DEE7900A7FB9F /* PyUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyUtils.h; path = ../PyUtils.h; sourceTree = "<group>"; };
 		23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SampleType.hpp; path = ../SampleType.hpp; sourceTree = "<group>"; };
 		23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SmoothClip.hpp; path = ../SmoothClip.hpp; sourceTree = "<group>"; };
-		23E5BA09186E15A500A7FB9F /* NSFlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSFlippedView.h; path = guiCocoaCommon/NSFlippedView.h; sourceTree = "<group>"; };
-		23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSFlippedView.m; path = guiCocoaCommon/NSFlippedView.m; sourceTree = "<group>"; };
-		23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TableViewDelegate.h; path = guiCocoaCommon/TableViewDelegate.h; sourceTree = "<group>"; };
-		23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TableViewDelegate.m; path = guiCocoaCommon/TableViewDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -700,16 +689,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		238E9869169664B400C42074 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				237313B618859A550052054E /* CoreFoundation.framework in Frameworks */,
-				237313B718859A550052054E /* Foundation.framework in Frameworks */,
-				238E986D169664B400C42074 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -898,6 +877,10 @@
 		237313F6188AAD7E0052054E /* _gui.so */ = {
 			isa = PBXGroup;
 			children = (
+				23DC6270188E73A100E1DFE3 /* NSFlippedView.h */,
+				23DC6271188E73A100E1DFE3 /* NSFlippedView.m */,
+				23DC6272188E73A100E1DFE3 /* TableViewDelegate.h */,
+				23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */,
 				23731408188AAE830052054E /* PythonInterface.cpp */,
 				2373140A188AAFB90052054E /* GuiObject.hpp */,
 				2373140E188AB3F60052054E /* GuiObject.cpp */,
@@ -906,17 +889,6 @@
 				23DC626B188D2D1000E1DFE3 /* AtomicMutex.hpp */,
 			);
 			name = _gui.so;
-			sourceTree = "<group>";
-		};
-		238E98621696608E00C42074 /* _guiCocoaCommon.so */ = {
-			isa = PBXGroup;
-			children = (
-				23E5BA09186E15A500A7FB9F /* NSFlippedView.h */,
-				23E5BA0A186E15A500A7FB9F /* NSFlippedView.m */,
-				23E5BA0D186E15A500A7FB9F /* TableViewDelegate.h */,
-				23E5BA0E186E15A500A7FB9F /* TableViewDelegate.m */,
-			);
-			name = _guiCocoaCommon.so;
 			sourceTree = "<group>";
 		};
 		239D88DB182BC6EA0068F287 /* pyobjc-core */ = {
@@ -1100,7 +1072,6 @@
 				239D88DB182BC6EA0068F287 /* pyobjc-core */,
 				2331F81616C16A750037D148 /* faulthandler */,
 				23B071DC17AD79DF00524C82 /* debugger */,
-				238E98621696608E00C42074 /* _guiCocoaCommon.so */,
 				237313F6188AAD7E0052054E /* _gui.so */,
 				237313BA188963100052054E /* _guiCocoa.so */,
 				233684A41600BD7F00A38E78 /* chromaprint */,
@@ -1118,7 +1089,6 @@
 			children = (
 				23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */,
 				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
-				238E986C169664B400C42074 /* _guiCocoaCommon.dylib */,
 				2331F86016C16B720037D148 /* faulthandler.so */,
 				2303499F17AD724900C6033C /* debugger.so */,
 				239D88DA182BC5A10068F287 /* _objc.so */,
@@ -1256,7 +1226,9 @@
 				23DC626E188E719B00E1DFE3 /* ListControl.h in Headers */,
 				237313E31889642A0052054E /* AppDelegate.h in Headers */,
 				23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */,
+				23DC6274188E73A100E1DFE3 /* NSFlippedView.h in Headers */,
 				237313F3188A962A0052054E /* PyObjCBridge.h in Headers */,
+				23DC6276188E73A100E1DFE3 /* TableViewDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1265,15 +1237,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2373140B188AAFB90052054E /* GuiObject.hpp in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		238E986A169664B400C42074 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				23E5BA0F186E15A500A7FB9F /* NSFlippedView.h in Headers */,
-				23E5BA13186E15A500A7FB9F /* TableViewDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1444,23 +1407,6 @@
 			productReference = 23731407188AAE090052054E /* _gui.so */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		238E986B169664B400C42074 /* guiCocoaCommon */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */;
-			buildPhases = (
-				238E9868169664B400C42074 /* Sources */,
-				238E9869169664B400C42074 /* Frameworks */,
-				238E986A169664B400C42074 /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = guiCocoaCommon;
-			productName = guiCocoaCommon;
-			productReference = 238E986C169664B400C42074 /* _guiCocoaCommon.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
 		239D8892182BC5A10068F287 /* _objc.so */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 239D88D7182BC5A10068F287 /* Build configuration list for PBXNativeTarget "_objc.so" */;
@@ -1498,7 +1444,6 @@
 				230349AD17AD72CC00C6033C /* PBXTargetDependency */,
 				2303496217AC524100C6033C /* PBXTargetDependency */,
 				23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */,
-				238E9878169664E200C42074 /* PBXTargetDependency */,
 				2331F86616C16BCE0037D148 /* PBXTargetDependency */,
 			);
 			name = MusicPlayer;
@@ -1554,7 +1499,6 @@
 			targets = (
 				23A14A3415E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
-				238E986B169664B400C42074 /* guiCocoaCommon */,
 				2331F81716C16B720037D148 /* faulthandler.so */,
 				2303499E17AD724900C6033C /* debugger */,
 				239D8892182BC5A10068F287 /* _objc.so */,
@@ -1674,8 +1618,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23DC6277188E73A100E1DFE3 /* TableViewDelegate.m in Sources */,
 				23DC626F188E719B00E1DFE3 /* ListControl.m in Sources */,
 				23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */,
+				23DC6275188E73A100E1DFE3 /* NSFlippedView.m in Sources */,
 				237313E41889642A0052054E /* AppDelegate.m in Sources */,
 				237313E6188965D10052054E /* PythonInterface.mm in Sources */,
 				237313F5188A96EF0052054E /* PyObjCBridge.m in Sources */,
@@ -1688,15 +1634,6 @@
 			files = (
 				2373140F188AB3F60052054E /* GuiObject.cpp in Sources */,
 				23731409188AAE830052054E /* PythonInterface.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		238E9868169664B400C42074 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				23E5BA10186E15A500A7FB9F /* NSFlippedView.m in Sources */,
-				23E5BA14186E15A500A7FB9F /* TableViewDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1863,11 +1800,6 @@
 			isa = PBXTargetDependency;
 			target = 237313F7188AAE090052054E /* _gui */;
 			targetProxy = 2373140C188AB2A40052054E /* PBXContainerItemProxy */;
-		};
-		238E9878169664E200C42074 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 238E986B169664B400C42074 /* guiCocoaCommon */;
-			targetProxy = 238E9877169664E200C42074 /* PBXContainerItemProxy */;
 		};
 		239D8A01182BCAF90068F287 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2152,26 +2084,6 @@
 			};
 			name = Release;
 		};
-		238E9875169664B400C42074 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				LD_DYLIB_INSTALL_NAME = "";
-				PRODUCT_NAME = "_$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		238E9876169664B400C42074 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				LD_DYLIB_INSTALL_NAME = "";
-				PRODUCT_NAME = "_$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		239D88D8182BC5A10068F287 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2385,15 +2297,6 @@
 			buildConfigurations = (
 				23731405188AAE090052054E /* Debug */,
 				23731406188AAE090052054E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		238E9874169664B400C42074 /* Build configuration list for PBXNativeTarget "guiCocoaCommon" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				238E9875169664B400C42074 /* Debug */,
-				238E9876169664B400C42074 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
