@@ -14,11 +14,7 @@ if "pools" not in globals():
 # just in case that we are not the main thread
 pools.append(AppKit.NSAutoreleasePool.alloc().init())
 
-# we have some native code in a dylib.
-# later, maybe most of the code here can be recoded natively.
-# this is a work-in-progress.
-import ctypes, os
-l = ctypes.CDLL(os.path.dirname(__file__) + "/_guiCocoaCommon.dylib")
+# The native types are defined in _gui.so.
 
 try:	
 	_NSFlippedView = objc.lookUpClass("_NSFlippedView")
