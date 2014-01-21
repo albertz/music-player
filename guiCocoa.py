@@ -274,10 +274,6 @@ def buildControlList(control):
 	control.nativeGuiObject = view
 	control.guiObjectList = [] # all access on this list is done in the main thread
 	control.OuterSpace = (0,0)
-	# Hm, why did i needed this again? This makes everything slow and because of
-	# the generic GuiControl.layout(), it also makes it wrong.
-	#control.childIter = lambda: control.guiObjectList
-	#control.childGuiObjectsInColumn = lambda: control.guiObjectList
 
 	class Updater:
 		def __init__(self):
