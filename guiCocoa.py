@@ -255,213 +255,18 @@ def buildControlEditableText(control):
 
 	return control
 
-class ListScrollviewUpdater:
-	def __init__(self, control, scrollview):
-		from threading import Lock
-		self.lock = Lock()
-		self.outstandingUpdate = False
-		self.control = control
-		self.scrollview = scrollview
 
-	def doUpdate(self):
-		with self.lock:
-			if not self.outstandingUpdate: return
-
-		x,y = 0,0
-		for subCtr in self.control.guiObjectList:
-			w = self.scrollview.contentSize().width
-			h = subCtr.size[1]
-			subCtr.pos = (x,y)
-			subCtr.size = (w,h)
-			y += subCtr.size[1]
-		self.scrollview.documentView().setFrameSize_((self.scrollview.contentSize().width, y))
-
-		if self.control.attr.autoScrolldown:
-			self.scrollview.verticalScroller().setFloatValue_(1)
-			self.scrollview.contentView().scrollToPoint_(
-				(0, self.scrollview.documentView().frame().size.height -
-					self.scrollview.contentSize().height))
-
-		with self.lock:
-			self.outstandingUpdate = False
-
-	def update(self):
-		with self.lock:
-			if self.outstandingUpdate: return
-			self.outstandingUpdate = True
-			do_in_mainthread(self.doUpdate, wait=False)
+class ListChild_AttrWrapper(UserAttrib):
+	def __init__(self, index, value, parent):
+		UserAttrib.__init__(self)
+		self.index = index
+		self.value = value
+	def __get__(self, inst):
+		return self.value
 
 def buildControlList(control):
-	list = control.subjectObject
-	scrollview = AppKit.NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
-	scrollview.setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
-	scrollview.contentView().setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
-	scrollview.setDocumentView_(NSFlippedView.alloc().initWithFrame_(((0,0),scrollview.contentSize())))
-	scrollview.documentView().setAutoresizingMask_(AppKit.NSViewWidthSizable)
-	scrollview.setHasVerticalScroller_(True)
-	scrollview.setDrawsBackground_(False)
-	scrollview.setBorderType_(AppKit.NSBezelBorder)
-	#scrollview.setBorderType_(NSGrooveBorder)
-	view = NSFlippedView.alloc().initWithFrame_(scrollview.frame())
-	view.setAutoresizingMask_(AppKit.NSViewWidthSizable|AppKit.NSViewHeightSizable)
-	view.addSubview_(scrollview)
-	view.control = ref(control)
-	
-	control.nativeGuiObject = view
-	control.guiObjectList = [] # all access on this list is done in the main thread
-	control.OuterSpace = (0,0)
 
 
-	updater = Updater()
-	
-	class AttrWrapper(UserAttrib):
-		def __init__(self, index, value, parent):
-			UserAttrib.__init__(self)
-			self.index = index
-			self.value = value
-		def __get__(self, inst):
-			return self.value
-	def buildControlForIndex(index, value):
-		subCtr = CocoaGuiObject()
-		subCtr.subjectObject = value
-		subCtr.root = control.root
-		subCtr.parent = control
-		subCtr.attr = AttrWrapper(index, value, control)
-		presetSize = (scrollview.contentSize().width, 80)
-		if len(control.guiObjectList) > 0:
-			presetSize = (presetSize[0], control.guiObjectList[0].size[1])
-		subCtr.presetSize = presetSize
-		_buildControlObject_pre(subCtr)
-		
-		subCtr.autoresize = (False,False,True,False)
-		subCtr.pos = (0,-subCtr.size[1]) # so that there isn't any flickering
-		subCtr.nativeGuiObject.setDrawsBackground_(True)
-
-		def delayedBuild():
-			if control.root.nativeGuiObject.window() is None: return # window was closed
-			if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
-			
-			w,h = subCtr.setupChilds()			
-			def setSize():
-				w = scrollview.contentSize().width
-				subCtr.size = (w, h)
-			do_in_mainthread(setSize, wait=False)
-			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
-			do_in_mainthread(lambda: subCtr.updateContent(None,None,None), wait=False)
-			def addView():
-				if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
-				scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
-				if h != presetSize[1]:
-					updater.update()
-			do_in_mainthread(addView, wait=False)
-	
-		utils.daemonThreadCall(
-			delayedBuild, name="GUI list item delayed build",
-			queue="GUI-list-item-delayed-build-%i" % (index % 5)
-			)
-		
-		return subCtr
-	
-	control.select = None
-	if control.attr.canHaveFocus:
-		class SelectionHandling:
-			# for now, a single index. later maybe a range
-			index = None
-			def onInsert(self, index, value):
-				if index <= self.index: self.index += 1
-			def onRemove(self, index):
-				if index < self.index: self.index -= 1
-				elif index == self.index: self.deselect()
-			def onClear(self):
-				self.index = None
-			@ExceptionCatcherDecorator
-			def deselect(self):
-				if self.index is not None:
-					control.guiObjectList[self.index].nativeGuiObject.setBackgroundColor_(AppKit.NSColor.textBackgroundColor())
-					self.index = None
-			@ExceptionCatcherDecorator
-			def select(self, index=None):
-				self.deselect()
-				if index is None:
-					if len(control.guiObjectList) == 0: return
-					index = 0
-				self.index = index
-				guiObj = control.guiObjectList[index].nativeGuiObject
-				guiObj.setBackgroundColor_(AppKit.NSColor.selectedTextBackgroundColor())
-				
-				# special handling for gui.ctx().curSelectedSong
-				if control.guiObjectList[index].subjectObject.__class__.__name__ == "Song":
-					import gui
-					gui.ctx().curSelectedSong = control.guiObjectList[index].subjectObject
-				
-				def doScrollUpdate():
-					if not guiObj.window(): return # window closed or removed from window in the meantime
-					objFrame = guiObj.frame()
-					visibleFrame = scrollview.contentView().documentVisibleRect()
-					if objFrame.origin.y < visibleFrame.origin.y:				
-						scrollview.contentView().scrollToPoint_((0, objFrame.origin.y))
-					elif objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height:
-						scrollview.contentView().scrollToPoint_((0, objFrame.origin.y + objFrame.size.height - scrollview.contentSize().height))
-					scrollview.reflectScrolledClipView_(scrollview.contentView())
-				do_in_mainthread(doScrollUpdate, wait=False)
-			def onFocus(self):
-				if self.index is None:
-					self.select()
-				view.setDrawsFocusRing_(True)
-			def onLostFocus(self):
-				view.setDrawsFocusRing_(False)
-			@ExceptionCatcherDecorator
-			def onKeyDown(self, ev):
-				# see HIToolbox/Events.h for keycodes
-				if ev.keyCode() == 125: # down
-					if self.index is None:
-						self.select()
-					elif self.index < len(control.guiObjectList) - 1:
-						self.select(self.index + 1)
-					return True
-				elif ev.keyCode() == 126: # up
-					if self.index is None:
-						self.select()
-					elif self.index > 0:
-						self.select(self.index - 1)
-					return True
-				elif ev.keyCode() == 0x33: # delete
-					if self.index is not None:
-						index = self.index
-						if self.index > 0:
-							self.select(self.index - 1)
-						list.remove(index)
-						return True
-				elif ev.keyCode() == 0x75: # forward delete
-					if self.index is not None:
-						index = self.index
-						if self.index < len(control.guiObjectList) - 1:
-							self.select(self.index + 1)
-						list.remove(index)
-						return True
-			@ExceptionCatcherDecorator
-			def onMouseDown(self, ev):
-				view.window().makeFirstResponder_(view)
-				mouseLoc = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
-				for index,obj in enumerate(control.guiObjectList):
-					if AppKit.NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
-						self.select(index)
-						return True
-			@ExceptionCatcherDecorator
-			def onInternalDrag(self, sourceControl, index, filenames):
-				if sourceControl.parent is control: # internal drag to myself
-					oldIndex = self.index
-					# check if the index is still correct
-					if control.guiObjectList[oldIndex] is sourceControl:
-						self.select(index)
-						list.remove(oldIndex)
-				
-		control.select = SelectionHandling()
-		view.onBecomeFirstResponder = control.select.onFocus
-		view.onResignFirstResponder = control.select.onLostFocus
-		view.onKeyDown = control.select.onKeyDown
-		view.onMouseDown = control.select.onMouseDown
-	
 	control.dragHandler = None
 	if control.attr.dragHandler:
 		view.registerForDraggedTypes_([AppKit.NSFilenamesPboardType])
@@ -537,55 +342,20 @@ def buildControlList(control):
 					sys.excepthook(*sys.exc_info())
 					return False
 			@ExceptionCatcherDecorator
-			def onInternalDrag(self, *args):
-				# Note: This doesn't work if we don't have attr.canHaveFocus. Should be fixed later...
-				control.select.onInternalDrag(*args)
+			def onInternalDrag(self, sourceControl, index, filenames):
+				if sourceControl.parent is control: # internal drag to myself
+					oldIndex = self.index
+					# check if the index is still correct
+					if control.guiObjectList[oldIndex] is sourceControl:
+						self.select(index)
+						list.remove(oldIndex)
 				
 		control.dragHandler = DragHandler()
 		view.onDraggingUpdated = control.dragHandler.onDraggingUpdated
 		view.onDraggingExited = control.dragHandler.onDraggingExited
 		view.onPerformDragOperation = control.dragHandler.onPerformDragOperation	
 	
-	def doInitialFill():
-		with list.lock:
-			import __builtin__
-			listCopy = __builtin__.list(list)
-			
-			control.guiObjectList = []
-			Step = 5
-			def doInitialAddSome(iStart):
-				for i in range(iStart, min(len(listCopy), iStart+Step)):
-					control.guiObjectList += [buildControlForIndex(i, listCopy[i])]
-				updater.update()
-				
-			for i in xrange(0, len(listCopy), Step):
-				do_in_mainthread(lambda: doInitialAddSome(i), wait=True)
-			
-			def list_onInsert(index, value):
-				control.guiObjectList.insert(index, buildControlForIndex(index, value))
-				updater.update()
-			def list_onRemove(index):
-				control.guiObjectList[index].obsolete = True
-				control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
-				del control.guiObjectList[index]
-				updater.update()
-			def list_onClear():
-				for subCtr in control.guiObjectList:
-					subCtr.nativeGuiObject.removeFromSuperview()
-					subCtr.obsolete = True
-				del control.guiObjectList[:]
-				updater.update()
-			
-			for ev in ["onInsert","onRemove","onClear"]:
-				f = locals()["list_" + ev]
-				def wrap(f=f, ev=ev):
-					def handler(*args):
-						if control.select: getattr(control.select, ev)(*args)
-						f(*args)
-					return lambda *args: do_in_mainthread(lambda: handler(*args), wait=False)
-				setattr(list, ev, wrap())
-	utils.daemonThreadCall(doInitialFill, name="List initial fill")
-	
+
 	return control
 
 def buildControlTable(control):

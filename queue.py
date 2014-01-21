@@ -83,40 +83,43 @@ class ListWrapper: # implements the List trait
 		self.owner = owner
 		self.lock = owner.lock
 		self.list = list
-	
-	def onInsert(self, index, value): pass
-	def onRemove(self, index): pass
-	def onClear(self): pass
+
+	@initBy
+	def onInsert(self): return Event() # (index, value)
+	@initBy
+	def onRemove(self): return Event() # (index)
+	@initBy
+	def onClear(self): return Event() # ()
 	
 	def insert(self, index, value):
 		with self.lock:
 			self.list.insert(index, value)
-			self.onInsert(index, value)
+			self.onInsert.push(index, value)
 			self.list.save()
 		putOnModify()
 	def remove(self, index):
 		with self.lock:
 			del self.list[index]
-			self.onRemove(index)
+			self.onRemove.push(index)
 			self.list.save()
 		putOnModify()
 	def popleft(self):
 		with self.lock:
 			obj = self.list.pop(0)
-			self.onRemove(0)
+			self.onRemove.push(0)
 			self.list.save()
 		putOnModify()
 		return obj
 	def append(self, value):
 		with self.lock:
 			self.list.append(value)
-			self.onInsert(len(self.list)-1, value)
+			self.onInsert.push(len(self.list)-1, value)
 			self.list.save()
 		putOnModify()
 	def clear(self):
 		with self.lock:
 			self.list[:] = []
-			self.onClear()
+			self.onClear.push()
 			self.list.save()
 		putOnModify()
 	def unique(self):
@@ -130,16 +133,16 @@ class ListWrapper: # implements the List trait
 					index += 1
 					continue
 				del self.list[index]
-				self.onRemove(index)
+				self.onRemove.push(index)
 			self.list.save()
 		putOnModify()
 	def shuffle(self):
 		import random
 		with self.lock:
-			self.onClear()
+			self.onClear.push()
 			random.shuffle(self.list)
 			for index,value in enumerate(self.list):
-				self.onInsert(index, value)
+				self.onInsert.push(index, value)
 			self.list.save()
 		putOnModify()
 	def __getitem__(self, index):
