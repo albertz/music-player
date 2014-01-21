@@ -255,6 +255,42 @@ def buildControlEditableText(control):
 
 	return control
 
+class ListScrollviewUpdater:
+	def __init__(self, control, scrollview):
+		from threading import Lock
+		self.lock = Lock()
+		self.outstandingUpdate = False
+		self.control = control
+		self.scrollview = scrollview
+
+	def doUpdate(self):
+		with self.lock:
+			if not self.outstandingUpdate: return
+
+		x,y = 0,0
+		for subCtr in self.control.guiObjectList:
+			w = self.scrollview.contentSize().width
+			h = subCtr.size[1]
+			subCtr.pos = (x,y)
+			subCtr.size = (w,h)
+			y += subCtr.size[1]
+		self.scrollview.documentView().setFrameSize_((self.scrollview.contentSize().width, y))
+
+		if self.control.attr.autoScrolldown:
+			self.scrollview.verticalScroller().setFloatValue_(1)
+			self.scrollview.contentView().scrollToPoint_(
+				(0, self.scrollview.documentView().frame().size.height -
+					self.scrollview.contentSize().height))
+
+		with self.lock:
+			self.outstandingUpdate = False
+
+	def update(self):
+		with self.lock:
+			if self.outstandingUpdate: return
+			self.outstandingUpdate = True
+			do_in_mainthread(self.doUpdate, wait=False)
+
 def buildControlList(control):
 	list = control.subjectObject
 	scrollview = AppKit.NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))
@@ -275,40 +311,7 @@ def buildControlList(control):
 	control.guiObjectList = [] # all access on this list is done in the main thread
 	control.OuterSpace = (0,0)
 
-	class Updater:
-		def __init__(self):
-			from threading import Lock
-			self.lock = Lock()
-			self.outstandingUpdate = False
-		
-		def doUpdate(self):
-			with self.lock:
-				if not self.outstandingUpdate: return
-				
-			x,y = 0,0
-			for subCtr in control.guiObjectList:
-				w = scrollview.contentSize().width
-				h = subCtr.size[1]
-				subCtr.pos = (x,y)
-				subCtr.size = (w,h)
-				y += subCtr.size[1]
-			scrollview.documentView().setFrameSize_((scrollview.contentSize().width, y))
-			
-			if control.attr.autoScrolldown:
-				scrollview.verticalScroller().setFloatValue_(1)
-				scrollview.contentView().scrollToPoint_(
-					(0, scrollview.documentView().frame().size.height -
-						scrollview.contentSize().height))
 
-			with self.lock:
-				self.outstandingUpdate = False
-
-		def update(self):			
-			with self.lock:
-				if self.outstandingUpdate: return
-				self.outstandingUpdate = True
-				do_in_mainthread(self.doUpdate, wait=False)
-	
 	updater = Updater()
 	
 	class AttrWrapper(UserAttrib):
