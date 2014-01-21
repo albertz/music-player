@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 id PyObjCObj_GetNativeObj(PyObject* obj);
+PyObject* PyObjCObj_NewNative(id obj);
 
 #ifdef __cplusplus
 }

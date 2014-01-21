@@ -10,6 +10,7 @@
 #define MusicPlayer_GuiObject_hpp
 
 #include <Python.h>
+#include <boost/function.hpp>
 #include "SafeValue.hpp"
 
 extern PyTypeObject GuiObject_Type;
@@ -44,6 +45,14 @@ struct GuiObject {
 		Py_VISIT(attr);
 		Py_VISIT(subjectObject);
 		{ PyObject* o = nativeGuiObject; Py_VISIT(o); }
+		if(meth_childIter) {
+			int ret = 0;
+			(*meth_childIter)(this, [=,&ret](GuiObject* child, bool& stop){
+				ret = visit((PyObject*) child, arg);
+				if(ret) stop = true;
+			});
+			if(ret) return ret;
+		}
 		return 0;
 	}
 	int clear() {
@@ -84,6 +93,9 @@ struct GuiObject {
 	void (*set_size)(GuiObject*, const Vec&);
 	void (*set_autoresize)(GuiObject*, const Autoresize&);
 	void (*meth_addChild)(GuiObject*, GuiObject*);
+	
+	// Custom. not exposed to Python right now but might later. Optional.
+	void (*meth_childIter)(GuiObject*, boost::function<void(GuiObject* child, bool& stop)>); // used by tp_traverse if set
 };
 
 #endif

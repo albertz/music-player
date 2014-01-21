@@ -103,11 +103,21 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 	((CocoaGuiObject*) obj)->addChild(childView);
 }
 
+static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* child, bool& stop)> callback) {
+	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
+
+	if([view respondsToSelector:@selector(childIter:)]);
+}
+
 NSView* CocoaGuiObject::getNativeObj() {
 	// This function can be called without the Python GIL.
 	id nativeObj = nil;
-	nativeGuiObject.operate<void>([&](PyObject* ptr) { nativeObj = PyObjCObj_GetNativeObj(ptr); });
+	nativeGuiObject.operate<void>([&](PyObject*& ptr) { nativeObj = PyObjCObj_GetNativeObj(ptr); });
 	return nativeObj;
+}
+
+void CocoaGuiObject::setNativeObj(NSView* v) {
+	nativeGuiObject.operate<void>([=](PyObject*& ptr) { ptr = PyObjCObj_NewNative(v); });
 }
 
 void CocoaGuiObject::addChild(NSView* child) {
@@ -169,6 +179,7 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	set_size = imp_set_size;
 	set_autoresize = imp_set_autoresize;
 	meth_addChild = imp_addChild;
+	meth_childIter = imp_meth_childIter;
 	return 0;
 }
 

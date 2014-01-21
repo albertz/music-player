@@ -63,6 +63,21 @@ final:
 }
 
 static inline
+int attrChain_bool_default(PyObject* base, const char* name, int def) {
+	PyObject* resObj = attrChain(base, name);
+	int res = def;
+	if(!resObj)
+		// XXX: maybe check if AttributeError and if not, print the error
+		PyErr_Clear();
+	else {
+		res = PyObject_IsTrue(resObj) > 0;
+		if(PyErr_Occurred()) PyErr_Print();
+		Py_DECREF(resObj);
+	}
+	return res;
+}
+
+static inline
 PyObject* modAttrChain(const char* modName, const char* name) {
 	PyObject* mod = getModule(modName); // borrowed
 	if(!mod) {

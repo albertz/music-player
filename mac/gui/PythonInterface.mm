@@ -8,6 +8,7 @@
 #import "AppDelegate.h"
 #import "CocoaGuiObject.hpp"
 #import "PythonHelpers.h"
+#import "ListControl.hpp"
 
 
 static PyObject* CocoaGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
@@ -168,11 +169,30 @@ guiCocoa_updateControlMenu(PyObject* self) {
 	return Py_None;
 }
 
+PyObject*
+guiCocoa_buildControlList(PyObject* self, PyObject* args) {
+	PyObject* control = NULL;
+	if(!PyArg_ParseTuple(args, "O:buildControlList", &control))
+		return NULL;	
+	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "_guiCocoa.buildControlList: we expect a CocoaGuiObject");
+		return NULL;
+	}
+	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
+	
+	ListControlView* view = [[ListControlView alloc] initWithFrame:NSMakeRect(0, 0, 80, 80) withControl:guiObject];
+	guiObject->setNativeObj(view);
+	
+	Py_INCREF(control);
+	return control;
+}
+
 
 static PyMethodDef module_methods[] = {
 	{"main",	(PyCFunction)guiCocoa_main,	METH_NOARGS,	"overtakes main()"},
 	{"quit",	(PyCFunction)guiCocoa_quit,	METH_NOARGS,	"quit application"},
 	{"updateControlMenu",	(PyCFunction)guiCocoa_updateControlMenu,	METH_NOARGS,	""},
+	{"buildControlList",  guiCocoa_buildControlList, METH_VARARGS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 

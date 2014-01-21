@@ -20,7 +20,8 @@ struct CocoaGuiObject : GuiObject {
 	PyObject* getattr(const char* key);
 	int setattr(const char* key, PyObject* value);
 
-	NSView* getNativeObj();
+	NSView* getNativeObj(); // This function can be called without the Python GIL.
+	void setNativeObj(NSView* v);
 	void addChild(NSView* child);
 };
 

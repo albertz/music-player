@@ -7,7 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#include "GuiObject.hpp"
 
-@protocol ControlWithChilds <NSObject>
+typedef void (^ChildIterCallback)(GuiObject*, bool& stop);
+
+@protocol ControlWithChilds
+-(void) childIter:(ChildIterCallback) block;
 
 @end

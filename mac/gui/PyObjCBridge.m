@@ -8,3 +8,7 @@ id PyObjCObj_GetNativeObj(PyObject* obj) {
 	if(!PyObjCObject_Check(obj)) return nil;
 	return PyObjCObject_GetObject(obj);
 }
+
+PyObject* PyObjCObj_NewNative(id obj) {
+	return PyObjCObject_New(obj, PyObjCObject_kDEFAULT, YES);
+}
