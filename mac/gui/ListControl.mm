@@ -648,15 +648,17 @@ final:
 	subCtr->parent = (PyObject*) control;
 	Py_INCREF(control);
 
+	PyObject* guiMod = getModule("gui"); // borrowed ref
+	if(!guiMod) {
+		printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
+		if(PyErr_Occurred()) PyErr_Print();
+		Py_DECREF(subCtr);
+		return NULL;
+	}
+	Py_INCREF(guiMod);
+
 	{
-		PyObject* mod = getModule("gui"); // borrowed ref
-		if(!mod) {
-			printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
-			if(PyErr_Occurred()) PyErr_Print();
-			Py_DECREF(subCtr);
-			return NULL;
-		}
-		PyObject* res = PyObject_CallMethod(mod, (char*)"ListItem_AttrWrapper", (char*)"(iOO)", index, value, control);
+		PyObject* res = PyObject_CallMethod(guiMod, (char*)"ListItem_AttrWrapper", (char*)"(iOO)", index, value, control);
 		if(!res) {
 			printf("Cocoa ListControl buildControlForIndex: cannot create ListItem_AttrWrapper\n");
 			if(PyErr_Occurred()) PyErr_Print();
@@ -666,13 +668,38 @@ final:
 		subCtr->attr = res; // overtake
 	}
 
-	Vec presetSize([scrollview contentSize].width, 80);
+	Vec presetSizeVec([scrollview contentSize].width, 80);
 	if(!guiObjectList.empty())
-		presetSize.y = guiObjectList[0]->get_size(guiObjectList[0]).y;
+		presetSizeVec.y = guiObjectList[0]->get_size(guiObjectList[0]).y;
+	{
+		PyObject* presetSize = presetSizeVec.asPyObject();
+		if(!presetSize) {
+			printf("Cocoa ListControl buildControlForIndex: failed to create presetSize\n");
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_DECREF(subCtr);
+			return NULL;
+		}
+		int res = PyObject_SetAttrString((PyObject*) subCtr, "presetSize", presetSize);
+		Py_DECREF(presetSize);
+		if(res != 0) {
+			printf("Cocoa ListControl buildControlForIndex: failed to set subCtr.presetSize\n");
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_DECREF(subCtr);
+			return NULL;
+		}
+	}
 
-//	subCtr.presetSize = presetSize
-//	_buildControlObject_pre(subCtr)
-
+	{
+		PyObject* res = PyObject_CallMethod(guiMod, (char*)"_buildControlObject_pre", (char*)"(O)", subCtr);
+		if(!res) {
+			printf("Cocoa ListControl buildControlForIndex: failed to call _buildControlObject_pre\n");
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_DECREF(subCtr);
+			return NULL;
+		}
+		Py_DECREF(res);
+	}
+	
 	NSView* childView = subCtr->getNativeObj();
 	if(!childView) {
 		printf("Cocoa ListControl buildControlForIndex: subCtr.nativeGuiObject is nil\n");
@@ -687,10 +714,13 @@ final:
 
 
 	// do subCtr setup in background
+	Py_INCREF(subCtr);
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		
 		NSView* childView = nil;
+		PyObject* size = NULL;
+		Vec sizeVec;
 		CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
 		if(!control) goto final; // silently fail. probably out-of-scope
 		if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
@@ -702,26 +732,70 @@ final:
 		if(!childView) goto final; // silently fail. probably out-of-scope
 		if(![childView window]) goto final; // window was closed
 
-		//			if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
+		//	if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
 
-		//			w,h = subCtr.setupChilds()
-		//			def setSize():
-		//				w = scrollview.contentSize().width
-		//				subCtr.size = (w, h)
-		//			do_in_mainthread(setSize, wait=False)
-		//			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
-		//			do_in_mainthread(lambda: subCtr.updateContent(None,None,None), wait=False)
-		//			def addView():
-		//				if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
-		//				scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
-		//				if h != presetSize[1]:
-		//					updater.update()
-		//			do_in_mainthread(addView, wait=False)
+		size = PyObject_CallMethod((PyObject*) subCtr, (char*)"setupChilds", NULL);
+		if(!size) {
+			printf("Cocoa ListControl buildControlForIndex: subCtr.setupChilds() failed\n");
+			if(PyErr_Occurred()) PyErr_Print();
+			goto final;
+		}
+		if(!sizeVec.initFromPyObject(size)) {
+			printf("Cocoa ListControl buildControlForIndex: subCtr.setupChilds() returned unexpected value (expected is tuple (w,h))\n");
+			if(PyErr_Occurred()) PyErr_Print();
+			goto final;
+		}
+		
+		{
+			dispatch_async(dispatch_get_main_queue(), ^{
+				int w = [scrollview contentSize].width;
+				int h = sizeVec.y;
+				[childView setFrameSize:NSMakeSize(w, h)];
+			});
+
+			Py_INCREF(subCtr);
+			dispatch_async(dispatch_get_main_queue(), ^{
+				PyGILState_STATE gstate = PyGILState_Ensure();
+				PyObject* guiMod = getModule("gui"); // borrowed ref
+				if(!guiMod)
+					printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
+				else {
+					PyObject* res = PyObject_CallMethod(guiMod, (char*)"_buildControlObject_post", (char*)"(O)", subCtr);
+					if(!res)
+						printf("Cocoa ListControl buildControlForIndex: failed to call _buildControlObject_pre\n");
+					else Py_DECREF(res);
+				}
+				if(PyErr_Occurred()) PyErr_Print();
+				Py_DECREF(subCtr);
+				PyGILState_Release(gstate);
+			});
+
+			Py_INCREF(subCtr);
+			dispatch_async(dispatch_get_main_queue(), ^{
+				PyGILState_STATE gstate = PyGILState_Ensure();
+				PyObject* res = PyObject_CallMethod((PyObject*) subCtr, (char*)"updateContent", (char*)"(OOO)", Py_None, Py_None, Py_None);
+				if(!res)
+					printf("Cocoa ListControl buildControlForIndex: failed to call subCtr.updateContent\n");
+				else Py_DECREF(res);
+				Py_DECREF(subCtr);
+				PyGILState_Release(gstate);
+			});
+
+			dispatch_async(dispatch_get_main_queue(), ^{
+				// if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
+				[[scrollview documentView] addSubview:childView];
+				if(sizeVec.y != presetSizeVec.y)
+					[self scrollviewUpdate];
+			});
+		}
 		
 	final:
+		Py_DECREF(subCtr);
+		Py_XDECREF(size);
 		PyGILState_Release(gstate);
 	});
 
+	Py_DECREF(guiMod);
 	return subCtr;
 }
 
