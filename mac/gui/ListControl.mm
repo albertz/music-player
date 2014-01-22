@@ -134,7 +134,7 @@
 		[documentView addSubview:dragCursor];
 	}
 
-	// do initial fill
+	// do initial fill in background
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		
@@ -193,7 +193,8 @@
 			for(int i = 0; i < listCopy.size(); i += Step) {
 				dispatch_sync(dispatch_get_main_queue(), ^{
 					for(int j = i; j < listCopy.size() && j < i + Step; ++j) {
-						guiObjectList.push_back([self buildControlForIndex:j andValue:listCopy[j]]);
+						CocoaGuiObject* subCtr = [self buildControlForIndex:j andValue:listCopy[j]];
+						if(subCtr) guiObjectList.push_back(subCtr);
 						[self scrollviewUpdate];
 					}
 				});
@@ -279,7 +280,8 @@
 		index = (int) guiObjectList.size(); // maybe this recovering works...
 		assert(index >= 0);
 	}
-	guiObjectList.insert(guiObjectList.begin() + index, [self buildControlForIndex:index andValue:value]);
+	CocoaGuiObject* subCtr = [self buildControlForIndex:index andValue:value];
+	if(subCtr) guiObjectList.insert(guiObjectList.begin() + index, subCtr);
 	PyGILState_Release(gstate);
 	
 	[self scrollviewUpdate];
@@ -607,68 +609,119 @@ final:
 }
 
 - (CocoaGuiObject*)buildControlForIndex:(int)index andValue:(PyObject*)value {
+	if(![NSThread isMainThread]) {
+		__block CocoaGuiObject* res = NULL;
+		dispatch_sync(dispatch_get_main_queue(), ^{ res = [self buildControlForIndex:index andValue:value]; });
+		return res;
+	}
+
 	assert(value);
 	CocoaGuiObject* subCtr = NULL;
+	
+	CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
+	if(!control)
+		// silently fail. we are probably just out-of-scope
+		return NULL;
+	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+		printf("Cocoa ListControl buildControlForIndex: controlRef got invalid\n");
+		return NULL;
+	}
 	
 	subCtr = (CocoaGuiObject*) PyObject_CallObject((PyObject*) &CocoaGuiObject_Type, NULL);
 	if(!subCtr) {
 		printf("Cocoa ListControl buildControlForIndex: failed to create CocoaGuiObject\n");
-		if(PyErr_Occurred())
-			PyErr_Print();
+		if(PyErr_Occurred()) PyErr_Print();
 		return NULL;
 	}
-
 	if(!PyType_IsSubtype(Py_TYPE(subCtr), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "Cocoa ListControl buildControlForIndex: CocoaGuiObject created unexpected object");
+		printf("Cocoa ListControl buildControlForIndex: CocoaGuiObject created unexpected object\n");
 		Py_DECREF(subCtr);
 		return NULL;
 	}
 
 	subCtr->subjectObject = value;
 	Py_INCREF(value);
+		
+	subCtr->root = control->root;
+	Py_XINCREF(control->root);
 	
-	
-//		subCtr = CocoaGuiObject()
-//		subCtr.subjectObject = value
-//		subCtr.root = control.root
-//		subCtr.parent = control
-//		subCtr.attr = ListItem_AttrWrapper(index, value, control)
-//		presetSize = (scrollview.contentSize().width, 80)
-//		if len(control.guiObjectList) > 0:
-//			presetSize = (presetSize[0], control.guiObjectList[0].size[1])
-//		subCtr.presetSize = presetSize
-//		_buildControlObject_pre(subCtr)
-//		
-//		subCtr.autoresize = (False,False,True,False)
-//		subCtr.pos = (0,-subCtr.size[1]) # so that there isn't any flickering
-//		subCtr.nativeGuiObject.setDrawsBackground_(True)
-//
-//		def delayedBuild():
-//			if control.root.nativeGuiObject.window() is None: return # window was closed
-//			if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
-//			
-//			w,h = subCtr.setupChilds()			
-//			def setSize():
-//				w = scrollview.contentSize().width
-//				subCtr.size = (w, h)
-//			do_in_mainthread(setSize, wait=False)
-//			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
-//			do_in_mainthread(lambda: subCtr.updateContent(None,None,None), wait=False)
-//			def addView():
-//				if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
-//				scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
-//				if h != presetSize[1]:
-//					updater.update()
-//			do_in_mainthread(addView, wait=False)
-//	
-//		utils.daemonThreadCall(
-//			delayedBuild, name="GUI list item delayed build",
-//			queue="GUI-list-item-delayed-build-%i" % (index % 5)
-//			)
-//		
-//		return subCtr
+	subCtr->parent = (PyObject*) control;
+	Py_INCREF(control);
 
-final:
+	{
+		PyObject* mod = getModule("gui"); // borrowed ref
+		if(!mod) {
+			printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_DECREF(subCtr);
+			return NULL;
+		}
+		PyObject* res = PyObject_CallMethod(mod, (char*)"ListItem_AttrWrapper", (char*)"(iOO)", index, value, control);
+		if(!res) {
+			printf("Cocoa ListControl buildControlForIndex: cannot create ListItem_AttrWrapper\n");
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_DECREF(subCtr);
+			return NULL;
+		}
+		subCtr->attr = res; // overtake
+	}
+
+	Vec presetSize([scrollview contentSize].width, 80);
+	if(!guiObjectList.empty())
+		presetSize.y = guiObjectList[0]->get_size(guiObjectList[0]).y;
+
+//	subCtr.presetSize = presetSize
+//	_buildControlObject_pre(subCtr)
+
+	NSView* childView = subCtr->getNativeObj();
+	if(!childView) {
+		printf("Cocoa ListControl buildControlForIndex: subCtr.nativeGuiObject is nil\n");
+		Py_DECREF(subCtr);
+		return NULL;
+	}
+	[childView setAutoresizingMask:NSViewWidthSizable];
+	// Move out of view so that there isn't any flickering while be lazily build this up.
+	[childView setFrameOrigin:NSMakePoint(0, -[childView frame].size.height)];
+	if(childView && [childView isKindOfClass:[_NSFlippedView class]])
+		[(_NSFlippedView*)childView setDrawsBackground:YES];
+
+
+	// do subCtr setup in background
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+		PyGILState_STATE gstate = PyGILState_Ensure();
+		
+		NSView* childView = nil;
+		CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
+		if(!control) goto final; // silently fail. probably out-of-scope
+		if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+			printf("Cocoa ListControl buildControlForIndex: controlRef got invalid\n");
+			goto final;
+		}
+
+		childView = subCtr->getNativeObj();
+		if(!childView) goto final; // silently fail. probably out-of-scope
+		if(![childView window]) goto final; // window was closed
+
+		//			if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
+
+		//			w,h = subCtr.setupChilds()
+		//			def setSize():
+		//				w = scrollview.contentSize().width
+		//				subCtr.size = (w, h)
+		//			do_in_mainthread(setSize, wait=False)
+		//			do_in_mainthread(lambda: _buildControlObject_post(subCtr), wait=False)
+		//			do_in_mainthread(lambda: subCtr.updateContent(None,None,None), wait=False)
+		//			def addView():
+		//				if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
+		//				scrollview.documentView().addSubview_(subCtr.nativeGuiObject)
+		//				if h != presetSize[1]:
+		//					updater.update()
+		//			do_in_mainthread(addView, wait=False)
+		
+	final:
+		PyGILState_Release(gstate);
+	});
+
 	return subCtr;
 }
 

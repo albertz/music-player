@@ -25,7 +25,7 @@ struct Vec {
 // whether to modify x,y,w,h on resize
 struct Autoresize {
 	bool x,y,w,h;
-	Autoresize() : x(false), y(false), w(false), h(false) {}
+	Autoresize(bool _x=false, bool _y=false, bool _w=false, bool _h=false) : x(_x), y(_y), w(_w), h(_h) {}
 	bool initFromPyObject(PyObject* obj);
 	PyObject* asPyObject() const;
 };
