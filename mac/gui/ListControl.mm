@@ -660,17 +660,17 @@ final:
 	subCtr->parent = (PyObject*) control;
 	Py_INCREF(control);
 
-	PyObject* guiMod = getModule("gui"); // borrowed ref
-	if(!guiMod) {
+	PyObject* guiCocoaMod = getModule("guiCocoa"); // borrowed ref
+	if(!guiCocoaMod) {
 		printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
 		if(PyErr_Occurred()) PyErr_Print();
 		Py_DECREF(subCtr);
 		return NULL;
 	}
-	Py_INCREF(guiMod);
+	Py_INCREF(guiCocoaMod);
 
 	{
-		PyObject* res = PyObject_CallMethod(guiMod, (char*)"ListItem_AttrWrapper", (char*)"(iOO)", index, value, control);
+		PyObject* res = PyObject_CallMethod(guiCocoaMod, (char*)"ListItem_AttrWrapper", (char*)"(iOO)", index, value, control);
 		if(!res) {
 			printf("Cocoa ListControl buildControlForIndex: cannot create ListItem_AttrWrapper\n");
 			if(PyErr_Occurred()) PyErr_Print();
@@ -702,7 +702,7 @@ final:
 	}
 
 	{
-		PyObject* res = PyObject_CallMethod(guiMod, (char*)"_buildControlObject_pre", (char*)"(O)", subCtr);
+		PyObject* res = PyObject_CallMethod(guiCocoaMod, (char*)"_buildControlObject_pre", (char*)"(O)", subCtr);
 		if(!res) {
 			printf("Cocoa ListControl buildControlForIndex: failed to call _buildControlObject_pre\n");
 			if(PyErr_Occurred()) PyErr_Print();
@@ -768,11 +768,11 @@ final:
 			Py_INCREF(subCtr);
 			dispatch_async(dispatch_get_main_queue(), ^{
 				PyGILState_STATE gstate = PyGILState_Ensure();
-				PyObject* guiMod = getModule("gui"); // borrowed ref
-				if(!guiMod)
+				PyObject* guiCocoaMod = getModule("guiCocoa"); // borrowed ref
+				if(!guiCocoaMod)
 					printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
 				else {
-					PyObject* res = PyObject_CallMethod(guiMod, (char*)"_buildControlObject_post", (char*)"(O)", subCtr);
+					PyObject* res = PyObject_CallMethod(guiCocoaMod, (char*)"_buildControlObject_post", (char*)"(O)", subCtr);
 					if(!res)
 						printf("Cocoa ListControl buildControlForIndex: failed to call _buildControlObject_pre\n");
 					else Py_DECREF(res);
@@ -807,7 +807,7 @@ final:
 		PyGILState_Release(gstate);
 	});
 
-	Py_DECREF(guiMod);
+	Py_DECREF(guiCocoaMod);
 	return subCtr;
 }
 
