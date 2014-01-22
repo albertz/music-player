@@ -256,7 +256,8 @@ def buildControlEditableText(control):
 	return control
 
 
-class ListChild_AttrWrapper(UserAttrib):
+# used by buildControlList for the list items
+class ListItem_AttrWrapper(UserAttrib):
 	def __init__(self, index, value, parent):
 		UserAttrib.__init__(self)
 		self.index = index
@@ -264,99 +265,6 @@ class ListChild_AttrWrapper(UserAttrib):
 	def __get__(self, inst):
 		return self.value
 
-def buildControlList(control):
-
-
-	control.dragHandler = None
-	if control.attr.dragHandler:
-		view.registerForDraggedTypes_([AppKit.NSFilenamesPboardType])
-		class DragHandler:
-			index = None
-			def __init__(self):
-				view = NSFlippedView.alloc().initWithFrame_(((0,0),(scrollview.contentSize().width,2)))
-				view.setAutoresizingMask_(AppKit.NSViewWidthSizable)
-				view.setBackgroundColor_(AppKit.NSColor.blackColor())
-				self.guiCursor = view
-				scrollview.documentView().addSubview_(view)
-			@ExceptionCatcherDecorator
-			def onDraggingUpdated(self, sender):
-				self.guiCursor.setDrawsBackground_(True)
-				scrollview.documentView().addSubview_positioned_relativeTo_(self.guiCursor, AppKit.NSWindowAbove, None)
-				dragLoc = scrollview.documentView().convertPoint_toView_(sender.draggingLocation(), None)
-				self.index = 0
-				y = 0
-				for index,obj in enumerate(control.guiObjectList):
-					frame = obj.nativeGuiObject.frame()
-					if dragLoc.y > frame.origin.y + frame.size.height / 2:
-						self.index = index + 1
-						y = frame.origin.y + frame.size.height
-					else:
-						break
-				self.guiCursor.setFrameOrigin_((0,y - 1))
-
-				visibleFrame = scrollview.contentView().documentVisibleRect()
-				mouseLoc = AppKit.NSPoint(dragLoc.x - visibleFrame.origin.x, dragLoc.y - visibleFrame.origin.y)
-				ScrollLimit = 30
-				Limit = 15
-				y = None
-				if mouseLoc.y < Limit:
-					scrollBy = Limit - mouseLoc.y
-					y = visibleFrame.origin.y - scrollBy
-					y = max(y, -ScrollLimit)
-				elif mouseLoc.y > visibleFrame.size.height - Limit:
-					scrollBy = mouseLoc.y - visibleFrame.size.height + Limit
-					y = visibleFrame.origin.y + scrollBy
-					y = min(y, scrollview.documentView().frame().size.height - visibleFrame.size.height + ScrollLimit)
-				if y is not None:
-					scrollview.contentView().scrollToPoint_((0, y))
-					scrollview.reflectScrolledClipView_(scrollview.contentView())
-
-			def onDraggingExited(self, sender):
-				self.guiCursor.setDrawsBackground_(False)
-				self.index = None
-			@ExceptionCatcherDecorator
-			def onPerformDragOperation(self, sender):
-				self.guiCursor.setDrawsBackground_(False)
-				import __builtin__
-				try:
-					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(AppKit.NSFilenamesPboardType))
-					filenames = map(convertToUnicode, filenames)
-					index = self.index
-					internalDragCallback = getattr(sender.draggingSource(), "onInternalDrag", None)
-					def doDragHandler():
-						control.attr.dragHandler(
-							control.parent.subjectObject,
-							control.subjectObject,
-							index,
-							filenames)
-						if internalDragCallback:
-							do_in_mainthread(lambda:
-								internalDragCallback(
-									control,
-									index,
-									filenames),
-								wait=False)
-					utils.daemonThreadCall(doDragHandler, name="DragHandler")
-					return True
-				except Exception:
-					sys.excepthook(*sys.exc_info())
-					return False
-			@ExceptionCatcherDecorator
-			def onInternalDrag(self, sourceControl, index, filenames):
-				if sourceControl.parent is control: # internal drag to myself
-					oldIndex = self.index
-					# check if the index is still correct
-					if control.guiObjectList[oldIndex] is sourceControl:
-						self.select(index)
-						list.remove(oldIndex)
-				
-		control.dragHandler = DragHandler()
-		view.onDraggingUpdated = control.dragHandler.onDraggingUpdated
-		view.onDraggingExited = control.dragHandler.onDraggingExited
-		view.onPerformDragOperation = control.dragHandler.onPerformDragOperation	
-	
-
-	return control
 
 def buildControlTable(control):
 	scrollview = AppKit.NSScrollView.alloc().initWithFrame_(((0.0, 0.0), (80.0, 80.0)))

@@ -13,6 +13,7 @@
 
 @implementation ListControlView
 {
+	PyWeakReference* subjectList;
 	std::list<CocoaGuiObject*> guiObjectList;
 	NSScrollView* scrollview;
 	NSView* documentView;
@@ -20,6 +21,17 @@
 	BOOL autoScrolldown;
 	BOOL outstandingScrollviewUpdate;
 	int selectionIndex; // for now, a single index. later maybe a range
+	_NSFlippedView* dragCursor;
+	PyWeakReference* dragHandler;
+	int dragIndex;
+}
+
+- (void)dealloc
+{
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	Py_CLEAR(subjectList);
+	Py_CLEAR(dragHandler);
+	PyGILState_Release(gstate);
 }
 
 - (id)initWithFrame:(NSRect)frame withControl:(CocoaGuiObject*)control
@@ -42,9 +54,12 @@
 	[self addSubview:scrollview];
 	//view.control = ref(control)
 
+	subjectList = NULL;
 	outstandingScrollviewUpdate = FALSE;
 	selectionIndex = -1;
-	PyObject* list = NULL;
+	dragCursor = nil;
+	dragHandler = NULL;
+	dragIndex = -1;
 	
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
@@ -54,15 +69,33 @@
 		canHaveFocus = attrChain_bool_default((PyObject*) control, "attr.canHaveFocus", false);
 		autoScrolldown = attrChain_bool_default((PyObject*) control, "attr.autoScrolldown", false);
 
-		list = control->subjectObject;
-		Py_XINCREF(list); // will be decrefed in initial fill below
+		PyObject* handler = attrChain((PyObject*) control, "attr.dragHandler");
+		if(!handler)
+			printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
+		if(PyErr_Occurred())
+			PyErr_Print();
+		if(handler) {
+			dragHandler = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
+			Py_CLEAR(handler);
+		}
+		
+		if(control->subjectObject)
+			subjectList = (PyWeakReference*) PyWeakref_NewRef(control->subjectObject, NULL);
 		
 		PyGILState_Release(gstate);
 	}
 
-	if(!list) {
+	if(!subjectList) {
 		printf("Cocoa ListControl: subjectObject is NULL\n");
 		return self;
+	}
+
+	if(dragHandler) {
+		[self registerForDraggedTypes:@[NSFilenamesPboardType]];
+		dragCursor = [[_NSFlippedView alloc] initWithFrame:NSMakeRect(0,0,[scrollview contentSize].width,2)];
+		[dragCursor setAutoresizingMask:NSViewWidthSizable];
+		[dragCursor setBackgroundColor:[NSColor blackColor]];
+		[documentView addSubview:dragCursor];
 	}
 
 	// do initial fill
@@ -72,6 +105,11 @@
 		PyObject* lock = NULL;
 		PyObject* lockEnterRes = NULL;
 		PyObject* lockExitRes = NULL;
+		PyObject* list = NULL;
+		
+		list = PyWeakref_GET_OBJECT(subjectList);
+		if(!list) goto finalInitialFill;
+		Py_INCREF(list);
 		
 		// We must lock the list.lock because we must ensure that we have the
 		// data in sync.
@@ -360,7 +398,89 @@
 	return YES;
 }
 
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender
+{
+//				self.guiCursor.setDrawsBackground_(True)
+//				scrollview.documentView().addSubview_positioned_relativeTo_(self.guiCursor, AppKit.NSWindowAbove, None)
+//				dragLoc = scrollview.documentView().convertPoint_toView_(sender.draggingLocation(), None)
+//				self.index = 0
+//				y = 0
+//				for index,obj in enumerate(control.guiObjectList):
+//					frame = obj.nativeGuiObject.frame()
+//					if dragLoc.y > frame.origin.y + frame.size.height / 2:
+//						self.index = index + 1
+//						y = frame.origin.y + frame.size.height
+//					else:
+//						break
+//				self.guiCursor.setFrameOrigin_((0,y - 1))
+//
+//				visibleFrame = scrollview.contentView().documentVisibleRect()
+//				mouseLoc = AppKit.NSPoint(dragLoc.x - visibleFrame.origin.x, dragLoc.y - visibleFrame.origin.y)
+//				ScrollLimit = 30
+//				Limit = 15
+//				y = None
+//				if mouseLoc.y < Limit:
+//					scrollBy = Limit - mouseLoc.y
+//					y = visibleFrame.origin.y - scrollBy
+//					y = max(y, -ScrollLimit)
+//				elif mouseLoc.y > visibleFrame.size.height - Limit:
+//					scrollBy = mouseLoc.y - visibleFrame.size.height + Limit
+//					y = visibleFrame.origin.y + scrollBy
+//					y = min(y, scrollview.documentView().frame().size.height - visibleFrame.size.height + ScrollLimit)
+//				if y is not None:
+//					scrollview.contentView().scrollToPoint_((0, y))
+//					scrollview.reflectScrolledClipView_(scrollview.contentView())
 
+	return NSDragOperationGeneric;
+}
+
+- (void)draggingExited:(id<NSDraggingInfo>)sender
+{
+//				self.guiCursor.setDrawsBackground_(False)
+//				self.index = None
+
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
+{
+//				self.guiCursor.setDrawsBackground_(False)
+//				import __builtin__
+//				try:
+//					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(AppKit.NSFilenamesPboardType))
+//					filenames = map(convertToUnicode, filenames)
+//					index = self.index
+//					internalDragCallback = getattr(sender.draggingSource(), "onInternalDrag", None)
+//					def doDragHandler():
+//						control.attr.dragHandler(
+//							control.parent.subjectObject,
+//							control.subjectObject,
+//							index,
+//							filenames)
+//						if internalDragCallback:
+//							do_in_mainthread(lambda:
+//								internalDragCallback(
+//									control,
+//									index,
+//									filenames),
+//								wait=False)
+//					utils.daemonThreadCall(doDragHandler, name="DragHandler")
+//					return True
+//				except Exception:
+//					sys.excepthook(*sys.exc_info())
+//					return False
+	return NO;
+}
+
+- (void)onInternalDrag:(CocoaGuiObject*)sourceControl withIndex:(int)index withFiles:(NSArray*)filenames
+{
+//				if sourceControl.parent is control: # internal drag to myself
+//					oldIndex = self.index
+//					# check if the index is still correct
+//					if control.guiObjectList[oldIndex] is sourceControl:
+//						self.select(index)
+//						list.remove(oldIndex)
+	
+}
 
 - (void)childIter:(ChildIterCallback)block
 {
@@ -376,7 +496,7 @@
 //		subCtr.subjectObject = value
 //		subCtr.root = control.root
 //		subCtr.parent = control
-//		subCtr.attr = ListChild_AttrWrapper(index, value, control)
+//		subCtr.attr = ListItem_AttrWrapper(index, value, control)
 //		presetSize = (scrollview.contentSize().width, 80)
 //		if len(control.guiObjectList) > 0:
 //			presetSize = (presetSize[0], control.guiObjectList[0].size[1])
