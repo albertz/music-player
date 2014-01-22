@@ -197,16 +197,20 @@
 		}
 		
 		{
+			Py_BEGIN_ALLOW_THREADS
 			const int Step = 5;
 			for(int i = 0; i < listCopy.size(); i += Step) {
 				dispatch_sync(dispatch_get_main_queue(), ^{
 					for(int j = i; j < listCopy.size() && j < i + Step; ++j) {
+						PyGILState_STATE gstate = PyGILState_Ensure();
 						CocoaGuiObject* subCtr = [self buildControlForIndex:j andValue:listCopy[j]];
 						if(subCtr) guiObjectList.push_back(subCtr);
+						PyGILState_Release(gstate);
 						[self scrollviewUpdate];
 					}
 				});
 			}
+			Py_END_ALLOW_THREADS
 		}
 		
 		// We expect the list ( = control->subjectObject ) to support a certain interface,
