@@ -66,10 +66,14 @@ static inline
 int attrChain_bool_default(PyObject* base, const char* name, int def) {
 	PyObject* resObj = attrChain(base, name);
 	int res = def;
-	if(!resObj)
-		// XXX: maybe check if AttributeError and if not, print the error
-		PyErr_Clear();
-	else {
+	if(!resObj) {
+		if(PyErr_Occurred()) {
+			if(PyErr_ExceptionMatches(PyExc_AttributeError))
+				PyErr_Clear();
+			else
+				PyErr_Print();
+		}
+	} else {
 		res = PyObject_IsTrue(resObj) > 0;
 		if(PyErr_Occurred()) PyErr_Print();
 		Py_DECREF(resObj);

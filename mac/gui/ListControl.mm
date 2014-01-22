@@ -9,12 +9,12 @@
 #import "ListControl.hpp"
 #include "PythonHelpers.h"
 #import "PyObjCBridge.h"
-#include <list>
+#include <vector>
 
 @implementation ListControlView
 {
 	PyWeakReference* subjectList;
-	std::list<CocoaGuiObject*> guiObjectList;
+	std::vector<CocoaGuiObject*> guiObjectList;
 	NSScrollView* scrollview;
 	NSView* documentView;
 	BOOL canHaveFocus;
@@ -106,6 +106,7 @@
 		PyObject* lockEnterRes = NULL;
 		PyObject* lockExitRes = NULL;
 		PyObject* list = NULL;
+		std::vector<PyObject*> listCopy;
 		
 		list = PyWeakref_GET_OBJECT(subjectList);
 		if(!list) goto finalInitialFill;
@@ -128,20 +129,40 @@
 				PyErr_Print();
 			goto finalInitialFill;
 		}
+
+		{
+			PyObject* listIter = PyObject_GetIter(list);
+			if(!listIter) {
+				printf("Cocoa ListControl: cannot get iter(list)\n");
+				if(PyErr_Occurred())
+					PyErr_Print();
+				goto finalInitialFill;
+			}
+
+			while(true) {
+				PyObject* listIterItem = PyIter_Next(listIter);
+				if(listIterItem == NULL) break;
+				listCopy.push_back(listIterItem);
+			}
+
+			if(PyErr_Occurred()) {
+				printf("Cocoa ListControl: error while copying list\n");
+				PyErr_Print();
+			}
+			Py_DECREF(listIter);
+		}
 		
-//		import __builtin__
-//		listCopy = __builtin__.list(list)
-//		
-//		control.guiObjectList = []
-//		Step = 5
-//		def doInitialAddSome(iStart):
-//		for i in range(iStart, min(len(listCopy), iStart+Step)):
-//			control.guiObjectList += [buildControlForIndex(i, listCopy[i])]
-//			updater.update()
-//			
-//			for i in xrange(0, len(listCopy), Step):
-//				do_in_mainthread(lambda: doInitialAddSome(i), wait=True)
-		
+		{
+			const int Step = 5;
+			for(int i = 0; i < listCopy.size(); i += Step) {
+				dispatch_sync(dispatch_get_main_queue(), ^{
+					for(int j = i; j < listCopy.size() && j < i + Step; ++j) {
+						guiObjectList.push_back([self buildControlForIndex:j andValue:listCopy[j]]);
+						[self scrollviewUpdate];
+					}
+				});
+			}
+		}
 		
 		// We expect the list ( = control->subjectObject ) to support a certain interface,
 		// esp. to have onInsert, onRemove and onClear as utils.Event().
@@ -190,6 +211,9 @@
 		Py_XDECREF(lockExitRes);
 		Py_XDECREF(lock);
 		Py_XDECREF(list);
+		for(PyObject* listItem : listCopy)
+			Py_DECREF(listItem);
+		listCopy.clear();
 		
 		PyGILState_Release(gstate);
 	});
