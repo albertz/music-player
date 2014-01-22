@@ -179,7 +179,7 @@ class MainQueue:
 				song = self.queue.popleft()
 				assert bool(song)
 				return song
-		return getNextSong_auto()
+		return self.getNextSong_auto()
 
 	def peekNextN(self, n): # only from self.queue, no adding! might return less
 		with self.lock:
