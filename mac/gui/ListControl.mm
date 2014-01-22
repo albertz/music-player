@@ -99,12 +99,20 @@
 		
 		{
 			PyObject* handler = attrChain((PyObject*) control, "attr.dragHandler");
-			if(!handler)
+			if(!handler) {
 				printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
-			if(PyErr_Occurred())
-				PyErr_Print();
+				if(PyErr_Occurred())
+					PyErr_Print();
+			}
 			if(handler) {
-				dragHandlerRef = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
+				if(handler != Py_None) {
+					dragHandlerRef = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
+					if(!dragHandlerRef) {
+						printf("Cocoa ListControl: cannot create dragHandlerRef\n");
+						if(PyErr_Occurred())
+							PyErr_Print();
+					}
+				}
 				Py_CLEAR(handler);
 			}
 		}
