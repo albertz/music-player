@@ -78,7 +78,7 @@ class RandomSongs:
 from collections import deque
 from threading import RLock
 
-class ListWrapper: # implements the List trait
+class ListWrapper(object): # implements the List trait
 	def __init__(self, owner, list): # parent is supposed to be the MainQueue
 		self.owner = owner
 		self.lock = owner.lock
