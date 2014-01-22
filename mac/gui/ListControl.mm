@@ -28,6 +28,11 @@
 
 - (void)clearOwn
 {
+	if(![NSThread isMainThread]) {
+		dispatch_sync(dispatch_get_main_queue(), ^{ [self clearOwn]; });
+		return;
+	}
+	
 	std::vector<CocoaGuiObject*> listCopy;
 	std::swap(guiObjectList, listCopy);
 	for(CocoaGuiObject* subCtr : listCopy) {
@@ -207,6 +212,9 @@
 				Py_XDECREF(event);
 				Py_DECREF(callback);
 			};
+			// Note that in PyObjCPointerWrapper_Init, we PyObjCPointerWrapper_Register the (PyObject*) type,
+			// and NSBlock's are supported by PyObjC, so this should hopefully work.
+			// The call is handled via PyObjCBlock_Call and the Python GIL is released in it.
 			registerEv("onInsert", PyObjCObj_NewNative(^(int idx, PyObject* v){ [self onInsert:idx withValue:v]; }));
 			registerEv("onRemove", PyObjCObj_NewNative(^(int idx){ [self onRemove:idx]; }));
 			registerEv("onClear", PyObjCObj_NewNative(^{ [self onClear]; }));
@@ -237,19 +245,37 @@
 // Callback for subjectObject.
 - (void)onInsert:(int)index withValue:(PyObject*) value
 {
-	// TODO: is this with Python GIL?
-	
+	if(![NSThread isMainThread]) {
+		dispatch_sync(dispatch_get_main_queue(), ^{ [self onInsert:index withValue:value]; });
+		return;
+	}
+
+	PyGILState_STATE gstate = PyGILState_Ensure();
+
 	if(canHaveFocus && selectionIndex >= 0) {
 		if(index <= selectionIndex) selectionIndex += 1;
 	}
 	
+	if(index < 0 || index > guiObjectList.size()) {
+		printf("Cocoa ListControl onInsert: invalid index %i, size=%zu\n", index, guiObjectList.size());
+		index = guiObjectList.size(); // maybe this recovering works...
+	}
 	guiObjectList.insert(guiObjectList.begin() + index, [self buildControlForIndex:index andValue:value]);
+	PyGILState_Release(gstate);
+	
 	[self scrollviewUpdate];
 }
 
 // Callback for subjectObject.
 - (void)onRemove:(int)index
 {
+	if(![NSThread isMainThread]) {
+		dispatch_sync(dispatch_get_main_queue(), ^{ [self onRemove:index]; });
+		return;
+	}
+	
+	PyGILState_STATE gstate = PyGILState_Ensure();
+
 	if(canHaveFocus && selectionIndex >= 0) {
 		if(index < selectionIndex) selectionIndex -= 1;
 		else if(index == selectionIndex) [self deselect];
@@ -263,6 +289,7 @@
 		guiObjectList.erase(guiObjectList.begin() + index);
 		Py_DECREF(subCtr);
 	}
+	PyGILState_Release(gstate);
 	
 	[self scrollviewUpdate];
 }
@@ -270,8 +297,16 @@
 // Callback for subjectObject.
 - (void)onClear
 {
+	if(![NSThread isMainThread]) {
+		dispatch_sync(dispatch_get_main_queue(), ^{ [self onClear]; });
+		return;
+	}
+
+	PyGILState_STATE gstate = PyGILState_Ensure();
 	selectionIndex = -1;
 	[self clearOwn];
+	PyGILState_Release(gstate);
+
 	[self scrollviewUpdate];
 }
 
@@ -427,8 +462,8 @@
 	}
 	
 	bool res = false;
-
-//				view.window().makeFirstResponder_(view)
+	[[self window] makeFirstResponder:self];
+	
 //				mouseLoc = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
 //				for index,obj in enumerate(control.guiObjectList):
 //					if AppKit.NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
@@ -539,6 +574,10 @@
 }
 
 - (CocoaGuiObject*)buildControlForIndex:(int)index andValue:(PyObject*)value {
+
+	CocoaGuiObject* subCtr;
+	
+
 //		subCtr = CocoaGuiObject()
 //		subCtr.subjectObject = value
 //		subCtr.root = control.root
