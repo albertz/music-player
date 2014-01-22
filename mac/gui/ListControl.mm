@@ -712,37 +712,47 @@ final:
 
 - (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender
 {
-//				self.guiCursor.setDrawsBackground_(True)
-//				scrollview.documentView().addSubview_positioned_relativeTo_(self.guiCursor, AppKit.NSWindowAbove, None)
-//				dragLoc = scrollview.documentView().convertPoint_toView_(sender.draggingLocation(), None)
-//				self.index = 0
-//				y = 0
-//				for index,obj in enumerate(control.guiObjectList):
-//					frame = obj.nativeGuiObject.frame()
-//					if dragLoc.y > frame.origin.y + frame.size.height / 2:
-//						self.index = index + 1
-//						y = frame.origin.y + frame.size.height
-//					else:
-//						break
-//				self.guiCursor.setFrameOrigin_((0,y - 1))
-//
-//				visibleFrame = scrollview.contentView().documentVisibleRect()
-//				mouseLoc = AppKit.NSPoint(dragLoc.x - visibleFrame.origin.x, dragLoc.y - visibleFrame.origin.y)
-//				ScrollLimit = 30
-//				Limit = 15
-//				y = None
-//				if mouseLoc.y < Limit:
-//					scrollBy = Limit - mouseLoc.y
-//					y = visibleFrame.origin.y - scrollBy
-//					y = max(y, -ScrollLimit)
-//				elif mouseLoc.y > visibleFrame.size.height - Limit:
-//					scrollBy = mouseLoc.y - visibleFrame.size.height + Limit
-//					y = visibleFrame.origin.y + scrollBy
-//					y = min(y, scrollview.documentView().frame().size.height - visibleFrame.size.height + ScrollLimit)
-//				if y is not None:
-//					scrollview.contentView().scrollToPoint_((0, y))
-//					scrollview.reflectScrolledClipView_(scrollview.contentView())
+	[dragCursor setDrawsBackground:YES];
+	[documentView addSubview:dragCursor positioned:NSWindowAbove relativeTo:nil];
+	NSPoint dragLoc = [documentView convertPoint:[sender draggingLocation] toView:nil];
+	dragIndex = 0;
+	
+	CGFloat y = 0;
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	for(int i = 0; i < (int)guiObjectList.size(); ++i) {
+		NSRect frame = [guiObjectList[i]->getNativeObj() frame];
+		if(dragLoc.y > frame.origin.y + frame.size.height / 2) {
+			dragIndex = i + 1;
+			y = frame.origin.y + frame.size.height;
+		}
+		else break;
+	}
+	PyGILState_Release(gstate);
+	[dragCursor setFrameOrigin:NSMakePoint(0, y-1)];
+	
+	NSRect visibleFrame = [[scrollview contentView] documentVisibleRect];
+	NSPoint mouseLoc = NSMakePoint(dragLoc.x - visibleFrame.origin.x, dragLoc.y - visibleFrame.origin.y);
 
+	const CGFloat ScrollLimit = 30;
+	const CGFloat Limit = 15;
+	bool scroll = false;
+	if(mouseLoc.y < Limit) {
+		float scrollBy = Limit - mouseLoc.y;
+		y = visibleFrame.origin.y - scrollBy;
+		y = std::max(y, -ScrollLimit);
+		scroll = true;
+	}
+	else if(mouseLoc.y > visibleFrame.size.height - Limit) {
+		float scrollBy = mouseLoc.y - visibleFrame.size.height + Limit;
+		y = visibleFrame.origin.y + scrollBy;
+		y = std::min(y, [documentView frame].size.height - visibleFrame.size.height + ScrollLimit);
+		scroll = true;
+	}
+	if(scroll) {
+		[[scrollview contentView] scrollToPoint:NSMakePoint(0, y)];
+		[scrollview reflectScrolledClipView:[scrollview contentView]];
+	}
+	
 	return NSDragOperationGeneric;
 }
 
