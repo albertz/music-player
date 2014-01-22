@@ -301,3 +301,6 @@ _Py_DumpTracebackThreads(int fd,
     return NULL;
 }
 
+void _Py_DumpTracebackAllThreads() {
+	_Py_DumpTracebackThreads(1, PyGILState_GetThisThreadState()->interp, PyGILState_GetThisThreadState());
+}
