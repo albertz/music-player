@@ -64,7 +64,7 @@ PyTypeObject FunctionWrapper_Type = {
     0,											/* tp_getattro */
     0,                                          /* tp_setattro */
     0,                                          /* tp_as_buffer */
-    Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_HAVE_GC,/* tp_flags */
+    Py_TPFLAGS_HAVE_CLASS | Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_HAVE_GC,/* tp_flags */
     0,                                          /* tp_doc */
     FunctionWrapper_traverse,                /* tp_traverse */
     FunctionWrapper_clear,                       /* tp_clear */
@@ -77,6 +77,12 @@ PyTypeObject FunctionWrapper_Type = {
     0,											/* tp_getset */
     0,                                          /* tp_base */
     0,                                          /* tp_dict */
+	0,					/* tp_descr_get */
+	0,					/* tp_descr_set */
+	0,					/* tp_dictoffset */
+	0,					/* tp_init */
+	0,					/* tp_alloc */
+	PyType_GenericNew,				/* tp_new */
 };
 
 static FunctionWrapper* newFunctionWrapper(PyObject* wrap) {
