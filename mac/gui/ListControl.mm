@@ -690,12 +690,16 @@ final:
 	bool res = false;
 	[[self window] makeFirstResponder:self];
 	
-//				mouseLoc = scrollview.documentView().convertPoint_toView_(ev.locationInWindow(), None)
-//				for index,obj in enumerate(control.guiObjectList):
-//					if AppKit.NSPointInRect(mouseLoc, obj.nativeGuiObject.frame()):
-//						self.select(index)
-//						return True
-
+	NSPoint mouseLoc = [documentView convertPoint:[theEvent locationInWindow] toView:nil];
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	for(int i = 0; i < (int)guiObjectList.size(); ++i) {
+		if(NSPointInRect(mouseLoc, [guiObjectList[i]->getNativeObj() frame])) {
+			[self select:i];
+			res = true;
+			break;
+		}
+	}
+	PyGILState_Release(gstate);
 	
 	if(!res)
 		[super mouseDown:theEvent];
@@ -744,9 +748,8 @@ final:
 
 - (void)draggingExited:(id<NSDraggingInfo>)sender
 {
-//				self.guiCursor.setDrawsBackground_(False)
-//				self.index = None
-
+	[dragCursor setDrawsBackground:NO];
+	dragIndex = -1;
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
