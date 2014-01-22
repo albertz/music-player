@@ -11,6 +11,97 @@
 #import "PyObjCBridge.h"
 #include <vector>
 
+struct FunctionWrapper {
+    PyObject_HEAD
+	PyObject* wrap;
+	PyObject* weakrefs;
+};
+
+static void FunctionWrapper_dealloc(PyObject* obj) {
+	Py_CLEAR(((FunctionWrapper*)obj)->wrap);
+	if(((FunctionWrapper*)obj)->weakrefs)
+		PyObject_ClearWeakRefs(obj);
+	Py_TYPE(obj)->tp_free(obj);
+}
+
+
+static PyObject* FunctionWrapper_call(PyObject* obj, PyObject* args, PyObject* kw) {
+	PyObject* wrap = ((FunctionWrapper*)obj)->wrap;
+	if(!wrap) {
+		PyErr_Format(PyExc_ValueError, "FunctionWrapper: wrap object is not set");
+		return NULL;
+	}
+	return PyObject_Call(wrap, args, kw);
+}
+
+static int FunctionWrapper_traverse(PyObject* obj, visitproc visit, void* arg) {
+	Py_VISIT(((FunctionWrapper*)obj)->wrap);
+	return 0;
+}
+
+static int FunctionWrapper_clear(PyObject* obj) {
+	Py_CLEAR(((FunctionWrapper*)obj)->wrap);
+	return 0;
+}
+
+PyTypeObject FunctionWrapper_Type = {
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    "FunctionWrapper",
+    sizeof(FunctionWrapper),
+    0,
+    FunctionWrapper_dealloc,                   /* tp_dealloc */
+    0,                                          /* tp_print */
+    0,                                          /* tp_getattr */
+    0,                                          /* tp_setattr */
+    0,											/* tp_compare */
+    0,											/* tp_repr */
+    0,                                          /* tp_as_number */
+    0,                                          /* tp_as_sequence */
+    0,                                          /* tp_as_mapping */
+    0,											/* tp_hash */
+    FunctionWrapper_call,                       /* tp_call */
+    0,                                          /* tp_str */
+    0,											/* tp_getattro */
+    0,                                          /* tp_setattro */
+    0,                                          /* tp_as_buffer */
+    Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_HAVE_GC,/* tp_flags */
+    0,                                          /* tp_doc */
+    FunctionWrapper_traverse,                /* tp_traverse */
+    FunctionWrapper_clear,                       /* tp_clear */
+    0,                                           /* tp_richcompare */
+    offsetof(FunctionWrapper, weakrefs),        /* tp_weaklistoffset */
+    0,                                          /* tp_iter */
+    0,                                          /* tp_iternext */
+    0,                                          /* tp_methods */
+    0,											/* tp_members */
+    0,											/* tp_getset */
+    0,                                          /* tp_base */
+    0,                                          /* tp_dict */
+};
+
+static FunctionWrapper* newFunctionWrapper(PyObject* wrap) {
+	if(!wrap) {
+		PyErr_Format(PyExc_ValueError, "newFunctionWrapper: wrap must not be NULL");
+		return NULL;
+	}
+	if(PyType_Ready(&FunctionWrapper_Type) < 0) {
+		PyErr_Format(PyExc_SystemError, "failed to init FunctionWrapper_Type");
+		return NULL;
+	}
+	PyObject* res = PyObject_CallObject((PyObject*) &FunctionWrapper_Type, NULL);
+	if(!res) return NULL;
+	if(!PyType_IsSubtype(Py_TYPE(res), &FunctionWrapper_Type)) {
+		PyErr_Format(PyExc_SystemError, "FunctionWrapper constructs invalid object");
+		Py_DECREF(res);
+		return NULL;
+	}
+	FunctionWrapper* wrapper = (FunctionWrapper*) res;
+	wrapper->wrap = wrap;
+	Py_XINCREF(wrap);
+	return wrapper;
+}
+
+
 @implementation ListControlView
 {
 // Note that we can keep all Python references only in guiObjectList because that
@@ -219,29 +310,56 @@
 			auto registerEv = [=](const char* evName, PyObject* callback /* overtake */) {
 				if(!callback) {
 					printf("Cocoa ListControl: cannot create list callback for %s\n", evName);
-					if(PyErr_Occurred())
-						PyErr_Print();
+					if(PyErr_Occurred()) PyErr_Print();
 					return;
 				}
+				
+				PyObject* control = NULL;
 				PyObject* event = NULL;
 				PyObject* res = NULL;
+				PyObject* callbackWrapper = NULL;
+				
+				control = PyWeakref_GET_OBJECT(controlRef);
+				if(!control) goto finalRegisterEv;
+				
+				// callback is PyObject(NSBlock) which is not weakref-able.
+				// Thus, we create a wrapper around it which is.
+				callbackWrapper = (PyObject*) newFunctionWrapper(callback);
+				if(!callbackWrapper) {
+					printf("Cocoa ListControl: cannot create callback wrapper for %s\n", evName);
+					goto finalRegisterEv;
+				}
+				Py_CLEAR(callback); // not needed anymore. the wrapper holds the ref.
+												
 				event = PyObject_GetAttrString(list, evName);
 				if(!event) {
 					printf("Cocoa ListControl: cannot get list event for %s\n", evName);
-					if(PyErr_Occurred())
-						PyErr_Print();
 					goto finalRegisterEv;
 				}
-				res = PyObject_CallMethod(event, (char*)"register", (char*)"(O)", callback);
+				
+				res = PyObject_CallMethod(event, (char*)"register", (char*)"(O)", callbackWrapper);
 				if(!res) {
 					printf("Cocoa ListControl: cannot register list event callback for %s\n", evName);
-					if(PyErr_Occurred())
-						PyErr_Print();
+					goto finalRegisterEv;
 				}
+				
+				// And we assign the wrapper-object to the CocoaGuiObject(control),
+				// otherwise there would not be any strong ref to it.
+				// We do this as the last step, so that we do it only if we did not fail so far.
+				char attribName[255];
+				snprintf(attribName, sizeof(attribName), "_%s", evName);
+				if(PyObject_SetAttrString(control, attribName, callbackWrapper) != 0) {
+					printf("Cocoa ListControl: failed to set %s\n", attribName);
+					goto finalRegisterEv;
+				}
+
 			finalRegisterEv:
+				if(PyErr_Occurred())
+					PyErr_Print();
 				Py_XDECREF(res);
 				Py_XDECREF(event);
-				Py_DECREF(callback);
+				Py_XDECREF(callback);
+				Py_XDECREF(callbackWrapper);
 			};
 			// Note that in PyObjCPointerWrapper_Init, we PyObjCPointerWrapper_Register the (PyObject*) type,
 			// and NSBlock's are supported by PyObjC, so this should hopefully work.
