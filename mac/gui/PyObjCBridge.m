@@ -12,3 +12,7 @@ id PyObjCObj_GetNativeObj(PyObject* obj) {
 PyObject* PyObjCObj_NewNative(id obj) {
 	return PyObjCObject_New(obj, PyObjCObject_kDEFAULT, YES);
 }
+
+PyObject* PyObjCObj_IdToPy(id obj) {
+	return PyObjC_IdToPython(obj);
+}

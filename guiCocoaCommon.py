@@ -253,7 +253,7 @@ except Exception:
 try:
 	class DragSource(AppKit.NSObject):
 		onDragEnded = None
-		onInternalDrag = None
+		control = None
 		@objc.typedSelector('i@:@i')
 		def draggingSession_sourceOperationMaskForDraggingContext_(self, session, context):
 			return AppKit.NSDragOperationAll

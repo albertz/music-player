@@ -375,11 +375,7 @@ def _buildControlObject_post(control):
 	if backgroundColor(control):
 		subview.setDrawsBackground_(True)
 		subview.setBackgroundColor_(backgroundColor(control))
-	
-	@ExceptionCatcherDecorator
-	def onInternalDrag(target, listindex, filenames):
-		attrChain(target, "dragHandler", "onInternalDrag")(control, listindex, filenames)
-	
+
 	@ExceptionCatcherDecorator
 	def onMouseDragged(ev):
 		guiObj = control
@@ -395,7 +391,7 @@ def _buildControlObject_post(control):
 		dragPosition.x -= 16
 		dragPosition.y += 32
 		dragSource = DragSource.alloc().init()
-		dragSource.onInternalDrag = onInternalDrag
+		dragSource.control = control
 		subview.dragImage_at_offset_event_pasteboard_source_slideBack_(
 			dragImage,
 			dragPosition,

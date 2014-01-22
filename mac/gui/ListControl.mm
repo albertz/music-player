@@ -849,14 +849,20 @@ final:
 				goto finalCall;
 			}
 
-			if([[sender draggingSource] respondsToSelector:@selector(onInternalDrag:withIndex:withFiles:)]) {
-				Py_INCREF(control);
-				dispatch_async(dispatch_get_main_queue(), ^{
-					PyGILState_STATE gstate = PyGILState_Ensure();
-					[[sender draggingSource] onInternalDrag:control withIndex:index withFiles:filenames];
-					Py_DECREF(control);
-					PyGILState_Release(gstate);
-				});
+			{
+				id dragSource = [sender draggingSource];
+				PyObject* dragSourcePy = PyObjCObj_IdToPy(dragSource);
+				Py_XDECREF(dragSourcePy);
+				
+				if([dragSource respondsToSelector:@selector(onInternalDrag:withIndex:withFiles:)]) {
+					Py_INCREF(control);
+					dispatch_async(dispatch_get_main_queue(), ^{
+						PyGILState_STATE gstate = PyGILState_Ensure();
+						[[sender draggingSource] onInternalDrag:control withIndex:index withFiles:filenames];
+						Py_DECREF(control);
+						PyGILState_Release(gstate);
+					});
+				}
 			}
 			
 		finalCall:
@@ -887,7 +893,7 @@ final:
 		goto final;
 	}
 
-	if((PyObject*) control == sourceControl->parent) { // internal drag to myself
+	if(control == sourceControl) { // internal drag to myself
 		int oldIndex = selectionIndex;
 		// check if the index is still correct
 		if(oldIndex >= 0 && oldIndex < guiObjectList.size() && guiObjectList[oldIndex] == sourceControl) {
