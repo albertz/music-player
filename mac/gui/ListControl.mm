@@ -10,38 +10,62 @@
 #include "PythonHelpers.h"
 #import "PyObjCBridge.h"
 #include <vector>
+#include <boost/function.hpp>
+
+typedef boost::function<PyObject*(PyObject* args, PyObject* kw)> PyCallback;
 
 struct FunctionWrapper {
     PyObject_HEAD
-	PyObject* wrap;
+	PyCallback func;
 	PyObject* weakrefs;
 };
 
+static PyObject* FunctionWrapper_alloc(PyTypeObject *type, Py_ssize_t nitems) {
+    PyObject *obj;
+    const size_t size = _PyObject_VAR_SIZE(type, nitems+1);
+    /* note that we need to add one, for the sentinel */
+	
+    if (PyType_IS_GC(type))
+        obj = _PyObject_GC_Malloc(size);
+    else
+        obj = (PyObject *)PyObject_MALLOC(size);
+	
+    if (obj == NULL)
+        return PyErr_NoMemory();
+	
+	// This is why we need this custom alloc: To call the C++ constructor.
+    memset(obj, '\0', size);
+	new ((FunctionWrapper*) obj) FunctionWrapper();
+	
+    if (type->tp_flags & Py_TPFLAGS_HEAPTYPE)
+        Py_INCREF(type);
+	
+    if (type->tp_itemsize == 0)
+        PyObject_INIT(obj, type);
+    else
+        (void) PyObject_INIT_VAR((PyVarObject *)obj, type, nitems);
+	
+    if (PyType_IS_GC(type))
+        _PyObject_GC_TRACK(obj);
+    return obj;
+}
+
 static void FunctionWrapper_dealloc(PyObject* obj) {
-	Py_CLEAR(((FunctionWrapper*)obj)->wrap);
-	if(((FunctionWrapper*)obj)->weakrefs)
+	FunctionWrapper* wrapper = (FunctionWrapper*) obj;
+	if(wrapper->weakrefs)
 		PyObject_ClearWeakRefs(obj);
+	wrapper->~FunctionWrapper();
 	Py_TYPE(obj)->tp_free(obj);
 }
 
 
 static PyObject* FunctionWrapper_call(PyObject* obj, PyObject* args, PyObject* kw) {
-	PyObject* wrap = ((FunctionWrapper*)obj)->wrap;
-	if(!wrap) {
-		PyErr_Format(PyExc_ValueError, "FunctionWrapper: wrap object is not set");
+	PyCallback func = ((FunctionWrapper*)obj)->func;
+	if(!func) {
+		PyErr_Format(PyExc_ValueError, "FunctionWrapper: function is not set");
 		return NULL;
 	}
-	return PyObject_Call(wrap, args, kw);
-}
-
-static int FunctionWrapper_traverse(PyObject* obj, visitproc visit, void* arg) {
-	Py_VISIT(((FunctionWrapper*)obj)->wrap);
-	return 0;
-}
-
-static int FunctionWrapper_clear(PyObject* obj) {
-	Py_CLEAR(((FunctionWrapper*)obj)->wrap);
-	return 0;
+	return func(args, kw);
 }
 
 PyTypeObject FunctionWrapper_Type = {
@@ -66,8 +90,8 @@ PyTypeObject FunctionWrapper_Type = {
     0,                                          /* tp_as_buffer */
     Py_TPFLAGS_HAVE_CLASS | Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_HAVE_GC,/* tp_flags */
     0,                                          /* tp_doc */
-    FunctionWrapper_traverse,                /* tp_traverse */
-    FunctionWrapper_clear,                       /* tp_clear */
+    0,											/* tp_traverse */
+    0,											/* tp_clear */
     0,                                           /* tp_richcompare */
     offsetof(FunctionWrapper, weakrefs),        /* tp_weaklistoffset */
     0,                                          /* tp_iter */
@@ -81,13 +105,13 @@ PyTypeObject FunctionWrapper_Type = {
 	0,					/* tp_descr_set */
 	0,					/* tp_dictoffset */
 	0,					/* tp_init */
-	0,					/* tp_alloc */
+	FunctionWrapper_alloc,			/* tp_alloc */
 	PyType_GenericNew,				/* tp_new */
 };
 
-static FunctionWrapper* newFunctionWrapper(PyObject* wrap) {
-	if(!wrap) {
-		PyErr_Format(PyExc_ValueError, "newFunctionWrapper: wrap must not be NULL");
+static FunctionWrapper* newFunctionWrapper(PyCallback func) {
+	if(!func) {
+		PyErr_Format(PyExc_ValueError, "newFunctionWrapper: func must not be NULL");
 		return NULL;
 	}
 	if(PyType_Ready(&FunctionWrapper_Type) < 0) {
@@ -102,8 +126,7 @@ static FunctionWrapper* newFunctionWrapper(PyObject* wrap) {
 		return NULL;
 	}
 	FunctionWrapper* wrapper = (FunctionWrapper*) res;
-	wrapper->wrap = wrap;
-	Py_XINCREF(wrap);
+	wrapper->func = func;
 	return wrapper;
 }
 
@@ -313,13 +336,7 @@ static FunctionWrapper* newFunctionWrapper(PyObject* wrap) {
 		// We expect the list ( = control->subjectObject ) to support a certain interface,
 		// esp. to have onInsert, onRemove and onClear as utils.Event().
 		{
-			auto registerEv = [=](const char* evName, PyObject* callback /* overtake */) {
-				if(!callback) {
-					printf("Cocoa ListControl: cannot create list callback for %s\n", evName);
-					if(PyErr_Occurred()) PyErr_Print();
-					return;
-				}
-				
+			auto registerEv = [=](const char* evName, PyCallback func) {
 				PyObject* control = NULL;
 				PyObject* event = NULL;
 				PyObject* res = NULL;
@@ -328,14 +345,11 @@ static FunctionWrapper* newFunctionWrapper(PyObject* wrap) {
 				control = PyWeakref_GET_OBJECT(controlRef);
 				if(!control) goto finalRegisterEv;
 				
-				// callback is PyObject(NSBlock) which is not weakref-able.
-				// Thus, we create a wrapper around it which is.
-				callbackWrapper = (PyObject*) newFunctionWrapper(callback);
+				callbackWrapper = (PyObject*) newFunctionWrapper(func);
 				if(!callbackWrapper) {
 					printf("Cocoa ListControl: cannot create callback wrapper for %s\n", evName);
 					goto finalRegisterEv;
 				}
-				Py_CLEAR(callback); // not needed anymore. the wrapper holds the ref.
 												
 				event = PyObject_GetAttrString(list, evName);
 				if(!event) {
@@ -364,15 +378,35 @@ static FunctionWrapper* newFunctionWrapper(PyObject* wrap) {
 					PyErr_Print();
 				Py_XDECREF(res);
 				Py_XDECREF(event);
-				Py_XDECREF(callback);
 				Py_XDECREF(callbackWrapper);
 			};
-			// Note that in PyObjCPointerWrapper_Init, we PyObjCPointerWrapper_Register the (PyObject*) type,
-			// and NSBlock's are supported by PyObjC, so this should hopefully work.
-			// The call is handled via PyObjCBlock_Call and the Python GIL is released in it.
-			registerEv("onInsert", PyObjCObj_NewNative(^(int idx, PyObject* v){ [self onInsert:idx withValue:v]; }));
-			registerEv("onRemove", PyObjCObj_NewNative(^(int idx){ [self onRemove:idx]; }));
-			registerEv("onClear", PyObjCObj_NewNative(^{ [self onClear]; }));
+
+			registerEv("onInsert", [=](PyObject* args, PyObject* kws) {
+				int idx; PyObject* v;
+				static const char *kwlist[] = {"index", "value", NULL};
+				if(!PyArg_ParseTupleAndKeywords(args, kws, "iO:onInsert", (char**)kwlist, &idx, &v))
+					return (PyObject*) NULL;
+				[self onInsert:idx withValue:v];
+				Py_INCREF(Py_None);
+				return Py_None;
+			});
+			registerEv("onRemove", [=](PyObject* args, PyObject* kws) {
+				int idx;
+				static const char *kwlist[] = {"index", NULL};
+				if(!PyArg_ParseTupleAndKeywords(args, kws, "i:onRemove", (char**)kwlist, &idx))
+					return (PyObject*) NULL;
+				[self onRemove:idx];
+				Py_INCREF(Py_None);
+				return Py_None;
+			});
+			registerEv("onClear", [=](PyObject* args, PyObject* kws) {
+				static const char *kwlist[] = {NULL};
+				if(!PyArg_ParseTupleAndKeywords(args, kws, ":onClear", (char**)kwlist))
+					return (PyObject*) NULL;
+				[self onClear];
+				Py_INCREF(Py_None);
+				return Py_None;
+			});
 		}
 		
 		lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
