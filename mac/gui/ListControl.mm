@@ -562,8 +562,8 @@ final:
 				}
 				PyObject_SetAttrString(ctx, "curSelectedSong", subCtr->subjectObject);
 			finalCurSong:
-				Py_XDECREF(ctx);
 				if(PyErr_Occurred()) PyErr_Print();
+				Py_XDECREF(ctx);
 			}
 		}
 		
