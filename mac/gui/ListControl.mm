@@ -154,8 +154,16 @@ static FunctionWrapper* newFunctionWrapper(PyCallback func) {
 
 - (void)clearOwn
 {
+	// We expect to have the Python GIL.
+	
 	if(![NSThread isMainThread]) {
-		dispatch_sync(dispatch_get_main_queue(), ^{ [self clearOwn]; });
+		Py_BEGIN_ALLOW_THREADS
+		dispatch_sync(dispatch_get_main_queue(), ^{
+			PyGILState_STATE gstate = PyGILState_Ensure();
+			[self clearOwn];
+			PyGILState_Release(gstate);
+		});
+		Py_END_ALLOW_THREADS
 		return;
 	}
 	
@@ -435,12 +443,14 @@ static FunctionWrapper* newFunctionWrapper(PyCallback func) {
 // Callback for subjectObject.
 - (void)onInsert:(int)index withValue:(PyObject*) value
 {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+
 	if(![NSThread isMainThread]) {
+		Py_BEGIN_ALLOW_THREADS
 		dispatch_sync(dispatch_get_main_queue(), ^{ [self onInsert:index withValue:value]; });
+		Py_END_ALLOW_THREADS
 		return;
 	}
-
-	PyGILState_STATE gstate = PyGILState_Ensure();
 
 	if(canHaveFocus && selectionIndex >= 0) {
 		if(index <= selectionIndex) selectionIndex += 1;
@@ -461,13 +471,15 @@ static FunctionWrapper* newFunctionWrapper(PyCallback func) {
 // Callback for subjectObject.
 - (void)onRemove:(int)index
 {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+
 	if(![NSThread isMainThread]) {
+		Py_BEGIN_ALLOW_THREADS
 		dispatch_sync(dispatch_get_main_queue(), ^{ [self onRemove:index]; });
+		Py_END_ALLOW_THREADS
 		return;
 	}
 	
-	PyGILState_STATE gstate = PyGILState_Ensure();
-
 	if(canHaveFocus && selectionIndex >= 0) {
 		if(index < selectionIndex) selectionIndex -= 1;
 		else if(index == selectionIndex) [self deselect];
@@ -489,12 +501,15 @@ static FunctionWrapper* newFunctionWrapper(PyCallback func) {
 // Callback for subjectObject.
 - (void)onClear
 {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+
 	if(![NSThread isMainThread]) {
+		Py_BEGIN_ALLOW_THREADS
 		dispatch_sync(dispatch_get_main_queue(), ^{ [self onClear]; });
+		Py_END_ALLOW_THREADS
 		return;
 	}
 
-	PyGILState_STATE gstate = PyGILState_Ensure();
 	selectionIndex = -1;
 	[self clearOwn];
 	PyGILState_Release(gstate);
@@ -898,7 +913,13 @@ final:
 - (CocoaGuiObject*)buildControlForIndex:(int)index andValue:(PyObject*)value {
 	if(![NSThread isMainThread]) {
 		__block CocoaGuiObject* res = NULL;
-		dispatch_sync(dispatch_get_main_queue(), ^{ res = [self buildControlForIndex:index andValue:value]; });
+		Py_BEGIN_ALLOW_THREADS
+		dispatch_sync(dispatch_get_main_queue(), ^{
+			PyGILState_STATE gstate = PyGILState_Ensure();
+			res = [self buildControlForIndex:index andValue:value];
+			PyGILState_Release(gstate);
+		});
+		Py_END_ALLOW_THREADS
 		return res;
 	}
 
