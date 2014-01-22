@@ -11,7 +11,7 @@ from Song import Song
 from collections import deque
 from threading import RLock
 
-class RecentlyplayedList:
+class RecentlyplayedList(object):
 	GuiLimit = 5
 	Limit = 500
 	def __init__(self, list=[], previous=None, index=0):
@@ -44,8 +44,8 @@ class RecentlyplayedList:
 				self.index += 1
 				self.previous = newList
 				self.list = deque()
-			self.onInsert(guiOldLen, song)
-			if guiOldLen == self.GuiLimit: self.onRemove(0)
+			self.onInsert.push(guiOldLen, song)
+			if guiOldLen == self.GuiLimit: self.onRemove.push(0)
 	def getLastN(self, n):
 		with self.lock:
 			#return list(self.list)[-n:] # not using this for now as a bit too heavy. I timeit'd it. this is 14 times slower for n=10, len(l)=10000
@@ -63,9 +63,13 @@ class RecentlyplayedList:
 			betterRepr(self.previous),
 			self.index)
 	
-	def onInsert(self, index, value): pass
-	def onRemove(self, index): pass
-	def onClear(self): pass
+	@initBy
+	def onInsert(self): return Event() # (index, value)
+	@initBy
+	def onRemove(self): return Event() # (index)
+	@initBy
+	def onClear(self): return Event() # ()
+
 	def __getitem__(self, index):
 		with self.lock:
 			return self.getLastN(self.GuiLimit)[-index - 1]
