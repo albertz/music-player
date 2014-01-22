@@ -828,7 +828,7 @@ final:
 				PyTuple_SET_ITEM(pyFilenames, i, pyStr);
 			}
 
-			res = PyObject_CallFunction(dragHandler, (char*)"(OOO)", parent->subjectObject, control->subjectObject, index, pyFilenames);
+			res = PyObject_CallFunction(dragHandler, (char*)"(OOiO)", parent->subjectObject, control->subjectObject, index, pyFilenames);
 			if(!res) {
 				printf("Cocoa ListControl performDragOperation: dragHandler failed\n");
 				goto finalCall;
