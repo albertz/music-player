@@ -44,6 +44,7 @@
 
 	outstandingScrollviewUpdate = FALSE;
 	selectionIndex = -1;
+	PyObject* list = NULL;
 	
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
@@ -52,30 +53,42 @@
 
 		canHaveFocus = attrChain_bool_default((PyObject*) control, "attr.canHaveFocus", false);
 		autoScrolldown = attrChain_bool_default((PyObject*) control, "attr.autoScrolldown", false);
+
+		list = control->subjectObject;
+		Py_XINCREF(list); // will be decrefed in initial fill below
 		
 		PyGILState_Release(gstate);
 	}
 
+	if(!list) {
+		printf("Cocoa ListControl: subjectObject is NULL\n");
+		return self;
+	}
+
 	// do initial fill
-	PyObject* list = control->subjectObject;
-	if(!list)
-		Py_FatalError("Cocoa ListControl: subjectObject is NULL");
-	Py_INCREF(list); // will be decrefed below
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		
-		PyObject* lock = PyObject_GetAttrString(list, "lock");
+		PyObject* lock = NULL;
+		PyObject* lockEnterRes = NULL;
+		PyObject* lockExitRes = NULL;
+		
+		// We must lock the list.lock because we must ensure that we have the
+		// data in sync.
+		lock = PyObject_GetAttrString(list, "lock");
 		if(!lock) {
+			printf("Cocoa ListControl: list.lock not found\n");
 			if(PyErr_Occurred())
 				PyErr_Print();
-			Py_FatalError("Cocoa ListControl: list.lock not found");
+			goto finalInitialFill;
 		}
 		
-		PyObject* lockEnterRes = PyObject_CallMethod(lock, (char*)"__enter__", NULL);
+		lockEnterRes = PyObject_CallMethod(lock, (char*)"__enter__", NULL);
 		if(!lockEnterRes) {
+			printf("Cocoa ListControl: list.lock.__enter__ failed\n");
 			if(PyErr_Occurred())
 				PyErr_Print();
-			Py_FatalError("Cocoa ListControl: list.lock.__enter__ failed");
+			goto finalInitialFill;
 		}
 		
 //		import __builtin__
@@ -94,43 +107,51 @@
 		
 		// We expect the list ( = control->subjectObject ) to support a certain interface,
 		// esp. to have onInsert, onRemove and onClear as utils.Event().
-		auto registerEv = [=](const char* evName, PyObject* callback /* overtake */) {
-			if(!callback) {
-				if(PyErr_Occurred())
-					PyErr_Print();
-				Py_FatalError("Cocoa ListControl: cannot create list callback");
-			}
-			PyObject* event = PyObject_GetAttrString(list, evName);
-			if(!event) {
-				if(PyErr_Occurred())
-					PyErr_Print();
-				Py_FatalError("Cocoa ListControl: cannot get list event");
-			}
-			PyObject* res = PyObject_CallMethod(event, (char*)"register", (char*)"(O)", callback);
-			if(!res) {
-				if(PyErr_Occurred())
-					PyErr_Print();
-				Py_FatalError("Cocoa ListControl: cannot register list event callback");
-			}
-			Py_DECREF(res);
-			Py_DECREF(event);
-			Py_DECREF(callback);
-		};
-		registerEv("onInsert", PyObjCObj_NewNative(^(int idx, PyObject* v){ [self onInsert:idx withValue:v]; }));
-		registerEv("onRemove", PyObjCObj_NewNative(^(int idx){ [self onRemove:idx]; }));
-		registerEv("onClear", PyObjCObj_NewNative(^{ [self onClear]; }));
-
-		PyObject* lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
-		if(!lockExitRes) {
-			if(PyErr_Occurred())
-				PyErr_Print();
-			Py_FatalError("Cocoa ListControl: list.lock.__exit__ failed");
+		{
+			auto registerEv = [=](const char* evName, PyObject* callback /* overtake */) {
+				if(!callback) {
+					printf("Cocoa ListControl: cannot create list callback for %s\n", evName);
+					if(PyErr_Occurred())
+						PyErr_Print();
+					return;
+				}
+				PyObject* event = NULL;
+				PyObject* res = NULL;
+				event = PyObject_GetAttrString(list, evName);
+				if(!event) {
+					printf("Cocoa ListControl: cannot get list event for %s\n", evName);
+					if(PyErr_Occurred())
+						PyErr_Print();
+					goto finalRegisterEv;
+				}
+				res = PyObject_CallMethod(event, (char*)"register", (char*)"(O)", callback);
+				if(!res) {
+					printf("Cocoa ListControl: cannot register list event callback for %s\n", evName);
+					if(PyErr_Occurred())
+						PyErr_Print();
+				}
+			finalRegisterEv:
+				Py_XDECREF(res);
+				Py_XDECREF(event);
+				Py_DECREF(callback);
+			};
+			registerEv("onInsert", PyObjCObj_NewNative(^(int idx, PyObject* v){ [self onInsert:idx withValue:v]; }));
+			registerEv("onRemove", PyObjCObj_NewNative(^(int idx){ [self onRemove:idx]; }));
+			registerEv("onClear", PyObjCObj_NewNative(^{ [self onClear]; }));
 		}
 		
-		Py_DECREF(lockEnterRes);
-		Py_DECREF(lockExitRes);
-		Py_DECREF(lock);
-		Py_DECREF(list);
+		lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
+		if(!lockExitRes) {
+			printf("Cocoa ListControl: list.lock.__exit__ failed\n");
+			if(PyErr_Occurred())
+				PyErr_Print();
+		}
+
+	finalInitialFill:
+		Py_XDECREF(lockEnterRes);
+		Py_XDECREF(lockExitRes);
+		Py_XDECREF(lock);
+		Py_XDECREF(list);
 		
 		PyGILState_Release(gstate);
 	});
@@ -333,6 +354,13 @@
 	if(!res)
 		[super mouseDown:theEvent];
 }
+
+- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender
+{
+	return YES;
+}
+
+
 
 - (void)childIter:(ChildIterCallback)block
 {

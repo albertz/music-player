@@ -338,7 +338,7 @@ def buildControlList(control):
 								wait=False)
 					utils.daemonThreadCall(doDragHandler, name="DragHandler")
 					return True
-				except:
+				except Exception:
 					sys.excepthook(*sys.exc_info())
 					return False
 			@ExceptionCatcherDecorator

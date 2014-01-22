@@ -10,6 +10,7 @@
 #include "CocoaGuiObject.hpp"
 #include "PyObjCBridge.h"
 #include "PythonHelpers.h"
+#import "ControlWithChilds.hpp"
 
 void runOnMainQueue(void (^block)(void)) {
 	if([NSThread isMainThread])
