@@ -534,32 +534,53 @@ final:
 - (void)select:(int)index
 {
 	[self deselect];
-	if(index < 0 || index >= guiObjectList.size())
-		return;
-	selectionIndex = index;
-	
-	CocoaGuiObject* subCtr = guiObjectList[index];
-	NSView* childView = subCtr->getNativeObj();
-	if(childView && [childView respondsToSelector:@selector(setBackgroundColor:)])
-		[childView performSelector:@selector(setBackgroundColor:) withObject:[NSColor selectedTextBackgroundColor]];
-	
-//				# special handling for gui.ctx().curSelectedSong
-//				if control.guiObjectList[index].subjectObject.__class__.__name__ == "Song":
-//					import gui
-//					gui.ctx().curSelectedSong = control.guiObjectList[index].subjectObject
 
-	dispatch_async(dispatch_get_main_queue(), ^{
-		if(!childView || ![childView window]) return; // window closed or removed from window in the meantime
-		NSRect objFrame = [childView frame];
-		NSRect visibleFrame = [[scrollview contentView] documentVisibleRect];
-		if(objFrame.origin.y < visibleFrame.origin.y)
-			[[scrollview contentView] scrollToPoint:NSMakePoint(0, objFrame.origin.y)];
-		else if(objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height)
-			[[scrollview contentView] scrollToPoint:
-			 NSMakePoint(0, objFrame.origin.y + objFrame.size.height - [scrollview contentSize].height)];
-		[scrollview reflectScrolledClipView:[scrollview contentView]];
-	});
+	PyGILState_STATE gstate = PyGILState_Ensure();
 	
+	if(index >= 0 && index < guiObjectList.size()) {
+		selectionIndex = index;
+		
+		CocoaGuiObject* subCtr = guiObjectList[index];
+		NSView* childView = subCtr->getNativeObj();
+		if(childView && [childView respondsToSelector:@selector(setBackgroundColor:)])
+			[childView performSelector:@selector(setBackgroundColor:) withObject:[NSColor selectedTextBackgroundColor]];
+		
+		// special handling for gui.ctx().curSelectedSong
+		if(subCtr->subjectObject) {
+			PyTypeObject* t = Py_TYPE(subCtr->subjectObject);
+			if(strcmp(t->tp_name, "Song") == 0) {
+				PyObject* mod = getModule("gui"); // borrowed ref
+				PyObject* ctx = NULL;
+				if(!mod) {
+					printf("Cocoa ListControl: cannot get gui module\n");
+					goto finalCurSong;
+				}
+				ctx = PyObject_CallMethod(mod, (char*)"ctx", NULL);
+				if(!ctx) {
+					printf("Cocoa ListControl: gui.ctx() failed\n");
+					goto finalCurSong;
+				}
+				PyObject_SetAttrString(ctx, "curSelectedSong", subCtr->subjectObject);
+			finalCurSong:
+				Py_XDECREF(ctx);
+				if(PyErr_Occurred()) PyErr_Print();
+			}
+		}
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if(!childView || ![childView window]) return; // window closed or removed from window in the meantime
+			NSRect objFrame = [childView frame];
+			NSRect visibleFrame = [[scrollview contentView] documentVisibleRect];
+			if(objFrame.origin.y < visibleFrame.origin.y)
+				[[scrollview contentView] scrollToPoint:NSMakePoint(0, objFrame.origin.y)];
+			else if(objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height)
+				[[scrollview contentView] scrollToPoint:
+				 NSMakePoint(0, objFrame.origin.y + objFrame.size.height - [scrollview contentSize].height)];
+			[scrollview reflectScrolledClipView:[scrollview contentView]];
+		});
+	}
+	
+	PyGILState_Release(gstate);
 }
 
 - (void)doScrollviewUpdate
