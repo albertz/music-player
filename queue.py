@@ -83,14 +83,10 @@ class ListWrapper(object): # implements the List trait
 		self.owner = owner
 		self.lock = owner.lock
 		self.list = list
-
-	@initBy
-	def onInsert(self): return Event() # (index, value)
-	@initBy
-	def onRemove(self): return Event() # (index)
-	@initBy
-	def onClear(self): return Event() # ()
-	
+		self.onInsert = Event() # (index, value)
+		self.onRemove = Event() # (index)
+		self.onClear = Event() # ()
+		
 	def insert(self, index, value):
 		with self.lock:
 			self.list.insert(index, value)
