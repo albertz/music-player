@@ -16,6 +16,8 @@ class AtomicMutex {
 	boost::atomic<bool> lock;
 
 public:
+	AtomicMutex() : lock(false) {}
+	
 	struct Scope : boost::noncopyable {
 		AtomicMutex& m;
 		Scope(AtomicMutex& _m) : m(_m) {
