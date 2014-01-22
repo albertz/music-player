@@ -26,9 +26,22 @@
 	int dragIndex;
 }
 
+- (void)clear
+{
+	std::vector<CocoaGuiObject*> listCopy;
+	std::swap(guiObjectList, listCopy);
+	for(CocoaGuiObject* subCtr : listCopy) {
+		NSView* child = subCtr->getNativeObj();
+		if(child) [child removeFromSuperview];
+		//		subCtr.obsolete = True
+		Py_DECREF(subCtr);
+	}
+}
+
 - (void)dealloc
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
+	[self clear];
 	Py_CLEAR(subjectList);
 	Py_CLEAR(dragHandler);
 	PyGILState_Release(gstate);
@@ -224,13 +237,14 @@
 // Callback for subjectObject.
 - (void)onInsert:(int)index withValue:(PyObject*) value
 {
+	// TODO: is this with Python GIL?
+	
 	if(canHaveFocus && selectionIndex >= 0) {
 		if(index <= selectionIndex) selectionIndex += 1;
 	}
-		
-//	control.guiObjectList.insert(index, buildControlForIndex(index, value))
-//	updater.update()
-
+	
+	guiObjectList.insert(guiObjectList.begin() + index, [self buildControlForIndex:index andValue:value]);
+	[self scrollviewUpdate];
 }
 
 // Callback for subjectObject.
@@ -240,61 +254,66 @@
 		if(index < selectionIndex) selectionIndex -= 1;
 		else if(index == selectionIndex) [self deselect];
 	}
+
+	if(index >= 0 && index < guiObjectList.size()) {
+		CocoaGuiObject* subCtr = guiObjectList[index];
+		//	subCtr.obsolete = True
+		NSView* child = subCtr->getNativeObj();
+		if(child) [child removeFromSuperview];
+		guiObjectList.erase(guiObjectList.begin() + index);
+		Py_DECREF(subCtr);
+	}
 	
-//	control.guiObjectList[index].obsolete = True
-//	control.guiObjectList[index].nativeGuiObject.removeFromSuperview()
-//	del control.guiObjectList[index]
-//	updater.update()
-	
+	[self scrollviewUpdate];
 }
 
 // Callback for subjectObject.
 - (void)onClear
 {
 	selectionIndex = -1;
-	
-//	for subCtr in control.guiObjectList:
-//		subCtr.nativeGuiObject.removeFromSuperview()
-//		subCtr.obsolete = True
-//		del control.guiObjectList[:]
-//		updater.update()
-
+	[self clear];
+	[self scrollviewUpdate];
 }
 
 - (void)deselect
 {
-//				if self.index is not None:
-//					control.guiObjectList[self.index].nativeGuiObject.setBackgroundColor_(AppKit.NSColor.textBackgroundColor())
-//					self.index = None
+	if(selectionIndex >= 0 && selectionIndex < guiObjectList.size()) {
+		CocoaGuiObject* subCtr = guiObjectList[selectionIndex];
+		NSView* childView = subCtr->getNativeObj();
+		if(childView && [childView respondsToSelector:@selector(setBackgroundColor:)])
+			[childView performSelector:@selector(setBackgroundColor:) withObject:[NSColor textBackgroundColor]];
+		selectionIndex = -1;
+	}
 }
-
-- (void)select { [self select:-1]; }
 
 - (void)select:(int)index
 {
-//				self.deselect()
-//				if index is None:
-//					if len(control.guiObjectList) == 0: return
-//					index = 0
-//				self.index = index
-//				guiObj = control.guiObjectList[index].nativeGuiObject
-//				guiObj.setBackgroundColor_(AppKit.NSColor.selectedTextBackgroundColor())
-//				
+	[self deselect];
+	if(index < 0 || index >= guiObjectList.size())
+		return;
+	selectionIndex = index;
+	
+	CocoaGuiObject* subCtr = guiObjectList[index];
+	NSView* childView = subCtr->getNativeObj();
+	if(childView && [childView respondsToSelector:@selector(setBackgroundColor:)])
+		[childView performSelector:@selector(setBackgroundColor:) withObject:[NSColor selectedTextBackgroundColor]];
+	
 //				# special handling for gui.ctx().curSelectedSong
 //				if control.guiObjectList[index].subjectObject.__class__.__name__ == "Song":
 //					import gui
 //					gui.ctx().curSelectedSong = control.guiObjectList[index].subjectObject
-//				
-//				def doScrollUpdate():
-//					if not guiObj.window(): return # window closed or removed from window in the meantime
-//					objFrame = guiObj.frame()
-//					visibleFrame = scrollview.contentView().documentVisibleRect()
-//					if objFrame.origin.y < visibleFrame.origin.y:				
-//						scrollview.contentView().scrollToPoint_((0, objFrame.origin.y))
-//					elif objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height:
-//						scrollview.contentView().scrollToPoint_((0, objFrame.origin.y + objFrame.size.height - scrollview.contentSize().height))
-//					scrollview.reflectScrolledClipView_(scrollview.contentView())
-//				do_in_mainthread(doScrollUpdate, wait=False)
+
+	dispatch_async(dispatch_get_main_queue(), ^{
+		if(!childView || ![childView window]) return; // window closed or removed from window in the meantime
+		NSRect objFrame = [childView frame];
+		NSRect visibleFrame = [[scrollview contentView] documentVisibleRect];
+		if(objFrame.origin.y < visibleFrame.origin.y)
+			[[scrollview contentView] scrollToPoint:NSMakePoint(0, objFrame.origin.y)];
+		else if(objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height)
+			[[scrollview.contentView] scrollToPoint:
+			 NSMakePoint(0, objFrame.origin.y + objFrame.size.height - [scrollview contentSize].height)];
+		[scrollview reflectScrolledClipView:[scrollview contentView]];
+	});
 	
 }
 
@@ -329,13 +348,6 @@
 	dispatch_async(dispatch_get_main_queue(), ^{ [self doScrollviewUpdate]; });
 }
 
-- (void)drawRect:(NSRect)dirtyRect
-{
-	[super drawRect:dirtyRect];
-	
-    // Drawing code here.
-}
-
 - (BOOL)acceptsFirstResponder
 {
 	return canHaveFocus;
@@ -344,7 +356,8 @@
 - (BOOL)becomeFirstResponder
 {
 	if(![super becomeFirstResponder]) return NO;
-	[self select];
+	if(selectionIndex < 0)
+		[self select:0];
 	[self setDrawsFocusRing:YES];
 	return YES;
 }
