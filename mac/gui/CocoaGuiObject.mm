@@ -107,7 +107,11 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* child, bool& stop)> callback) {
 	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 
-	if([view respondsToSelector:@selector(childIter:)]);
+	if([view respondsToSelector:@selector(childIter:)]) {
+		[(id<ControlWithChilds>)view childIter:^(GuiObject* child, bool& stop){
+			callback(child, stop);
+		 }];
+	}
 }
 
 NSView* CocoaGuiObject::getNativeObj() {
