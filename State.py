@@ -18,7 +18,13 @@ class RecentlyplayedList(object):
 		self.lock = RLock()
 		self.index = index
 		self.list = deque(list)
-		if previous:
+		# Be careful what we do with `previous` here. If it is not None,
+		# we expect it to be a PersistentObject and we really don't want
+		# to load it here, otherwise *all* of RecentlyplayedList would
+		# be unfolded!
+		# Even `PyObject_IsTrue(previous)` would load it, so just
+		# compare with `None`.
+		if previous is not None:
 			if not getattr(previous, "_isPersistentObject", False):
 				# This was some bug from earlier... Fix it now.
 				print "Warning: RecentlyplayedList.previous is not a PersistentObject"
