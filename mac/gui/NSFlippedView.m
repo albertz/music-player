@@ -76,6 +76,11 @@
 	}
 }
 
+- (BOOL)mouseDownCanMoveWindow
+{
+	return YES;
+}
+
 //		def acceptsFirstResponder(self):
 //			return utils.attrChain(self, "control", "attr", "canHaveFocus", default=False)
 //		def becomeFirstResponder(self):
