@@ -13,7 +13,12 @@
 
 @implementation ListControlView
 {
-	PyWeakReference* subjectList;
+// Note that we can keep all Python references only in guiObjectList because that
+// is handled in childIter: or otherwise in weakrefs.
+// Otherwise, our owner, the CocoaGuiObject.tp_traverse would not find all refs
+// and the GC would not cleanup correctly when there are cyclic refs.
+	PyWeakReference* controlRef;
+	PyWeakReference* subjectListRef;
 	std::vector<CocoaGuiObject*> guiObjectList;
 	NSScrollView* scrollview;
 	NSView* documentView;
@@ -22,7 +27,7 @@
 	BOOL outstandingScrollviewUpdate;
 	int selectionIndex; // for now, a single index. later maybe a range
 	_NSFlippedView* dragCursor;
-	PyWeakReference* dragHandler;
+	PyWeakReference* dragHandlerRef;
 	int dragIndex;
 }
 
@@ -46,9 +51,10 @@
 - (void)dealloc
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
+	Py_CLEAR(controlRef);
+	Py_CLEAR(subjectListRef);
+	Py_CLEAR(dragHandlerRef);
 	[self clearOwn];
-	Py_CLEAR(subjectList);
-	Py_CLEAR(dragHandler);
 	PyGILState_Release(gstate);
 }
 
@@ -70,45 +76,57 @@
 
 	[self setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
 	[self addSubview:scrollview];
-	//view.control = ref(control)
 
-	subjectList = NULL;
+	subjectListRef = NULL;
 	outstandingScrollviewUpdate = FALSE;
 	selectionIndex = -1;
 	dragCursor = nil;
-	dragHandler = NULL;
+	dragHandlerRef = NULL;
 	dragIndex = -1;
 	
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
+		controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
+		if(!controlRef) {
+			printf("Cocoa ListControl: cannot create controlRef\n");
+			goto finalPyInit;
+		}
 		control->OuterSpace = Vec(0,0);
 
 		canHaveFocus = attrChain_bool_default((PyObject*) control, "attr.canHaveFocus", false);
 		autoScrolldown = attrChain_bool_default((PyObject*) control, "attr.autoScrolldown", false);
-
-		PyObject* handler = attrChain((PyObject*) control, "attr.dragHandler");
-		if(!handler)
-			printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
-		if(PyErr_Occurred())
-			PyErr_Print();
-		if(handler) {
-			dragHandler = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
-			Py_CLEAR(handler);
+		
+		{
+			PyObject* handler = attrChain((PyObject*) control, "attr.dragHandler");
+			if(!handler)
+				printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
+			if(PyErr_Occurred())
+				PyErr_Print();
+			if(handler) {
+				dragHandlerRef = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
+				Py_CLEAR(handler);
+			}
 		}
 		
-		if(control->subjectObject)
-			subjectList = (PyWeakReference*) PyWeakref_NewRef(control->subjectObject, NULL);
+		if(!control->subjectObject) {
+			printf("Cocoa ListControl: subjectObject is NULL\n");
+		} else {
+			subjectListRef = (PyWeakReference*) PyWeakref_NewRef(control->subjectObject, NULL);
+			if(!subjectListRef) {
+				printf("Cocoa ListControl: cannot create subjectListRef\n");
+				goto finalPyInit;
+			}
+		}
 		
+	finalPyInit:
+		if(PyErr_Occurred()) PyErr_Print();
 		PyGILState_Release(gstate);
 	}
 
-	if(!subjectList) {
-		printf("Cocoa ListControl: subjectObject is NULL\n");
-		return self;
-	}
+	if(!controlRef || !subjectListRef) return self;
 
-	if(dragHandler) {
+	if(dragHandlerRef) {
 		[self registerForDraggedTypes:@[NSFilenamesPboardType]];
 		dragCursor = [[_NSFlippedView alloc] initWithFrame:NSMakeRect(0,0,[scrollview contentSize].width,2)];
 		[dragCursor setAutoresizingMask:NSViewWidthSizable];
@@ -126,7 +144,7 @@
 		PyObject* list = NULL;
 		std::vector<PyObject*> listCopy;
 		
-		list = PyWeakref_GET_OBJECT(subjectList);
+		list = PyWeakref_GET_OBJECT(subjectListRef);
 		if(!list) goto finalInitialFill;
 		Py_INCREF(list);
 		
@@ -258,7 +276,8 @@
 	
 	if(index < 0 || index > guiObjectList.size()) {
 		printf("Cocoa ListControl onInsert: invalid index %i, size=%zu\n", index, guiObjectList.size());
-		index = guiObjectList.size(); // maybe this recovering works...
+		index = (int) guiObjectList.size(); // maybe this recovering works...
+		assert(index >= 0);
 	}
 	guiObjectList.insert(guiObjectList.begin() + index, [self buildControlForIndex:index andValue:value]);
 	PyGILState_Release(gstate);
@@ -312,7 +331,21 @@
 
 - (void)removeInList:(int)index
 {
-	//						list.remove(index)
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	PyObject* list = PyWeakref_GET_OBJECT(subjectListRef);
+	PyObject* res = NULL;
+	if(!list) goto final;
+	
+	res = PyObject_CallMethod(list, (char*)"remove", (char*)"(i)", index);
+	if(!res || PyErr_Occurred()) {
+		if(PyErr_Occurred())
+			PyErr_Print();
+	}
+	
+final:
+	Py_XDECREF(list);
+	Py_XDECREF(res);
+	PyGILState_Release(gstate);
 }
 
 - (void)deselect
@@ -574,10 +607,27 @@
 }
 
 - (CocoaGuiObject*)buildControlForIndex:(int)index andValue:(PyObject*)value {
-
-	CocoaGuiObject* subCtr;
+	assert(value);
+	CocoaGuiObject* subCtr = NULL;
 	
+	subCtr = (CocoaGuiObject*) PyObject_CallObject((PyObject*) &CocoaGuiObject_Type, NULL);
+	if(!subCtr) {
+		printf("Cocoa ListControl buildControlForIndex: failed to create CocoaGuiObject\n");
+		if(PyErr_Occurred())
+			PyErr_Print();
+		return NULL;
+	}
 
+	if(!PyType_IsSubtype(Py_TYPE(subCtr), &CocoaGuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "Cocoa ListControl buildControlForIndex: CocoaGuiObject created unexpected object");
+		Py_DECREF(subCtr);
+		return NULL;
+	}
+
+	subCtr->subjectObject = value;
+	Py_INCREF(value);
+	
+	
 //		subCtr = CocoaGuiObject()
 //		subCtr.subjectObject = value
 //		subCtr.root = control.root
@@ -618,7 +668,8 @@
 //		
 //		return subCtr
 
-	return NULL;
+final:
+	return subCtr;
 }
 
 @end
