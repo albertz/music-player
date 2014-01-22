@@ -26,7 +26,7 @@
 	int dragIndex;
 }
 
-- (void)clear
+- (void)clearOwn
 {
 	std::vector<CocoaGuiObject*> listCopy;
 	std::swap(guiObjectList, listCopy);
@@ -41,7 +41,7 @@
 - (void)dealloc
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
-	[self clear];
+	[self clearOwn];
 	Py_CLEAR(subjectList);
 	Py_CLEAR(dragHandler);
 	PyGILState_Release(gstate);
@@ -271,8 +271,13 @@
 - (void)onClear
 {
 	selectionIndex = -1;
-	[self clear];
+	[self clearOwn];
 	[self scrollviewUpdate];
+}
+
+- (void)removeInList:(int)index
+{
+	//						list.remove(index)
 }
 
 - (void)deselect
@@ -310,7 +315,7 @@
 		if(objFrame.origin.y < visibleFrame.origin.y)
 			[[scrollview contentView] scrollToPoint:NSMakePoint(0, objFrame.origin.y)];
 		else if(objFrame.origin.y + objFrame.size.height > visibleFrame.origin.y + visibleFrame.size.height)
-			[[scrollview.contentView] scrollToPoint:
+			[[scrollview contentView] scrollToPoint:
 			 NSMakePoint(0, objFrame.origin.y + objFrame.size.height - [scrollview contentSize].height)];
 		[scrollview reflectScrolledClipView:[scrollview contentView]];
 	});
@@ -369,44 +374,49 @@
 	return YES;
 }
 
-- (void)keyDown:(NSEvent *)theEvent
+- (void)keyDown:(NSEvent *)ev
 {
 	if(!canHaveFocus) {
-		[super keyDown:theEvent];
+		[super keyDown:ev];
 		return;
 	}
 
 	bool res = false;
-//				# see HIToolbox/Events.h for keycodes
-//				if ev.keyCode() == 125: # down
-//					if self.index is None:
-//						self.select()
-//					elif self.index < len(control.guiObjectList) - 1:
-//						self.select(self.index + 1)
-//					return True
-//				elif ev.keyCode() == 126: # up
-//					if self.index is None:
-//						self.select()
-//					elif self.index > 0:
-//						self.select(self.index - 1)
-//					return True
-//				elif ev.keyCode() == 0x33: # delete
-//					if self.index is not None:
-//						index = self.index
-//						if self.index > 0:
-//							self.select(self.index - 1)
-//						list.remove(index)
-//						return True
-//				elif ev.keyCode() == 0x75: # forward delete
-//					if self.index is not None:
-//						index = self.index
-//						if self.index < len(control.guiObjectList) - 1:
-//							self.select(self.index + 1)
-//						list.remove(index)
-//						return True
+	if([ev keyCode] == 125) { // down
+		if(selectionIndex < 0)
+			[self select:0];
+		else if(selectionIndex < guiObjectList.size() - 1)
+			[self select:selectionIndex+1];
+		res = true;
+	}
+	else if([ev keyCode] == 126) { // up
+		if(selectionIndex < 0)
+			[self select:0];
+		else if(selectionIndex > 0)
+			[self select:selectionIndex-1];
+		res = true;
+	}
+	else if([ev keyCode] == 0x33) { // delete
+		if(selectionIndex >= 0 && selectionIndex < guiObjectList.size()) {
+			int idx = selectionIndex;
+			if(idx > 0)
+				[self select:idx - 1];
+			[self removeInList:idx];
+			res = true;
+		}
+	}
+	else if([ev keyCode] == 0x75) { // forward delete
+		if(selectionIndex >= 0 && selectionIndex < guiObjectList.size()) {
+			int idx = selectionIndex;
+			if(idx < guiObjectList.size() - 1)
+				[self select:idx + 1];
+			[self removeInList:idx];
+			res = true;
+		}
+	}
 
 	if(!res)
-		[super keyDown:theEvent];
+		[super keyDown:ev];
 }
 
 - (void)mouseDown:(NSEvent *)theEvent
