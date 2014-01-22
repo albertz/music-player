@@ -853,7 +853,8 @@ final:
 	Py_INCREF(subCtr);
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
-		
+
+		NSView* myView = nil;
 		NSView* childView = nil;
 		PyObject* size = NULL;
 		Vec sizeVec;
@@ -864,9 +865,12 @@ final:
 			goto final;
 		}
 
+		myView = control->getNativeObj();
+		if(!myView) goto final; // silently fail. probably out-of-scope
+		if(![myView window]) goto final; // window was closed
+
 		childView = subCtr->getNativeObj();
 		if(!childView) goto final; // silently fail. probably out-of-scope
-		if(![childView window]) goto final; // window was closed
 
 		//	if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
 
