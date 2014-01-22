@@ -11,6 +11,7 @@
 #import "PyObjCBridge.h"
 #include <vector>
 #include <boost/function.hpp>
+#include <string>
 
 typedef boost::function<PyObject*(PyObject* args, PyObject* kw)> PyCallback;
 
@@ -758,49 +759,131 @@ final:
 
 - (void)draggingExited:(id<NSDraggingInfo>)sender
 {
-	[dragCursor setDrawsBackground:NO];
+	if(dragCursor) {
+		[dragCursor setDrawsBackground:NO];
+		[dragCursor removeFromSuperview];
+	}
 	dragIndex = -1;
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
 {
-//				self.guiCursor.setDrawsBackground_(False)
-//				import __builtin__
-//				try:
-//					filenames = __builtin__.list(sender.draggingPasteboard().propertyListForType_(AppKit.NSFilenamesPboardType))
-//					filenames = map(convertToUnicode, filenames)
-//					index = self.index
-//					internalDragCallback = getattr(sender.draggingSource(), "onInternalDrag", None)
-//					def doDragHandler():
-//						control.attr.dragHandler(
-//							control.parent.subjectObject,
-//							control.subjectObject,
-//							index,
-//							filenames)
-//						if internalDragCallback:
-//							do_in_mainthread(lambda:
-//								internalDragCallback(
-//									control,
-//									index,
-//									filenames),
-//								wait=False)
-//					utils.daemonThreadCall(doDragHandler, name="DragHandler")
-//					return True
-//				except Exception:
-//					sys.excepthook(*sys.exc_info())
-//					return False
-	return NO;
+	if(dragCursor) {
+		[dragCursor setDrawsBackground:NO];
+		[dragCursor removeFromSuperview];
+	}
+	if(!dragHandlerRef) return NO;
+	
+	NSArray* filenames = [[sender draggingPasteboard] propertyListForType:NSFilenamesPboardType];
+	int index = dragIndex;
+	
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+		PyGILState_STATE gstate = PyGILState_Ensure();
+		PyObject* dragHandler = PyWeakref_GET_OBJECT(dragHandlerRef);
+		CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
+		if(dragHandler && control) {
+			Py_INCREF(dragHandler);
+			Py_INCREF(control);
+			CocoaGuiObject* parent = NULL;
+			PyObject* res = NULL;
+			PyObject* pyFilenames = NULL;
+
+			if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+				printf("Cocoa ListControl performDragOperation: control is wrong type\n");
+				goto finalCall;
+			}
+			parent = (CocoaGuiObject*) control->parent;
+			if(!parent) {
+				printf("Cocoa ListControl performDragOperation: control.parent is unset\n");
+				goto finalCall;
+			}
+			Py_INCREF(parent);
+			if(!PyType_IsSubtype(Py_TYPE(parent), &CocoaGuiObject_Type)) {
+				printf("Cocoa ListControl performDragOperation: control.parent is wrong type\n");
+				goto finalCall;
+			}
+
+			if(!control->subjectObject) {
+				printf("Cocoa ListControl performDragOperation: control.subjectObject is unset\n");
+				goto finalCall;
+			}
+			if(!parent->subjectObject) {
+				printf("Cocoa ListControl performDragOperation: control.parent.subjectObject is unset\n");
+				goto finalCall;
+			}
+
+			pyFilenames = PyTuple_New([filenames count]);
+			if(!pyFilenames) {
+				printf("Cocoa ListControl performDragOperation: failed to create pyFilenames\n");
+				goto finalCall;
+			}
+			for(NSUInteger i = 0; i < [filenames count]; ++i) {
+				NSString* objcStr = [filenames objectAtIndex:i];
+				std::string cppStr([objcStr UTF8String]);
+				PyObject* pyStr = PyUnicode_DecodeUTF8(&cppStr[0], cppStr.size(), NULL);
+				if(!pyStr) {
+					printf("Cocoa ListControl performDragOperation: failed to convert unicode filename\n");
+					goto finalCall;
+				}
+				PyTuple_SET_ITEM(pyFilenames, i, pyStr);
+			}
+
+			res = PyObject_CallFunction(dragHandler, (char*)"(OOO)", parent->subjectObject, control->subjectObject, index, pyFilenames);
+			if(!res) {
+				printf("Cocoa ListControl performDragOperation: dragHandler failed\n");
+				goto finalCall;
+			}
+
+			if([[sender draggingSource] respondsToSelector:@selector(onInternalDrag:withIndex:withFiles:)]) {
+				Py_INCREF(control);
+				dispatch_async(dispatch_get_main_queue(), ^{
+					PyGILState_STATE gstate = PyGILState_Ensure();
+					[[sender draggingSource] onInternalDrag:control withIndex:index withFiles:filenames];
+					Py_DECREF(control);
+					PyGILState_Release(gstate);
+				});
+			}
+			
+		finalCall:
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_XDECREF(pyFilenames);
+			Py_XDECREF(parent);
+			Py_XDECREF(res);
+			Py_DECREF(dragHandler);
+			Py_DECREF(control);
+		}
+		PyGILState_Release(gstate);
+	});
+
+	return YES;
 }
 
 - (void)onInternalDrag:(CocoaGuiObject*)sourceControl withIndex:(int)index withFiles:(NSArray*)filenames
 {
-//				if sourceControl.parent is control: # internal drag to myself
-//					oldIndex = self.index
-//					# check if the index is still correct
-//					if control.guiObjectList[oldIndex] is sourceControl:
-//						self.select(index)
-//						list.remove(oldIndex)
+	PyGILState_STATE gstate = PyGILState_Ensure();
 	
+	CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
+	
+	if(!control) goto final;
+	Py_INCREF(control);
+	
+	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+		printf("Cocoa ListControl onInternalDrag: control is wrong type\n");
+		goto final;
+	}
+
+	if((PyObject*) control == sourceControl->parent) { // internal drag to myself
+		int oldIndex = selectionIndex;
+		// check if the index is still correct
+		if(oldIndex >= 0 && oldIndex < guiObjectList.size() && guiObjectList[oldIndex] == sourceControl) {
+			[self select:index];
+			[self removeInList:oldIndex];
+		}
+	}
+	
+final:
+	Py_XDECREF(control);
+	PyGILState_Release(gstate);
 }
 
 - (void)childIter:(ChildIterCallback)block
