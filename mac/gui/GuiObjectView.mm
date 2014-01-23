@@ -81,7 +81,59 @@
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	CocoaGuiObject* control = [self getControl];
 	if(control) control->handleCurSelectedSong();
+	Py_XDECREF(control);
 	PyGILState_Release(gstate);
+}
+
+- (void)mouseDragged:(NSEvent *)ev
+{
+	bool res = false;
+	
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	CocoaGuiObject* control = [self getControl];
+	PyObject* subjectObj = control ? control->subjectObject : NULL;
+	Py_XINCREF(subjectObj);
+	if(control && subjectObj) {
+		// For example, if this is a Song object, we have the "url" attrib.
+		PyObject* filename = PyObject_GetAttrString(subjectObj, "url");
+		if(!filename) {
+			if(PyErr_ExceptionMatches(PyExc_AttributeError))
+				PyErr_Clear();
+			else
+				PyErr_Print();
+		}
+		int ret = filename ? PyObject_IsTrue(filename) : 0;
+		if(ret < 0 && PyErr_Occurred())
+			PyErr_Print();
+		NSString* fn = (ret > 0) ? convertToStr(filename) : nil;
+		if(fn) {
+			NSPasteboard* pboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+			[pboard declareTypes:@[NSFilenamesPboardType] owner:nil];
+			[pboard setPropertyList:@[fn] forType:NSFilenamesPboardType];
+			NSImage* dragImage = [[NSWorkspace sharedWorkspace] iconForFile:fn];
+			NSPoint dragPosition = [self convertPoint:[ev locationInWindow] toView:nil];
+			dragPosition.x -= 16;
+			dragPosition.y += 32;
+			
+			[self
+			 dragImage:dragImage
+			 at:dragPosition
+			 offset:NSZeroSize
+			 event:ev
+			 pasteboard:pboard
+			 source:self
+			 slideBack:NO];
+			
+			res = true;
+		}
+		Py_XDECREF(filename);
+	}
+	Py_XDECREF(subjectObj);
+	Py_XDECREF(control);
+	PyGILState_Release(gstate);
+
+	if(!res)
+		[super mouseDragged:ev];
 }
 
 @end

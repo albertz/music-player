@@ -351,37 +351,6 @@ def buildControlReal(control):
 	return control
 
 
-def _buildControlObject_post(control):
-	subview = control.nativeGuiObject
-
-	@ExceptionCatcherDecorator
-	def onMouseDragged(ev):
-		guiObj = control
-		subjectObj = guiObj.subjectObject
-		filename = getattr(subjectObj, "url", None)
-		if not filename: return False
-		filename = convertToUnicode(filename)
-		pboard = AppKit.NSPasteboard.pasteboardWithName_(AppKit.NSDragPboard)
-		pboard.declareTypes_owner_([AppKit.NSFilenamesPboardType], None)
-		pboard.setPropertyList_forType_([filename], AppKit.NSFilenamesPboardType)
-		dragImage = AppKit.NSWorkspace.sharedWorkspace().iconForFile_(filename)
-		dragPosition = subview.convertPoint_toView_(ev.locationInWindow(), None)
-		dragPosition.x -= 16
-		dragPosition.y += 32
-		dragSource = control.nativeGuiObject
-		subview.dragImage_at_offset_event_pasteboard_source_slideBack_(
-			dragImage,
-			dragPosition,
-			AppKit.NSZeroSize,
-			ev,
-			pboard,
-			dragSource,
-			False
-		)
-		return True		
-	subview.onMouseDragged = onMouseDragged
-
-
 def SongDisplayView_MouseClickCallback(x):
 	from State import state
 	song = state.player.curSong
