@@ -15,5 +15,6 @@ bool buildControlList(CocoaGuiObject* control);
 bool buildControlObject(CocoaGuiObject* control);
 bool _buildControlObject_pre(CocoaGuiObject* control);
 bool _buildControlObject_post(CocoaGuiObject* control);
+bool buildControlOneLineText(CocoaGuiObject* control);
 
 #endif

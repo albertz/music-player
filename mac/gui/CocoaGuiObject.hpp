@@ -23,6 +23,7 @@ struct CocoaGuiObject : GuiObject {
 	NSView* getNativeObj(); // This function can be called without the Python GIL.
 	void setNativeObj(NSView* v);
 	void addChild(NSView* child);
+	void updateContent();
 };
 
 #endif /* defined(__MusicPlayer__CocoaGuiObject__) */

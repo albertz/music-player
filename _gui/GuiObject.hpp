@@ -94,6 +94,7 @@ struct GuiObject {
 	void (*set_size)(GuiObject*, const Vec&);
 	void (*set_autoresize)(GuiObject*, const Autoresize&);
 	void (*meth_addChild)(GuiObject*, GuiObject*);
+	void (*meth_updateContent)(GuiObject*);
 	
 	// Custom. not exposed to Python right now but might later. Optional.
 	void (*meth_childIter)(GuiObject*, boost::function<void(GuiObject* child, bool& stop)>); // used by tp_traverse if set

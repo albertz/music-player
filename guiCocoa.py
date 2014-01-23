@@ -143,49 +143,6 @@ def foregroundColor(control):
 	return AppKit.NSColor.blackColor()
 
 
-def buildControlOneLineText(control):
-	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
-	label.setBordered_(False)
-	if control.attr.withBorder:
-		label.setBezeled_(True)
-		label.setBezelStyle_(AppKit.NSTextFieldRoundedBezel)
-	label.setDrawsBackground_(False)
-	label.setEditable_(False)
-	label.cell().setUsesSingleLineMode_(True)
-	label.cell().setLineBreakMode_(AppKit.NSLineBreakByTruncatingTail)
-	control.nativeGuiObject = label
-	control.getTextObj = lambda: control.subjectObject
-
-	def update():
-		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
-		s = "???"
-		try:
-			labelContent = control.getTextObj()
-			s = convertToUnicode(labelContent)
-		except Exception:
-			sys.excepthook(*sys.exc_info())
-		def do_update():
-			label.setStringValue_(s)
-			
-			if backgroundColor(control):
-				label.setDrawsBackground_(True)
-				label.setBackgroundColor_(backgroundColor(control))
-			label.setTextColor_(foregroundColor(control))
-			
-			if control.attr.autosizeWidth:
-				label.sizeToFit()
-				control.layoutLine()
-			
-			if label.onMouseEntered or label.onMouseExited:
-				if getattr(label, "trackingRect", None):
-					label.removeTrackingRect_(label.trackingRect)	
-				label.trackingRect = label.addTrackingRect_owner_userData_assumeInside_(label.bounds(), label, None, False)
-
-		do_in_mainthread(do_update, wait=False)
-
-	control.updateContent = update
-	return control
-
 def buildControlClickableLabel(control):
 	buildControlOneLineText(control)
 	control.getTextObj = lambda: control.subjectObject(handleClick=False)

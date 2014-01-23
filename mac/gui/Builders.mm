@@ -2,6 +2,7 @@
 #import "Builders.hpp"
 #import "ListControl.hpp"
 #import "ObjectControl.hpp"
+#import "OneLineTextControl.hpp"
 #import "PythonHelpers.h"
 #import "PyObjCBridge.h"
 
@@ -50,4 +51,10 @@ bool _buildControlObject_post(CocoaGuiObject* control) {
 	}
 	
 	return true;
+}
+
+bool buildControlOneLineText(CocoaGuiObject* control) {
+	OneLineTextControlView* view = [[OneLineTextControlView alloc] initWithControl:control];
+	control->setNativeObj(view);
+	return view != nil;
 }

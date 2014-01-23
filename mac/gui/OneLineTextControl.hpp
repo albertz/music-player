@@ -8,9 +8,10 @@
 
 #import "GuiObjectView.hpp"
 
-@interface OneLineTextControlView : NSTextField <GuiObjectViewProt>
+@interface OneLineTextControlView : NSTextField <GuiObjectProt, GuiObjectProt_customContent>
 
 - (id)initWithControl:(CocoaGuiObject*)control;
 - (PyObject*)getTextObj;
+- (void)updateContent;
 
 @end

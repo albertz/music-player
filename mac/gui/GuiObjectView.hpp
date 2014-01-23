@@ -11,6 +11,9 @@
 
 @protocol GuiObjectProt
 - (CocoaGuiObject*)getControl; // new ref
+@end
+
+@protocol GuiObjectProt_customContent
 - (void)updateContent;
 @end
 

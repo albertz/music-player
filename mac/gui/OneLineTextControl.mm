@@ -7,10 +7,18 @@
 //
 
 #import "OneLineTextControl.hpp"
+#import "PythonHelpers.h"
 
 @implementation OneLineTextControlView
 {
 	PyWeakReference* controlRef;
+}
+
+- (void)dealloc
+{
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	Py_CLEAR(controlRef);
+	PyGILState_Release(gstate);
 }
 
 - (id)initWithControl:(CocoaGuiObject*)control
@@ -42,6 +50,18 @@
 	return self;
 }
 
+- (CocoaGuiObject*)getControl;
+{
+	CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
+	if(!control) return NULL;
+	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+		printf("Cocoa GuiObjectView: control is wrong type\n");
+		return NULL;
+	}
+	Py_INCREF(control);
+	return control;
+}
+
 - (PyObject*)getTextObj
 {
 	CocoaGuiObject* control = [self getControl];
@@ -51,5 +71,34 @@
 	return textObj;
 }
 
+- (void)updateContent
+{
+//		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
+//		s = "???"
+//		try:
+//			labelContent = control.getTextObj()
+//			s = convertToUnicode(labelContent)
+//		except Exception:
+//			sys.excepthook(*sys.exc_info())
+//		def do_update():
+//			label.setStringValue_(s)
+//			
+//			if backgroundColor(control):
+//				label.setDrawsBackground_(True)
+//				label.setBackgroundColor_(backgroundColor(control))
+//			label.setTextColor_(foregroundColor(control))
+//			
+//			if control.attr.autosizeWidth:
+//				label.sizeToFit()
+//				control.layoutLine()
+//			
+//			if label.onMouseEntered or label.onMouseExited:
+//				if getattr(label, "trackingRect", None):
+//					label.removeTrackingRect_(label.trackingRect)	
+//				label.trackingRect = label.addTrackingRect_owner_userData_assumeInside_(label.bounds(), label, None, False)
+//
+//		do_in_mainthread(do_update, wait=False)
+	
+}
 
 @end

@@ -11,6 +11,7 @@
 #include "PyObjCBridge.h"
 #include "PythonHelpers.h"
 #import "ControlWithChilds.hpp"
+#import "GuiObjectView.hpp"
 
 void runOnMainQueue(void (^block)(void)) {
 	if([NSThread isMainThread])
@@ -114,6 +115,10 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 	}
 }
 
+static void imp_meth_updateContent(GuiObject* obj) {
+	((CocoaGuiObject*) obj)->updateContent();
+}
+
 NSView* CocoaGuiObject::getNativeObj() {
 	// This function can be called without the Python GIL.
 	id nativeObj = nil;
@@ -134,6 +139,27 @@ void CocoaGuiObject::addChild(NSView* child) {
 		[view addSubview:child];
 	});
 }
+
+void CocoaGuiObject::updateContent() {
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	
+	NSView* view = getNativeObj();
+	if(view && [view respondsToSelector:@selector(updateContent)]) {
+		[(id<GuiObjectProt_customContent>)view updateContent];
+	}
+	else {
+		PyObject* s = PyString_FromString("updateContent");
+		PyObject* func = s ? PyObject_GenericGetAttr((PyObject*) this, s) : NULL;
+		PyObject* res = func ? PyObject_CallFunction(func, NULL) : NULL;
+		if(!res && PyErr_Occurred()) PyErr_Print();
+		Py_XDECREF(s);
+		Py_XDECREF(func);
+		Py_XDECREF(res);
+	}
+	
+	PyGILState_Release(gstate);
+}
+
 
 
 int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
@@ -187,6 +213,7 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	set_autoresize = imp_set_autoresize;
 	meth_addChild = imp_addChild;
 	meth_childIter = imp_meth_childIter;
+	meth_updateContent = imp_meth_updateContent;
 	return 0;
 }
 

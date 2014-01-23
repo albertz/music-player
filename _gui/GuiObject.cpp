@@ -113,6 +113,28 @@ static PyMethodDef md_addChild = {
 	NULL
 };
 
+static
+PyObject* guiObject_method_updateContent(PyObject* _self, PyObject* _unused_arg) {
+	GuiObject* self = (GuiObject*) _self;
+	auto func = self->meth_updateContent;
+	if(!func) {
+		PyErr_Format(PyExc_AttributeError, "GuiObject.updateContent: must be specified in subclass");
+		return NULL;
+	}
+	Py_BEGIN_ALLOW_THREADS
+	func(self);
+	Py_END_ALLOW_THREADS
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMethodDef md_updateContent = {
+	"updateContent",
+	guiObject_method_updateContent,
+	METH_NOARGS,
+	NULL
+};
+
 
 static PyObject* returnObj(PyObject* obj) {
 	if(!obj) obj = Py_None;
@@ -153,6 +175,10 @@ PyObject* GuiObject::getattr(const char* key) {
 	
 	if(strcmp(key, "addChild") == 0) {
 		return PyCFunction_New(&md_addChild, (PyObject*) this);
+	}
+
+	if(strcmp(key, "updateContent") == 0 && meth_updateContent) {
+		return PyCFunction_New(&md_updateContent, (PyObject*) this);
 	}
 
 	if(strcmp(key, "__dict__") == 0) {
@@ -224,6 +250,7 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 
 	_SetAttr_ErrReadOnly(innerSize);
 	_SetAttr_ErrReadOnly(addChild);
+	//_SetAttr_ErrReadOnly(updateContent); // as long as we have Python code overwriting this
 	_SetAttr_ErrReadOnly(__dict__);
 	
 	// Fallthrough to generic setattr. In case we got another base type, this might work.
