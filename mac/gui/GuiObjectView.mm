@@ -34,8 +34,8 @@
 		return nil;
 	}
 
-	if(canHaveFocus)
-		[self setDrawsBackground:YES];
+	//if(canHaveFocus)
+	//	[self setDrawsBackground:YES];
 
 	return self;
 }
@@ -62,7 +62,7 @@
 {
 	if(![super becomeFirstResponder]) return NO;
 	[self setDrawsFocusRing:YES];
-	[self setBackgroundColor:[NSColor selectedTextBackgroundColor]];
+	//[self setBackgroundColor:[NSColor selectedTextBackgroundColor]];
 	return YES;
 }
 
@@ -70,7 +70,7 @@
 {
 	if(![super resignFirstResponder]) return NO;
 	[self setDrawsFocusRing:NO];
-	[self setBackgroundColor:[NSColor textBackgroundColor]];
+	//[self setBackgroundColor:[NSColor textBackgroundColor]];
 	return YES;
 }
 
