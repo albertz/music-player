@@ -123,7 +123,8 @@ NSView* CocoaGuiObject::getNativeObj() {
 
 void CocoaGuiObject::setNativeObj(NSView* v) {
 	PyObject* nativeObj = PyObjCObj_NewNative(v);
-	nativeGuiObject.operate<void>([=](PyObject*& ptr) { ptr = nativeObj; });
+	nativeGuiObject.operate<void>([&](PyObject*& ptr) { std::swap(ptr, nativeObj); });
+	Py_XDECREF(nativeObj);
 }
 
 void CocoaGuiObject::addChild(NSView* child) {
