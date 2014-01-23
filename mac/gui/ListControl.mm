@@ -9,6 +9,7 @@
 #import "ListControl.hpp"
 #include "PythonHelpers.h"
 #import "PyObjCBridge.h"
+#import "Builders.hpp"
 #include <vector>
 #include <boost/function.hpp>
 #include <string>
@@ -1012,15 +1013,9 @@ final:
 		}
 	}
 
-	{
-		PyObject* res = PyObject_CallMethod(guiCocoaMod, (char*)"_buildControlObject_pre", (char*)"(O)", subCtr);
-		if(!res) {
-			printf("Cocoa ListControl buildControlForIndex: failed to call _buildControlObject_pre\n");
-			if(PyErr_Occurred()) PyErr_Print();
-			Py_DECREF(subCtr);
-			return NULL;
-		}
-		Py_DECREF(res);
+	if(!_buildControlObject_pre(subCtr)) {
+		Py_DECREF(subCtr);
+		return NULL;
 	}
 	
 	NSView* childView = subCtr->getNativeObj();
@@ -1043,7 +1038,6 @@ final:
 
 		NSView* myView = nil;
 		NSView* childView = nil;
-		PyObject* size = NULL;
 		Vec sizeVec;
 		CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
 		if(!control) goto final; // silently fail. probably out-of-scope
@@ -1061,17 +1055,7 @@ final:
 
 		//	if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
 
-		size = PyObject_CallMethod((PyObject*) subCtr, (char*)"setupChilds", NULL);
-		if(!size) {
-			printf("Cocoa ListControl buildControlForIndex: subCtr.setupChilds() failed\n");
-			if(PyErr_Occurred()) PyErr_Print();
-			goto final;
-		}
-		if(!sizeVec.initFromPyObject(size)) {
-			printf("Cocoa ListControl buildControlForIndex: subCtr.setupChilds() returned unexpected value (expected is tuple (w,h))\n");
-			if(PyErr_Occurred()) PyErr_Print();
-			goto final;
-		}
+		sizeVec = subCtr->setupChilds();
 		
 		{
 			dispatch_async(dispatch_get_main_queue(), ^{
@@ -1083,16 +1067,7 @@ final:
 			Py_INCREF(subCtr);
 			dispatch_async(dispatch_get_main_queue(), ^{
 				PyGILState_STATE gstate = PyGILState_Ensure();
-				PyObject* guiCocoaMod = getModule("guiCocoa"); // borrowed ref
-				if(!guiCocoaMod)
-					printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
-				else {
-					PyObject* res = PyObject_CallMethod(guiCocoaMod, (char*)"_buildControlObject_post", (char*)"(O)", subCtr);
-					if(!res)
-						printf("Cocoa ListControl buildControlForIndex: failed to call _buildControlObject_pre\n");
-					else Py_DECREF(res);
-				}
-				if(PyErr_Occurred()) PyErr_Print();
+				_buildControlObject_post(subCtr);
 				Py_DECREF(subCtr);
 				PyGILState_Release(gstate);
 			});
@@ -1118,7 +1093,6 @@ final:
 		
 	final:
 		Py_DECREF(subCtr);
-		Py_XDECREF(size);
 		PyGILState_Release(gstate);
 	});
 

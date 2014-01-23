@@ -231,3 +231,18 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 	return ret;
 }
 
+
+Vec GuiObject::setupChilds() {
+	Vec sizeVec;
+	PyObject* size = PyObject_CallMethod((PyObject*) this, (char*)"setupChilds", NULL);
+	if(!size) {
+		printf("setupChilds() failed\n");
+		if(PyErr_Occurred()) PyErr_Print();
+	}
+	else if(!sizeVec.initFromPyObject(size)) {
+		printf("setupChilds() returned unexpected value (expected is tuple (w,h))\n");
+		if(PyErr_Occurred()) PyErr_Print();
+	}
+	return sizeVec;
+}
+
