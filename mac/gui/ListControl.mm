@@ -180,7 +180,7 @@
 				printf("Cocoa ListControl: cannot get iter(list)\n");
 				if(PyErr_Occurred())
 					PyErr_Print();
-				goto finalInitialFill;
+				goto unlockInitialFill;
 			}
 
 			while(true) {
@@ -290,6 +290,7 @@
 			});
 		}
 		
+	unlockInitialFill:
 		lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
 		if(!lockExitRes) {
 			printf("Cocoa ListControl: list.lock.__exit__ failed\n");
@@ -391,7 +392,11 @@
 
 - (void)removeInList:(int)index
 {
+	// don't run this in the main thread. it can lock.
+	assert(![NSThread isMainThread]);
+
 	PyGILState_STATE gstate = PyGILState_Ensure();
+		
 	PyObject* list = PyWeakref_GET_OBJECT(subjectListRef);
 	PyObject* res = NULL;
 	if(!list) goto final;
@@ -517,7 +522,9 @@ final:
 			int idx = selectionIndex;
 			if(idx > 0)
 				[self select:idx - 1];
-			[self removeInList:idx];
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+				[self removeInList:idx];
+			});
 			res = true;
 		}
 	}
@@ -526,7 +533,9 @@ final:
 			int idx = selectionIndex;
 			if(idx < guiObjectList.size() - 1)
 				[self select:idx + 1];
-			[self removeInList:idx];
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+				[self removeInList:idx];
+			});
 			res = true;
 		}
 	}
@@ -737,8 +746,11 @@ final:
 		int oldIndex = selectionIndex;
 		// check if the index is still correct
 		if(oldIndex >= 0 && oldIndex < guiObjectList.size() && guiObjectList[oldIndex] == obj) {
+			
 			[self select:index];
-			[self removeInList:oldIndex];
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+				[self removeInList:oldIndex];
+			});
 		}
 	}
 	
