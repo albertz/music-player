@@ -30,7 +30,7 @@ bool _buildControlObject_pre(CocoaGuiObject* control) {
 
 bool _buildControlObject_post(CocoaGuiObject* control) {
 	NSView* _view = control->getNativeObj();
-	if(!_view || [_view isKindOfClass:[ObjectControlView class]]) {
+	if(!_view || ![_view isKindOfClass:[ObjectControlView class]]) {
 		printf("_buildControlObject_post: bad native obj\n");
 		return false;
 	}
