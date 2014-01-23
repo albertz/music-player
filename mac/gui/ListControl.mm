@@ -901,18 +901,8 @@ final:
 - (void)onInternalDrag:(CocoaGuiObject*)destControl withObject:(CocoaGuiObject*)obj withIndex:(int)index withFiles:(NSArray*)filenames
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
-	
-	CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
-	
-	if(!control) goto final;
-	Py_INCREF(control);
-	
-	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		printf("Cocoa ListControl onInternalDrag: control is wrong type\n");
-		goto final;
-	}
 
-	if(control == destControl) { // internal drag to myself
+	if(PyWeakref_GET_OBJECT(controlRef) == (PyObject*)destControl) { // internal drag to myself
 		int oldIndex = selectionIndex;
 		// check if the index is still correct
 		if(oldIndex >= 0 && oldIndex < guiObjectList.size() && guiObjectList[oldIndex] == obj) {
@@ -921,8 +911,6 @@ final:
 		}
 	}
 	
-final:
-	Py_XDECREF(control);
 	PyGILState_Release(gstate);
 }
 
