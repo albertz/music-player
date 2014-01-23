@@ -232,6 +232,10 @@
 		23DC6277188E73A100E1DFE3 /* TableViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */; };
 		23DC6279188EA46A00E1DFE3 /* ControlWithChilds.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6278188EA46A00E1DFE3 /* ControlWithChilds.hpp */; };
 		23DC627C189136EB00E1DFE3 /* Builders.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC627B189136EB00E1DFE3 /* Builders.mm */; };
+		23DC627F18913D7300E1DFE3 /* ObjectControl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC627D18913D7300E1DFE3 /* ObjectControl.hpp */; };
+		23DC628018913D7300E1DFE3 /* ObjectControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC627E18913D7300E1DFE3 /* ObjectControl.mm */; };
+		23DC628318913F5D00E1DFE3 /* GuiObjectView.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC628118913F5D00E1DFE3 /* GuiObjectView.hpp */; };
+		23DC628418913F5D00E1DFE3 /* GuiObjectView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -640,6 +644,10 @@
 		23DC6278188EA46A00E1DFE3 /* ControlWithChilds.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ControlWithChilds.hpp; path = gui/ControlWithChilds.hpp; sourceTree = "<group>"; };
 		23DC627A189136CD00E1DFE3 /* Builders.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Builders.hpp; path = gui/Builders.hpp; sourceTree = "<group>"; };
 		23DC627B189136EB00E1DFE3 /* Builders.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Builders.mm; path = gui/Builders.mm; sourceTree = "<group>"; };
+		23DC627D18913D7300E1DFE3 /* ObjectControl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ObjectControl.hpp; path = gui/ObjectControl.hpp; sourceTree = "<group>"; };
+		23DC627E18913D7300E1DFE3 /* ObjectControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ObjectControl.mm; path = gui/ObjectControl.mm; sourceTree = "<group>"; };
+		23DC628118913F5D00E1DFE3 /* GuiObjectView.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = GuiObjectView.hpp; path = gui/GuiObjectView.hpp; sourceTree = "<group>"; };
+		23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GuiObjectView.mm; path = gui/GuiObjectView.mm; sourceTree = "<group>"; };
 		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
 		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
 		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
@@ -873,10 +881,14 @@
 				237313F4188A96EF0052054E /* PyObjCBridge.m */,
 				23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */,
 				23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */,
-				23DC626C188E719B00E1DFE3 /* ListControl.hpp */,
-				23DC626D188E719B00E1DFE3 /* ListControl.mm */,
 				23DC6270188E73A100E1DFE3 /* NSFlippedView.h */,
 				23DC6271188E73A100E1DFE3 /* NSFlippedView.m */,
+				23DC628118913F5D00E1DFE3 /* GuiObjectView.hpp */,
+				23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */,
+				23DC626C188E719B00E1DFE3 /* ListControl.hpp */,
+				23DC626D188E719B00E1DFE3 /* ListControl.mm */,
+				23DC627D18913D7300E1DFE3 /* ObjectControl.hpp */,
+				23DC627E18913D7300E1DFE3 /* ObjectControl.mm */,
 				23DC6272188E73A100E1DFE3 /* TableViewDelegate.h */,
 				23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */,
 				23DC6278188EA46A00E1DFE3 /* ControlWithChilds.hpp */,
@@ -1235,7 +1247,9 @@
 				237313E31889642A0052054E /* AppDelegate.h in Headers */,
 				23DC6279188EA46A00E1DFE3 /* ControlWithChilds.hpp in Headers */,
 				23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */,
+				23DC628318913F5D00E1DFE3 /* GuiObjectView.hpp in Headers */,
 				23DC6274188E73A100E1DFE3 /* NSFlippedView.h in Headers */,
+				23DC627F18913D7300E1DFE3 /* ObjectControl.hpp in Headers */,
 				237313F3188A962A0052054E /* PyObjCBridge.h in Headers */,
 				23DC6276188E73A100E1DFE3 /* TableViewDelegate.h in Headers */,
 			);
@@ -1631,6 +1645,8 @@
 				23DC626F188E719B00E1DFE3 /* ListControl.mm in Sources */,
 				23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */,
 				23DC6275188E73A100E1DFE3 /* NSFlippedView.m in Sources */,
+				23DC628018913D7300E1DFE3 /* ObjectControl.mm in Sources */,
+				23DC628418913F5D00E1DFE3 /* GuiObjectView.mm in Sources */,
 				237313E41889642A0052054E /* AppDelegate.m in Sources */,
 				23DC627C189136EB00E1DFE3 /* Builders.mm in Sources */,
 				237313E6188965D10052054E /* PythonInterface.mm in Sources */,
