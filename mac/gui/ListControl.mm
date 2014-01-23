@@ -855,7 +855,8 @@ final:
 				// is declared by Python in guiCocoaCommon.
 				// In _buildControlObject_post, we set its "control" attribute to a weakref to the control.
 				PyObject* dragSourcePy = PyObjCObj_IdToPy(dragSource);
-				PyObject* sourceControlRef = dragSourcePy ? PyObject_GetAttrString(dragSourcePy, "control") : NULL;
+				PyObject* sourceControlRef = (dragSourcePy && dragSourcePy != Py_None) ? PyObject_GetAttrString(dragSourcePy, "control") : NULL;
+				if(PyErr_Occurred()) PyErr_Print();
 				PyObject* sourceControl = (sourceControlRef && PyWeakref_Check(sourceControlRef)) ? PyWeakref_GET_OBJECT(sourceControlRef) : NULL;
 				Py_XINCREF(sourceControl);
 				
