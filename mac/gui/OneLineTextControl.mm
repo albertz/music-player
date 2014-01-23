@@ -29,12 +29,14 @@
     if(!self) return nil;
 
 	[self setBordered:NO];
-
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
-	bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
-	PyGILState_Release(gstate);
-
+	
+	{
+		PyGILState_STATE gstate = PyGILState_Ensure();
+		controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
+		bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
+		PyGILState_Release(gstate);
+	}
+	
 	if(!controlRef) return nil;
 
 	if(withBorder) {
@@ -96,21 +98,36 @@
 	}
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
-		//			label.setStringValue_(s)
-		//
-		//			if backgroundColor(control):
-		//				label.setDrawsBackground_(True)
-		//				label.setBackgroundColor_(backgroundColor(control))
-		//			label.setTextColor_(foregroundColor(control))
-		//
-		//			if control.attr.autosizeWidth:
-		//				label.sizeToFit()
-		//				control.layoutLine()
-		//
+		[self setStringValue:s];
+
+		PyGILState_STATE gstate = PyGILState_Ensure();
+		
+		NSColor* color = backgroundColor(control);
+		if(color) {
+			[self setDrawsBackground:YES];
+			[self setBackgroundColor:color];
+		}
+		
+		[self setTextColor:foregroundColor(control)];
+		
+		bool autosizeWidth = attrChain_bool_default(control->attr, "autosizeWidth", false);
+		if(autosizeWidth) {
+			[self sizeToFit];
+			PyObject* res = PyObject_CallMethod(control, "layoutLine", NULL);
+			if(!res && PyErr_Occurred()) PyErr_Print();
+			Py_XDECREF(res);
+		}
+
+		//[self removeTrackingRect:];
+		//[self addTrackingRect: owner: userData: assumeInside:]
+		
 		//			if label.onMouseEntered or label.onMouseExited:
 		//				if getattr(label, "trackingRect", None):
 		//					label.removeTrackingRect_(label.trackingRect)
 		//				label.trackingRect = label.addTrackingRect_owner_userData_assumeInside_(label.bounds(), label, None, False)
+		
+		Py_DECREF(control);
+		PyGILState_Release(gstate);
 	});
 }
 

@@ -29,6 +29,38 @@ bool _buildControlObject_pre(CocoaGuiObject* control) {
 	return view != nil;
 }
 
+NSColor* backgroundColor(CocoaGuiObject* control) {
+	NSColor* res = nil;
+	PyObject* mod = getModule("guiCocoa");
+	if(mod) {
+		PyObject* colorPy = PyObject_CallMethod(mod, (char*)"backgroundColor", (char*)"(O)", control);
+		if(!colorPy && PyErr_Occurred()) PyErr_Print();
+		if(colorPy) {
+			id _color = PyObjCObj_GetNativeObj(colorPy);
+			if(_color && [_color isKindOfClass:[NSColor class]])
+				res = (NSColor*) _color;
+			Py_DECREF(colorPy);
+		}
+	}
+	return res;
+}
+
+NSColor* foregroundColor(CocoaGuiObject* control) {
+	NSColor* res = nil;
+	PyObject* mod = getModule("guiCocoa");
+	if(mod) {
+		PyObject* colorPy = PyObject_CallMethod(mod, (char*)"foregroundColor", (char*)"(O)", control);
+		if(!colorPy && PyErr_Occurred()) PyErr_Print();
+		if(colorPy) {
+			id _color = PyObjCObj_GetNativeObj(colorPy);
+			if(_color && [_color isKindOfClass:[NSColor class]])
+				res = (NSColor*) _color;
+			Py_DECREF(colorPy);
+		}
+	}
+	return res;
+}
+
 bool _buildControlObject_post(CocoaGuiObject* control) {
 	NSView* _view = control->getNativeObj();
 	if(!_view || ![_view isKindOfClass:[ObjectControlView class]]) {
@@ -36,20 +68,11 @@ bool _buildControlObject_post(CocoaGuiObject* control) {
 		return false;
 	}
 	ObjectControlView* view = (ObjectControlView*) _view;
-	PyObject* mod = getModule("guiCocoa");
-	if(mod) {
-		PyObject* colorPy = PyObject_CallMethod(mod, (char*)"backgroundColor", (char*)"(O)", control);
-		if(!colorPy && PyErr_Occurred()) PyErr_Print();
-		if(colorPy) {
-			NSColor* color = PyObjCObj_GetNativeObj(colorPy);
-			if(color && [color isKindOfClass:[NSColor class]]) {
-				[view setDrawsBackground:YES];
-				[view setBackgroundColor:color];
-			}
-			Py_DECREF(colorPy);
-		}
-	}
-	
+	NSColor* color = backgroundColor(control);
+	if(color) {
+		[view setDrawsBackground:YES];
+		[view setBackgroundColor:color];
+	}	
 	return true;
 }
 

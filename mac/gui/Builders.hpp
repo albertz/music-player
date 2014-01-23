@@ -17,4 +17,7 @@ bool _buildControlObject_pre(CocoaGuiObject* control);
 bool _buildControlObject_post(CocoaGuiObject* control);
 bool buildControlOneLineText(CocoaGuiObject* control);
 
+NSColor* backgroundColor(CocoaGuiObject* control);
+NSColor* foregroundColor(CocoaGuiObject* control);
+
 #endif
