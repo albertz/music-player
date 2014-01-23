@@ -7,13 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NSFlippedView.h"
+#import "GuiObjectView.hpp"
 #import "ControlWithChilds.hpp"
-#include "CocoaGuiObject.hpp"
 
-@interface ListControlView : _NSFlippedView <ControlWithChilds>
+@interface ListControlView : GuiObjectView <ControlWithChilds>
 
-- (id)initWithFrame:(NSRect)frame withControl:(CocoaGuiObject*)control;
+- (id)initWithControl:(CocoaGuiObject*)control;
 
 @end
 

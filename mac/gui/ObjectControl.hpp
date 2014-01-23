@@ -1,13 +1,15 @@
 //
-//  ObjectControl.h
+//  ObjectControl.hpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 23.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "NSFlippedView.h"
+#import "GuiObjectView.hpp"
 
-@interface ObjectControl : _NSFlippedView
+@interface ObjectControlView : GuiObjectView
+
+- (id)initWithControl:(CocoaGuiObject*)control;
 
 @end

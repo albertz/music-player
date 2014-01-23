@@ -83,6 +83,7 @@ struct GuiObject {
 
 	Vec DefaultSpace;
 	Vec OuterSpace;
+	Vec PresetSize;
 	
 	// These are expected to be called without holding the GIL!
 	Vec (*get_pos)(GuiObject*);

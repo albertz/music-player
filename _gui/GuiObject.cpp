@@ -27,6 +27,7 @@ int GuiObject::init(PyObject* args, PyObject* kwds) {
 	
 	DefaultSpace = Vec(8,8);
 	OuterSpace = Vec(8,8);
+	PresetSize = Vec(80,80);
 	return 0;
 }
 
@@ -143,6 +144,7 @@ PyObject* GuiObject::getattr(const char* key) {
 	_ReturnAttr(subjectObject);
 	_ReturnAttrVec(DefaultSpace);
 	_ReturnAttrVec(OuterSpace);
+	_ReturnAttrVec(PresetSize);
 	
 	_ReturnCustomAttr(pos);
 	_ReturnCustomAttr(size);
@@ -214,6 +216,7 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 	_SetAttr(nativeGuiObject);
 	_SetAttrVec(DefaultSpace);
 	_SetAttrVec(OuterSpace);
+	_SetAttrVec(PresetSize);
 	
 	_SetCustomAttr(pos, Vec);
 	_SetCustomAttr(size, Vec);

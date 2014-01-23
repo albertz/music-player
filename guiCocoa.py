@@ -350,13 +350,7 @@ def buildControlReal(control):
 	slider.onValueChange = onValueChange
 	return control
 
-def _buildControlObject_pre(control):
-	presetSize = getattr(control, "presetSize", (80.0,80.0))	
-	subview = NSFlippedView.alloc().initWithFrame_(((10.0, 10.0), presetSize))
-	subview.control = ref(control)
-	control.nativeGuiObject = subview
-	control.OuterSpace = (0,0)
-	
+
 def _buildControlObject_post(control):
 	subview = control.nativeGuiObject
 
