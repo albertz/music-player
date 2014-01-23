@@ -95,10 +95,10 @@
 		
 		control->OuterSpace = Vec(0,0);
 
-		autoScrolldown = attrChain_bool_default((PyObject*) control, "attr.autoScrolldown", false);
+		autoScrolldown = attrChain_bool_default(control->attr, "autoScrolldown", false);
 		
 		{
-			PyObject* handler = attrChain((PyObject*) control, "attr.dragHandler");
+			PyObject* handler = attrChain(control->attr, "dragHandler");
 			if(!handler) {
 				printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
 				if(PyErr_Occurred())

@@ -26,7 +26,7 @@
 
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
-	canHaveFocus = attrChain_bool_default((PyObject*) control, "attr.canHaveFocus", false);
+	canHaveFocus = attrChain_bool_default(control->attr, "canHaveFocus", false);
 	PyGILState_Release(gstate);
 
 	if(!controlRef) {

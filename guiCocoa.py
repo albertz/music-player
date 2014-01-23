@@ -126,8 +126,7 @@ def buildControlAction(control):
 	do_update()
 	button.sizeToFit() # to get height
 	#button.setFrameSize_((50, button.frame().size.height))
-	def update(ev=None, args=None, kwargs=None):
-		do_in_mainthread(do_update, wait=False)
+	def update(): do_in_mainthread(do_update, wait=False)
 	control.nativeGuiObject = button
 	control.updateContent = update
 	return control
@@ -142,7 +141,7 @@ def foregroundColor(control):
 	if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
 		return AppKit.NSColor.disabledControlTextColor()
 	return AppKit.NSColor.blackColor()
-	
+
 
 def buildControlOneLineText(control):
 	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
@@ -156,13 +155,8 @@ def buildControlOneLineText(control):
 	label.cell().setLineBreakMode_(AppKit.NSLineBreakByTruncatingTail)
 	control.nativeGuiObject = label
 	control.getTextObj = lambda: control.subjectObject
-	def getTextColor():
-		if any([(c.attr and c.attr.lowlight) for c in control.allParents()]):
-			return AppKit.NSColor.disabledControlTextColor()
-		return AppKit.NSColor.blackColor()
-	control.getTextColor = getTextColor
-	
-	def update(ev=None, args=None, kwargs=None):
+
+	def update():
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		s = "???"
 		try:
@@ -209,7 +203,7 @@ def buildControlClickableLabel(control):
 			control.subjectObject(handleClick=True)
 		except Exception:
 			sys.excepthook(*sys.exc_info())			
-		control.parent.updateContent(None,None,None)
+		control.parent.updateContent()
 	label.onMouseDown = onMouseDown
 
 	return control
@@ -228,7 +222,7 @@ def buildControlEditableText(control):
 	control.nativeGuiObject = label
 	control.getTextObj = lambda: control.subjectObject()
 	
-	def update(ev=None, args=None, kwargs=None):
+	def update():
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		s = "???"
 		try:
@@ -310,7 +304,7 @@ def buildControlTable(control):
 	table.setAutosaveName_(control.name)
 	table.setAutosaveTableColumns_(True)
 
-	def update(ev=None, args=None, kwargs=None):
+	def update():
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		value = control.subjectObject
 		def setData():
@@ -339,7 +333,7 @@ def buildControlReal(control):
 	slider.setNumberOfTickMarks_(3)
 	control.nativeGuiObject = slider
 
-	def update(ev=None, args=None, kwargs=None):
+	def update():
 		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 		value = control.subjectObject
 		do_in_mainthread(lambda: slider.setDoubleValue_(value), wait=False)
@@ -491,7 +485,7 @@ def buildControlSongDisplay(control):
 				do_in_mainthread(updateCursor, wait=False)
 
 				# another hack: update time
-				control.parent.childs["curSongPos"].updateContent(None,None,None)
+				control.parent.childs["curSongPos"].updateContent()
 
 			del pool
 
@@ -619,7 +613,7 @@ def guiMain():
 			# get an event itself about some change.
 			global windows
 			for w in windows.values():
-				w.updateContent(ev,args,kwargs)
+				w.updateContent()
 			if ev is PlayerEventCallbacks.onPlayingStateChange or ev is PlayerEventCallbacks.onSongChange:
 				updateControlMenu()
 		except Exception:

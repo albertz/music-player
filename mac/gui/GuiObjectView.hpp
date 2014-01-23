@@ -9,7 +9,12 @@
 #import "NSFlippedView.h"
 #import "CocoaGuiObject.hpp"
 
-@interface GuiObjectView : _NSFlippedView
+@protocol GuiObjectProt
+- (CocoaGuiObject*)getControl; // new ref
+- (void)updateContent;
+@end
+
+@interface GuiObjectView : _NSFlippedView <GuiObjectProt>
 {
 	// Note that we can keep all Python references only in guiObjectList because that
 	// is handled in childIter: or otherwise in weakrefs.
@@ -21,6 +26,5 @@
 }
 
 - (id)initWithControl:(CocoaGuiObject*)control;
-- (CocoaGuiObject*)getControl; // new ref
 
 @end

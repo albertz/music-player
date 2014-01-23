@@ -89,7 +89,7 @@ class RecentlyplayedList(object):
 
 
 class State(object):
-	def playPauseUpdate(self, attrib, *args):
+	def playPauseUpdate(self, attrib):
 		if self.player.playing:
 			attrib.name = "❚❚"
 		else:

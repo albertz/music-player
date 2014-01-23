@@ -1,5 +1,5 @@
 //
-//  OneLineTextControl.h
+//  OneLineTextControl.hpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 23.01.14.
@@ -8,6 +8,9 @@
 
 #import "GuiObjectView.hpp"
 
-@interface OneLineTextControl : GuiObjectView
+@interface OneLineTextControlView : NSTextField <GuiObjectViewProt>
+
+- (id)initWithControl:(CocoaGuiObject*)control;
+- (PyObject*)getTextObj;
 
 @end

@@ -34,6 +34,7 @@ PyObject* getPlayerState() {
 
 static inline
 PyObject* attrChain(PyObject* base, const char* name) {
+	if(!base) return NULL;
 	PyObject* res = NULL;
 	Py_INCREF(base);
 	
@@ -64,6 +65,7 @@ final:
 
 static inline
 int attrChain_bool_default(PyObject* base, const char* name, int def) {
+	if(!base) return def;
 	PyObject* resObj = attrChain(base, name);
 	int res = def;
 	if(!resObj) {
