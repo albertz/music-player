@@ -856,7 +856,8 @@ final:
 				// In _buildControlObject_post, we set its "control" attribute to a weakref to the control.
 				PyObject* dragSourcePy = PyObjCObj_IdToPy(dragSource);
 				PyObject* sourceControlRef = dragSourcePy ? PyObject_GetAttrString(dragSourcePy, "control") : NULL;
-				PyObject* sourceControl = (sourceControlRef && PyWeakref_Check(sourceControlRef)) ? PyWeakref_GetObject(sourceControlRef) : NULL;
+				PyObject* sourceControl = (sourceControlRef && PyWeakref_Check(sourceControlRef)) ? PyWeakref_GET_OBJECT(sourceControlRef) : NULL;
+				Py_XINCREF(sourceControl);
 				
 				if(sourceControl && PyType_IsSubtype(Py_TYPE(sourceControl), &CocoaGuiObject_Type)) {
 					PyObject* parentControl = ((CocoaGuiObject*)sourceControl)->parent;
