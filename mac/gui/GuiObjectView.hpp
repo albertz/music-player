@@ -16,6 +16,8 @@
 	// Otherwise, our owner, the CocoaGuiObject.tp_traverse would not find all refs
 	// and the GC would not cleanup correctly when there are cyclic refs.
 	PyWeakReference* controlRef;
+	
+	BOOL canHaveFocus;
 }
 
 - (id)initWithControl:(CocoaGuiObject*)control;

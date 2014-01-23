@@ -7,6 +7,7 @@
 //
 
 #import "GuiObjectView.hpp"
+#include "PythonHelpers.h"
 
 @implementation GuiObjectView
 
@@ -25,12 +26,17 @@
 
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
+	canHaveFocus = attrChain_bool_default((PyObject*) control, "attr.canHaveFocus", false);
 	PyGILState_Release(gstate);
 
 	if(!controlRef) {
 		printf("Cocoa GuiObject: cannot create controlRef\n");
 		return nil;
 	}
+
+	if(canHaveFocus)
+		[self setDrawsBackground:YES];
+
 	return self;
 }
 
@@ -44,6 +50,28 @@
 	}
 	Py_INCREF(control);
 	return control;
+}
+
+
+- (BOOL)acceptsFirstResponder
+{
+	return canHaveFocus;
+}
+
+- (BOOL)becomeFirstResponder
+{
+	if(![super becomeFirstResponder]) return NO;
+	[self setDrawsFocusRing:YES];
+	[self setBackgroundColor:[NSColor selectedTextBackgroundColor]];
+	return YES;
+}
+
+- (BOOL)resignFirstResponder
+{
+	if(![super resignFirstResponder]) return NO;
+	[self setDrawsFocusRing:NO];
+	[self setBackgroundColor:[NSColor textBackgroundColor]];
+	return YES;
 }
 
 @end

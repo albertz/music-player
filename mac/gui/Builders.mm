@@ -3,6 +3,7 @@
 #import "ListControl.hpp"
 #import "ObjectControl.hpp"
 #import "PythonHelpers.h"
+#import "PyObjCBridge.h"
 
 
 
@@ -28,22 +29,25 @@ bool _buildControlObject_pre(CocoaGuiObject* control) {
 }
 
 bool _buildControlObject_post(CocoaGuiObject* control) {
-	PyObject* guiCocoaMod = getModule("guiCocoa"); // borrowed ref
-	if(!guiCocoaMod) {
-		printf("cannot get module guiCocoa\n");
-		if(PyErr_Occurred()) PyErr_Print();
+	NSView* _view = control->getNativeObj();
+	if(!_view || [_view isKindOfClass:[ObjectControlView class]]) {
+		printf("_buildControlObject_post: bad native obj\n");
 		return false;
 	}
-	Py_INCREF(guiCocoaMod);
-	
-	bool success = true;
-	PyObject* res = PyObject_CallMethod(guiCocoaMod, (char*)"_buildControlObject_post", (char*)"(O)", control);
-	if(!res) {
-		printf("failed to call _buildControlObject_post\n");
-		if(PyErr_Occurred()) PyErr_Print();
-		success = false;
+	ObjectControlView* view = (ObjectControlView*) _view;
+	PyObject* mod = getModule("guiCocoa");
+	if(mod) {
+		PyObject* colorPy = PyObject_CallMethod(mod, (char*)"backgroundColor", (char*)"(O)", control);
+		if(!colorPy && PyErr_Occurred()) PyErr_Print();
+		if(colorPy) {
+			NSColor* color = PyObjCObj_GetNativeObj(colorPy);
+			if(color && [color isKindOfClass:[NSColor class]]) {
+				[view setDrawsBackground:YES];
+				[view setBackgroundColor:color];
+			}
+			Py_DECREF(colorPy);
+		}
 	}
-	Py_XDECREF(res);
-	Py_DECREF(guiCocoaMod);
-	return success;
+	
+	return true;
 }
