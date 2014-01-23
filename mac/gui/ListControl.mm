@@ -700,7 +700,7 @@ final:
 					sourceControl = [(GuiObjectView*)dragSource getControl];
 				
 				if(sourceControl) {
-					PyObject* parentControl = ((CocoaGuiObject*)sourceControl)->parent;
+					GuiObject* parentControl = ((CocoaGuiObject*)sourceControl)->parent;
 					Py_XINCREF(parentControl);
 					if(parentControl && PyType_IsSubtype(Py_TYPE(parentControl), &CocoaGuiObject_Type)) {
 						NSView* parentView = ((CocoaGuiObject*)parentControl)->getNativeObj();
@@ -805,7 +805,7 @@ final:
 	subCtr->root = control->root;
 	Py_XINCREF(control->root);
 	
-	subCtr->parent = (PyObject*) control;
+	subCtr->parent = control;
 	Py_INCREF(control);
 
 	PyObject* guiCocoaMod = getModule("guiCocoa"); // borrowed ref

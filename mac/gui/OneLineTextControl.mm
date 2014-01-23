@@ -73,6 +73,18 @@
 
 - (void)updateContent
 {
+	CocoaGuiObject* control = [self getControl];
+	if(!control) return;
+	
+	if(control->attr && control->parent && control->parent->subjectObject) {
+		PyObject* old = NULL;
+		std::swap(old, control->subjectObject);
+		control->subjectObject = control->attr ?
+			PyObject_CallMethod(control->attr, (char*)"__get__", (char*)"(O)", control->parent->subjectObject)
+			: NULL;
+		Py_CLEAR(old);
+	}
+	
 //		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
 //		s = "???"
 //		try:

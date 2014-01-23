@@ -75,8 +75,8 @@ struct GuiObject {
 	PyObject* __dict__;
 	PyObject* weakreflist;
 	
-	PyObject* root;
-	PyObject* parent;
+	GuiObject* root;
+	GuiObject* parent;
 	PyObject* attr; // if this is a child of something, this is the access attrib of the parent.subjectObject
 	PyObject* subjectObject;
 	SafeValue<PyObject*> nativeGuiObject; // safe so that we can access without the GIL

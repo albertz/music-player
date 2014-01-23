@@ -142,7 +142,7 @@ static PyObject* returnObj(PyObject* obj) {
 	return obj;
 }
 
-#define _ReturnAttr(attr) { if(strcmp(key, #attr) == 0) return returnObj(attr); }
+#define _ReturnAttr(attr) { if(strcmp(key, #attr) == 0) return returnObj((PyObject*) attr); }
 
 #define _ReturnAttrVec(attr) { if(strcmp(key, #attr) == 0) return attr.asPyObject(); }
 
@@ -204,6 +204,17 @@ PyObject* GuiObject::getattr(const char* key) {
 		return 0; \
 	} }
 
+#define _SetAttrType(attr, ValueType) { \
+	if(strcmp(key, #attr) == 0) { \
+		if(!PyType_IsSubtype(Py_TYPE(value), & ValueType ## _Type)) { \
+			PyErr_Format(PyExc_ValueError, "GuiObject attribute '%.400s' must be of type " #ValueType, key); \
+			return -1; \
+		} \
+		attr = (ValueType*) value; \
+		Py_INCREF(value); \
+		return 0; \
+	} }
+
 #define _SetAttrVec(attr) { \
 	if(strcmp(key, #attr) == 0) { \
 		Vec v; \
@@ -235,8 +246,8 @@ PyObject* GuiObject::getattr(const char* key) {
 	} }
 
 int GuiObject::setattr(const char* key, PyObject* value) {
-	_SetAttr(root);
-	_SetAttr(parent);
+	_SetAttrType(root, GuiObject);
+	_SetAttrType(parent, GuiObject);
 	_SetAttr(attr);
 	_SetAttr(subjectObject);
 	_SetAttr(nativeGuiObject);
