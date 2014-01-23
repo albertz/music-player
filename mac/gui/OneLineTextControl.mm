@@ -84,33 +84,34 @@
 			: NULL;
 		Py_CLEAR(old);
 	}
+
+	NSString* s = @"???";
+	{
+		PyObject* labelContent = [self getTextObj];
+		if(!labelContent && PyErr_Occurred()) PyErr_Print();
+		if(labelContent) {
+			NSString* _s = convertToStr(labelContent);
+			if(_s) s = _s;
+		}
+	}
 	
-//		control.subjectObject = control.attr.__get__(control.parent.subjectObject)
-//		s = "???"
-//		try:
-//			labelContent = control.getTextObj()
-//			s = convertToUnicode(labelContent)
-//		except Exception:
-//			sys.excepthook(*sys.exc_info())
-//		def do_update():
-//			label.setStringValue_(s)
-//			
-//			if backgroundColor(control):
-//				label.setDrawsBackground_(True)
-//				label.setBackgroundColor_(backgroundColor(control))
-//			label.setTextColor_(foregroundColor(control))
-//			
-//			if control.attr.autosizeWidth:
-//				label.sizeToFit()
-//				control.layoutLine()
-//			
-//			if label.onMouseEntered or label.onMouseExited:
-//				if getattr(label, "trackingRect", None):
-//					label.removeTrackingRect_(label.trackingRect)	
-//				label.trackingRect = label.addTrackingRect_owner_userData_assumeInside_(label.bounds(), label, None, False)
-//
-//		do_in_mainthread(do_update, wait=False)
-	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		//			label.setStringValue_(s)
+		//
+		//			if backgroundColor(control):
+		//				label.setDrawsBackground_(True)
+		//				label.setBackgroundColor_(backgroundColor(control))
+		//			label.setTextColor_(foregroundColor(control))
+		//
+		//			if control.attr.autosizeWidth:
+		//				label.sizeToFit()
+		//				control.layoutLine()
+		//
+		//			if label.onMouseEntered or label.onMouseExited:
+		//				if getattr(label, "trackingRect", None):
+		//					label.removeTrackingRect_(label.trackingRect)
+		//				label.trackingRect = label.addTrackingRect_owner_userData_assumeInside_(label.bounds(), label, None, False)
+	});
 }
 
 @end
