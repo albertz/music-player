@@ -238,6 +238,8 @@
 		23DC628418913F5D00E1DFE3 /* GuiObjectView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */; };
 		23DC628718914A8C00E1DFE3 /* FunctionWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23DC628518914A8C00E1DFE3 /* FunctionWrapper.cpp */; };
 		23DC628818914A8C00E1DFE3 /* FunctionWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC628618914A8C00E1DFE3 /* FunctionWrapper.hpp */; };
+		23DC628B1891B40000E1DFE3 /* OneLineTextControl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC62891891B40000E1DFE3 /* OneLineTextControl.hpp */; };
+		23DC628C1891B40000E1DFE3 /* OneLineTextControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC628A1891B40000E1DFE3 /* OneLineTextControl.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -652,6 +654,8 @@
 		23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GuiObjectView.mm; path = gui/GuiObjectView.mm; sourceTree = "<group>"; };
 		23DC628518914A8C00E1DFE3 /* FunctionWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FunctionWrapper.cpp; path = gui/FunctionWrapper.cpp; sourceTree = "<group>"; };
 		23DC628618914A8C00E1DFE3 /* FunctionWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = FunctionWrapper.hpp; path = gui/FunctionWrapper.hpp; sourceTree = "<group>"; };
+		23DC62891891B40000E1DFE3 /* OneLineTextControl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = OneLineTextControl.hpp; path = gui/OneLineTextControl.hpp; sourceTree = "<group>"; };
+		23DC628A1891B40000E1DFE3 /* OneLineTextControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OneLineTextControl.mm; path = gui/OneLineTextControl.mm; sourceTree = "<group>"; };
 		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
 		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
 		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
@@ -891,10 +895,12 @@
 				23DC6271188E73A100E1DFE3 /* NSFlippedView.m */,
 				23DC628118913F5D00E1DFE3 /* GuiObjectView.hpp */,
 				23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */,
-				23DC626C188E719B00E1DFE3 /* ListControl.hpp */,
-				23DC626D188E719B00E1DFE3 /* ListControl.mm */,
 				23DC627D18913D7300E1DFE3 /* ObjectControl.hpp */,
 				23DC627E18913D7300E1DFE3 /* ObjectControl.mm */,
+				23DC626C188E719B00E1DFE3 /* ListControl.hpp */,
+				23DC626D188E719B00E1DFE3 /* ListControl.mm */,
+				23DC62891891B40000E1DFE3 /* OneLineTextControl.hpp */,
+				23DC628A1891B40000E1DFE3 /* OneLineTextControl.mm */,
 				23DC6272188E73A100E1DFE3 /* TableViewDelegate.h */,
 				23DC6273188E73A100E1DFE3 /* TableViewDelegate.m */,
 				23DC6278188EA46A00E1DFE3 /* ControlWithChilds.hpp */,
@@ -1255,6 +1261,7 @@
 				23DC6279188EA46A00E1DFE3 /* ControlWithChilds.hpp in Headers */,
 				23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */,
 				23DC628318913F5D00E1DFE3 /* GuiObjectView.hpp in Headers */,
+				23DC628B1891B40000E1DFE3 /* OneLineTextControl.hpp in Headers */,
 				23DC6274188E73A100E1DFE3 /* NSFlippedView.h in Headers */,
 				23DC627F18913D7300E1DFE3 /* ObjectControl.hpp in Headers */,
 				237313F3188A962A0052054E /* PyObjCBridge.h in Headers */,
@@ -1651,6 +1658,7 @@
 				23DC6277188E73A100E1DFE3 /* TableViewDelegate.m in Sources */,
 				23DC626F188E719B00E1DFE3 /* ListControl.mm in Sources */,
 				23DC628718914A8C00E1DFE3 /* FunctionWrapper.cpp in Sources */,
+				23DC628C1891B40000E1DFE3 /* OneLineTextControl.mm in Sources */,
 				23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */,
 				23DC6275188E73A100E1DFE3 /* NSFlippedView.m in Sources */,
 				23DC628018913D7300E1DFE3 /* ObjectControl.mm in Sources */,
