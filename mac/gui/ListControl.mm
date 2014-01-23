@@ -866,10 +866,12 @@ final:
 						
 						if([parentView isKindOfClass:[ListControlView class]]) {
 							Py_INCREF(control);
+							Py_INCREF(sourceControl);
 							dispatch_async(dispatch_get_main_queue(), ^{
 								PyGILState_STATE gstate = PyGILState_Ensure();
-								[(ListControlView*)parentView onInternalDrag:control withIndex:index withFiles:filenames];
+								[(ListControlView*)parentView onInternalDrag:control withObject:(CocoaGuiObject*)sourceControl withIndex:index withFiles:filenames];
 								Py_DECREF(control);
+								Py_DECREF(sourceControl);
 								PyGILState_Release(gstate);
 							});
 						}
@@ -896,7 +898,7 @@ final:
 	return YES;
 }
 
-- (void)onInternalDrag:(CocoaGuiObject*)sourceControl withIndex:(int)index withFiles:(NSArray*)filenames
+- (void)onInternalDrag:(CocoaGuiObject*)destControl withObject:(CocoaGuiObject*)obj withIndex:(int)index withFiles:(NSArray*)filenames
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
@@ -910,10 +912,10 @@ final:
 		goto final;
 	}
 
-	if(control == sourceControl) { // internal drag to myself
+	if(control == destControl) { // internal drag to myself
 		int oldIndex = selectionIndex;
 		// check if the index is still correct
-		if(oldIndex >= 0 && oldIndex < guiObjectList.size() && guiObjectList[oldIndex] == sourceControl) {
+		if(oldIndex >= 0 && oldIndex < guiObjectList.size() && guiObjectList[oldIndex] == obj) {
 			[self select:index];
 			[self removeInList:oldIndex];
 		}
