@@ -23,7 +23,7 @@ Note that we also cannot use ObjC weakrefs because that is not
 supported on MacOSX 10.6.
 */
 
-@interface _NSFlippedView : NSView
+@interface _NSFlippedView : NSView <NSDraggingSource>
 {
 @private
 	BOOL _drawsBackground;

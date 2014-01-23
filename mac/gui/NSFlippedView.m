@@ -81,6 +81,19 @@
 	return YES;
 }
 
+// >=MacOSX 10.7
+- (NSDragOperation)draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context
+{
+	return NSDragOperationAll;
+}
+
+// <=MacOSX 10.6
+- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)isLocal
+{
+	return NSDragOperationAll;
+}
+
+
 //		def acceptsFirstResponder(self):
 //			return utils.attrChain(self, "control", "attr", "canHaveFocus", default=False)
 //		def becomeFirstResponder(self):

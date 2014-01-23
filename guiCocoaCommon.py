@@ -250,21 +250,4 @@ except Exception:
 
 
 
-try:
-	class DragSource(AppKit.NSObject):
-		onDragEnded = None
-		control = None
-		@objc.typedSelector('i@:@i')
-		def draggingSession_sourceOperationMaskForDraggingContext_(self, session, context):
-			return AppKit.NSDragOperationAll
-		@objc.typedSelector('v@:@{CGPoint=dd}i')
-		def draggingSession_endedAtPoint_operation_(self, session, screenPoint, operation):
-			if self.onDragEnded: self.onDragEnded(operation)
-		@objc.typedSelector('v@:@{CGPoint=dd}i')
-		def draggedImage_endedAt_operation_(self, img, pt, operation):
-			if self.onDragEnded: self.onDragEnded(operation)
-		
-except Exception:
-	DragSource = objc.lookUpClass("DragSource")
-
 # keep old pools. there is no real safe way to know whether we still have some refs to objects

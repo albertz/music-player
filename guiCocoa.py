@@ -390,8 +390,7 @@ def _buildControlObject_post(control):
 		dragPosition = subview.convertPoint_toView_(ev.locationInWindow(), None)
 		dragPosition.x -= 16
 		dragPosition.y += 32
-		dragSource = DragSource.alloc().init()
-		dragSource.control = control
+		dragSource = control.nativeGuiObject
 		subview.dragImage_at_offset_event_pasteboard_source_slideBack_(
 			dragImage,
 			dragPosition,

@@ -789,6 +789,7 @@ final:
 	}
 	if(!dragHandlerRef) return NO;
 	
+	id dragSource = [sender draggingSource];
 	NSArray* filenames = [[sender draggingPasteboard] propertyListForType:NSFilenamesPboardType];
 	int index = dragIndex;
 	
@@ -850,19 +851,35 @@ final:
 			}
 
 			{
-				id dragSource = [sender draggingSource];
+				// Note that this expects the dragSource to be of type NSFlippedView, which
+				// is declared by Python in guiCocoaCommon.
+				// In _buildControlObject_post, we set its "control" attribute to a weakref to the control.
 				PyObject* dragSourcePy = PyObjCObj_IdToPy(dragSource);
-				Py_XDECREF(dragSourcePy);
+				PyObject* sourceControlRef = dragSourcePy ? PyObject_GetAttrString(dragSourcePy, "control") : NULL;
+				PyObject* sourceControl = (sourceControlRef && PyWeakref_Check(sourceControlRef)) ? PyWeakref_GetObject(sourceControlRef) : NULL;
 				
-				if([dragSource respondsToSelector:@selector(onInternalDrag:withIndex:withFiles:)]) {
-					Py_INCREF(control);
-					dispatch_async(dispatch_get_main_queue(), ^{
-						PyGILState_STATE gstate = PyGILState_Ensure();
-						[[sender draggingSource] onInternalDrag:control withIndex:index withFiles:filenames];
-						Py_DECREF(control);
-						PyGILState_Release(gstate);
-					});
+				if(sourceControl && PyType_IsSubtype(Py_TYPE(sourceControl), &CocoaGuiObject_Type)) {
+					PyObject* parentControl = ((CocoaGuiObject*)sourceControl)->parent;
+					Py_XINCREF(parentControl);
+					if(parentControl && PyType_IsSubtype(Py_TYPE(parentControl), &CocoaGuiObject_Type)) {
+						NSView* parentView = ((CocoaGuiObject*)parentControl)->getNativeObj();
+						
+						if([parentView isKindOfClass:[ListControlView class]]) {
+							Py_INCREF(control);
+							dispatch_async(dispatch_get_main_queue(), ^{
+								PyGILState_STATE gstate = PyGILState_Ensure();
+								[(ListControlView*)parentView onInternalDrag:control withIndex:index withFiles:filenames];
+								Py_DECREF(control);
+								PyGILState_Release(gstate);
+							});
+						}
+					}
+					Py_XDECREF(parentControl);
 				}
+				
+				Py_XDECREF(sourceControl);
+				Py_XDECREF(sourceControlRef);
+				Py_XDECREF(dragSourcePy);
 			}
 			
 		finalCall:
