@@ -433,27 +433,7 @@ final:
 		if(childView && [childView respondsToSelector:@selector(setBackgroundColor:)])
 			[childView performSelector:@selector(setBackgroundColor:) withObject:[NSColor selectedTextBackgroundColor]];
 		
-		// special handling for gui.ctx().curSelectedSong
-		if(subCtr->subjectObject) {
-			PyTypeObject* t = Py_TYPE(subCtr->subjectObject);
-			if(strcmp(t->tp_name, "Song") == 0) {
-				PyObject* mod = getModule("gui"); // borrowed ref
-				PyObject* ctx = NULL;
-				if(!mod) {
-					printf("Cocoa ListControl: cannot get gui module\n");
-					goto finalCurSong;
-				}
-				ctx = PyObject_CallMethod(mod, (char*)"ctx", NULL);
-				if(!ctx) {
-					printf("Cocoa ListControl: gui.ctx() failed\n");
-					goto finalCurSong;
-				}
-				PyObject_SetAttrString(ctx, "curSelectedSong", subCtr->subjectObject);
-			finalCurSong:
-				if(PyErr_Occurred()) PyErr_Print();
-				Py_XDECREF(ctx);
-			}
-		}
+		subCtr->handleCurSelectedSong();
 		
 		dispatch_async(dispatch_get_main_queue(), ^{
 			if(!childView || ![childView window]) return; // window closed or removed from window in the meantime

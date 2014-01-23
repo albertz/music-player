@@ -354,15 +354,6 @@ def buildControlReal(control):
 def _buildControlObject_post(control):
 	subview = control.nativeGuiObject
 
-	if control.attr.canHaveFocus:
-		subview.setDrawsBackground_(True)
-		subview.onResignFirstResponder = lambda: subview.setBackgroundColor_(AppKit.NSColor.textBackgroundColor())
-		subview.onBecomeFirstResponder = lambda: subview.setBackgroundColor_(AppKit.NSColor.selectedTextBackgroundColor())
-		
-	if backgroundColor(control):
-		subview.setDrawsBackground_(True)
-		subview.setBackgroundColor_(backgroundColor(control))
-
 	@ExceptionCatcherDecorator
 	def onMouseDragged(ev):
 		guiObj = control
@@ -389,16 +380,7 @@ def _buildControlObject_post(control):
 		)
 		return True		
 	subview.onMouseDragged = onMouseDragged
-	
-	@ExceptionCatcherDecorator
-	def onMouseDown(ev):
-		subjectObj = control.subjectObject
-		# special handling for gui.ctx().curSelectedSong
-		if subjectObj.__class__.__name__ == "Song":
-			import gui
-			gui.ctx().curSelectedSong = subjectObj	
-	subview.onMouseDown = onMouseDown
-	
+
 
 def SongDisplayView_MouseClickCallback(x):
 	from State import state

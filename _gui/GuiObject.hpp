@@ -98,8 +98,9 @@ struct GuiObject {
 	// Custom. not exposed to Python right now but might later. Optional.
 	void (*meth_childIter)(GuiObject*, boost::function<void(GuiObject* child, bool& stop)>); // used by tp_traverse if set
 	
-	// Currently wrapped to Python
+	// other helpers
 	Vec setupChilds();
+	void handleCurSelectedSong();
 };
 
 #endif

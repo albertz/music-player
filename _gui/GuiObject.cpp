@@ -249,3 +249,29 @@ Vec GuiObject::setupChilds() {
 	return sizeVec;
 }
 
+void GuiObject::handleCurSelectedSong() {
+	// special handling for gui.ctx().curSelectedSong
+	PyObject* subj = subjectObject;
+	if(!subj) return;
+	Py_INCREF(subj);
+	PyTypeObject* t = Py_TYPE(subj);
+	if(strcmp(t->tp_name, "Song") == 0) {
+		PyObject* mod = getModule("gui"); // borrowed ref
+		PyObject* ctx = NULL;
+		if(!mod) {
+			printf("handleCurSelectedSong: cannot get gui module\n");
+			goto finalCurSong;
+		}
+		ctx = PyObject_CallMethod(mod, (char*)"ctx", NULL);
+		if(!ctx) {
+			printf("handleCurSelectedSong: gui.ctx() failed\n");
+			goto finalCurSong;
+		}
+		PyObject_SetAttrString(ctx, "curSelectedSong", subj);
+	finalCurSong:
+		if(PyErr_Occurred()) PyErr_Print();
+		Py_XDECREF(ctx);
+	}
+	Py_DECREF(subj);
+}
+

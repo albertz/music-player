@@ -74,4 +74,14 @@
 	return YES;
 }
 
+- (void)mouseDown:(NSEvent *)theEvent
+{
+	[super mouseDown:theEvent];
+	
+	PyGILState_STATE gstate = PyGILState_Ensure();
+	CocoaGuiObject* control = [self getControl];
+	if(control) control->handleCurSelectedSong();
+	PyGILState_Release(gstate);
+}
+
 @end
