@@ -187,7 +187,7 @@ static FunctionWrapper* newFunctionWrapper(PyCallback func) {
     self = [super initWithControl:control];
     if(!self) return nil;
 
-	scrollview = [[NSScrollView alloc] initWithFrame:frame];
+	scrollview = [[NSScrollView alloc] initWithFrame:[self frame]];
 	[scrollview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
 	[[scrollview contentView] setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
 	documentView = [[_NSFlippedView alloc] initWithFrame:
@@ -336,7 +336,7 @@ static FunctionWrapper* newFunctionWrapper(PyCallback func) {
 		// esp. to have onInsert, onRemove and onClear as utils.Event().
 		{
 			auto registerEv = [=](const char* evName, PyCallback func) {
-				PyObject* control = NULL;
+				CocoaGuiObject* control = NULL;
 				PyObject* event = NULL;
 				PyObject* res = NULL;
 				PyObject* callbackWrapper = NULL;
@@ -367,7 +367,7 @@ static FunctionWrapper* newFunctionWrapper(PyCallback func) {
 				// We do this as the last step, so that we do it only if we did not fail so far.
 				char attribName[255];
 				snprintf(attribName, sizeof(attribName), "_%s", evName);
-				if(PyObject_SetAttrString(control, attribName, callbackWrapper) != 0) {
+				if(PyObject_SetAttrString((PyObject*) control, attribName, callbackWrapper) != 0) {
 					printf("Cocoa ListControl: failed to set %s\n", attribName);
 					goto finalRegisterEv;
 				}
@@ -1038,10 +1038,11 @@ final:
 				PyGILState_Release(gstate);
 			});
 
+			int w = subCtr->PresetSize.y;
 			dispatch_async(dispatch_get_main_queue(), ^{
 				// if getattr(subCtr, "obsolete", False): return # can happen in the meanwhile
 				[[scrollview documentView] addSubview:childView];
-				if(sizeVec.y != presetSizeVec.y)
+				if(sizeVec.y != w)
 					[self scrollviewUpdate];
 			});
 		}
