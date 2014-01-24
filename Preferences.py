@@ -18,7 +18,10 @@ class Preferences(object):
 		from State import state
 		return state.player.outSamplerate
 
-	@UserAttrib(type=Traits.EditableText, alignRight=True, variableWidth=True)
+	@UserAttrib(type=Traits.EditableText,
+		alignRight=True, variableWidth=True,
+		width=100 # this forces a min-width
+		)
 	def sampleRate(self, updateText=None):
 		if updateText is not None and self._sampleRateStr != updateText:
 			self._sampleRateStr = updateText

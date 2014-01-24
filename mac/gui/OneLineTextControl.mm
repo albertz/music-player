@@ -25,7 +25,6 @@
 
 - (id)initWithControl:(CocoaGuiObject*)control
 {
-	control->PresetSize = Vec(30, 22);
 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
     self = [super initWithFrame:frame];
     if(!self) return nil;

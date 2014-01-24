@@ -78,6 +78,12 @@ bool _buildControlObject_post(CocoaGuiObject* control) {
 }
 
 bool buildControlOneLineText(CocoaGuiObject* control) {
+	long w = attrChain_int_default(control->attr, "width", -1);
+	long h = attrChain_int_default(control->attr, "height", -1);
+	if(w < 0) w = 30;
+	if(h < 0) h = 22;
+	control->PresetSize = Vec((int)w, (int)h);
+
 	OneLineTextControlView* view = [[OneLineTextControlView alloc] initWithControl:control];
 	control->setNativeObj(view);
 	return view != nil;

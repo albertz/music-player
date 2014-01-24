@@ -99,6 +99,30 @@ int attrChain_bool_default(PyObject* base, const char* name, int def) {
 }
 
 static inline
+long attrChain_int_default(PyObject* base, const char* name, long def) {
+	if(!base) return def;
+	PyObject* resObj = attrChain(base, name);
+	long res = def;
+	if(!resObj) {
+		if(PyErr_Occurred()) {
+			if(PyErr_ExceptionMatches(PyExc_AttributeError))
+				PyErr_Clear();
+			else
+				PyErr_Print();
+		}
+	}
+	else if(resObj != Py_None) {
+		res = PyInt_AsLong(resObj);
+		if(PyErr_Occurred()) {
+			PyErr_Print();
+			res = def;
+		}
+	}
+	Py_XDECREF(resObj);
+	return res;
+}
+
+static inline
 PyObject* modAttrChain(const char* modName, const char* name) {
 	PyObject* mod = getModule(modName); // borrowed
 	if(!mod) {
