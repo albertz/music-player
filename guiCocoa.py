@@ -148,7 +148,9 @@ def foregroundColor(control):
 
 
 def buildControlEditableText(control):
-	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))
+	w = control.attr.width or 30
+	h = control.attr.height or 22
+	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (w, h)))
 	if control.attr.searchLook:
 		label.setCell_(AppKit.NSSearchFieldCell.alloc().init())
 	label.setBordered_(False)
