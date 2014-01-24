@@ -78,6 +78,7 @@ def connect(verbose=False):
 				f = t.file
 				res = t.res
 				break
+		if f: break
 		if not anyoneAlive:
 			print "Cannot connect to any socket:"
 			for t in connects:
