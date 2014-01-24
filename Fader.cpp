@@ -25,27 +25,9 @@ void Fader::change(int8_t _inc, int Samplerate) {
 	}
 }
 
-void Fader::frameTick() {
-	if(finished()) return;
-	cur += inc;
-}
-
 void Fader::finish() {
 	if(inc < 0) cur = 0;
 	else cur = limit.load();
-}
-
-bool Fader::finished() {
-	int8_t incCpy(inc);
-	if(incCpy == 0) return true;
-	if(incCpy > 0) return cur >= limit;
-	if(incCpy < 0) return cur == 0;
-	assert(false); return false;
-}
-
-double Fader::sampleFactor() const {
-	if(limit == 0) return 1;
-	return double(cur) / limit;
 }
 
 void Fader::wait(PlayerObject* player) {
