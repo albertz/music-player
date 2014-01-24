@@ -69,17 +69,20 @@ class _GuiObject:
 		if getattr(self.subjectObject, "_updateEvent", None):
 			self._updateHandler = lambda: do_in_mainthread(self.updateContent, wait=False)
 			getattr(self.subjectObject, "_updateEvent").register(self._updateHandler)
-		
+
+	def updateChild(self, control):
+		if control.attr and control.attr.updateHandler:
+			try:
+				control.attr.updateHandler(self.subjectObject, control.attr)
+			except Exception:
+				sys.excepthook(*sys.exc_info())
+		control.updateContent()
+
 	def updateContent(self):
 		self.updateSubjectObject()
 		for control in self.childIter():
-			if control.attr and control.attr.updateHandler:
-				try:
-					control.attr.updateHandler(self.subjectObject, control.attr)
-				except Exception:
-					sys.excepthook(*sys.exc_info())
-			control.updateContent()
-	
+			self.updateChild(control)
+
 	def guiObjectsInLine(self):
 		obj = self
 		while True:
@@ -203,7 +206,7 @@ class _GuiObject:
 				self.firstChildGuiObject = control
 			if attr.hasUpdateEvent():
 				def controlUpdateHandler(control=control):
-					do_in_mainthread(control.updateContent, wait=False)
+					do_in_mainthread(lambda: self.updateChild(control), wait=False)
 				control._updateHandler = controlUpdateHandler
 				attr.updateEvent(self.subjectObject).register(control._updateHandler)
 			self.addChild(control)

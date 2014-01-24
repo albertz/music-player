@@ -6,6 +6,7 @@ import Traits
 class Preferences(object):
 	def __init__(self):
 		self._sampleRateStr = None
+		self.lastFm_update(self.__class__.lastFm)
 
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
 	@safe_property
@@ -57,6 +58,36 @@ class Preferences(object):
 		from appinfo import config
 		config.sampleRate = rate
 		config.save()
+
+	def lastFm_update(self, attrib):
+		from appinfo import config
+		if config.lastFm:
+			attrib.name = "Last.fm is enabled. Disable it."
+		else:
+			attrib.name = "Last.fm is disabled. Enable it."
+
+	@UserAttrib(type=Traits.Action, updateHandler=lastFm_update, variableWidth=False)
+	def lastFm(self):
+		self.lastFm_updateEvent.push()
+
+		from appinfo import config
+		config.lastFm = not config.lastFm
+		config.save()
+
+		from State import getModule
+		getModule("tracker_lastfm").reload()
+
+	@lastFm.setUpdateEvent
+	@initBy
+	def lastFm_updateEvent(self): return Event()
+
+	@UserAttrib(type=Traits.Action, alignRight=True, name="reset Last.fm login", variableWidth=False)
+	def resetLastFm(self):
+		import lastfm, os, sys
+		try:
+			os.remove(lastfm.StoredSession.TOKEN_FILE)
+		except Exception:
+			sys.excepthook(*sys.exc_info())
 
 prefs = Preferences()
 
