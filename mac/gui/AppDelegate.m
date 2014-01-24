@@ -56,6 +56,11 @@ final:
 	handleModuleCommand_noReturn("guiCocoa", "setupSongEditWindow", NULL);
 }
 
+- (void)setupPrefWindow
+{
+	handleModuleCommand_noReturn("guiCocoa", "setupPrefWindow", NULL);
+}
+
 NSMenu* dockMenu;
 
 - (void)setDockMenu:(NSMenu*)m
@@ -171,6 +176,11 @@ final:
 - (void)openSongEditWindow:(id)sender
 {
 	[self setupSongEditWindow];
+}
+
+- (void)openPrefWindow:(id)sender
+{
+	[self setupPrefWindow];
 }
 
 - (void)about:(id)sender

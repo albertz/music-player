@@ -50,6 +50,7 @@ class Config:
 	mpdBackend = True
 	mpdBindHost = '127.0.0.1'
 	mpdBindPort = 6600
+	sampleRate = 48000
 	def __init__(self, **kwargs):
 		for k in dir(self):
 			if k.startswith("_"): continue

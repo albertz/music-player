@@ -39,7 +39,8 @@ class Search:
 	
 	@UserAttrib(type=Traits.Table(keys=Keys,
 		format_duration=lambda d: formatTime(d) if d > 0 else "",
-		format_rating=lambda r: "★" * int(round(r * 5))))
+		format_rating=lambda r: "★" * int(round(r * 5))),
+		variableHeight=True)
 	@property
 	def searchResults(self):
 		with self._lock:

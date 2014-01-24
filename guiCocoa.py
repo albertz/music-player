@@ -29,6 +29,8 @@ def setupAppleMenu():
 	
 	m.addItemWithTitle_action_keyEquivalent_('About MusicPlayer', 'about:', '')
 	m.addItem_(AppKit.NSMenuItem.separatorItem())
+	m.addItemWithTitle_action_keyEquivalent_('Preferences...', 'openPrefWindow:', ',')
+	m.addItem_(AppKit.NSMenuItem.separatorItem())
 	m.addItemWithTitle_action_keyEquivalent_('Hide MusicPlayer', 'hide:', 'h')
 	mii = m.addItemWithTitle_action_keyEquivalent_('Hide Others', 'hideOtherApplications:', 'h')
 	mii.setKeyEquivalentModifierMask_(AppKit.NSAlternateKeyMask|AppKit.NSCommandKeyMask)
@@ -101,6 +103,7 @@ def handleApplicationQuit():
 		# maybe some modules are hanging and waiting for such
 		import sys, os, signal
 		os.kill(0, signal.SIGINT)
+	except KeyboardInterrupt: pass # well, we expect that...
 	except Exception: pass
 	# now join all
 	for m in modules: m.stop()
@@ -532,7 +535,11 @@ def setupSongEditWindow():
 	if not getattr(ctx, "songEdit", None):
 		ctx.songEdit = SongEdit(ctx)
 	setupWindow(ctx.songEdit, windowName="songEditWindow", title="Song edit")	
-	
+
+def setupPrefWindow():
+	from Preferences import prefs
+	setupWindow(prefs, windowName="prefWindow", title="Preferences")
+
 def locateFile(filename):
 	ws = AppKit.NSWorkspace.sharedWorkspace()
 	ws.selectFile_inFileViewerRootedAtPath_(filename, None)

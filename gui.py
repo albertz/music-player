@@ -162,6 +162,9 @@ class _GuiObject:
 				break
 		if not varHeightControl:
 			varHeightControl = lastVertControls[-1]
+			if varHeightControl.attr.variableHeight is False:
+				# It explicitly doesn't want to be of variable size.
+				return
 		y = self.innerSize[1] - self.OuterSpace[1]
 		for control in reversed(lastVertControls):
 			w,h = control.size
