@@ -155,7 +155,7 @@ struct PlayerObject::OutStream {
 #if defined(__APPLE__)
 		PaMacCoreStreamInfo macInfo;
 		PaMacCore_SetupStreamInfo( &macInfo,
-			paMacCorePlayNice | paMacCorePro );
+			paMacCorePlayNice | paMacCorePro | paMacCoreChangeDeviceParameters );
 		outputParameters.hostApiSpecificStreamInfo = &macInfo;
 #elif defined(__LINUX__)
 		// TODO: if we have PaAlsa_EnableRealtimeScheduling in portaudio,
