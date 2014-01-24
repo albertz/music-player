@@ -121,6 +121,12 @@
 	[self addTrackingRect];
 }
 
+- (void)setFrameSize:(NSSize)newSize
+{
+	[super setFrameSize:newSize];
+	[self addTrackingRect];
+}
+
 - (void)setBounds:(NSRect)bounds
 {
 	[super setBounds:bounds];
