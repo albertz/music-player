@@ -889,6 +889,7 @@ final:
 
 			Py_INCREF(subCtr);
 			dispatch_async(dispatch_get_main_queue(), ^{
+				PyGILState_STATE gstate = PyGILState_Ensure();
 				subCtr->updateContent();
 				Py_DECREF(subCtr);
 				PyGILState_Release(gstate);
