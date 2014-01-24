@@ -8,6 +8,8 @@
 
 #import "OneLineTextControl.hpp"
 #import "PythonHelpers.h"
+#import "Builders.hpp"
+
 
 @implementation OneLineTextControlView
 {
@@ -30,10 +32,11 @@
 
 	[self setBordered:NO];
 	
+	bool withBorder = false;
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
-		bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
+		withBorder = attrChain_bool_default(control->attr, "withBorder", false);
 		PyGILState_Release(gstate);
 	}
 	
@@ -113,7 +116,7 @@
 		bool autosizeWidth = attrChain_bool_default(control->attr, "autosizeWidth", false);
 		if(autosizeWidth) {
 			[self sizeToFit];
-			PyObject* res = PyObject_CallMethod(control, "layoutLine", NULL);
+			PyObject* res = PyObject_CallMethod((PyObject*) control, (char*)"layoutLine", NULL);
 			if(!res && PyErr_Occurred()) PyErr_Print();
 			Py_XDECREF(res);
 		}
