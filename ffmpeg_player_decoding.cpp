@@ -11,6 +11,7 @@
 #include "ffmpeg.h"
 #include "PyUtils.h"
 #include "Log.hpp"
+#include "PythonHelpers.h"
 
 extern "C" {
 #include <libavformat/avformat.h>

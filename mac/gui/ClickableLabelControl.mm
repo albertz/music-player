@@ -1,29 +1,39 @@
 //
-//  ClickableLabelControl.m
+//  ClickableLabelControl.mm
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 24.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "ClickableLabelControl.h"
+#import "ClickableLabelControl.hpp"
 
-@implementation ClickableLabelControl
+@implementation ClickableLabelControlView
 
-- (id)initWithFrame:(NSRect)frame
+- (id)initWithControl:(CocoaGuiObject*)control
 {
-    self = [super initWithFrame:frame];
-    if (self) {
-        // Initialization code here.
-    }
+    self = [super initWithControl:control];
+    if(!self) return nil;
+	
+	
     return self;
 }
 
-- (void)drawRect:(NSRect)dirtyRect
+- (PyObject*)getTextObj
 {
-	[super drawRect:dirtyRect];
-	
-    // Drawing code here.
+	CocoaGuiObject* control = [self getControl];
+	PyObject* subjObj = control ? control->subjectObject : NULL;
+	PyObject* textObj = NULL;
+	Py_XINCREF(subjObj);
+	PyObject* kws = PyDict_New();
+	if(subjObj && kws) {
+		PyDict_SetItemString(kws, "handleClick", Py_False);
+		textObj = PyEval_CallObjectWithKeywords(subjObj, NULL, kws);
+	}
+	if(PyErr_Occurred()) PyErr_Print();
+	Py_XDECREF(kws);
+	Py_XDECREF(control);
+	return textObj;
 }
 
 @end

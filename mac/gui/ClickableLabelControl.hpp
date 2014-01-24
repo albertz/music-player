@@ -1,5 +1,5 @@
 //
-//  ClickableLabelControl.h
+//  ClickableLabelControl.hpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 24.01.14.
@@ -8,6 +8,9 @@
 
 #import "OneLineTextControl.hpp"
 
-@interface ClickableLabelControl : OneLineTextControlView
+@interface ClickableLabelControlView : OneLineTextControlView
+
+- (id)initWithControl:(CocoaGuiObject*)control;
+- (PyObject*)getTextObj;
 
 @end

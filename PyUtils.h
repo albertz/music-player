@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-int PyDict_SetItemString_retain(PyObject* dict, const char* key, PyObject* value);
-
 // this is mostly safe to call.
 // returns a newly allocated c-string.
 char* objStrDup(PyObject* obj);

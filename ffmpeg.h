@@ -12,18 +12,6 @@
 #include <pythread.h>
 
 
-/* Some confusion about Python functions and their reference counting:
- 
- PyObject_GetAttrString: returns new reference!
- PyDict_SetItem: increments reference on key and value!
- PyDict_SetItemString: increments reference on value!
- PyDict_GetItemString: does not inc ref of returned obj, i.e. borrowed ref! (unlike PyObject_GetAttrString)
- PyTuple_Pack: increments references on passed objects
- PyTuple_SetItem: does *not* increment references, i.e. steals ref (unlike PyDict_SetItem)
- PyList_Append: inc ref of passed object
- PyList_SetItem: does *not* inc ref on obj!
- */
-
 #ifdef __cplusplus
 struct PlayerObject;
 

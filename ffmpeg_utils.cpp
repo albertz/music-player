@@ -111,12 +111,6 @@ const char* getStackSymbol(void* pt) { return "?"; }
 
 
 
-int PyDict_SetItemString_retain(PyObject* dict, const char* key, PyObject* value) {
-	int ret = PyDict_SetItemString(dict, key, value);
-	Py_DECREF(value);
-	return ret;
-}
-
 PyMutex::PyMutex() {
 	mlock(this, sizeof(*this));
 	l = PyThread_allocate_lock();

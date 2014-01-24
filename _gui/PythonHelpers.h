@@ -9,7 +9,22 @@
 #ifndef MusicPlayer_PythonHelpers_h
 #define MusicPlayer_PythonHelpers_h
 
+// Import Python first. This will define _GNU_SOURCE. This is needed to get strdup (and maybe others). We could also define _GNU_SOURCE ourself, but pyconfig.h from Python has troubles then and redeclares some other stuff. So, to just import Python first is the simplest way.
 #include <Python.h>
+
+/* Some confusion about Python functions and their reference counting:
+ 
+ PyObject_GetAttrString: returns new reference!
+ PyDict_SetItem: increments reference on key and value!
+ PyDict_SetItemString: increments reference on value!
+ PyDict_GetItemString: does not inc ref of returned obj, i.e. borrowed ref! (unlike PyObject_GetAttrString)
+ PyTuple_Pack: increments references on passed objects
+ PyTuple_SetItem: does *not* increment references, i.e. steals ref (unlike PyDict_SetItem)
+ PyList_Append: inc ref of passed object
+ PyList_SetItem: does *not* inc ref on obj!
+ */
+
+
 #ifdef __OBJC__
 #import <Foundation/Foundation.h>
 #endif
@@ -187,6 +202,14 @@ void uninitTypeObject(PyTypeObject* t) {
 	t->tp_repr = NULL;
 	t->tp_str = NULL;
 	PyType_Modified(t);
+}
+
+static inline
+int PyDict_SetItemString_retain(PyObject* dict, const char* key, PyObject* value) {
+	if(!value) return -1;
+	int ret = PyDict_SetItemString(dict, key, value);
+	Py_DECREF(value);
+	return ret;
 }
 
 

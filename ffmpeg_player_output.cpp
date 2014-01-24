@@ -6,6 +6,7 @@
 
 #include "ffmpeg.h"
 #include "PyUtils.h"
+#include "PythonHelpers.h"
 
 #include <portaudio.h>
 #include <boost/bind.hpp>
