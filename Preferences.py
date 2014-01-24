@@ -20,7 +20,7 @@ class Preferences(object):
 
 	@UserAttrib(type=Traits.EditableText,
 		alignRight=True, variableWidth=True,
-		width=100 # this forces a min-width
+		width=200 # this forces a min-width
 		)
 	def sampleRate(self, updateText=None):
 		if updateText is not None and self._sampleRateStr != updateText:
