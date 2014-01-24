@@ -3,6 +3,7 @@
 #import "ListControl.hpp"
 #import "ObjectControl.hpp"
 #import "OneLineTextControl.hpp"
+#import "ClickableLabelControl.hpp"
 #import "PythonHelpers.h"
 #import "PyObjCBridge.h"
 
@@ -78,6 +79,12 @@ bool _buildControlObject_post(CocoaGuiObject* control) {
 
 bool buildControlOneLineText(CocoaGuiObject* control) {
 	OneLineTextControlView* view = [[OneLineTextControlView alloc] initWithControl:control];
+	control->setNativeObj(view);
+	return view != nil;
+}
+
+bool buildControlClickableLabel(CocoaGuiObject* control) {
+	ClickableLabelControlView* view = [[ClickableLabelControlView alloc] initWithControl:control];
 	control->setNativeObj(view);
 	return view != nil;
 }

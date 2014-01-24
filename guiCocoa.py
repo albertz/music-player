@@ -143,27 +143,6 @@ def foregroundColor(control):
 	return AppKit.NSColor.blackColor()
 
 
-def buildControlClickableLabel(control):
-	buildControlOneLineText(control)
-	control.getTextObj = lambda: control.subjectObject(handleClick=False)
-
-	label = control.nativeGuiObject
-	def onMouseEntered(ev):
-		if label.backgroundColor() == AppKit.NSColor.blueColor():
-			label.setTextColor_(AppKit.NSColor.grayColor())
-		else:
-			label.setTextColor_(AppKit.NSColor.blueColor())
-	label.onMouseEntered = onMouseEntered
-	label.onMouseExited = lambda ev: label.setTextColor_(foregroundColor(control))
-	def onMouseDown(ev):
-		try:
-			control.subjectObject(handleClick=True)
-		except Exception:
-			sys.excepthook(*sys.exc_info())			
-		control.parent.updateContent()
-	label.onMouseDown = onMouseDown
-
-	return control
 
 def buildControlEditableText(control):
 	label = NSExtendedTextField.alloc().initWithFrame_(((0, 0), (30.0, 22.0)))

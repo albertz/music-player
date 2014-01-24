@@ -120,14 +120,6 @@
 			if(!res && PyErr_Occurred()) PyErr_Print();
 			Py_XDECREF(res);
 		}
-
-		//[self removeTrackingRect:];
-		//[self addTrackingRect: owner: userData: assumeInside:]
-		
-		//			if label.onMouseEntered or label.onMouseExited:
-		//				if getattr(label, "trackingRect", None):
-		//					label.removeTrackingRect_(label.trackingRect)
-		//				label.trackingRect = label.addTrackingRect_owner_userData_assumeInside_(label.bounds(), label, None, False)
 		
 		Py_DECREF(control);
 		PyGILState_Release(gstate);

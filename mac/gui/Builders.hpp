@@ -16,6 +16,7 @@ bool buildControlObject(CocoaGuiObject* control);
 bool _buildControlObject_pre(CocoaGuiObject* control);
 bool _buildControlObject_post(CocoaGuiObject* control);
 bool buildControlOneLineText(CocoaGuiObject* control);
+bool buildControlClickableLabel(CocoaGuiObject* control);
 
 NSColor* backgroundColor(CocoaGuiObject* control);
 NSColor* foregroundColor(CocoaGuiObject* control);

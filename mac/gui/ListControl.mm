@@ -889,11 +889,7 @@ final:
 
 			Py_INCREF(subCtr);
 			dispatch_async(dispatch_get_main_queue(), ^{
-				PyGILState_STATE gstate = PyGILState_Ensure();
-				PyObject* res = PyObject_CallMethod((PyObject*) subCtr, (char*)"updateContent", (char*)"(OOO)", Py_None, Py_None, Py_None);
-				if(!res)
-					printf("Cocoa ListControl buildControlForIndex: failed to call subCtr.updateContent\n");
-				else Py_DECREF(res);
+				subCtr->updateContent();
 				Py_DECREF(subCtr);
 				PyGILState_Release(gstate);
 			});

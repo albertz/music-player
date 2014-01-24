@@ -217,6 +217,23 @@ guiCocoa_buildControlOneLineText(PyObject* self, PyObject* args) {
 	return control;
 }
 
+PyObject*
+guiCocoa_buildControlClickableLabel(PyObject* self, PyObject* args) {
+	PyObject* control = NULL;
+	if(!PyArg_ParseTuple(args, "O:buildControlClickableLabel", &control))
+		return NULL;
+	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "_guiCocoa.buildControlClickableLabel: we expect a CocoaGuiObject");
+		return NULL;
+	}
+	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
+	buildControlClickableLabel(guiObject);
+	
+	Py_INCREF(control);
+	return control;
+}
+
+
 
 static PyMethodDef module_methods[] = {
 	{"main",	(PyCFunction)guiCocoa_main,	METH_NOARGS,	"overtakes main()"},
@@ -225,6 +242,7 @@ static PyMethodDef module_methods[] = {
 	{"buildControlList",  guiCocoa_buildControlList, METH_VARARGS, ""},
 	{"buildControlObject",  guiCocoa_buildControlObject, METH_VARARGS, ""},
 	{"buildControlOneLineText",  guiCocoa_buildControlOneLineText, METH_VARARGS, ""},
+	{"buildControlClickableLabel",  guiCocoa_buildControlClickableLabel, METH_VARARGS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 
