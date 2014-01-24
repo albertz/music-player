@@ -1,5 +1,5 @@
 
-from utils import UserAttrib, Event, initBy
+from utils import UserAttrib, Event, initBy, safe_property
 import Traits
 
 
@@ -8,6 +8,8 @@ class Preferences(object):
 		self._sampleRateStr = None
 
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
+	@safe_property
+	@property
 	def sampleRateLabel(self):
 		return "Sample rate in Hz:"
 
@@ -16,7 +18,7 @@ class Preferences(object):
 		from State import state
 		return state.player.outSamplerate
 
-	@UserAttrib(type=Traits.EditableText, alignRight=True, autosizeWidth=True)
+	@UserAttrib(type=Traits.EditableText, alignRight=True, variableWidth=True)
 	def sampleRate(self, updateText=None):
 		if updateText is not None and self._sampleRateStr != updateText:
 			self._sampleRateStr = updateText
@@ -35,6 +37,7 @@ class Preferences(object):
 		self.sampleRate_updateEvent.push()
 
 		self._sampleRateStr, rate = None, self._sampleRateStr
+		if rate is None: return
 		if rate[-1:] == "k": rate = rate[:-1] + "000"
 		try: rate = int(rate)
 		except Exception: return # no valid integer
