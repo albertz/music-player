@@ -25,6 +25,16 @@
 
 - (id)initWithControl:(CocoaGuiObject*)control
 {
+	{
+		PyGILState_STATE gstate = PyGILState_Ensure();
+		long w = attrChain_int_default(control->attr, "width", -1);
+		long h = attrChain_int_default(control->attr, "height", -1);
+		if(w < 0) w = 30;
+		if(h < 0) h = 22;
+		control->PresetSize = Vec((int)w, (int)h);
+		PyGILState_Release(gstate);
+	}
+	
 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
     self = [super initWithFrame:frame];
     if(!self) return nil;
