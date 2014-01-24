@@ -425,7 +425,7 @@ def buildControlSongDisplay(control):
 
 			del pool
 
-		def update(self, ev=None, args=None, kwargs=None):
+		def update(self):
 			#if ev is PlayerEventCallbacks.onSongChange:
 			with self.lock:
 				if self.curSong is state.player.curSong: return # song not changed
