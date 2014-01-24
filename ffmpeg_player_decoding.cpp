@@ -293,6 +293,7 @@ void PlayerObject::resetBuffers() {
 	for(PlayerInStream& is : inStreams) {
 		PyScopedLock lock(is.lock);
 		is.resetBuffers();
+		is.seekToStart(); // bad otherwise
 	}	
 }
 
