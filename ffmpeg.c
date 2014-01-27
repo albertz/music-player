@@ -47,6 +47,7 @@
 
 static PyMethodDef module_methods[] = {
 	{"createPlayer",	(PyCFunction)pyCreatePlayer,	METH_NOARGS,	"creates new player"},
+	{"getSoundDevices", (PyCFunction)pyGetSoundDevices, METH_NOARGS,	"get list of sound device names"},
 	{"getMetadata",		pyGetMetadata,	METH_VARARGS,	"get metadata for Song"},
 	{"calcAcoustIdFingerprint",		pyCalcAcoustIdFingerprint,	METH_VARARGS,	"calculate AcoustID fingerprint for Song"},
 	{"calcBitmapThumbnail",		(PyCFunction)pyCalcBitmapThumbnail,	METH_VARARGS|METH_KEYWORDS,	"calculate bitmap thumbnail for Song"},

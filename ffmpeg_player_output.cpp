@@ -70,8 +70,10 @@ struct PlayerObject::OutStream {
 	PaStream* stream;
 	boost::atomic<bool> needRealtimeReset; // PortAudio callback thread must set itself to realtime
 	boost::atomic<bool> setThreadName;
+	std::string soundDevice;
+	PaDeviceIndex soundDeviceIdx;
 	
-	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false) {
+	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false), setThreadName(true), soundDeviceIdx(-1) {
 		mlock(this, sizeof(*this));
 	}
 	~OutStream() { close(false); }
@@ -143,7 +145,36 @@ struct PlayerObject::OutStream {
 	}
 #endif
 
-	bool open() {
+	static PaDeviceIndex selectSoundDevice(const std::string& preferredSoundDevice) {
+		int num = Pa_GetDeviceCount();
+		if(num == 0) return -1;
+		
+		// check for exact matches
+		for(int i = 0; i < num; ++i) {
+			const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+			if(strcmp(info->name, preferredSoundDevice.c_str()) == 0)
+				return i;
+		}
+		
+		// check for substr case-insensitive matches
+		if(!preferredSoundDevice.empty()) {
+			for(int i = 0; i < num; ++i) {
+				const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+				if(strncasecmp(info->name, preferredSoundDevice.c_str(), preferredSoundDevice.size()) == 0)
+					return i;
+			}
+		}
+		
+		// use default as fallback
+		int idx = Pa_GetDefaultOutputDevice();
+		if(idx >= 0 && idx < num)
+			return idx;
+
+		// strangely, there is no default, so use the first as fallback
+		return 0;
+	}
+
+	bool open(const std::string& prefferedSoundDevice) {
 		if(stream) return true;
 		assert(stream == NULL);
 		
@@ -165,20 +196,24 @@ struct PlayerObject::OutStream {
 #else
 		outputParameters.hostApiSpecificStreamInfo = NULL;
 #endif
-		
-		outputParameters.device = Pa_GetDefaultOutputDevice();
-		if (outputParameters.device == paNoDevice) {
+	
+		soundDeviceIdx = selectSoundDevice(prefferedSoundDevice);
+		soundDevice = "";
+		if(soundDeviceIdx < 0) {
 			PyScopedGIL gil;
-			PyErr_SetString(PyExc_RuntimeError, "Pa_GetDefaultOutputDevice didn't returned a device");
+			PyErr_SetString(PyExc_RuntimeError, "We don't have any sound device");
 			return false;
 		}
+		soundDevice = Pa_GetDeviceInfo(soundDeviceIdx)->name;
+		
+		outputParameters.device = soundDeviceIdx;
 		outputParameters.channelCount = player->outNumChannels;
 		outputParameters.sampleFormat = OutPaSampleFormat<OUTSAMPLE_t>::format;
 		
 		//unsigned long bufferSize = (player->outSamplerate * player->outNumChannels / 1000) * LATENCY_IN_MS / 4;
 		unsigned long bufferSize = paFramesPerBufferUnspecified; // support any buffer size
 		if(bufferSize == paFramesPerBufferUnspecified)
-			outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
+			outputParameters.suggestedLatency = Pa_GetDeviceInfo( soundDeviceIdx )->defaultHighOutputLatency;
 		else
 			outputParameters.suggestedLatency = LATENCY_IN_MS / 1000.0;
 			
@@ -188,29 +223,36 @@ struct PlayerObject::OutStream {
 		// See here: https://github.com/albertz/music-player/issues/35
 		// This doesn't seem to happen with paFramesPerBufferUnspecified.
 		
-		PaError ret = Pa_OpenStream(
-			&stream,
-			NULL, // no input
-			&outputParameters,
-			player->outSamplerate, // sampleRate
-			bufferSize,
-			paClipOff | paDitherOff,
+		while(true) {
+			PaError ret = Pa_OpenStream(
+				&stream,
+				NULL, // no input
+				&outputParameters,
+				player->outSamplerate, // sampleRate
+				bufferSize,
+				paClipOff | paDitherOff,
 #if USE_PORTAUDIO_CALLBACK
-			&paStreamCallback,
+				&paStreamCallback,
 #else
-			NULL,
+				NULL,
 #endif
-			this //void *userData
-			);
-		
-		if(ret != paNoError) {
-			{
-				PyScopedGIL gil;
-				PyErr_Format(PyExc_RuntimeError, "Pa_OpenStream failed: (err %i) %s", ret, Pa_GetErrorText(ret));
+				this //void *userData
+				);
+			
+			if(ret != paNoError) {
+				if(stream)
+					close(false);
+				if(outputParameters.device != Pa_GetDefaultOutputDevice() && Pa_GetDefaultOutputDevice() >= 0) {
+					printf("Pa_OpenStream (%s) failed: (err %i) %s. trying again with default device.\n", soundDevice.c_str(), ret, Pa_GetErrorText(ret));
+					outputParameters.device = Pa_GetDefaultOutputDevice();
+					continue;
+				}
+				else {
+					PyScopedGIL gil;
+					PyErr_Format(PyExc_RuntimeError, "Pa_OpenStream (%s) failed: (err %i) %s", soundDevice.c_str(), ret, Pa_GetErrorText(ret));
+				}
+				return false;
 			}
-			if(stream)
-				close(false);
-			return false;
 		}
 
 		needRealtimeReset = true;
@@ -256,7 +298,7 @@ bool PlayerObject::openOutStream() {
 		outStream.reset(new OutStream(this));
 	assert(outStream.get() != NULL);
 
-	return outStream->open();
+	return outStream->open(preferredSoundDevice);
 }
 
 bool PlayerObject::isOutStreamOpen() {
@@ -329,6 +371,16 @@ void PlayerObject::resetPlaying() {
 }
 
 
+std::string PlayerObject::getSoundDevice() {
+	if(outStream.get() != NULL)
+		return outStream->soundDevice;
+	PaDeviceIndex idx = PlayerObject::OutStream::selectSoundDevice(preferredSoundDevice);
+	if(idx >= 0)
+		return Pa_GetDeviceInfo(idx)->name;
+	return "";
+}
+
+
 #ifdef __APPLE__
 // https://developer.apple.com/library/mac/#documentation/Darwin/Conceptual/KernelProgramming/scheduler/scheduler.html
 // Also, from Google Native Client, osx/nacl_thread_nice.c has some related code.
@@ -388,4 +440,24 @@ void setRealtime(double dutyCicleMs) {} // not implemented yet
 #endif
 
 
+
+
+
+PyObject* pyGetSoundDevices(PyObject* self) {
+	int num = Pa_GetDeviceCount();
+	PyObject* l = PyList_New(num);
+	if(!l) return NULL;
+	
+	for(int i = 0; i < num; ++i) {
+		const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+		PyObject* s = PyString_FromString(info->name);
+		if(!s) {
+			Py_DECREF(l);
+			return NULL;
+		}
+		PyList_SET_ITEM(l, i, s);
+	}
+	
+	return l;
+}
 

@@ -24,6 +24,7 @@ int initPlayerOutput();
 extern PyTypeObject Player_Type;
 
 PyObject* pyCreatePlayer(PyObject* self);
+PyObject* pyGetSoundDevices(PyObject* self);
 PyObject* pySetFfmpegLogLevel(PyObject* self, PyObject* args);
 PyObject* pyEnableDebugLog(PyObject* self, PyObject* args);
 PyObject* pyGetMetadata(PyObject* self, PyObject* args);
@@ -57,11 +58,13 @@ struct PlayerObject {
 	PyObject* curSong;
 	boost::atomic<bool> playing;
 	bool soundcardOutputEnabled; // if enabled, uses PortAudio to play on soundcard. otherwise call readStreamOut manually
+	std::string preferredSoundDevice;
 	int setPlaying(bool playing);
 	void resetPlaying();
 	bool openOutStream();
 	bool isOutStreamOpen();
 	void closeOutStream(bool waitForPendingAudioBuffers);
+	std::string getSoundDevice();
 	float volume;
 	SmoothClipCalc volumeSmoothClip; // see smoothClip()
 	bool volumeAdjustEnabled;
