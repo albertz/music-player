@@ -11,6 +11,7 @@
 #include <portaudio.h>
 #include <boost/bind.hpp>
 #include <boost/atomic.hpp>
+#include <vector>
 
 #ifdef __APPLE__
 // PortAudio specific Mac stuff
@@ -458,11 +459,19 @@ void setRealtime(double dutyCicleMs) {} // not implemented yet
 
 PyObject* pyGetSoundDevices(PyObject* self) {
 	int num = Pa_GetDeviceCount();
-	PyObject* l = PyList_New(num);
-	if(!l) return NULL;
-	
+	std::vector<const PaDeviceInfo*> devs;
+	devs.reserve(num);
 	for(int i = 0; i < num; ++i) {
 		const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+		if(info->maxOutputChannels > 0)
+			devs.push_back(info);
+	}
+	
+	PyObject* l = PyList_New(devs.size());
+	if(!l) return NULL;
+	
+	for(int i = 0; i < (int)devs.size(); ++i) {
+		const PaDeviceInfo* info = devs[i];
 		PyObject* s = PyString_FromString(info->name);
 		if(!s) {
 			Py_DECREF(l);
