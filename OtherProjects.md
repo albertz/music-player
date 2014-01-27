@@ -63,7 +63,7 @@ There exists a huge amount of music players. Here is a list of some and other re
 * [Open Source](http://sourceforge.net/projects/listengnome/), Gnome.
 * Project dead?
 
-### [Deepin Music Player]((https://github.com/linuxdeepin/deepin-music-player))
+### [Deepin Music Player](https://github.com/linuxdeepin/deepin-music-player)
 
 * Open Source, Python, GStreamer
 
@@ -85,7 +85,7 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 ### [audirvana](https://code.google.com/p/audirvana/)
 
-* Open Source but seems abandoned because they have a commercial Plus version now.
+* Open Source earlier, source not available anymore. seems abandoned because they have a commercial Plus version now.
 * OSX only.
 * "HAL I/O using DAC native physical formats 'Integer Mode' (instead of CoreAudio 32bit float)", "Audio Device exclusive access mode", "Direct sound path, directly to the CoreAudio HAL for pure bit perfect sound".
 
@@ -97,13 +97,17 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 ### [Cog](http://cogx.org/)
 
-* Open Source, MacOSX
+* [Open Source](http://sourceforge.net/projects/cogosx/), MacOSX
 * no update since 2008, latest release is 0.07
 
 ### [gmusicbrowser](http://gmusicbrowser.org/)
 
 * Open Source, Perl, GTK+, GStreamer
 
+### [Nulloy](http://nulloy.com/)
+
+* [Open Source](https://github.com/sergey-vlasov/nulloy), C++, Qt, cross-platform (Win, Linux, Mac)
+* Waveform progress bar
 
 
 ## Web-based streaming players
