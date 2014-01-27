@@ -265,6 +265,7 @@ struct PlayerObject::OutStream {
 				}
 				return false;
 			}
+			break;
 		}
 
 		needRealtimeReset = true;
