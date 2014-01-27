@@ -149,17 +149,19 @@ struct PlayerObject::OutStream {
 		int num = Pa_GetDeviceCount();
 		if(num == 0) return -1;
 		
-		// check for exact matches
-		for(int i = 0; i < num; ++i) {
-			const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
-			if(strcmp(info->name, preferredSoundDevice.c_str()) == 0)
-				return i;
-		}
-		
-		// check for substr case-insensitive matches
 		if(!preferredSoundDevice.empty()) {
+			// check for exact matches
 			for(int i = 0; i < num; ++i) {
 				const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+				if(info->maxOutputChannels <= 0) continue;
+				if(strcmp(info->name, preferredSoundDevice.c_str()) == 0)
+					return i;
+			}
+		
+			// check for substr case-insensitive matches
+			for(int i = 0; i < num; ++i) {
+				const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+				if(info->maxOutputChannels <= 0) continue;
 				if(strncasecmp(info->name, preferredSoundDevice.c_str(), preferredSoundDevice.size()) == 0)
 					return i;
 			}
@@ -167,11 +169,21 @@ struct PlayerObject::OutStream {
 		
 		// use default as fallback
 		int idx = Pa_GetDefaultOutputDevice();
-		if(idx >= 0 && idx < num)
-			return idx;
-
-		// strangely, there is no default, so use the first as fallback
-		return 0;
+		if(idx >= 0 && idx < num) {
+			const PaDeviceInfo* info = Pa_GetDeviceInfo(idx);
+			if(info->maxOutputChannels > 0)
+				return idx;
+		}
+		
+		// strangely, there is no default, so use the first with any output channels as fallback
+		for(int i = 0; i < num; ++i) {
+			const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+			if(info->maxOutputChannels > 0)
+				return i;
+		}
+		
+		// nothing found
+		return -1;
 	}
 
 	bool open(const std::string& prefferedSoundDevice) {
