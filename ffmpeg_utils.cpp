@@ -74,6 +74,34 @@ std::string objStr(PyObject* obj) {
 }
 
 
+bool pyStr(PyObject* obj, std::string& str) {
+	if(!obj) return false;
+	if(PyString_Check(obj)) {
+		str = std::string(PyString_AS_STRING(obj), PyString_GET_SIZE(obj));
+		return true;
+	}
+	else if(PyUnicode_Check(obj)) {
+		PyObject* strObj = PyUnicode_AsUTF8String(obj);
+		if(!strObj) return false;
+		bool res = false;
+		if(PyString_Check(strObj))
+			res = pyStr(strObj, str);
+		Py_DECREF(strObj);
+		return res;
+	}
+	else {
+		PyObject* unicodeObj = PyObject_Unicode(obj);
+		if(!unicodeObj) return false;
+		bool res = false;
+		if(PyString_Check(unicodeObj) || PyUnicode_Check(unicodeObj))
+			res = pyStr(unicodeObj, str);
+		Py_DECREF(unicodeObj);
+		return res;
+	}
+	return false;
+}
+
+
 
 #if defined(__APPLE__)
 #include <execinfo.h>

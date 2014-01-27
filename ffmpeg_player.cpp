@@ -487,7 +487,7 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 	}
 	
 	if(strcmp(key, "__members__") == 0) {
-		const Py_ssize_t C = 23;
+		const Py_ssize_t C = 25;
 		PyObject* mlist = PyList_New(C);
 		int i = 0;
 		PyList_SetItem(mlist, i++, PyString_FromString("queue"));
@@ -511,6 +511,8 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		PyList_SetItem(mlist, i++, PyString_FromString("outSampleFormat"));		
 		PyList_SetItem(mlist, i++, PyString_FromString("outSamplerate"));
 		PyList_SetItem(mlist, i++, PyString_FromString("outNumChannels"));
+		PyList_SetItem(mlist, i++, PyString_FromString("preferredSoundDevice"));
+		PyList_SetItem(mlist, i++, PyString_FromString("actualSoundDevice"));
 		PyList_SetItem(mlist, i++, PyString_FromString("soundcardOutputEnabled"));
 		PyList_SetItem(mlist, i++, PyString_FromString("nextSongOnEof"));
 		assert(i == C);
@@ -634,6 +636,14 @@ PyObject* player_getattr(PyObject* obj, char* key) {
 		return PyInt_FromLong(player->outNumChannels);
 	}
 
+	if(strcmp(key, "preferredSoundDevice") == 0) {
+		return PyString_FromString(player->preferredSoundDevice.c_str());
+	}
+	
+	if(strcmp(key, "actualSoundDevice") == 0) {
+		return PyString_FromString(player->getSoundDevice().c_str());
+	}
+
 	if(strcmp(key, "soundcardOutputEnabled") == 0) {
 		return PyBool_FromLong(player->soundcardOutputEnabled);
 	}
@@ -739,6 +749,25 @@ int player_setattr(PyObject* obj, char* key, PyObject* value) {
 			player->setAudioTgt(player->outSamplerate, numchannels);
 		}
 		return 0;
+	}
+
+	if(strcmp(key, "preferredSoundDevice") == 0) {
+		std::string dev;
+		if(!pyStr(value, dev)) {
+			PyErr_SetString(PyExc_ValueError, "preferredSoundDevice must be a string");
+			return -1;
+		}
+		{
+			PyScopedGIUnlock gunlock;
+			PyScopedLock lock(player->lock);
+			player->preferredSoundDevice = dev;
+		}
+		return 0;
+	}
+	
+	if(strcmp(key, "actualSoundDevice") == 0) {
+		PyErr_SetString(PyExc_AttributeError, "actualSoundDevice is readonly");
+		return -1;
 	}
 
 	if(strcmp(key, "soundcardOutputEnabled") == 0) {
