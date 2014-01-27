@@ -68,9 +68,8 @@ class Preferences(object):
 			self._sampleRateStr = updateText
 		if self._sampleRateStr is not None:
 			return self._sampleRateStr
-		rate = str(self._sampleRate)
-		if rate[-3:] == "000": rate = rate[:-3] + "k"
-		return rate
+		rate = str(self._sampleRate / 1000)
+		return rate + "k"
 
 	@sampleRate.setUpdateEvent
 	@initBy
@@ -82,8 +81,13 @@ class Preferences(object):
 
 		self._sampleRateStr, rate = None, self._sampleRateStr
 		if rate is None: return
-		if rate[-1:] == "k": rate = rate[:-1] + "000"
-		try: rate = int(rate)
+		rate = rate.strip()
+		if rate[-1:] == "k":
+			factor = 1000
+			rate = rate[:-1]
+		else:
+			factor = 1
+		try: rate = int(rate) * factor
 		except Exception: return # no valid integer
 
 		# do some very basic check on the number.
