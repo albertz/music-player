@@ -9,7 +9,31 @@ class Preferences(object):
 		self.lastFm_update(self.__class__.lastFm)
 
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
+	@property
+	def soundDeviceLabel(self):
+		return "Sound device:"
+
+	@UserAttrib(type=Traits.EditableText, autosizeWidth=True)
+	def preferredSoundDevice(self, updateText=None):
+		from State import state
+		player = state.player
+		if updateText is not None:
+			player.preferredSoundDevice = updateText
+		return player.preferredSoundDevice
+
+	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
+	@property
+	def actualSoundDeviceLabel(self):
+		return "current:"
+
+	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True, withBorder=True)
 	@safe_property
+	@property
+	def actualSoundDevice(self):
+		from State import state
+		return state.player.actualSoundDevice
+
+	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
 	@property
 	def sampleRateLabel(self):
 		return "Sample rate in Hz:"
