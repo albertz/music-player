@@ -21,10 +21,11 @@ class Preferences(object):
 			player.preferredSoundDevice = updateText
 		return player.preferredSoundDevice
 
+
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
 	@property
 	def actualSoundDeviceLabel(self):
-		return "current:"
+		return "Current sound device:"
 
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True, withBorder=True, alignRight=True)
 	@safe_property
@@ -33,25 +34,20 @@ class Preferences(object):
 		from State import state
 		return state.player.actualSoundDevice
 
+
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
 	@property
 	def availableSoundDevicesLabel(self):
 		return "Available sound devices:"
 
-	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True, alignRight=True)
+	@UserAttrib(type=Traits.Table(keys=("Name",)), autosizeWidth=True, alignRight=True)
 	@safe_property
 	@property
 	def availableSoundDevices(self):
 		import ffmpeg
 		l = ffmpeg.getSoundDevices()
-		return ", ".join(l)
+		return [{"Name": dev} for dev in l]
 
-	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True, withBorder=True)
-	@safe_property
-	@property
-	def actualSoundDevice(self):
-		from State import state
-		return state.player.actualSoundDevice
 
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
 	@property
