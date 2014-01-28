@@ -62,24 +62,6 @@ int initPlayerDecoder() {
 	return 0;
 }
 
-/*
- For values y < 0, mirror.
- For values y in [0,x1], this is just y (i.e. identity function).
- For values y >= x2, this is just 1 (i.e. constant 1 function).
- For y in [x1,x2], we use a cubic spline interpolation to just make it smooth.
- Use smoothClip_setX() to set the spline factors.
- */
-inline
-double SmoothClipCalc::get(double y) {
-	SmoothClipCalc* s = this;
-	if(y < 0) return -get(-y);
-	if(y <= s->x1) return y;
-	if(y >= s->x2) return 1;
-	y = s->a * y*y*y + s->b * y*y + s->c * y + s->d;
-	if(y <= s->x1) return s->x1;
-	if(y >= 1) return 1;
-	return y;
-}
 
 void SmoothClipCalc::setX(float x1, float x2) {
 	SmoothClipCalc* s = this;
@@ -1482,23 +1464,26 @@ bool PlayerObject::readOutStream(OUTSAMPLE_t* samples, size_t sampleNum, size_t*
 			is.playerStartedPlaying = true;
 			size_t popCount = is.outBuffer.pop((uint8_t*)samples, sampleNum*OUTSAMPLEBYTELEN, false);
 			popCount /= OUTSAMPLEBYTELEN; // because they are in bytes but we want number of samples
-					
-			if(player->volumeAdjustNeeded(&is)) {
-				for(size_t i = 0; i < popCount; ++i) {
-					OUTSAMPLE_t* sampleAddr = samples + i;
-					OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
-					double sampleFloat = OutSampleAsFloat(sample);
-					
-					sampleFloat *= fader.sampleFactor();
-					sampleFloat *= player->volume;
-					sampleFloat *= is.gainFactor;
-					sampleFloat = player->volumeSmoothClip.get(sampleFloat);
+			
+			{
+				Fader::Scope faderScope(fader);
+				if(player->volumeAdjustNeeded(&is)) {
+					for(size_t i = 0; i < popCount; ++i) {
+						OUTSAMPLE_t* sampleAddr = samples + i;
+						OUTSAMPLE_t sample = *sampleAddr; // TODO: endian swap?
+						double sampleFloat = OutSampleAsFloat(sample);
+						
+						sampleFloat *= faderScope.sampleFactor();
+						sampleFloat *= player->volume;
+						sampleFloat *= is.gainFactor;
+						sampleFloat = player->volumeSmoothClip.get(sampleFloat);
 
-					sample = (OUTSAMPLE_t) FloatToOutSample(sampleFloat);
-					*sampleAddr = sample; // TODO: endian swap?
-					
-					if(i % player->outNumChannels == 0)
-						fader.frameTick();
+						sample = (OUTSAMPLE_t) FloatToOutSample(sampleFloat);
+						*sampleAddr = sample; // TODO: endian swap?
+						
+						if(i % player->outNumChannels == player->outNumChannels - 1)
+							faderScope.frameTick();
+					}
 				}
 			}
 			
