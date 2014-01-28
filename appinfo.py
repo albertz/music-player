@@ -47,6 +47,7 @@ import utils
 
 class Config:
 	lastFm = True
+	preferredSoundDevice = ""
 	mpdBackend = True
 	mpdBindHost = '127.0.0.1'
 	mpdBindPort = 6600

@@ -19,6 +19,9 @@ class Preferences(object):
 		player = state.player
 		if updateText is not None:
 			player.preferredSoundDevice = updateText
+			from appinfo import config
+			config.preferredSoundDevice = updateText
+			config.save()
 		return player.preferredSoundDevice
 
 

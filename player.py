@@ -76,6 +76,7 @@ def loadPlayer(state):
 
 	player = ffmpeg.createPlayer()
 	player.outSamplerate = config.sampleRate
+	player.preferredSoundDevice = config.preferredSoundDevice
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:
 		cb = getattr(PlayerEventCallbacks, e)
 		assert cb
