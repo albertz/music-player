@@ -108,14 +108,14 @@ class State(object):
 	def curSongStr(self):
 		if not self.player.curSong: return ""
 		try: return self.player.curSong.userString
-		except: return "???"
+		except Exception: return "???"
 
 	@UserAttrib(type=Traits.OneLineText, alignRight=True, autosizeWidth=True, withBorder=True)
 	@property
 	def curSongPos(self):
 		if not self.player.curSong: return ""
 		try: return formatTime(self.player.curSongPos) + " / " + formatTime(self.player.curSong.duration)
-		except: return "???"
+		except Exception: return "???"
 
 	@UserAttrib(type=Traits.SongDisplay, variableWidth=True)
 	def curSongDisplay(self): pass
