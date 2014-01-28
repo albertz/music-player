@@ -310,6 +310,7 @@ struct PlayerObject::OutStream {
 	
 };
 
+boost::atomic<int> PlayerObject::OutStream::instanceCounter(0);
 
 
 
