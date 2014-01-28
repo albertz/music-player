@@ -48,7 +48,7 @@ For the callback, we need to minimize the locks - or better, avoid
 them fully. I'm not sure it is good to depend on thread context
 switches in case it is locked. This however needs some heavy redesign.
 */
-#define USE_PORTAUDIO_CALLBACK 1
+#define USE_PORTAUDIO_CALLBACK 0
 
 
 int initPlayerOutput() {
@@ -111,8 +111,12 @@ struct PlayerObject::OutStream {
 		if(outStream->setThreadName.exchange(false))
 			setCurThreadName("audio callback");
 		
-		if(statusFlags & paOutputUnderflow)
+		if(statusFlags & paOutputUnderflow) {
 			printf("audio: paOutputUnderflow\n");
+#ifdef Apple_Debug_Instruments
+			DTSendSignalFlag("com.albertzeyer.MusicPlayer.audioUnderflow", DT_POINT_SIGNAL, TRUE);
+#endif
+		}
 		if(statusFlags & paOutputOverflow)
 			printf("audio: paOutputOverflow\n");
 		
@@ -124,28 +128,18 @@ struct PlayerObject::OutStream {
 	}
 #else
 	PyThread audioThread;
-	void audioThreadProc(PyMutex& threadLock, bool& stopSignal) {
+	void audioThreadProc(boost::atomic<bool>& stopSignal) {
+		std::vector<OUTSAMPLE_t> buffer(20 /* ms */ * player->outNumChannels * player->outSamplerate / 1000);
+		size_t frameCount = buffer.size() / player->outNumChannels;
 		while(true) {
-			{
-				PyScopedLock l(threadLock);
-				if(stopSignal) return;
-			}
+			if(stopSignal) return;
 
-			if(needRealtimeReset) {
-				needRealtimeReset = false;
-				setRealtime();
-			}
+			if(needRealtimeReset.exchange(false))
+				setRealtime(1000.0 * frameCount / player->outSamplerate);
 			
-			OUTSAMPLE_t buffer[48 * 2 * 10]; // 10ms stereo in 48khz
-			size_t frameCount = 0;
-			{
-				PyScopedLock lock(player->lock);
-				if(stopSignal) return;
-				player->readOutStream(buffer, sizeof(buffer)/sizeof(OUTSAMPLE_t), NULL);
-				frameCount = sizeof(buffer)/sizeof(OUTSAMPLE_t) / player->outNumChannels;
-			}
+			player->readOutStream(&buffer[0], frameCount * player->outNumChannels, NULL);
 			
-			PaError ret = Pa_WriteStream(stream, buffer, frameCount);
+			PaError ret = Pa_WriteStream(stream, &buffer[0], frameCount);
 			if(ret == paOutputUnderflowed) {
 				printf("warning: paOutputUnderflowed\n");
 #ifdef Apple_Debug_Instruments
@@ -155,9 +149,8 @@ struct PlayerObject::OutStream {
 			else if(ret != paNoError) {
 				printf("Pa_WriteStream error %i (%s)\n", ret, Pa_GetErrorText(ret));
 				// sleep half a second to avoid spamming
-				for(int i = 0; i < 50; ++i) {
-					usleep(10 * 1000);
-					PyScopedLock l(threadLock);
+				for(long i = 0; i < 50 * 1000; ++i) {
+					usleep(10);
 					if(stopSignal) return;
 				}
 			}
@@ -297,7 +290,7 @@ struct PlayerObject::OutStream {
 		Pa_StartStream(stream);
 
 #if !USE_PORTAUDIO_CALLBACK
-		audioThread.func = boost::bind(&OutStream::audioThreadProc, this, _1, _2);
+		audioThread.func = boost::bind(&OutStream::audioThreadProc, this, _1);
 		audioThread.start();
 #endif
 		return true;
