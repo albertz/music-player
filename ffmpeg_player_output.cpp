@@ -48,7 +48,7 @@ For the callback, we need to minimize the locks - or better, avoid
 them fully. I'm not sure it is good to depend on thread context
 switches in case it is locked. This however needs some heavy redesign.
 */
-#define USE_PORTAUDIO_CALLBACK 0
+#define USE_PORTAUDIO_CALLBACK 1
 
 
 static boost::atomic<int> PaStreamInstanceCounter(0);
@@ -76,8 +76,6 @@ template<> struct OutPaSampleFormat<float32_t> {
 	static const PaSampleFormat format = paFloat32;
 };
 
-
-#define LATENCY_IN_MS 100
 
 
 struct PlayerObject::OutStream {
@@ -240,11 +238,12 @@ struct PlayerObject::OutStream {
 		outputParameters.channelCount = player->outNumChannels;
 		outputParameters.sampleFormat = OutPaSampleFormat<OUTSAMPLE_t>::format;
 		
+		const long LATENCY_IN_MS = 20;
 		//unsigned long bufferSize = (player->outSamplerate * player->outNumChannels / 1000) * LATENCY_IN_MS / 4;
 		unsigned long bufferSize = paFramesPerBufferUnspecified; // support any buffer size
-		if(bufferSize == paFramesPerBufferUnspecified)
-			outputParameters.suggestedLatency = Pa_GetDeviceInfo( soundDeviceIdx )->defaultHighOutputLatency;
-		else
+		//if(bufferSize == paFramesPerBufferUnspecified)
+		//	outputParameters.suggestedLatency = Pa_GetDeviceInfo( soundDeviceIdx )->defaultHighOutputLatency;
+		//else
 			outputParameters.suggestedLatency = LATENCY_IN_MS / 1000.0;
 			
 		// Note about framesPerBuffer:
