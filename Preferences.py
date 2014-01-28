@@ -11,7 +11,7 @@ class Preferences(object):
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
 	@property
 	def soundDeviceLabel(self):
-		return "Sound device:"
+		return "Preferred sound device:"
 
 	@UserAttrib(type=Traits.EditableText, autosizeWidth=True, alignRight=True)
 	def preferredSoundDevice(self, updateText=None):
@@ -23,6 +23,11 @@ class Preferences(object):
 			config.preferredSoundDevice = updateText
 			config.save()
 		return player.preferredSoundDevice
+
+	@UserAttrib(type=Traits.OneLineText, variableWidth=True)
+	@property
+	def soundDeviceDescr(self):
+		return "(Playback needs to be stopped to set this into effect.)"
 
 
 	@UserAttrib(type=Traits.OneLineText, autosizeWidth=True)
