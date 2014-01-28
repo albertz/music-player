@@ -73,11 +73,16 @@ struct PlayerObject::OutStream {
 	boost::atomic<bool> setThreadName;
 	std::string soundDevice;
 	PaDeviceIndex soundDeviceIdx;
+	static boost::atomic<int> instanceCounter;
 	
 	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false), setThreadName(true), soundDeviceIdx(-1) {
 		mlock(this, sizeof(*this));
+		instanceCounter++;
 	}
-	~OutStream() { close(false); }
+	~OutStream() {
+		close(false);
+		instanceCounter--;
+	}
 
 #if USE_PORTAUDIO_CALLBACK
 	static int paStreamCallback(
@@ -191,6 +196,10 @@ struct PlayerObject::OutStream {
 		if(stream) return true;
 		assert(stream == NULL);
 		
+		if(PlayerObject::OutStream::instanceCounter <= 1)
+			// maybe we get a new list of devices
+			reinitPlayerOutput();
+
 		// For reference:
 		// Mixxx code: http://bazaar.launchpad.net/~mixxxdevelopers/mixxx/trunk/view/head:/mixxx/src/sounddeviceportaudio.cpp
 		
@@ -458,6 +467,10 @@ void setRealtime(double dutyCicleMs) {} // not implemented yet
 
 
 PyObject* pyGetSoundDevices(PyObject* self) {
+	if(PlayerObject::OutStream::instanceCounter == 0)
+		// maybe we get a new list
+		reinitPlayerOutput();
+		
 	int num = Pa_GetDeviceCount();
 	std::vector<const PaDeviceInfo*> devs;
 	devs.reserve(num);
