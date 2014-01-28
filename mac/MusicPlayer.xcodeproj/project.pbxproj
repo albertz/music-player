@@ -459,7 +459,7 @@
 		237313B2188564EA0052054E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
 		237313B418859A550052054E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
 		237313B518859A550052054E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../Developer/SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
-		237313BF1889634B0052054E /* gui.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = gui.so; path = _guiCocoa.so; sourceTree = BUILT_PRODUCTS_DIR; };
+		237313BF1889634B0052054E /* _guiCocoa.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _guiCocoa.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		237313CC1889634C0052054E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		237313E11889642A0052054E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = gui/AppDelegate.h; sourceTree = "<group>"; };
 		237313E21889642A0052054E /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = gui/AppDelegate.m; sourceTree = "<group>"; };
@@ -1132,7 +1132,7 @@
 				239D88DA182BC5A10068F287 /* _objc.so */,
 				2373133918818FFB0052054E /* libportaudio.a */,
 				2373136F1881923C0052054E /* libchromaprint.a */,
-				237313BF1889634B0052054E /* gui.so */,
+				237313BF1889634B0052054E /* _guiCocoa.so */,
 				23731407188AAE090052054E /* _gui.so */,
 			);
 			name = Products;
@@ -1431,7 +1431,7 @@
 			);
 			name = _guiCocoa;
 			productName = gui;
-			productReference = 237313BF1889634B0052054E /* gui.so */;
+			productReference = 237313BF1889634B0052054E /* _guiCocoa.so */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		237313F7188AAE090052054E /* _gui */ = {
@@ -2046,6 +2046,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
+					/usr/local/include,
 				);
 				LD_DYLIB_INSTALL_NAME = "";
 				OTHER_LDFLAGS = (
@@ -2076,6 +2077,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
+					/usr/local/include,
 				);
 				LD_DYLIB_INSTALL_NAME = "";
 				OTHER_LDFLAGS = (
@@ -2190,6 +2192,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2218,6 +2221,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2242,6 +2246,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "MusicPlayer/MusicPlayer-Info.plist";
+				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -2264,6 +2269,11 @@
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				LD_DYLIB_INSTALL_NAME = "";
+				OTHER_CFLAGS = (
+					"-DDEBUG",
+					"-framework",
+					DTPerformanceSession,
+				);
 				OTHER_LDFLAGS = (
 					"-lavformat",
 					"-lavutil",
