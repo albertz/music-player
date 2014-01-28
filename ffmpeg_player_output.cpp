@@ -51,7 +51,10 @@ switches in case it is locked. This however needs some heavy redesign.
 #define USE_PORTAUDIO_CALLBACK 0
 
 
+static boost::atomic<int> PaStreamInstanceCounter(0);
+
 int initPlayerOutput() {
+	assert(PaStreamInstanceCounter == 0);
 	PaError ret = Pa_Initialize();
 	if(ret != paNoError)
 		Py_FatalError("PortAudio init failed");
@@ -59,6 +62,7 @@ int initPlayerOutput() {
 }
 
 void reinitPlayerOutput() {
+	assert(PaStreamInstanceCounter == 0);
 	if(Pa_Terminate() != paNoError)
 		printf("Warning: Pa_Terminate() failed\n");
 	initPlayerOutput();
@@ -83,15 +87,12 @@ struct PlayerObject::OutStream {
 	boost::atomic<bool> setThreadName;
 	std::string soundDevice;
 	PaDeviceIndex soundDeviceIdx;
-	static boost::atomic<int> instanceCounter;
 	
 	OutStream(PlayerObject* p) : player(p), stream(NULL), needRealtimeReset(false), setThreadName(true), soundDeviceIdx(-1) {
 		mlock(this, sizeof(*this));
-		instanceCounter++;
 	}
 	~OutStream() {
 		close(false);
-		instanceCounter--;
 	}
 
 #if USE_PORTAUDIO_CALLBACK
@@ -203,7 +204,7 @@ struct PlayerObject::OutStream {
 		if(stream) return true;
 		assert(stream == NULL);
 		
-		if(PlayerObject::OutStream::instanceCounter <= 1)
+		if(PaStreamInstanceCounter == 0)
 			// maybe we get a new list of devices
 			reinitPlayerOutput();
 
@@ -282,6 +283,8 @@ struct PlayerObject::OutStream {
 				}
 				return false;
 			}
+			
+			PaStreamInstanceCounter++;
 			break;
 		}
 
@@ -311,13 +314,12 @@ struct PlayerObject::OutStream {
 		if(waitForPendingAudioBuffers)
 			Pa_StopStream(stream);
 		Pa_CloseStream(stream);
+		PaStreamInstanceCounter--;
 	}
 	
 	bool isOpen() const { return stream != NULL; }
 	
 };
-
-boost::atomic<int> PlayerObject::OutStream::instanceCounter(0);
 
 
 
@@ -340,7 +342,8 @@ bool PlayerObject::isOutStreamOpen() {
 void PlayerObject::closeOutStream(bool waitForPendingAudioBuffers) {
 	if(!outStream.get()) return;
 	if(!outStream->isOpen()) return;
-	outStream->close(waitForPendingAudioBuffers);
+	auto stream = outStream; // copy in case someone else wants to free it
+	stream->close(waitForPendingAudioBuffers);
 }
 
 
@@ -475,7 +478,7 @@ void setRealtime(double dutyCicleMs) {} // not implemented yet
 
 
 PyObject* pyGetSoundDevices(PyObject* self) {
-	if(PlayerObject::OutStream::instanceCounter == 0)
+	if(PaStreamInstanceCounter == 0)
 		// maybe we get a new list
 		reinitPlayerOutput();
 		
