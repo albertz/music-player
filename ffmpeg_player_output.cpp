@@ -16,6 +16,16 @@
 #ifdef __APPLE__
 // PortAudio specific Mac stuff
 #include "pa_mac_core.h"
+
+#ifdef DEBUG
+// debugging/profiling on MacOSX with Instruments
+// this framework is in /Applications/Xcode.app/Contents/Developer/Library/Frameworks
+// https://developer.apple.com/library/ios/documentation/AnalysisTools/Conceptual/WhatsNewInstruments/NewFeatures40/NewFeatures40.html#//apple_ref/doc/uid/TP40010950-CH2-SW10
+#define Apple_Debug_Instruments
+#include <DTPerformanceSession/DTPerformanceSession.h>
+#include <DTPerformanceSession/DTSignalFlag.h>
+#endif
+
 #endif
 
 // For setting the thread priority to realtime on MacOSX.
@@ -136,8 +146,12 @@ struct PlayerObject::OutStream {
 			}
 			
 			PaError ret = Pa_WriteStream(stream, buffer, frameCount);
-			if(ret == paOutputUnderflowed)
+			if(ret == paOutputUnderflowed) {
 				printf("warning: paOutputUnderflowed\n");
+#ifdef Apple_Debug_Instruments
+				DTSendSignalFlag("com.albertzeyer.MusicPlayer.audioUnderflow", DT_POINT_SIGNAL, TRUE);
+#endif
+			}
 			else if(ret != paNoError) {
 				printf("Pa_WriteStream error %i (%s)\n", ret, Pa_GetErrorText(ret));
 				// sleep half a second to avoid spamming
