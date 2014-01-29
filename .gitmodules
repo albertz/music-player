@@ -8,3 +8,6 @@
 [submodule "external/portaudio"]
 	path = external/portaudio
 	url = git@github.com:albertz/portaudio.git
+[submodule "core"]
+	path = core
+	url = git@github.com:albertz/music-player-core.git
