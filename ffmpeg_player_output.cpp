@@ -238,27 +238,39 @@ struct PlayerObject::OutStream {
 		outputParameters.channelCount = player->outNumChannels;
 		outputParameters.sampleFormat = OutPaSampleFormat<OUTSAMPLE_t>::format;
 		
+		/*
+		 framesPerBuffer is basically an upper limit of the buffer = latency.
+		 suggestedLatency is a lower limit of the latency = buffer. However, it
+		 is also only a suggestion and in case the sound device only supports less,
+		 PortAudio will pick the highest.
+
+		 I played a lot around with these parameters. It doesn't make sense
+		 to specify framesPerBuffer because we support any possible buffer size.
+		 Pa_GetDeviceInfo(idx)->defaultHighOutputLatency is about 6ms for me.
+		 That works ok but I sometimes/frequently/rarely get underflows.
+		 I tried with huge settings like 100ms or 200ms but that results in strange
+		 hiccups / jitter-kind effects / cracking noises, although PortAudio
+		 doesn't report any underflows. See also here:
+		   https://github.com/albertz/music-player/issues/35
+
+		 Now I ended up with 20ms which seems to work really good, i.e.
+		 no issues in quality and also no underflows.
+
+		 I hope this is a good generic setting. If so, I like to have it just hardcoded.
+		 If it is still bad for some people, it might make sense to make this
+		 configurable.
+		 */
 		const long LATENCY_IN_MS = 20;
-		//unsigned long bufferSize = (player->outSamplerate * player->outNumChannels / 1000) * LATENCY_IN_MS / 4;
-		unsigned long bufferSize = paFramesPerBufferUnspecified; // support any buffer size
-		//if(bufferSize == paFramesPerBufferUnspecified)
-		//	outputParameters.suggestedLatency = Pa_GetDeviceInfo( soundDeviceIdx )->defaultHighOutputLatency;
-		//else
-			outputParameters.suggestedLatency = LATENCY_IN_MS / 1000.0;
-			
-		// Note about framesPerBuffer:
-		// Earlier, we used (2048 * 5 * OUTSAMPLEBYTELEN) which caused
-		// some random more or less rare cracking noises.
-		// See here: https://github.com/albertz/music-player/issues/35
-		// This doesn't seem to happen with paFramesPerBufferUnspecified.
-		
+		unsigned long framesPerBuffer = paFramesPerBufferUnspecified; // support any buffer size
+		outputParameters.suggestedLatency = LATENCY_IN_MS / 1000.0;
+
 		while(true) {
 			PaError ret = Pa_OpenStream(
 				&stream,
 				NULL, // no input
 				&outputParameters,
 				player->outSamplerate, // sampleRate
-				bufferSize,
+				framesPerBuffer,
 				paClipOff | paDitherOff,
 #if USE_PORTAUDIO_CALLBACK
 				&paStreamCallback,
