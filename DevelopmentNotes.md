@@ -28,6 +28,8 @@ The whole code makes heavy use of multithreading and multiprocessing. Every modu
 
 This is all the [Python native-C/C++ module](https://github.com/albertz/music-player-core/).
 
+The `player` module creates the player object as `State.state.player`. It setups the queue as `queue.queue`. `State.state` provides also some functions to control the player state (`playPause`, `nextSong`).
+
 
 ## GUI
 
