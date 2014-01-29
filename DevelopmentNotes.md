@@ -26,19 +26,7 @@ The whole code makes heavy use of multithreading and multiprocessing. Every modu
 
 ## Playing engine
 
-This is all the [Python native-C module `ffmpeg`](https://github.com/albertz/music-player/blob/master/ffmpeg.c). It provides a player object which represents the player. It needs a generator `player.queue` which yields `Song` objects which provide a way to read file data and seek in the file. See the source code for further detailed reference.
-
-It has the following functionality:
-
-* Plays audio data via the player object. Uses [FFmpeg](http://ffmpeg.org/) for decoding and [PortAudio](http://www.portaudio.com/) for playing.
-* Can modify the volume via `player.volume` and also `song.gain` (see source code for details).
-* Prevents clipping via a smooth limiting functions which still leaves most sounds unaffected and keeps the dynamic range (see `smoothClip`).
-* Can calculate the [ReplayGain](http://www.replaygain.org/) value for a song (see `pyCalcReplayGain`). This is as far as I know the only other implementation of ReplayGain despite the original from [mp3gain](http://mp3gain.sourceforge.net/) ([gain_analysis.c](http://mp3gain.cvs.sourceforge.net/viewvc/mp3gain/mp3gain/gain_analysis.c?view=markup)).
-* Can calculate the [AcoustId](http://acoustid.org/) audio fingerprint (see `pyCalcAcoustIdFingerprint`). This one is also used by [MusicBrainz](http://musicbrainz.org/). It uses the [Chromaprint](http://acoustid.org/chromaprint) lib for implementation.
-* Provides a simple way to access the song metadata.
-* Provides a way to calculate a visual thumbnail for a song which shows the amplitude and the spectral centroid of the frequencies per time (see `pyCalcBitmapThumbnail`). Inspired by [this project](https://github.com/endolith/freesound-thumbnailer/).
-
-The `player` module creates the player object as `State.state.player`. It setups the queue as `queue.queue`. `State.state` provides also some functions to control the player state (`playPause`, `nextSong`).
+This is all the [Python native-C/C++ module](https://github.com/albertz/music-player-core/).
 
 
 ## GUI
