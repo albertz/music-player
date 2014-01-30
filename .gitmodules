@@ -1,7 +1,7 @@
 [submodule "python-embedded"]
 	path = python-embedded
-	url = git@github.com:albertz/python-embedded.git
+	url = https://github.com/albertz/python-embedded.git
 	branch = music-player
 [submodule "core"]
 	path = core
-	url = git@github.com:albertz/music-player-core.git
+	url = https://github.com/albertz/music-player-core.git
