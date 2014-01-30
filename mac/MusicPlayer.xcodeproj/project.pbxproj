@@ -235,9 +235,6 @@
 		23B36453189A931D00ABD2E1 /* PyUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B3630C189A931C00ABD2E1 /* PyUtils.h */; };
 		23B36454189A931D00ABD2E1 /* SampleType.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B3630E189A931C00ABD2E1 /* SampleType.hpp */; };
 		23B36455189A931D00ABD2E1 /* SmoothClip.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B36310189A931C00ABD2E1 /* SmoothClip.hpp */; };
-		23B36456189A931D00ABD2E1 /* test_Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36314189A931C00ABD2E1 /* test_Buffer.cpp */; };
-		23B36457189A931D00ABD2E1 /* test_IntrusivePtr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36315189A931C00ABD2E1 /* test_IntrusivePtr.cpp */; };
-		23B36458189A931D00ABD2E1 /* test_LinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36316189A931C00ABD2E1 /* test_LinkedList.cpp */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 		23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */; };
 		23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */; };
@@ -661,11 +658,6 @@
 		23B3630D189A931C00ABD2E1 /* README.rst */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.rst; sourceTree = "<group>"; };
 		23B3630E189A931C00ABD2E1 /* SampleType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SampleType.hpp; sourceTree = "<group>"; };
 		23B36310189A931C00ABD2E1 /* SmoothClip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SmoothClip.hpp; sourceTree = "<group>"; };
-		23B36312189A931C00ABD2E1 /* demo_dumpwav.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = demo_dumpwav.py; sourceTree = "<group>"; };
-		23B36313189A931C00ABD2E1 /* run_tests.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = run_tests.py; sourceTree = "<group>"; };
-		23B36314189A931C00ABD2E1 /* test_Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_Buffer.cpp; sourceTree = "<group>"; };
-		23B36315189A931C00ABD2E1 /* test_IntrusivePtr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_IntrusivePtr.cpp; sourceTree = "<group>"; };
-		23B36316189A931C00ABD2E1 /* test_LinkedList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_LinkedList.cpp; sourceTree = "<group>"; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 		23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CocoaGuiObject.mm; path = gui/CocoaGuiObject.mm; sourceTree = "<group>"; };
@@ -1247,22 +1239,9 @@
 				23B3630D189A931C00ABD2E1 /* README.rst */,
 				23B3630E189A931C00ABD2E1 /* SampleType.hpp */,
 				23B36310189A931C00ABD2E1 /* SmoothClip.hpp */,
-				23B36311189A931C00ABD2E1 /* tests */,
 			);
 			name = musicplayer.so;
 			path = ../core;
-			sourceTree = "<group>";
-		};
-		23B36311189A931C00ABD2E1 /* tests */ = {
-			isa = PBXGroup;
-			children = (
-				23B36312189A931C00ABD2E1 /* demo_dumpwav.py */,
-				23B36313189A931C00ABD2E1 /* run_tests.py */,
-				23B36314189A931C00ABD2E1 /* test_Buffer.cpp */,
-				23B36315189A931C00ABD2E1 /* test_IntrusivePtr.cpp */,
-				23B36316189A931C00ABD2E1 /* test_LinkedList.cpp */,
-			);
-			path = tests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1854,8 +1833,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				23B36445189A931D00ABD2E1 /* musicplayer.cpp in Sources */,
-				23B36457189A931D00ABD2E1 /* test_IntrusivePtr.cpp in Sources */,
-				23B36458189A931D00ABD2E1 /* test_LinkedList.cpp in Sources */,
 				23B3643F189A931D00ABD2E1 /* Fader.cpp in Sources */,
 				23B3644D189A931D00ABD2E1 /* musicplayer_replaygain.cpp in Sources */,
 				23B36317189A931C00ABD2E1 /* Buffer.cpp in Sources */,
@@ -1864,7 +1841,6 @@
 				23B3644A189A931D00ABD2E1 /* musicplayer_player.cpp in Sources */,
 				23B3644E189A931D00ABD2E1 /* musicplayer_utils.cpp in Sources */,
 				23B36449189A931D00ABD2E1 /* musicplayer_getmetadata.cpp in Sources */,
-				23B36456189A931D00ABD2E1 /* test_Buffer.cpp in Sources */,
 				23B3644C189A931D00ABD2E1 /* musicplayer_player_output.cpp in Sources */,
 				23B3644B189A931D00ABD2E1 /* musicplayer_player_decoding.cpp in Sources */,
 			);
@@ -2103,6 +2079,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
+					"$(PROJECT_DIR)/../core",
 					/usr/local/include,
 				);
 				LD_DYLIB_INSTALL_NAME = "";
@@ -2134,6 +2111,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/pyobjc-core/libffi-src/include",
+					"$(PROJECT_DIR)/../core",
 					/usr/local/include,
 				);
 				LD_DYLIB_INSTALL_NAME = "";
