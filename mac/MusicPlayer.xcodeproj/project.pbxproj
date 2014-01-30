@@ -837,7 +837,7 @@
 				233684EF1600BD7F00A38E78 /* utils.h */,
 			);
 			name = chromaprint;
-			path = ../chromaprint;
+			path = ../core/chromaprint;
 			sourceTree = "<group>";
 		};
 		237312ED188185B80052054E /* portaudio */ = {
@@ -2205,7 +2205,7 @@
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/../core/external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../core/external/portaudio/include",
-					"$(PROJECT_DIR)/../chromaprint",
+					"$(PROJECT_DIR)/../core/chromaprint",
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
@@ -2231,7 +2231,7 @@
 					"$(PROJECT_DIR)/../python-embedded/CPython/Include",
 					"$(PROJECT_DIR)/../core/external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../core/external/portaudio/include",
-					"$(PROJECT_DIR)/../chromaprint",
+					"$(PROJECT_DIR)/../core/chromaprint",
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
