@@ -14,8 +14,6 @@
 		230349AF17AD730900C6033C /* Python.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2303496017AC522500C6033C /* Python.dylib */; };
 		2331F86316C16BC40037D148 /* faulthandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86116C16BC40037D148 /* faulthandler.c */; };
 		2331F86416C16BC40037D148 /* traceback.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86216C16BC40037D148 /* traceback.c */; };
-		235A99661871180800D5CC20 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235A99651871180800D5CC20 /* Buffer.cpp */; };
-		237312E31871AEFF0052054E /* Fader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237312E21871AEFF0052054E /* Fader.cpp */; };
 		2373133D188191050052054E /* pa_mac_core_blocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132918818D260052054E /* pa_mac_core_blocking.c */; };
 		23731340188191050052054E /* pa_mac_core_utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132C18818D260052054E /* pa_mac_core_utilities.c */; };
 		23731342188191050052054E /* pa_mac_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132E18818D260052054E /* pa_mac_core.c */; };
@@ -210,17 +208,36 @@
 		239D89F8182BC76E0068F287 /* wrapper-const-table.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D8971182BC76E0068F287 /* wrapper-const-table.h */; };
 		23A14A4415E3B2CC00376BF6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 23A14A4215E3B2CC00376BF6 /* InfoPlist.strings */; };
 		23A14A4615E3B2CC00376BF6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A4515E3B2CC00376BF6 /* main.m */; };
-		23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 23A14A6415E3B6B600376BF6 /* ffmpeg.c */; };
-		23ACE7001689E24A00E45134 /* ffmpeg_getmetadata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */; };
-		23ACE7031689E39600E45134 /* ffmpeg_acoustid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */; };
-		23ACE7051689E4D500E45134 /* ffmpeg_replaygain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7041689E4D500E45134 /* ffmpeg_replaygain.cpp */; };
-		23ACE7071689E54300E45134 /* ffmpeg_player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7061689E54300E45134 /* ffmpeg_player.cpp */; };
-		23ACE7091689E66500E45134 /* ffmpeg_player_decoding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE7081689E66500E45134 /* ffmpeg_player_decoding.cpp */; };
-		23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */; };
-		23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */; };
-		23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */; };
 		23B071DF17AD79DF00524C82 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B071DD17AD79DF00524C82 /* debugger.cpp */; };
 		23B071E017AD79DF00524C82 /* debugger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B071DE17AD79DF00524C82 /* debugger.h */; };
+		23B36317189A931C00ABD2E1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B360E8189A931B00ABD2E1 /* Buffer.cpp */; };
+		23B36318189A931C00ABD2E1 /* Buffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B360E9189A931B00ABD2E1 /* Buffer.hpp */; };
+		23B3643F189A931D00ABD2E1 /* Fader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B362F4189A931C00ABD2E1 /* Fader.cpp */; };
+		23B36440189A931D00ABD2E1 /* Fader.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B362F5189A931C00ABD2E1 /* Fader.hpp */; };
+		23B36441189A931D00ABD2E1 /* IntrusivePtr.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B362F6189A931C00ABD2E1 /* IntrusivePtr.hpp */; };
+		23B36442189A931D00ABD2E1 /* LinkedList.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B362F8189A931C00ABD2E1 /* LinkedList.hpp */; };
+		23B36443189A931D00ABD2E1 /* LockFreeData.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B362F9189A931C00ABD2E1 /* LockFreeData.hpp */; };
+		23B36444189A931D00ABD2E1 /* Log.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B362FA189A931C00ABD2E1 /* Log.hpp */; };
+		23B36445189A931D00ABD2E1 /* musicplayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B362FD189A931C00ABD2E1 /* musicplayer.cpp */; };
+		23B36446189A931D00ABD2E1 /* musicplayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B362FE189A931C00ABD2E1 /* musicplayer.h */; };
+		23B36447189A931D00ABD2E1 /* musicplayer_acoustid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B362FF189A931C00ABD2E1 /* musicplayer_acoustid.cpp */; };
+		23B36448189A931D00ABD2E1 /* musicplayer_bitmapthumbnail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36300189A931C00ABD2E1 /* musicplayer_bitmapthumbnail.cpp */; };
+		23B36449189A931D00ABD2E1 /* musicplayer_getmetadata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36301189A931C00ABD2E1 /* musicplayer_getmetadata.cpp */; };
+		23B3644A189A931D00ABD2E1 /* musicplayer_player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36302189A931C00ABD2E1 /* musicplayer_player.cpp */; };
+		23B3644B189A931D00ABD2E1 /* musicplayer_player_decoding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36303189A931C00ABD2E1 /* musicplayer_player_decoding.cpp */; };
+		23B3644C189A931D00ABD2E1 /* musicplayer_player_output.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36304189A931C00ABD2E1 /* musicplayer_player_output.cpp */; };
+		23B3644D189A931D00ABD2E1 /* musicplayer_replaygain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36305189A931C00ABD2E1 /* musicplayer_replaygain.cpp */; };
+		23B3644E189A931D00ABD2E1 /* musicplayer_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36306189A931C00ABD2E1 /* musicplayer_utils.cpp */; };
+		23B3644F189A931D00ABD2E1 /* PlayerInStream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B36307189A931C00ABD2E1 /* PlayerInStream.hpp */; };
+		23B36450189A931D00ABD2E1 /* Protection.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B36309189A931C00ABD2E1 /* Protection.hpp */; };
+		23B36451189A931D00ABD2E1 /* PythonHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B3630A189A931C00ABD2E1 /* PythonHelpers.h */; };
+		23B36452189A931D00ABD2E1 /* PyThreading.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B3630B189A931C00ABD2E1 /* PyThreading.hpp */; };
+		23B36453189A931D00ABD2E1 /* PyUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B3630C189A931C00ABD2E1 /* PyUtils.h */; };
+		23B36454189A931D00ABD2E1 /* SampleType.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B3630E189A931C00ABD2E1 /* SampleType.hpp */; };
+		23B36455189A931D00ABD2E1 /* SmoothClip.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23B36310189A931C00ABD2E1 /* SmoothClip.hpp */; };
+		23B36456189A931D00ABD2E1 /* test_Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36314189A931C00ABD2E1 /* test_Buffer.cpp */; };
+		23B36457189A931D00ABD2E1 /* test_IntrusivePtr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36315189A931C00ABD2E1 /* test_IntrusivePtr.cpp */; };
+		23B36458189A931D00ABD2E1 /* test_LinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B36316189A931C00ABD2E1 /* test_LinkedList.cpp */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 		23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */; };
 		23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */; };
@@ -410,12 +427,6 @@
 		233684EE1600BD7F00A38E78 /* spectrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spectrum.h; sourceTree = "<group>"; };
 		233684EF1600BD7F00A38E78 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		233685391600BF0200A38E78 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		235A99651871180800D5CC20 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Buffer.cpp; path = ../Buffer.cpp; sourceTree = "<group>"; };
-		237312E21871AEFF0052054E /* Fader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Fader.cpp; path = ../Fader.cpp; sourceTree = "<group>"; };
-		237312E4187821550052054E /* IntrusivePtr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = IntrusivePtr.hpp; path = ../IntrusivePtr.hpp; sourceTree = "<group>"; };
-		237312E5187821550052054E /* LockFreeData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LockFreeData.hpp; path = ../LockFreeData.hpp; sourceTree = "<group>"; };
-		237312E6187821550052054E /* PlayerInStream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PlayerInStream.hpp; path = ../PlayerInStream.hpp; sourceTree = "<group>"; };
-		237312EA187C5CBE0052054E /* Log.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Log.hpp; path = ../Log.hpp; sourceTree = "<group>"; };
 		237312EE18818CBE0052054E /* pa_mac_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_mac_core.h; path = ../core/external/portaudio/include/pa_mac_core.h; sourceTree = "<group>"; };
 		237312EF18818CBE0052054E /* portaudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = portaudio.h; path = ../core/external/portaudio/include/portaudio.h; sourceTree = "<group>"; };
 		237312F218818CDE0052054E /* pa_unix_hostapis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_unix_hostapis.c; path = ../core/external/portaudio/src/os/unix/pa_unix_hostapis.c; sourceTree = "<group>"; };
@@ -621,19 +632,40 @@
 		23A14A4115E3B2CC00376BF6 /* MusicPlayer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MusicPlayer-Info.plist"; sourceTree = "<group>"; };
 		23A14A4315E3B2CC00376BF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		23A14A4515E3B2CC00376BF6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		23A14A5E15E3B63C00376BF6 /* ffmpeg.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ffmpeg.so; sourceTree = BUILT_PRODUCTS_DIR; };
-		23A14A6415E3B6B600376BF6 /* ffmpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffmpeg.c; path = ../ffmpeg.c; sourceTree = "<group>"; };
-		23ACE6FD1689E1CF00E45134 /* ffmpeg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ffmpeg.h; path = ../ffmpeg.h; sourceTree = "<group>"; };
-		23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_getmetadata.cpp; path = ../ffmpeg_getmetadata.cpp; sourceTree = "<group>"; };
-		23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_acoustid.cpp; path = ../ffmpeg_acoustid.cpp; sourceTree = "<group>"; };
-		23ACE7041689E4D500E45134 /* ffmpeg_replaygain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_replaygain.cpp; path = ../ffmpeg_replaygain.cpp; sourceTree = "<group>"; };
-		23ACE7061689E54300E45134 /* ffmpeg_player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_player.cpp; path = ../ffmpeg_player.cpp; sourceTree = "<group>"; };
-		23ACE7081689E66500E45134 /* ffmpeg_player_decoding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_player_decoding.cpp; path = ../ffmpeg_player_decoding.cpp; sourceTree = "<group>"; };
-		23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_player_output.cpp; path = ../ffmpeg_player_output.cpp; sourceTree = "<group>"; };
-		23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_bitmapthumbnail.cpp; path = ../ffmpeg_bitmapthumbnail.cpp; sourceTree = "<group>"; };
-		23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ffmpeg_utils.cpp; path = ../ffmpeg_utils.cpp; sourceTree = "<group>"; };
+		23A14A5E15E3B63C00376BF6 /* musicplayer.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = musicplayer.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		23B071DD17AD79DF00524C82 /* debugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugger.cpp; sourceTree = "<group>"; };
 		23B071DE17AD79DF00524C82 /* debugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
+		23B360E8189A931B00ABD2E1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
+		23B360E9189A931B00ABD2E1 /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Buffer.hpp; sourceTree = "<group>"; };
+		23B362F4189A931C00ABD2E1 /* Fader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fader.cpp; sourceTree = "<group>"; };
+		23B362F5189A931C00ABD2E1 /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Fader.hpp; sourceTree = "<group>"; };
+		23B362F6189A931C00ABD2E1 /* IntrusivePtr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IntrusivePtr.hpp; sourceTree = "<group>"; };
+		23B362F8189A931C00ABD2E1 /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LinkedList.hpp; sourceTree = "<group>"; };
+		23B362F9189A931C00ABD2E1 /* LockFreeData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LockFreeData.hpp; sourceTree = "<group>"; };
+		23B362FA189A931C00ABD2E1 /* Log.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Log.hpp; sourceTree = "<group>"; };
+		23B362FD189A931C00ABD2E1 /* musicplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer.cpp; sourceTree = "<group>"; };
+		23B362FE189A931C00ABD2E1 /* musicplayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = musicplayer.h; sourceTree = "<group>"; };
+		23B362FF189A931C00ABD2E1 /* musicplayer_acoustid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_acoustid.cpp; sourceTree = "<group>"; };
+		23B36300189A931C00ABD2E1 /* musicplayer_bitmapthumbnail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_bitmapthumbnail.cpp; sourceTree = "<group>"; };
+		23B36301189A931C00ABD2E1 /* musicplayer_getmetadata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_getmetadata.cpp; sourceTree = "<group>"; };
+		23B36302189A931C00ABD2E1 /* musicplayer_player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_player.cpp; sourceTree = "<group>"; };
+		23B36303189A931C00ABD2E1 /* musicplayer_player_decoding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_player_decoding.cpp; sourceTree = "<group>"; };
+		23B36304189A931C00ABD2E1 /* musicplayer_player_output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_player_output.cpp; sourceTree = "<group>"; };
+		23B36305189A931C00ABD2E1 /* musicplayer_replaygain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_replaygain.cpp; sourceTree = "<group>"; };
+		23B36306189A931C00ABD2E1 /* musicplayer_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = musicplayer_utils.cpp; sourceTree = "<group>"; };
+		23B36307189A931C00ABD2E1 /* PlayerInStream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PlayerInStream.hpp; sourceTree = "<group>"; };
+		23B36309189A931C00ABD2E1 /* Protection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Protection.hpp; sourceTree = "<group>"; };
+		23B3630A189A931C00ABD2E1 /* PythonHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PythonHelpers.h; sourceTree = "<group>"; };
+		23B3630B189A931C00ABD2E1 /* PyThreading.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PyThreading.hpp; sourceTree = "<group>"; };
+		23B3630C189A931C00ABD2E1 /* PyUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PyUtils.h; sourceTree = "<group>"; };
+		23B3630D189A931C00ABD2E1 /* README.rst */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.rst; sourceTree = "<group>"; };
+		23B3630E189A931C00ABD2E1 /* SampleType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SampleType.hpp; sourceTree = "<group>"; };
+		23B36310189A931C00ABD2E1 /* SmoothClip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SmoothClip.hpp; sourceTree = "<group>"; };
+		23B36312189A931C00ABD2E1 /* demo_dumpwav.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = demo_dumpwav.py; sourceTree = "<group>"; };
+		23B36313189A931C00ABD2E1 /* run_tests.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = run_tests.py; sourceTree = "<group>"; };
+		23B36314189A931C00ABD2E1 /* test_Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_Buffer.cpp; sourceTree = "<group>"; };
+		23B36315189A931C00ABD2E1 /* test_IntrusivePtr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_IntrusivePtr.cpp; sourceTree = "<group>"; };
+		23B36316189A931C00ABD2E1 /* test_LinkedList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_LinkedList.cpp; sourceTree = "<group>"; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 		23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CocoaGuiObject.mm; path = gui/CocoaGuiObject.mm; sourceTree = "<group>"; };
@@ -660,14 +692,6 @@
 		23DC628A1891B40000E1DFE3 /* OneLineTextControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OneLineTextControl.mm; path = gui/OneLineTextControl.mm; sourceTree = "<group>"; };
 		23DC628D1892595C00E1DFE3 /* ClickableLabelControl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ClickableLabelControl.hpp; path = gui/ClickableLabelControl.hpp; sourceTree = "<group>"; };
 		23DC628E1892595C00E1DFE3 /* ClickableLabelControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ClickableLabelControl.mm; path = gui/ClickableLabelControl.mm; sourceTree = "<group>"; };
-		23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Buffer.hpp; path = ../Buffer.hpp; sourceTree = "<group>"; };
-		23E5B9FA186DEE7900A7FB9F /* Fader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Fader.hpp; path = ../Fader.hpp; sourceTree = "<group>"; };
-		23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkedList.hpp; path = ../LinkedList.hpp; sourceTree = "<group>"; };
-		23E5B9FC186DEE7900A7FB9F /* Protection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Protection.hpp; path = ../Protection.hpp; sourceTree = "<group>"; };
-		23E5B9FD186DEE7900A7FB9F /* PyThreading.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PyThreading.hpp; path = ../PyThreading.hpp; sourceTree = "<group>"; };
-		23E5B9FE186DEE7900A7FB9F /* PyUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PyUtils.h; path = ../PyUtils.h; sourceTree = "<group>"; };
-		23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SampleType.hpp; path = ../SampleType.hpp; sourceTree = "<group>"; };
-		23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SmoothClip.hpp; path = ../SmoothClip.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1115,7 +1139,7 @@
 				233684A41600BD7F00A38E78 /* chromaprint */,
 				23BEFDDF15F42EB20003A05B /* icon.icns */,
 				237312ED188185B80052054E /* portaudio */,
-				23A14A6315E3B6A200376BF6 /* ffmpeg.so */,
+				23B360E5189A931B00ABD2E1 /* musicplayer.so */,
 				23A14A3F15E3B2CC00376BF6 /* MusicPlayer */,
 				23A14A3815E3B2CC00376BF6 /* Frameworks */,
 				23A14A3615E3B2CC00376BF6 /* Products */,
@@ -1126,7 +1150,7 @@
 			isa = PBXGroup;
 			children = (
 				23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */,
-				23A14A5E15E3B63C00376BF6 /* ffmpeg.so */,
+				23A14A5E15E3B63C00376BF6 /* musicplayer.so */,
 				2331F86016C16B720037D148 /* faulthandler.so */,
 				2303499F17AD724900C6033C /* debugger.so */,
 				239D88DA182BC5A10068F287 /* _objc.so */,
@@ -1184,37 +1208,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		23A14A6315E3B6A200376BF6 /* ffmpeg.so */ = {
-			isa = PBXGroup;
-			children = (
-				237312E4187821550052054E /* IntrusivePtr.hpp */,
-				237312E5187821550052054E /* LockFreeData.hpp */,
-				237312E6187821550052054E /* PlayerInStream.hpp */,
-				235A99651871180800D5CC20 /* Buffer.cpp */,
-				23E5B9F9186DEE7900A7FB9F /* Buffer.hpp */,
-				23E5B9FA186DEE7900A7FB9F /* Fader.hpp */,
-				237312E21871AEFF0052054E /* Fader.cpp */,
-				23E5B9FB186DEE7900A7FB9F /* LinkedList.hpp */,
-				23E5B9FC186DEE7900A7FB9F /* Protection.hpp */,
-				23E5B9FD186DEE7900A7FB9F /* PyThreading.hpp */,
-				23E5B9FE186DEE7900A7FB9F /* PyUtils.h */,
-				23E5B9FF186DEE7900A7FB9F /* SampleType.hpp */,
-				23E5BA00186DEE7900A7FB9F /* SmoothClip.hpp */,
-				23ACE6FD1689E1CF00E45134 /* ffmpeg.h */,
-				23A14A6415E3B6B600376BF6 /* ffmpeg.c */,
-				23ACE70E168A262600E45134 /* ffmpeg_utils.cpp */,
-				23ACE7061689E54300E45134 /* ffmpeg_player.cpp */,
-				23ACE7081689E66500E45134 /* ffmpeg_player_decoding.cpp */,
-				23ACE70A1689E6F900E45134 /* ffmpeg_player_output.cpp */,
-				23ACE6FE1689E24A00E45134 /* ffmpeg_getmetadata.cpp */,
-				23ACE7021689E39600E45134 /* ffmpeg_acoustid.cpp */,
-				23ACE70C1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp */,
-				23ACE7041689E4D500E45134 /* ffmpeg_replaygain.cpp */,
-				237312EA187C5CBE0052054E /* Log.hpp */,
-			);
-			name = ffmpeg.so;
-			sourceTree = "<group>";
-		};
 		23B071DC17AD79DF00524C82 /* debugger */ = {
 			isa = PBXGroup;
 			children = (
@@ -1223,6 +1216,53 @@
 			);
 			name = debugger;
 			path = ../debugger;
+			sourceTree = "<group>";
+		};
+		23B360E5189A931B00ABD2E1 /* musicplayer.so */ = {
+			isa = PBXGroup;
+			children = (
+				23B360E8189A931B00ABD2E1 /* Buffer.cpp */,
+				23B360E9189A931B00ABD2E1 /* Buffer.hpp */,
+				23B362F4189A931C00ABD2E1 /* Fader.cpp */,
+				23B362F5189A931C00ABD2E1 /* Fader.hpp */,
+				23B362F6189A931C00ABD2E1 /* IntrusivePtr.hpp */,
+				23B362F8189A931C00ABD2E1 /* LinkedList.hpp */,
+				23B362F9189A931C00ABD2E1 /* LockFreeData.hpp */,
+				23B362FA189A931C00ABD2E1 /* Log.hpp */,
+				23B362FD189A931C00ABD2E1 /* musicplayer.cpp */,
+				23B362FE189A931C00ABD2E1 /* musicplayer.h */,
+				23B362FF189A931C00ABD2E1 /* musicplayer_acoustid.cpp */,
+				23B36300189A931C00ABD2E1 /* musicplayer_bitmapthumbnail.cpp */,
+				23B36301189A931C00ABD2E1 /* musicplayer_getmetadata.cpp */,
+				23B36302189A931C00ABD2E1 /* musicplayer_player.cpp */,
+				23B36303189A931C00ABD2E1 /* musicplayer_player_decoding.cpp */,
+				23B36304189A931C00ABD2E1 /* musicplayer_player_output.cpp */,
+				23B36305189A931C00ABD2E1 /* musicplayer_replaygain.cpp */,
+				23B36306189A931C00ABD2E1 /* musicplayer_utils.cpp */,
+				23B36307189A931C00ABD2E1 /* PlayerInStream.hpp */,
+				23B36309189A931C00ABD2E1 /* Protection.hpp */,
+				23B3630A189A931C00ABD2E1 /* PythonHelpers.h */,
+				23B3630B189A931C00ABD2E1 /* PyThreading.hpp */,
+				23B3630C189A931C00ABD2E1 /* PyUtils.h */,
+				23B3630D189A931C00ABD2E1 /* README.rst */,
+				23B3630E189A931C00ABD2E1 /* SampleType.hpp */,
+				23B36310189A931C00ABD2E1 /* SmoothClip.hpp */,
+				23B36311189A931C00ABD2E1 /* tests */,
+			);
+			name = musicplayer.so;
+			path = ../core;
+			sourceTree = "<group>";
+		};
+		23B36311189A931C00ABD2E1 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				23B36312189A931C00ABD2E1 /* demo_dumpwav.py */,
+				23B36313189A931C00ABD2E1 /* run_tests.py */,
+				23B36314189A931C00ABD2E1 /* test_Buffer.cpp */,
+				23B36315189A931C00ABD2E1 /* test_IntrusivePtr.cpp */,
+				23B36316189A931C00ABD2E1 /* test_LinkedList.cpp */,
+			);
+			path = tests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1343,6 +1383,20 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23B36442189A931D00ABD2E1 /* LinkedList.hpp in Headers */,
+				23B36443189A931D00ABD2E1 /* LockFreeData.hpp in Headers */,
+				23B36453189A931D00ABD2E1 /* PyUtils.h in Headers */,
+				23B36318189A931C00ABD2E1 /* Buffer.hpp in Headers */,
+				23B36451189A931D00ABD2E1 /* PythonHelpers.h in Headers */,
+				23B3644F189A931D00ABD2E1 /* PlayerInStream.hpp in Headers */,
+				23B36441189A931D00ABD2E1 /* IntrusivePtr.hpp in Headers */,
+				23B36444189A931D00ABD2E1 /* Log.hpp in Headers */,
+				23B36454189A931D00ABD2E1 /* SampleType.hpp in Headers */,
+				23B36455189A931D00ABD2E1 /* SmoothClip.hpp in Headers */,
+				23B36440189A931D00ABD2E1 /* Fader.hpp in Headers */,
+				23B36446189A931D00ABD2E1 /* musicplayer.h in Headers */,
+				23B36452189A931D00ABD2E1 /* PyThreading.hpp in Headers */,
+				23B36450189A931D00ABD2E1 /* Protection.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1495,9 +1549,9 @@
 			productReference = 23A14A3515E3B2CC00376BF6 /* MusicPlayer.app */;
 			productType = "com.apple.product-type.application";
 		};
-		23A14A5D15E3B63C00376BF6 /* ffmpeg.so */ = {
+		23A14A5D15E3B63C00376BF6 /* musicplayer.so */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 23A14A6115E3B63C00376BF6 /* Build configuration list for PBXNativeTarget "ffmpeg.so" */;
+			buildConfigurationList = 23A14A6115E3B63C00376BF6 /* Build configuration list for PBXNativeTarget "musicplayer.so" */;
 			buildPhases = (
 				23A14A5A15E3B63C00376BF6 /* Sources */,
 				23A14A5B15E3B63C00376BF6 /* Frameworks */,
@@ -1509,9 +1563,9 @@
 				237313AC188192960052054E /* PBXTargetDependency */,
 				23731361188191CB0052054E /* PBXTargetDependency */,
 			);
-			name = ffmpeg.so;
+			name = musicplayer.so;
 			productName = ffmpeg.so;
-			productReference = 23A14A5E15E3B63C00376BF6 /* ffmpeg.so */;
+			productReference = 23A14A5E15E3B63C00376BF6 /* musicplayer.so */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
@@ -1542,7 +1596,7 @@
 			projectRoot = "";
 			targets = (
 				23A14A3415E3B2CC00376BF6 /* MusicPlayer */,
-				23A14A5D15E3B63C00376BF6 /* ffmpeg.so */,
+				23A14A5D15E3B63C00376BF6 /* musicplayer.so */,
 				2331F81716C16B720037D148 /* faulthandler.so */,
 				2303499E17AD724900C6033C /* debugger */,
 				239D8892182BC5A10068F287 /* _objc.so */,
@@ -1799,17 +1853,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23A14A6515E3B6B600376BF6 /* ffmpeg.c in Sources */,
-				235A99661871180800D5CC20 /* Buffer.cpp in Sources */,
-				23ACE7001689E24A00E45134 /* ffmpeg_getmetadata.cpp in Sources */,
-				23ACE7031689E39600E45134 /* ffmpeg_acoustid.cpp in Sources */,
-				23ACE7051689E4D500E45134 /* ffmpeg_replaygain.cpp in Sources */,
-				23ACE7071689E54300E45134 /* ffmpeg_player.cpp in Sources */,
-				23ACE7091689E66500E45134 /* ffmpeg_player_decoding.cpp in Sources */,
-				23ACE70B1689E6F900E45134 /* ffmpeg_player_output.cpp in Sources */,
-				23ACE70D1689EE5500E45134 /* ffmpeg_bitmapthumbnail.cpp in Sources */,
-				237312E31871AEFF0052054E /* Fader.cpp in Sources */,
-				23ACE70F168A262600E45134 /* ffmpeg_utils.cpp in Sources */,
+				23B36445189A931D00ABD2E1 /* musicplayer.cpp in Sources */,
+				23B36457189A931D00ABD2E1 /* test_IntrusivePtr.cpp in Sources */,
+				23B36458189A931D00ABD2E1 /* test_LinkedList.cpp in Sources */,
+				23B3643F189A931D00ABD2E1 /* Fader.cpp in Sources */,
+				23B3644D189A931D00ABD2E1 /* musicplayer_replaygain.cpp in Sources */,
+				23B36317189A931C00ABD2E1 /* Buffer.cpp in Sources */,
+				23B36447189A931D00ABD2E1 /* musicplayer_acoustid.cpp in Sources */,
+				23B36448189A931D00ABD2E1 /* musicplayer_bitmapthumbnail.cpp in Sources */,
+				23B3644A189A931D00ABD2E1 /* musicplayer_player.cpp in Sources */,
+				23B3644E189A931D00ABD2E1 /* musicplayer_utils.cpp in Sources */,
+				23B36449189A931D00ABD2E1 /* musicplayer_getmetadata.cpp in Sources */,
+				23B36456189A931D00ABD2E1 /* test_Buffer.cpp in Sources */,
+				23B3644C189A931D00ABD2E1 /* musicplayer_player_output.cpp in Sources */,
+				23B3644B189A931D00ABD2E1 /* musicplayer_player_decoding.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1858,7 +1915,7 @@
 		};
 		23A14A7215E3DFDD00376BF6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 23A14A5D15E3B63C00376BF6 /* ffmpeg.so */;
+			target = 23A14A5D15E3B63C00376BF6 /* musicplayer.so */;
 			targetProxy = 23A14A7115E3DFDD00376BF6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -2206,6 +2263,7 @@
 					"$(PROJECT_DIR)/../core/external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../core/external/portaudio/include",
 					"$(PROJECT_DIR)/../core/chromaprint",
+					"$(PROJECT_DIR)/../core",
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
@@ -2232,6 +2290,7 @@
 					"$(PROJECT_DIR)/../core/external/ffmpeg/target/include",
 					"$(PROJECT_DIR)/../core/external/portaudio/include",
 					"$(PROJECT_DIR)/../core/chromaprint",
+					"$(PROJECT_DIR)/../core",
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
@@ -2282,7 +2341,7 @@
 					"-undefined",
 					dynamic_lookup,
 				);
-				PRODUCT_NAME = ffmpeg;
+				PRODUCT_NAME = musicplayer;
 			};
 			name = Debug;
 		};
@@ -2300,7 +2359,7 @@
 					"-undefined",
 					dynamic_lookup,
 				);
-				PRODUCT_NAME = ffmpeg;
+				PRODUCT_NAME = musicplayer;
 			};
 			name = Release;
 		};
@@ -2388,7 +2447,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		23A14A6115E3B63C00376BF6 /* Build configuration list for PBXNativeTarget "ffmpeg.so" */ = {
+		23A14A6115E3B63C00376BF6 /* Build configuration list for PBXNativeTarget "musicplayer.so" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				23A14A5F15E3B63C00376BF6 /* Debug */,
