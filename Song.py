@@ -10,7 +10,7 @@ import utils
 
 class Song(object):
 	"""
-	The Song object. It represents a Song. It is also compatible to the ffmpeg.player.
+	The Song object. It represents a Song. It is also compatible to the musicplayer.player.
 	It also stores information about the song.
 	Songs are considered as equal if they are they have the same url.
 	Note that we have *some* additional state, thus equal Song objects
@@ -91,14 +91,14 @@ class Song(object):
 						return
 				raise
 
-	# { ffmpeg player interface
+	# { musicplayer player interface
 	def readPacket(self, bufSize):
 		s = self.f.read(bufSize)
 		return s
 	def seekRaw(self, offset, whence):
 		r = self.f.seek(offset, whence)
 		return self.f.tell()
-	# ffmpeg player interface end }
+	# musicplayer player interface end }
 	
 	def close(self):
 		self.f = None
@@ -143,8 +143,8 @@ class Song(object):
 					assert self.testUrl()
 					songObj = Song(url=self.url, _useDb=False)
 					songObj.openFile()
-					import ffmpeg
-					self._fileMetadata = ffmpeg.getMetadata(songObj) or {}
+					import musicplayer
+					self._fileMetadata = musicplayer.getMetadata(songObj) or {}
 				except Exception: pass # couldn't open or so
 		if self._fileMetadata is not None:
 			m = dict([(key.lower(),value) for (key,value) in self._fileMetadata.items()])
@@ -295,9 +295,9 @@ class Song(object):
 			song.openFile()
 		except IOError as exc:
 			return {"error": exc}
-		import ffmpeg
+		import musicplayer
 		try:
-			duration, fingerprint = ffmpeg.calcAcoustIdFingerprint(song)
+			duration, fingerprint = musicplayer.calcAcoustIdFingerprint(song)
 		except Exception as exc:
 			return {"error": exc}
 		# fingerprint is URL-safe base64 with missing padding
@@ -312,14 +312,14 @@ class Song(object):
 			song.openFile()
 		except IOError as exc:
 			return {"error": exc}
-		# Earlier, we copied the song.gain. Because of some internal ffmpeg redesign,
-		# ffmpeg currently ignores the gain when it calculates the bmpThumnail.
+		# Earlier, we copied the song.gain. Because of some internal musicplayer redesign,
+		# musicplayer currently ignores the gain when it calculates the bmpThumnail.
 		# But I think the thumbnails actually look better without the gain adoption,
 		# so I'll just leave it that way now.
-		import ffmpeg
+		import musicplayer
 		try:
 			# We have song.gain which mostly lowers the volume. So increase here for nicer display.
-			duration, bmpData = ffmpeg.calcBitmapThumbnail(song, 600, 81, volume = 1.5)
+			duration, bmpData = musicplayer.calcBitmapThumbnail(song, 600, 81, volume = 1.5)
 		except Exception as exc:
 			return {"error": exc}
 		return {"duration": duration, "bmpThumbnail": bmpData}
@@ -330,9 +330,9 @@ class Song(object):
 			song.openFile()
 		except IOError as exc:
 			return {"error": exc}
-		import ffmpeg
+		import musicplayer
 		try:
-			duration, gain = ffmpeg.calcReplayGain(song)
+			duration, gain = musicplayer.calcReplayGain(song)
 		except Exception as exc:
 			return {"error": exc}			
 		return {"duration": duration, "gain": gain}

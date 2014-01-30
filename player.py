@@ -67,14 +67,14 @@ def initEventCallbacks():
 initEventCallbacks()
 
 def loadPlayer(state):
-	import ffmpeg
+	import musicplayer
 
 	from appinfo import args, config
 	import utils
 	if args.debug and utils.isMainProcess:
-		ffmpeg.enableDebugLog(True)
+		musicplayer.enableDebugLog(True)
 
-	player = ffmpeg.createPlayer()
+	player = musicplayer.createPlayer()
 	player.outSamplerate = config.sampleRate
 	player.preferredSoundDevice = config.preferredSoundDevice
 	for e in [m for m in dir(PlayerEventCallbacks) if not m.startswith("_")]:

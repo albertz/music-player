@@ -52,8 +52,8 @@ class Preferences(object):
 	@safe_property
 	@property
 	def availableSoundDevices(self):
-		import ffmpeg
-		l = ffmpeg.getSoundDevices()
+		import musicplayer
+		l = musicplayer.getSoundDevices()
 		return [{"Name": dev} for dev in l]
 
 
@@ -99,7 +99,7 @@ class Preferences(object):
 		except Exception: return # no valid integer
 
 		# do some very basic check on the number.
-		# later, our ffmpeg module should allow us to check this.
+		# later, our musicplayer module should allow us to check this.
 		if rate in (44100,48000,88200,96000,176400,192000): pass
 		else: return
 

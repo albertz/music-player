@@ -377,8 +377,8 @@ def buildControlSongDisplay(control):
 
 					song._useDb = False
 					song.openFile()
-					import ffmpeg
-					bmpThumbRet = ffmpeg.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
+					import musicplayer
+					bmpThumbRet = musicplayer.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
 					if bmpThumbRet:
 						queue.put(bmpThumbRet)
 				except:
