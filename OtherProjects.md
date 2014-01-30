@@ -121,6 +121,10 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 ## Libraries
 
+For comparisons to Python modules which share features of this Python `musicplayer` core module, see at the [homepage of the musicplayer Python module](https://github.com/albertz/music-player-core).
+
+This is a list of some random related libraries.
+
 ### [Mutagen](https://code.google.com/p/mutagen/)
 
 * Python module to handle audio metadata.
@@ -138,7 +142,7 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 ### [libao](http://xiph.org/ao/)
 
-* Open Source (GPL)
+* Open Source (GPL; problem for us because we are BSD)
 * cross platform audio output library
 * supports OSS, ALSA, PulseAudio, esd, MacOSX, Windows, ...
 * latest release was 2011
