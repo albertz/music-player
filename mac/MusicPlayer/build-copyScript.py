@@ -18,7 +18,7 @@ sys.path += [env["PROJECT_DIR"] + "/.."]
 import better_exchook
 better_exchook.install()
 
-pylibs = ["ffmpeg.so", "faulthandler.so", "debugger.so", "_gui.so", "_guiCocoa.so"]
+pylibs = ["musicplayer.so", "faulthandler.so", "debugger.so", "_gui.so", "_guiCocoa.so"]
 for l in pylibs:
 	assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/" + l)
 
@@ -103,4 +103,4 @@ def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/
 			cp(f, targetDylibDirFull + "/" + fbase)		
 			fixBin(targetDylibDirFull + "/" + fbase, targetDylibDir, installNameToolTargetDir, badPaths, stripVersion)
 		
-fixBin(PYDIR + "/ffmpeg.so", ".", "@executable_path/../Resources/Python")
+fixBin(PYDIR + "/musicplayer.so", ".", "@executable_path/../Resources/Python")
