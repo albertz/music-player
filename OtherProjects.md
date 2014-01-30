@@ -109,6 +109,29 @@ There exists a huge amount of music players. Here is a list of some and other re
 * [Open Source](https://github.com/sergey-vlasov/nulloy), C++, Qt, cross-platform (Win, Linux, Mac)
 * Waveform progress bar
 
+### [minirok](http://chistera.yi.org/~dato/code/minirok/)
+
+* Open Source, written in Python, Qt, GStreamer
+* modelled as a mini-version of Amarok
+
+### [Pimp: Python Interactive Music Player](http://pimplayer.berlios.de/)
+
+* Open Source, written in Python
+
+### [Python Music Player](http://sourceforge.net/projects/music-player/)
+
+* Open Source, PyGTK, enhanced queueing system
+* last update from 2005
+
+### [PyMP: Python Music Player](https://code.google.com/p/python-music-player/)
+
+* Open Source, Python, GStreamer
+
+### [The Python Intelligent MP3 Player](http://sourceforge.net/projects/pimp3/)
+
+* Open Source, Python, song ratings + high-rated songs are played more often
+* last update from 2001
+
 
 ## Web-based streaming players
 
