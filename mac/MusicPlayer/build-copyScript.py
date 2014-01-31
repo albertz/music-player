@@ -93,12 +93,22 @@ def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/
 	for l in otoolOut:
 		f = re.match("^\s+([\w/.-]+)", l).groups()[0]
 		fbase = os.path.basename(f)
+
+		if not f.startswith("/"): # strange case
+			# some custom handling for now, not sure ...
+			# e.g. f == "libz.so.1.2.8"
+			assert f.startswith("libz.so.1.") # only this case now
+			fbase = "libz.1.dylib"
+			assert os.path.exists("/usr/lib/" + fbase)
+			systemRun(["install_name_tool", "-change", f, "/usr/lib/" + fbase, binPath])
+			continue
+
 		if not [True for badPath in badPaths if f.startswith(badPath)]: continue
 
 		if stripVersion:
 			fbase = fbase.split(".")
 			fbase = fbase[0] + "." + fbase[-1]
-					
+				
 		#print f, "->", targetDylibDir + "/" + fbase, "in", binPath
 		systemRun(["install_name_tool", "-change", f, installNameToolTargetDir + "/" + fbase, binPath])
 
