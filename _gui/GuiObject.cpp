@@ -192,7 +192,9 @@ PyObject* GuiObject::getattr(const char* key) {
 	// Fallthrough to generic getattr. In case we got another base type, this might work.
 	PyObject* s = PyString_FromString(key);
 	if(!s) return NULL;
-	return PyObject_GenericGetAttr((PyObject*) this, s);
+	PyObject* ret = PyObject_GenericGetAttr((PyObject*) this, s);
+	Py_DECREF(s);
+	return ret;
 }
 
 
@@ -268,7 +270,7 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 	PyObject* s = PyString_FromString(key);
 	if(!s) return -1;
 	int ret = PyObject_GenericSetAttr((PyObject*) this, s, value);
-	Py_XDECREF(s);
+	Py_DECREF(s);
 	return ret;
 }
 
