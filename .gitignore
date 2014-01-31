@@ -17,3 +17,6 @@ thumbnail.bmp
 
 .idea
 xcshareddata
+
+# automatically created by qmake
+Makefile
