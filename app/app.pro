@@ -3,7 +3,7 @@
 TEMPLATE = app
 
 mac {
-	SOURCES += ../mac/MusicPlayer/main.m
+	OBJECTIVE_SOURCES += ../mac/MusicPlayer/main.m
 }
 
 !mac {
