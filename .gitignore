@@ -11,6 +11,7 @@ a.out
 xcuserdata
 build
 *.creator.user
+*.app
 
 # from test_bmpthumb.py
 thumbnail.bmp
