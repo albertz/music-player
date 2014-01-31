@@ -13,6 +13,10 @@ import re
 env = os.environ
 cp = shutil.copyfile
 
+# debugging:
+#from pprint import pprint
+#pprint(env)
+
 import sys, time
 sys.path += [env["PROJECT_DIR"] + "/.."]
 import better_exchook
@@ -76,7 +80,7 @@ def systemRun(cmd):
 	print cmd
 	Popen(cmd).wait()
 
-externalPath = os.path.normpath(env["PROJECT_DIR"] + "/../external")
+externalPath = os.path.normpath(env["PROJECT_DIR"] + "/../core/external")
 
 def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/","/opt/", externalPath], stripVersion = True):
 	binDir = os.path.dirname(binPath)
