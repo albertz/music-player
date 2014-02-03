@@ -3,24 +3,26 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+
+import appinfo
+import sys
+from utils import safe_property
+
+
 # define fallback
 def main(): raise NotImplementedError
 def guiMain(): pass
 def locateFile(filename):
 	print "locateFile", utils.convertToUnicode(filename).encode("utf-8")
 
-import appinfo
-if not appinfo.args.nogui:
-	from _gui import *
-
-import sys
-from utils import safe_property
-
 def about():
 	import webbrowser
 	webbrowser.open("http://albertz.github.io/music-player/")
 
+
 if not appinfo.args.nogui:
+	from _gui import *
+
 	try:
 		# Right now, we can only enable qtgui via cmdline and the only
 		# two implementations are Cocoa and Qt. And we always try to enable
@@ -38,6 +40,7 @@ if not appinfo.args.nogui:
 	except Exception:
 		print "error in loading GUI implementation"
 		sys.excepthook(*sys.exc_info())
+
 
 class _GuiObject:
 
