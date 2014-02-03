@@ -3,39 +3,41 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
-from _gui import *
-
-import sys
-import utils, appinfo
-from utils import safe_property
-
 # define fallback
 def main(): raise NotImplementedError
 def guiMain(): pass
 def locateFile(filename):
 	print "locateFile", utils.convertToUnicode(filename).encode("utf-8")
 
+import appinfo
+if not appinfo.args.nogui:
+	from _gui import *
+
+import sys
+from utils import safe_property
+
 def about():
 	import webbrowser
 	webbrowser.open("http://albertz.github.io/music-player/")
 
-try:
-	# Right now, we can only enable qtgui via cmdline and the only
-	# two implementations are Cocoa and Qt. And we always try to enable
-	# one of these implementations. That is why the selection looks like
-	# this.
-	# Later, it might sense to disable the GUI at all and there might be
-	# other GUI implementations. Also, maybe the design might change and
-	# we could enable multiple GUIs as different separate modules.
-	# E.g., the webinterface will in any case be a separate module.
-	if sys.platform == "darwin" and not appinfo.args.qtgui:
-		from guiCocoa import *
-	else:
-		# Use Qt as the generic fallback.
-		from guiQt import *
-except Exception:
-	print "error in loading GUI implementation"
-	sys.excepthook(*sys.exc_info())
+if not appinfo.args.nogui:
+	try:
+		# Right now, we can only enable qtgui via cmdline and the only
+		# two implementations are Cocoa and Qt. And we always try to enable
+		# one of these implementations. That is why the selection looks like
+		# this.
+		# Later, it might sense to disable the GUI at all and there might be
+		# other GUI implementations. Also, maybe the design might change and
+		# we could enable multiple GUIs as different separate modules.
+		# E.g., the webinterface will in any case be a separate module.
+		if sys.platform == "darwin" and not appinfo.args.qtgui:
+			from guiCocoa import *
+		else:
+			# Use Qt as the generic fallback.
+			from guiQt import *
+	except Exception:
+		print "error in loading GUI implementation"
+		sys.excepthook(*sys.exc_info())
 
 class _GuiObject:
 
