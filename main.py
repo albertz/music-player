@@ -30,6 +30,11 @@ if __name__ == '__main__' and appinfo.args.profile:
 else:
 	profiler = None
 
+# Early check for forked process.
+if __name__ == '__main__':
+	import utils
+	utils.ExecingProcess.checkExec()
+
 # Early check for "--pyshell".
 # This is a simple debug shell where we don't load anything.
 if __name__ == '__main__' and appinfo.args.pyshell:
@@ -46,10 +51,8 @@ if __name__ == '__main__' and appinfo.args.pyexec:
 def main():
 
 	import utils
-	utils.ExecingProcess.checkExec()
-
-
 	import sys, time
+
 	print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
 	print "startup on", utils.formatDate(time.time())
 
