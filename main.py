@@ -26,32 +26,38 @@ if __name__ == '__main__' and appinfo.args.profile:
 	# No try/except. If requested and it fails -> exit.
 	import cProfile
 	profiler = cProfile.Profile()
+	# Note that this should be done outside of main() because
+	# otherwise it would not really profile the main() itself.
 	profiler.enable()
 else:
 	profiler = None
 
-# Early check for forked process.
-if __name__ == '__main__':
-	import utils
-	utils.ExecingProcess.checkExec()
-
-# Early check for "--pyshell".
-# This is a simple debug shell where we don't load anything.
-if __name__ == '__main__' and appinfo.args.pyshell:
-	better_exchook.simple_debug_shell({}, {})
-	raise SystemExit
-
-# Early check for "--pyexec".
-# This is a simple Python execution where we don't load anything.
-if __name__ == '__main__' and appinfo.args.pyexec:
-	sourcecode = appinfo.args.pyexec[0]
-	exec(compile(sourcecode, "<pyexec>", "exec"))
-	raise SystemExit
 
 def main():
+	import sys
+
+	# Early check for forked process.
+	if "--forkExecProc" in sys.argv:
+		# Only import utils now for this case.
+		# Otherwise, I want "--pyshell" to be without utils loaded.
+		import utils
+		utils.ExecingProcess.checkExec()
+
+	# Early check for "--pyshell".
+	# This is a simple debug shell where we don't load anything.
+	if appinfo.args.pyshell:
+		better_exchook.simple_debug_shell({}, {})
+		raise SystemExit
+
+	# Early check for "--pyexec".
+	# This is a simple Python execution where we don't load anything.
+	if appinfo.args.pyexec:
+		sourcecode = appinfo.args.pyexec[0]
+		exec(compile(sourcecode, "<pyexec>", "exec"))
+		raise SystemExit
 
 	import utils
-	import sys, time
+	import time
 
 	print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
 	print "startup on", utils.formatDate(time.time())
