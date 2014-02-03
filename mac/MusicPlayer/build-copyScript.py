@@ -91,8 +91,12 @@ def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/
 	otoolOut = Popen(["otool","-L",binPath],stdout=PIPE).stdout.readlines()
 	otoolOut = otoolOut[2:] # ignore first two lines
 	for l in otoolOut:
-		f = re.match("^\s+([\w/.-]+)", l).groups()[0]
+		f = re.match("^\s+([\w/.-@]+)", l).groups()[0]
 		fbase = os.path.basename(f)
+
+		if f.startswith("@"): # e.g. "@executable_path/..."
+			# probably already fixed
+			continue
 
 		if not f.startswith("/"): # strange case
 			# some custom handling for now, not sure ...
@@ -118,3 +122,7 @@ def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/
 			fixBin(targetDylibDirFull + "/" + fbase, targetDylibDir, installNameToolTargetDir, badPaths, stripVersion)
 		
 fixBin(PYDIR + "/musicplayer.so", ".", "@executable_path/../Resources/Python")
+
+# When we run the MusicPlayer within Xcode, it sets the DYLD_LIBRARY_PATH to env["BUILT_PRODUCTS_DIR"]
+# and it might load the musicplayer.so from there. Thus, we need to fix that one also.
+fixBin(env["BUILT_PRODUCTS_DIR"] + "/musicplayer.so", ".", "@executable_path/../Resources/Python")
