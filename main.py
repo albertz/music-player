@@ -111,6 +111,7 @@ def main():
 	
 	for m in modules: m.start()
 
+	global successStartup
 	successStartup = True
 
 	# Note on quit behavior: Simply iterating state.updates
