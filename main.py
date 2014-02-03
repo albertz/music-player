@@ -37,7 +37,7 @@ def main():
 	import sys
 
 	# Early check for forked process.
-	if "--forkExecProc" in sys.argv:
+	if appinfo.args.forkExecProc:
 		# Only import utils now for this case.
 		# Otherwise, I want "--pyshell" to be without utils loaded.
 		import utils
