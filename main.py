@@ -101,13 +101,14 @@ def main():
 
 	from State import state, modules
 	import stdinconsole
-	import gui
 
-	try:
-		# This will overtake the main loop and raise SystemExit at its end.
-		gui.main()
-	except SystemExit:
-		raise
+	if not appinfo.args.nogui:
+		import gui
+		try:
+			# This will overtake the main loop and raise SystemExit at its end.
+			gui.main()
+		except SystemExit:
+			raise
 	
 	for m in modules: m.start()
 

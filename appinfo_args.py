@@ -47,6 +47,10 @@ argParser.add_argument(
 	metavar="<Python commands>"
 )
 argParser.add_argument(
+	"--nogui", action="store_true",
+	help="disables the GUI"
+)
+argParser.add_argument(
 	"--qtgui", action="store_true",
 	help="force Qt GUI"
 )
