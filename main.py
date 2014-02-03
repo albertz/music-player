@@ -34,7 +34,8 @@ else:
 
 
 def main():
-	import sys
+	import sys, os
+	from pprint import pprint
 
 	# Early check for forked process.
 	if appinfo.args.forkExecProc:
@@ -97,6 +98,17 @@ def main():
 		# Print error in any case, also ImportError, because we would expect that this works.
 		print "Error while importing AppKit"
 		sys.excepthook(*sys.exc_info())
+
+
+	# Import core module here. This is mostly as an early error check.
+	try:
+		import musicplayer
+	except Exception:
+		print "Error while importing core module! This is fatal."
+		sys.excepthook(*sys.exc_info())
+		print "Environment:"
+		pprint(os.environ)
+		raise
 
 
 	from State import state, modules
