@@ -2242,7 +2242,6 @@
 					"$(PROJECT_DIR)/../core",
 					/usr/local/include,
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
 				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
@@ -2269,7 +2268,6 @@
 					"$(PROJECT_DIR)/../core",
 					/usr/local/include,
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx10.7;
 			};
@@ -2304,6 +2302,7 @@
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				LD_DYLIB_INSTALL_NAME = "";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-framework",
@@ -2327,6 +2326,7 @@
 				EXECUTABLE_EXTENSION = so;
 				EXECUTABLE_PREFIX = "";
 				LD_DYLIB_INSTALL_NAME = "";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../core/external/ffmpeg/target/lib";
 				OTHER_LDFLAGS = (
 					"-lavformat",
 					"-lavutil",
