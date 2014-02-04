@@ -1,6 +1,11 @@
 # http://qt-project.org/wiki/QMake-top-level-srcdir-and-builddir
 
 TEMPLATE = subdirs
-SUBDIRS = .initvars.pro core faulthandler debugger app
+SUBDIRS = .initvars.pro app core faulthandler debugger
 core.file = core/musicplayer.pro
 app.depends = core faulthandler debugger
+
+mac {
+	SUBDIRS += mac
+	app.depends += mac
+}
