@@ -8,11 +8,15 @@ QMAKE_EXTENSION_SHLIB = so
 TARGET = _gui
 DESTDIR = $$top_builddir
 
+HEADERS = $$files(*.hpp)
+HEADERS += $$files($$top_srcdir/core/*.h*)
 SOURCES = $$files(*.cpp)
 
 CONFIG += thread
 CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++11
+
+INCLUDEPATH += $$top_srcdir/core
 
 mac {
         QMAKE_LFLAGS += -undefined dynamic_lookup
