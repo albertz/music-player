@@ -22,4 +22,5 @@ xcshareddata
 
 # automatically created by qmake
 Makefile
+Makefile.*
 .qmake.stash
