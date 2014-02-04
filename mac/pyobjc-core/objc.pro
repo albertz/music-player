@@ -27,8 +27,12 @@ CONFIG -= qt
 INCLUDEPATH += libffi-src/include
 INCLUDEPATH += $$top_builddir/core
 
-mac {
-	INCLUDEPATH += $$top_builddir/python-embedded/CPython/Include
+QMAKE_CFLAGS += -DPyObjC_STRICT_DEBUGGING
+QMAKE_CFLAGS += -fexceptions 
+mac:QMAKE_CFLAGS += -DMACOSX
+QMAKE_CFLAGS += -DPyObjC_BUILD_RELEASE=1009
+QMAKE_OBJECTIVE_CFLAGS += $$QMAKE_CFLAGS
 
+mac {
         QMAKE_LFLAGS += -undefined dynamic_lookup
 }
