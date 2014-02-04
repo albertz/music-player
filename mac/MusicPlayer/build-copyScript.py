@@ -10,12 +10,12 @@ import sys, os, shutil
 from subprocess import Popen, PIPE
 from glob import glob
 import re
+from pprint import pprint
 env = os.environ
 cp = shutil.copyfile
 
 # debugging:
 if False:
-	from pprint import pprint
 	pprint(env)
 	pprint(sys.argv)
 	sys.exit(1)
@@ -28,13 +28,13 @@ if sys.argv[1:2] == ["-qmake"]:
 	# Build up Xcode compatible vars which we use here.
 	env["PROJECT_DIR"] = os.path.abspath(qmakeVars["top_srcdir"] + "/mac")
 	env["BUILT_PRODUCTS_DIR"] = qmakeVars["top_builddir"]
-	env["TARGET_BUILD_DIR"] = qmakeVars["PWD"]
+	env["TARGET_BUILD_DIR"] = qmakeVars["top_builddir"]
 	env["TARGET_NAME"] = qmakeVars["TARGET"]
 	env["WRAPPER_SUFFIX"] = ".app"
 	env["CONTENTS_FOLDER_PATH"] = env["TARGET_NAME"] + env["WRAPPER_SUFFIX"] + "/Contents"
 	env["UNLOCALIZED_RESOURCES_FOLDER_PATH"] = env["CONTENTS_FOLDER_PATH"] + "/Resources"
 	env["EXECUTABLE_FOLDER_PATH"] = env["CONTENTS_FOLDER_PATH"] + "/MacOS"
-
+	
 import sys, time
 sys.path += [env["PROJECT_DIR"] + "/.."]
 import better_exchook
