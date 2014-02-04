@@ -24,3 +24,4 @@ xcshareddata
 Makefile
 Makefile.*
 .qmake.stash
+.qmake.cache
