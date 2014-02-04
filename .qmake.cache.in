@@ -3,7 +3,10 @@
 top_srcdir=$$PWD
 top_builddir=$$OUT_PWD
 
-mac {
+# No mac-scope because of "Using OS scope before setting MAKEFILE_GENERATOR" error from qmake.
+uname = $$system(uname)
+equals(uname, Darwin) {
+
 	QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
 	QMAKE_CFLAGS += -isysroot /Developer/SDKs/MacOSX10.7.sdk
 	QMAKE_CFLAGS += -mmacosx-version-min=10.6

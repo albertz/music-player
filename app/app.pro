@@ -36,7 +36,7 @@ mac {
 	# it would give us *way* too much and it would even not get us the
 	# relevant variables.
 	for(var, $$list(top_srcdir top_builddir TARGET PWD)) {
-		varlist += $$shell_quote($$var=$$val_escape($$var)) " "
+		eval( varlist += $$quote($$var=\$\$$$var) " " )
 	}
 
 	app_bundle_setup.target = .app_bundle_setup

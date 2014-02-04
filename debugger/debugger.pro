@@ -7,8 +7,6 @@ TEMPLATE = lib
 QMAKE_EXTENSION_SHLIB = so
 TARGET = debugger
 DESTDIR = $$top_builddir
-message($$top_builddir)
-message($$DESTDIR)
 
 SOURCES = $$files(*.cpp)
 
