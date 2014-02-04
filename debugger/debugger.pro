@@ -15,7 +15,5 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++11
 
 mac {
-	INCLUDEPATH += ../../python-embedded/CPython/Include
-
         QMAKE_LFLAGS += -undefined dynamic_lookup
 }

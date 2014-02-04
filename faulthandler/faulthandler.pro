@@ -14,7 +14,5 @@ CONFIG += thread
 CONFIG -= qt
 
 mac {
-	INCLUDEPATH += ../../python-embedded/CPython/Include
-
         QMAKE_LFLAGS += -undefined dynamic_lookup
 }
