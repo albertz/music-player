@@ -13,7 +13,7 @@ DESTDIR = $$top_builddir
 
 HEADERS = $$files(Modules/objc/*.h)
 HEADERS += $$files(libffi-src/include/*.h)
-HEADERS += $$files($$top_builddir/core/*.h*)
+HEADERS += $$files($$top_srcdir/core/*.h*)
 
 OBJECTIVE_SOURCES = $$files(Modules/objc/*.m)
 
@@ -25,7 +25,7 @@ CONFIG += thread
 CONFIG -= qt
 
 INCLUDEPATH += libffi-src/include
-INCLUDEPATH += $$top_builddir/core
+INCLUDEPATH += $$top_srcdir/core
 
 QMAKE_CFLAGS += -DPyObjC_STRICT_DEBUGGING
 QMAKE_CFLAGS += -fexceptions 

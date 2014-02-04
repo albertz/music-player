@@ -12,10 +12,10 @@ TARGET = _guiCocoa
 DESTDIR = $$top_builddir
 
 HEADERS = $$files(*.h*)
-HEADERS += $$files($$top_builddir/_gui/*.h*)
-HEADERS += $$files($$top_builddir/core/*.h*)
-HEADERS += $$files($$top_builddir/mac/pyobjc-core/Modules/objc/*.h*)
-HEADERS += $$files($$top_builddir/mac/pyobjc-core/libffi-src/include/*.h*)
+HEADERS += $$files($$top_srcdir/_gui/*.h*)
+HEADERS += $$files($$top_srcdir/core/*.h*)
+HEADERS += $$files($$top_srcdir/mac/pyobjc-core/Modules/objc/*.h*)
+HEADERS += $$files($$top_srcdir/mac/pyobjc-core/libffi-src/include/*.h*)
 
 SOURCES = $$files(*.c*)
 
@@ -23,10 +23,10 @@ CONFIG += thread c++11
 CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++11
 
-INCLUDEPATH += $$top_builddir/_gui
-INCLUDEPATH += $$top_builddir/core
-INCLUDEPATH += $$top_builddir/mac/pyobjc-core/Modules/objc
-INCLUDEPATH += $$top_builddir/mac/pyobjc-core/libffi-src/include
+INCLUDEPATH += $$top_srcdir/_gui
+INCLUDEPATH += $$top_srcdir/core
+INCLUDEPATH += $$top_srcdir/mac/pyobjc-core/Modules/objc
+INCLUDEPATH += $$top_srcdir/mac/pyobjc-core/libffi-src/include
 
 # We cannot use OBJECTIVE_SOURCES because there are a few special cases:
 #  - PyObjCBridge.m: no ARC
