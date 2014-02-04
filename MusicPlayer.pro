@@ -1,5 +1,5 @@
 # http://qt-project.org/wiki/QMake-top-level-srcdir-and-builddir
 
 TEMPLATE = subdirs
-SUBDIRS = app core
-app.depends = core
+SUBDIRS = core faulthandler debugger app
+app.depends = core faulthandler debugger
