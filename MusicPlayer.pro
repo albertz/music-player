@@ -3,7 +3,7 @@
 TEMPLATE = subdirs
 SUBDIRS = .initvars.pro app core faulthandler debugger _gui
 core.file = core/musicplayer.pro
-app.depends = core faulthandler debugger
+app.depends = core faulthandler debugger _gui
 
 mac {
 	SUBDIRS += mac
