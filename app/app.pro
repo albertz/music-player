@@ -22,7 +22,14 @@ mac {
 	LIBS += -framework CoreFoundation -framework Foundation -framework Cocoa
 	LIBS += $$pylibpath
 
-	# We need to handle all the app bundle data. We need to call build-copyScript.py.
+	PythonDylib.files = $$pylibpath
+	PythonDylib.path = Contents/MacOS
+	QMAKE_BUNDLE_DATA += PythonDylib
+
+	#QMAKE_INFO_PLIST = ... MusicPlayer-Info.plist
+	ICON = $$top_srcdir/icon.icns
+
+	# We need to handle all the rest app bundle data. We need to call build-copyScript.py.
 	# We need to call it just every time because we cannot really know here
 	# whether it is needed or not.
 	# Ideally, we would do it after the linking step. However, that is not really
