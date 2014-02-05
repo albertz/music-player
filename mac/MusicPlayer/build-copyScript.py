@@ -80,7 +80,9 @@ assert os.path.exists(env["BUILT_PRODUCTS_DIR"] + "/_objc.so")
 cp(env["BUILT_PRODUCTS_DIR"] + "/_objc.so", PYDIR + "/objc/_objc.so")
 
 # PyObjC frameworks
-for d in glob(env["BUILT_PRODUCTS_DIR"] + "/pyobjc/*"):
+#PyObjCDir = env["BUILT_PRODUCTS_DIR"] + "/pyobjc"
+PyObjCDir = env["PROJECT_DIR"] + "/build/Release/pyobjc"
+for d in glob(PyObjCDir + "/*"):
 	fulldir = d
 	d = os.path.basename(fulldir)
 	if os.path.exists(PYDIR + "/" + d):
