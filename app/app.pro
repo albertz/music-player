@@ -13,7 +13,7 @@ mac {
 
 	# We don't have a qmake build for it. It's build via Xcode.
 	# Just check its existence.
-	pylibpath = ../python-embedded/build/Release/Python.dylib
+	pylibpath = $$top_srcdir/python-embedded/build/Release/Python.dylib
 	!exists( $$pylibpath ) {
 		error( "our Python not found" )
 	}
@@ -46,7 +46,12 @@ mac {
 	PythonDylib.files = $$pylibpath
 	PythonDylib.path = Contents/MacOS
 	QMAKE_BUNDLE_DATA += PythonDylib
-		
+	
+	PythonBaseDir = $$top_srcdir/python-embedded/pylib
+	PythonBase.files = $$PythonBaseDir/pylib.zip $$PythonBaseDir/exec $$PythonBaseDir/pyconfig.h
+	PythonBase.path = Contents/Resources/pylib
+	QMAKE_BUNDLE_DATA += PythonBase
+
 	# Contents/Info.plist
 	MusicPlayer_InfoPlistFile = $$top_srcdir/mac/MusicPlayer/MusicPlayer-Info.plist
 	Info_plist.target = Info.plist
