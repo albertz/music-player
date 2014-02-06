@@ -8,6 +8,8 @@ extern bool logEnabled;
 extern std::string logFilename;
 
 std::string getResourcePath();
+std::string getTildeExpandedPath(const std::string& path);
+bool fileExists(const std::string& path);
 
 extern "C" {
 #endif

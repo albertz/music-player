@@ -9,6 +9,7 @@
 #include <Python.h>
 #include <stdio.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #include "sysutils.hpp"
 
@@ -19,6 +20,10 @@ bool AmIBeingDebugged() { return false; }
 #endif
 
 
+#ifndef __APPLE__
+std::string getResourcePath() { return "."; } // TODO...
+#endif
+
 
 bool logEnabled = false;
 #ifdef __APPLE__
@@ -26,6 +31,18 @@ std::string logFilename = "~/Library/Logs/com.albertzeyer.MusicPlayer.log";
 #else
 std::string logFilename = "~/.com.albertzeyer.MusicPlayer/musicplayer.log";
 #endif
+
+
+std::string getTildeExpandedPath(const std::string& path) {
+	if(path.substr(0, 2) == "~/")
+		return std::string(getenv("HOME")) + path.substr(1);
+	return path;
+}
+
+bool fileExists(const std::string& path) {
+	struct stat buffer;   
+    return (stat(path.c_str(), &buffer) == 0);
+}
 
 
 bool forkExecProc = false;
@@ -69,6 +86,7 @@ static bool checkStartupSuccess() {
 
 
 void signal_handler(int sig) {
+	printf("Signal handler: %i\n", sig);
 	handleFatalError("There was a fatal error.");
 }
 
@@ -86,6 +104,9 @@ const char* StartupStr = "Hello from MusicPlayer on MacOSX.\n";
 const char* StartupStr = "Hello from MusicPlayer.\n";
 #endif
 
+#ifdef __APPLE__
+#define main main_wrapped
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -113,7 +134,7 @@ int main(int argc, char *argv[])
 		logEnabled = true;
 		printf("MusicPlayer: stdout/stderr goes to %s now\n", logFilename.c_str());
 		fflush(stdout);
-		int newFd = open(logFilename.c_str(), O_WRONLY|O_APPEND|O_CREAT);
+		int newFd = open(getTildeExpandedPath(logFilename).c_str(), O_WRONLY|O_APPEND|O_CREAT);
 		dup2(newFd, fileno(stdout));
 		dup2(newFd, fileno(stderr));
 		close(newFd);
@@ -147,8 +168,8 @@ int main(int argc, char *argv[])
 	addPyPath();
 
 	if(logEnabled) {
-		PySys_SetObject("stdout", PyFile_FromFile(stdout, "<stdout>", "w", fclose));
-		PySys_SetObject("stderr", PySys_GetObject("stdout"));
+		PySys_SetObject((char*)"stdout", PyFile_FromFile(stdout, (char*)"<stdout>", (char*)"w", fclose));
+		PySys_SetObject((char*)"stderr", PySys_GetObject((char*)"stdout"));
 	}
 
 	// Preload imp and thread. I hope to fix this bug: https://github.com/albertz/music-player/issues/8 , there was a crash in initthread which itself has called initimp
@@ -161,8 +182,10 @@ int main(int argc, char *argv[])
 	PySys_SetArgvEx(argc, argv, 0);
 			
 	FILE* fp = fopen((char*)mainPyFilename.c_str(), "r");
-	assert(fp);
-	PyRun_SimpleFile(fp, "main.py");
+	if(fp)
+		PyRun_SimpleFile(fp, "main.py");
+	else
+		printf("Could not open main.py!\n");
 	
 	if(!forkExecProc && !help && !pyShell && !pyExec && !shell) {
 		bool successStartup = checkStartupSuccess();
