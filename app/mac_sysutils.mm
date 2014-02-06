@@ -105,7 +105,6 @@ static bool checkStartupSuccess() {
 	return success;
 }
 
-const char* StartupStr = "Hello from MusicPlayer on MacOSX.\n";
 
 static NSString* getRelevantLogOutput(const char* filename) {
 	fflush(stdout);

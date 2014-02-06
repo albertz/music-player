@@ -76,6 +76,11 @@ void install_signal_handler() {
 	signal(SIGILL, signal_handler);
 }
 
+#ifdef __APPLE__
+const char* StartupStr = "Hello from MusicPlayer on MacOSX.\n";
+#else
+const char* StartupStr = "Hello from MusicPlayer.\n";
+#endif
 
 
 int main(int argc, char *argv[])
@@ -120,7 +125,7 @@ int main(int argc, char *argv[])
 	
 	if(help) {
 		printf(
-			   "Help: Available MacOSX options:\n"
+			   "Help: Available options:\n"
 			   "  --nolog		: don't redirect stdout/stderr to log. also implied when run in debugger\n"
 			   );
 	}

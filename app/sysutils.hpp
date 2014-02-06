@@ -12,6 +12,8 @@ std::string getResourcePath();
 extern "C" {
 #endif
 
+extern const char* StartupStr;
+
 bool AmIBeingDebugged();
 
 __attribute__((visibility("default")))
