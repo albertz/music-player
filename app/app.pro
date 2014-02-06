@@ -9,7 +9,7 @@ mac {
 	# We don't need/link Qt at this point.
 	CONFIG -= qt
 
-	OBJECTIVE_SOURCES += $$top_srcdir/mac/MusicPlayer/main.m
+	OBJECTIVE_SOURCES += ../mac/MusicPlayer/main.m
 
 	# We don't have a qmake build for it. It's build via Xcode.
 	# Just check its existence.
@@ -70,7 +70,7 @@ mac {
 	PRE_TARGETDEPS += $$PkgInfo.target
 
 	# App bundle icon
-	ICON = $$top_srcdir/icon.icns
+	ICON = ../icon.icns
 
 	app_bundle_setup.target = .app_bundle_setup
 	app_bundle_setup.commands = ../mac/MusicPlayer/build-copyScript.py -qmake $$varlist
