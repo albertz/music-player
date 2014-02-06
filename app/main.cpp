@@ -21,7 +21,11 @@ bool AmIBeingDebugged() { return false; }
 
 
 bool logEnabled = false;
+#ifdef __APPLE__
 std::string logFilename = "~/Library/Logs/com.albertzeyer.MusicPlayer.log";
+#else
+std::string logFilename = "~/.com.albertzeyer.MusicPlayer/musicplayer.log";
+#endif
 
 
 bool forkExecProc = false;
