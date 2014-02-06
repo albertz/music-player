@@ -5,11 +5,15 @@ TEMPLATE = app
 TARGET = MusicPlayer
 DESTDIR = $$top_builddir
 
-mac {
-	# We don't need/link Qt at this point.
-	CONFIG -= qt
+HEADERS += $$files(*.hpp)
+SOURCES += $$files(*.cpp)
 
-	OBJECTIVE_SOURCES += ../mac/MusicPlayer/main.m
+# We don't need/link Qt at this point.
+CONFIG -= qt
+
+mac {
+
+	OBJECTIVE_SOURCES += $$files(*.mm)
 
 	# We don't have a qmake build for it. It's build via Xcode.
 	# Just check its existence.
@@ -78,8 +82,5 @@ mac {
 	POST_TARGETDEPS += $$app_bundle_setup.target
 }
 
-!mac {
-	SOURCES += main.cpp
-}
 
 

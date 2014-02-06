@@ -20,8 +20,12 @@
 #include <sys/sysctl.h>
 
 
+#include "sysutils.hpp"
+
+
 // Based on Apple's recommended method as described in
 // http://developer.apple.com/qa/qa2004/qa1361.html
+extern "C"
 bool AmIBeingDebugged()
 // Returns true if the current process is being debugged (either
 // running under the debugger or has a debugger attached post facto).
@@ -51,6 +55,10 @@ bool AmIBeingDebugged()
 
 
 bool forkExecProc = false;
+
+std::string getResourcePath() {
+	return [[[NSBundle mainBundle] resourcePath] UTF8String];
+}
 
 static void addPyPath() {
 	NSString* pathStr =
@@ -117,9 +125,8 @@ static NSString* getRelevantLogOutput(const char* filename) {
 	return buffer;
 }
 
-bool logEnabled = false;
-NSString* logFilename = @"~/Library/Logs/com.albertzeyer.MusicPlayer.log";
 
+extern "C"
 __attribute__((visibility("default")))
 void handleFatalError(const char* msg) {
 	[NSApplication sharedApplication];
