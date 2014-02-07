@@ -5,18 +5,17 @@
 #import "OneLineTextControl.hpp"
 #import "ClickableLabelControl.hpp"
 #import "PythonHelpers.h"
-#import "PyObjCBridge.h"
 
 
 
-bool buildControlList(CocoaGuiObject* control) {
+bool buildControlList(QtGuiObject* control) {
 	ListControlView* view = [[ListControlView alloc] initWithControl:control];
 	control->setNativeObj(view);
 	return view != nil;
 }
 
 
-bool buildControlObject(CocoaGuiObject* control) {
+bool buildControlObject(QtGuiObject* control) {
 	if(!_buildControlObject_pre(control)) return false;
 	
 	Vec size = control->setupChilds();
@@ -24,47 +23,61 @@ bool buildControlObject(CocoaGuiObject* control) {
 	return _buildControlObject_post(control);
 }
 
-bool _buildControlObject_pre(CocoaGuiObject* control) {
+bool _buildControlObject_pre(QtGuiObject* control) {
 	ObjectControlView* view = [[ObjectControlView alloc] initWithControl:control];
 	control->setNativeObj(view);
 	return view != nil;
 }
 
-NSColor* backgroundColor(CocoaGuiObject* control) {
-	NSColor* res = nil;
-	PyObject* mod = getModule("guiCocoa");
-	if(mod) {
-		PyObject* colorPy = PyObject_CallMethod(mod, (char*)"backgroundColor", (char*)"(O)", control);
-		if(!colorPy && PyErr_Occurred()) PyErr_Print();
-		if(colorPy) {
-			id _color = PyObjCObj_GetNativeObj(colorPy);
-			if(_color && [_color isKindOfClass:[NSColor class]])
-				res = (NSColor*) _color;
-			Py_DECREF(colorPy);
+static void iterControlParents(GuiObject* control, std::function<bool(GuiObject*)> callback) {
+	GuiObject* obj = control;
+	Py_XINCREF(obj);
+	while(obj) {
+		if(!callback(obj)) break;
+		
+		{
+			GuiObject* parent = obj->parent;
+			Py_XINCREF(parent);
+			Py_DECREF(obj);
+			obj = parent;
 		}
 	}
-	return res;
+	Py_XDECREF(obj);
 }
 
-NSColor* foregroundColor(CocoaGuiObject* control) {
-	NSColor* res = nil;
-	PyObject* mod = getModule("guiCocoa");
-	if(mod) {
-		PyObject* colorPy = PyObject_CallMethod(mod, (char*)"foregroundColor", (char*)"(O)", control);
-		if(!colorPy && PyErr_Occurred()) PyErr_Print();
-		if(colorPy) {
-			id _color = PyObjCObj_GetNativeObj(colorPy);
-			if(_color && [_color isKindOfClass:[NSColor class]])
-				res = (NSColor*) _color;
-			Py_DECREF(colorPy);
+QColor backgroundColor(QtGuiObject* control) {
+	bool any = false;
+	iterControlParents(control, [&](GuiObject* obj) {
+		if(attrChain_bool_default(obj->attr, "highlight", false)) {
+			any = true;
+			return false;
 		}
-	}
-	return res;
+		return true;
+	});
+	
+	if(any)
+		return QColor(0, 0, 255);
+	return QColor(0,0,0,0);
 }
 
-bool _buildControlObject_post(CocoaGuiObject* control) {
-	NSView* _view = control->getNativeObj();
-	if(!_view || ![_view isKindOfClass:[ObjectControlView class]]) {
+QColor foregroundColor(QtGuiObject* control) {
+	bool any = false;
+	iterControlParents(control, [&](GuiObject* obj) {
+		if(attrChain_bool_default(obj->attr, "lowlight", false)) {
+			any = true;
+			return false;
+		}
+		return true;
+	});
+	
+	if(any)
+		return QApplication::palette().color(Qt::Disabled, Qt::WindowText);
+	return QColor(0,0,0);
+}
+
+bool _buildControlObject_post(QtGuiObject* control) {
+	QWidget* _widget = control->getNativeObj();
+	if(!_widget || ![_view isKindOfClass:[ObjectControlView class]]) {
 		printf("_buildControlObject_post: bad native obj\n");
 		return false;
 	}
@@ -77,13 +90,13 @@ bool _buildControlObject_post(CocoaGuiObject* control) {
 	return true;
 }
 
-bool buildControlOneLineText(CocoaGuiObject* control) {
+bool buildControlOneLineText(QtGuiObject* control) {
 	OneLineTextControlView* view = [[OneLineTextControlView alloc] initWithControl:control];
 	control->setNativeObj(view);
 	return view != nil;
 }
 
-bool buildControlClickableLabel(CocoaGuiObject* control) {
+bool buildControlClickableLabel(QtGuiObject* control) {
 	ClickableLabelControlView* view = [[ClickableLabelControlView alloc] initWithControl:control];
 	control->setNativeObj(view);
 	return view != nil;
