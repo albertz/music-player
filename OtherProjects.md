@@ -53,6 +53,10 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 * Open Source, Gnome.
 
+### [QMMP](http://qmmp.ylsoftware.com/)
+
+* Open Source, Qt
+
 ### [Quod Libet](https://code.google.com/p/quodlibet/)
 
 * Open Source, GTK+, Python.
