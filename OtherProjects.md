@@ -136,6 +136,14 @@ There exists a huge amount of music players. Here is a list of some and other re
 * Open Source, Python, song ratings + high-rated songs are played more often
 * last update from 2001
 
+### [kwplayer](https://github.com/LiuLang/kwplayer)
+
+* Open Source, Python, GStreamer
+
+### [dacapo](http://sourceforge.net/projects/dacapo-player/)
+
+* Open Source, Python, GStreamer, GTK+
+
 
 ## Web-based streaming players
 
