@@ -20,6 +20,7 @@ struct GuiObjectWidget : QWidget {
 	PyWeakReference* controlRef;
 	
 	GuiObjectWidget(QtGuiObject* control);
+	~GuiObjectWidget();
 	virtual QtGuiObject* getControl(); // new ref
 	virtual void updateContent();
 	

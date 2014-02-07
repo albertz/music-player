@@ -1,25 +1,23 @@
 //
-//  GuiObjectView.mm
+//  GuiObjectView.cpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 23.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "GuiObjectView.hpp"
+#include "GuiObjectWidget.hpp"
 #include "PythonHelpers.h"
+#include "PyThreading.hpp"
 
-@implementation GuiObjectView
-
-- (void)dealloc
-{
-	PyGILState_STATE gstate = PyGILState_Ensure();
+GuiObjectWidget::~GuiObjectWidget() {
+	PyScopedGIL gil;
 	Py_CLEAR(controlRef);
-	PyGILState_Release(gstate);
 }
 
-- (id)initWithControl:(CocoaGuiObject*)control;
-{
+GuiObjectWidget::GuiObjectWidget(QtGuiObject* control) {
+	//this->QWidget(control->parent);
+	
 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
     self = [super initWithFrame:frame];
     if(!self) return nil;
@@ -40,9 +38,8 @@
 	return self;
 }
 
-- (CocoaGuiObject*)getControl;
-{
-	CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
+QtGuiObject* GuiObjectWidget::getControl() {
+	QtGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
 	if(!control) return NULL;
 	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
 		printf("Cocoa GuiObjectView: control is wrong type\n");
