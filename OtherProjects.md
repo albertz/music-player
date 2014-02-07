@@ -163,6 +163,10 @@ There exists a huge amount of music players. Here is a list of some and other re
 * [Open Source](https://github.com/devsnd/cherrymusic) (GPL), Python, [CherryPy](http://www.cherrypy.org/), [jPlayer](http://jplayer.org/)
 * no advanced player technics like Gapless playback, mixing, etc. (because of web technology)
 
+### [Democratic Jukebox](https://github.com/lociii/jukebox)
+
+* Open Source (MIT), Python
+* web-interface for voting on songs for intelligent queue
 
 
 ## Libraries
