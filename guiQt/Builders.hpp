@@ -6,19 +6,20 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#ifndef MusicPlayer_Builders_hpp
-#define MusicPlayer_Builders_hpp
+#ifndef MusicPlayer_guiQt_Builders_hpp
+#define MusicPlayer_guiQt_Builders_hpp
 
-#import "CocoaGuiObject.hpp"
+#include "QtGuiObject.hpp"
+#include <QColor>
 
-bool buildControlList(CocoaGuiObject* control);
-bool buildControlObject(CocoaGuiObject* control);
-bool _buildControlObject_pre(CocoaGuiObject* control);
-bool _buildControlObject_post(CocoaGuiObject* control);
-bool buildControlOneLineText(CocoaGuiObject* control);
-bool buildControlClickableLabel(CocoaGuiObject* control);
+bool buildControlList(QtGuiObject* control);
+bool buildControlObject(QtGuiObject* control);
+bool _buildControlObject_pre(QtGuiObject* control);
+bool _buildControlObject_post(QtGuiObject* control);
+bool buildControlOneLineText(QtGuiObject* control);
+bool buildControlClickableLabel(QtGuiObject* control);
 
-NSColor* backgroundColor(CocoaGuiObject* control);
-NSColor* foregroundColor(CocoaGuiObject* control);
+QColor backgroundColor(QtGuiObject* control);
+QColor foregroundColor(QtGuiObject* control);
 
 #endif

@@ -1,13 +1,12 @@
 //
-//  CocoaGuiObject.cpp
+//  QtGuiObject.cpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 18.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#include "CocoaGuiObject.hpp"
+#include "QtGuiObject.hpp"
 #include "PyObjCBridge.h"
 #include "PythonHelpers.h"
 #import "ControlWithChilds.hpp"

@@ -2,16 +2,15 @@
 // Import Python first. This will define _GNU_SOURCE. This is needed to get strdup (and maybe others). We could also define _GNU_SOURCE ourself, but pyconfig.h from Python has troubles then and redeclares some other stuff. So, to just import Python first is the simplest way.
 #include <Python.h>
 #include <pythread.h>
-#import <Cocoa/Cocoa.h>
-#import <AppKit/AppKit.h>
 #include <iostream>
-#import "AppDelegate.h"
-#import "CocoaGuiObject.hpp"
-#import "PythonHelpers.h"
-#import "Builders.hpp"
+#include <QApplication>
+#include <QThread>
+#include "QtGuiObject.hpp"
+#include "PythonHelpers.h"
+#include "Builders.hpp"
 
 
-static PyObject* CocoaGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
+static PyObject* QtGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
     PyObject *obj;
     const size_t size = _PyObject_VAR_SIZE(type, nitems+1);
     /* note that we need to add one, for the sentinel */
@@ -26,7 +25,7 @@ static PyObject* CocoaGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
 	
 	// This is why we need this custom alloc: To call the C++ constructor.
     memset(obj, '\0', size);
-	new ((CocoaGuiObject*) obj) CocoaGuiObject();
+	new ((QtGuiObject*) obj) QtGuiObject();
 	
     if (type->tp_flags & Py_TPFLAGS_HEAPTYPE)
         Py_INCREF(type);
@@ -41,35 +40,35 @@ static PyObject* CocoaGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
     return obj;
 }
 
-static void CocoaGuiObject_dealloc(PyObject* obj) {
+static void QtGuiObject_dealloc(PyObject* obj) {
 	// This is why we need this custom dealloc: To call the C++ destructor.
-	((CocoaGuiObject*) obj)->~CocoaGuiObject();
+	((CocoaGuiObject*) obj)->~QtGuiObject();
 	Py_TYPE(obj)->tp_free(obj);
 }
 
-static int CocoaGuiObject_init(PyObject* self, PyObject* args, PyObject* kwds) {
+static int QtGuiObject_init(PyObject* self, PyObject* args, PyObject* kwds) {
 	return ((CocoaGuiObject*) self)->init(args, kwds);
 }
 
-static PyObject* CocoaGuiObject_getattr(PyObject* self, char* key) {
+static PyObject* QtGuiObject_getattr(PyObject* self, char* key) {
 	return ((CocoaGuiObject*) self)->getattr(key);
 }
 
-static int CocoaGuiObject_setattr(PyObject* self, char* key, PyObject* value) {
+static int QtGuiObject_setattr(PyObject* self, char* key, PyObject* value) {
 	return ((CocoaGuiObject*) self)->setattr(key, value);
 }
 
 // http://docs.python.org/2/c-api/typeobj.html
 
-PyTypeObject CocoaGuiObject_Type = {
+PyTypeObject QtGuiObject_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
 	"CocoaGuiObject",
 	sizeof(CocoaGuiObject),	// basicsize
 	0,	// itemsize
-	CocoaGuiObject_dealloc,		/*tp_dealloc*/
+	QtGuiObject_dealloc,		/*tp_dealloc*/
 	0,                  /*tp_print*/
-	CocoaGuiObject_getattr,		/*tp_getattr*/
-	CocoaGuiObject_setattr,		/*tp_setattr*/
+	QtGuiObject_getattr,		/*tp_getattr*/
+	QtGuiObject_setattr,		/*tp_setattr*/
 	0,                  /*tp_compare*/
 	0,					/*tp_repr*/
 	0,                  /*tp_as_number*/
@@ -86,7 +85,7 @@ PyTypeObject CocoaGuiObject_Type = {
 	0, // tp_traverse
 	0, // tp_clear
 	0, // tp_richcompare
-	offsetof(CocoaGuiObject, weakreflist), // weaklistoffset
+	offsetof(QtGuiObject, weakreflist), // weaklistoffset
 	0, // iter
 	0, // iternext
 	0, // methods
@@ -96,64 +95,46 @@ PyTypeObject CocoaGuiObject_Type = {
 	0, // dict
 	0, // descr_get
 	0, // descr_set
-	offsetof(CocoaGuiObject, __dict__), // dictoffset
-	CocoaGuiObject_init, // tp_init
-	CocoaGuiObject_alloc, // alloc
+	offsetof(QtGuiObject, __dict__), // dictoffset
+	QtGuiObject_init, // tp_init
+	QtGuiObject_alloc, // alloc
 	PyType_GenericNew, // new
 };
 
 
-static AppDelegate* appDelegate = NULL;
-
 
 PyObject *
-guiCocoa_main(PyObject* self) {
+guiQt_main(PyObject* self) {
 	// This is called from Python and replaces the main() control.
 	// Basically we do a replacement of NSApplicationMain().
 	// For reference: http://www.cocoawithlove.com/2009/01/demystifying-nsapplication-by.html
 	
-	assert([NSThread isMainThread]);
+	// It might make sense to assert that we are the main thread.
+	// However, there is no good cross-platform way to do this (afaik).
+	// We could use Python... For now, we just hope that Qt behaves sane.
+	// Anyway, on the Python side, we should have called this
+	// in the main thread.
 	
-	[NSApplication sharedApplication];
-	
-	// Note: not needed when bundled...
-
-	// I'm not sure how to get my path name, if we are not bundled...
-
-//	mydir = os.path.dirname(__file__)
-//	if os.path.exists(mydir + "/icon.icns"):
-//		try:
-//			icon = NSImage.alloc().initWithContentsOfFile_(mydir + "/icon.icns")
-//		except Exception as e:
-//			print "icon.icns failed to load: %s" % e
-//		else:
-//			if icon:
-//				app.setApplicationIconImage_(icon)
-//			else:
-//				print "icon.icns invalid"
-//	else:
-//		print "icon.icns not found"
-
-	// Keep own ref to appDelegate because NSApp's ref is only weak.
-	// See: http://stackoverflow.com/q/21189168/133374
-	appDelegate = [[AppDelegate alloc] init];
-	[NSApp setDelegate:appDelegate];
-
+	int ret = 0;
 	Py_BEGIN_ALLOW_THREADS
-	[NSApp run];
-	// We should normally not return from `run`.
-	printf("Warning: Returned from NSApp run.\n");
+	// XXX: Maybe grab argv from Python?
+	int argc = 1;
+	const char* argv[] = {"musicplayer", NULL};	
+	QApplication app(argc, argv);
+	app.setOrganizationName("Albert Zeyer");
+	app.setApplicationName("MusicPlayer");
+	ret = app.exec();	
 	Py_END_ALLOW_THREADS
 	
-	PyErr_SetString(PyExc_SystemExit, "return from app run");
+	PyErr_SetObject(PyExc_SystemExit, PyInt_FromLong(ret));
 	return NULL;
 }
 
 
 PyObject *
-guiCocoa_quit(PyObject* self) {
+guiQt_quit(PyObject* self) {
 	Py_BEGIN_ALLOW_THREADS
-	[NSApp terminate:nil];
+	QApplication::instance()->quit();
 	Py_END_ALLOW_THREADS
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -161,7 +142,7 @@ guiCocoa_quit(PyObject* self) {
 
 
 PyObject*
-guiCocoa_updateControlMenu(PyObject* self) {
+guiQt_updateControlMenu(PyObject* self) {
 	Py_BEGIN_ALLOW_THREADS
 	[[NSApp delegate] updateControlMenu];
 	Py_END_ALLOW_THREADS
@@ -174,8 +155,8 @@ guiCocoa_buildControlList(PyObject* self, PyObject* args) {
 	PyObject* control = NULL;
 	if(!PyArg_ParseTuple(args, "O:buildControlList", &control))
 		return NULL;	
-	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "_guiCocoa.buildControlList: we expect a CocoaGuiObject");
+	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControlList: we expect a QtGuiObject");
 		return NULL;
 	}
 	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
@@ -190,7 +171,7 @@ guiCocoa_buildControlObject(PyObject* self, PyObject* args) {
 	PyObject* control = NULL;
 	if(!PyArg_ParseTuple(args, "O:buildControlObject", &control))
 		return NULL;
-	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
+	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
 		PyErr_Format(PyExc_ValueError, "_guiCocoa.buildControlObject: we expect a CocoaGuiObject");
 		return NULL;
 	}
@@ -236,13 +217,13 @@ guiCocoa_buildControlClickableLabel(PyObject* self, PyObject* args) {
 
 
 static PyMethodDef module_methods[] = {
-	{"main",	(PyCFunction)guiCocoa_main,	METH_NOARGS,	"overtakes main()"},
-	{"quit",	(PyCFunction)guiCocoa_quit,	METH_NOARGS,	"quit application"},
+	{"main",	(PyCFunction)guiQt_main,	METH_NOARGS,	"overtakes main()"},
+	{"quit",	(PyCFunction)guiQt_quit,	METH_NOARGS,	"quit application"},
 	{"updateControlMenu",	(PyCFunction)guiCocoa_updateControlMenu,	METH_NOARGS,	""},
-	{"buildControlList",  guiCocoa_buildControlList, METH_VARARGS, ""},
-	{"buildControlObject",  guiCocoa_buildControlObject, METH_VARARGS, ""},
-	{"buildControlOneLineText",  guiCocoa_buildControlOneLineText, METH_VARARGS, ""},
-	{"buildControlClickableLabel",  guiCocoa_buildControlClickableLabel, METH_VARARGS, ""},
+	{"buildControlList",  guiQt_buildControlList, METH_VARARGS, ""},
+	{"buildControlObject",  guiQt_buildControlObject, METH_VARARGS, ""},
+	{"buildControlOneLineText",  guiQt_buildControlOneLineText, METH_VARARGS, ""},
+	{"buildControlClickableLabel",  guiQt_buildControlClickableLabel, METH_VARARGS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 
@@ -251,20 +232,20 @@ PyDoc_STRVAR(module_doc,
 
 
 PyMODINIT_FUNC
-init_guiCocoa(void)
+initguiQt(void)
 {
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 
-	if(PyType_Ready(&CocoaGuiObject_Type) < 0) {
+	if(PyType_Ready(&QtGuiObject_Type) < 0) {
 		Py_FatalError("Can't initialize CocoaGuiObject type");
 		return;
 	}
 
-	PyObject* m = Py_InitModule3("_guiCocoa", module_methods, module_doc);
+	PyObject* m = Py_InitModule3("guiQt", module_methods, module_doc);
 	if(!m)
 		goto fail;
 	
-	if(PyModule_AddObject(m, "CocoaGuiObject", (PyObject*) &CocoaGuiObject_Type) != 0)
+	if(PyModule_AddObject(m, "QtGuiObject", (PyObject*) &QtGuiObject_Type) != 0)
 		goto fail;
 
 	return;
@@ -273,5 +254,5 @@ fail:
 	if(PyErr_Occurred())
 		PyErr_Print();
 	
-	Py_FatalError("_guiCocoa module init error");
+	Py_FatalError("guiQt module init error");
 }
