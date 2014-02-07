@@ -168,6 +168,10 @@ There exists a huge amount of music players. Here is a list of some and other re
 * Open Source (MIT), Python
 * web-interface for voting on songs for intelligent queue
 
+### [Groove Basin](https://github.com/andrewrk/groovebasin)
+
+* Open Source, Node.js, based on [libgroove](https://github.com/andrewrk/libgroove)
+
 
 ## Libraries
 
