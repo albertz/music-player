@@ -17,7 +17,7 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 * [Open Source](https://code.google.com/p/clementine-player/), forked Amarok, made cross platform.
 
-### [Audacious](http://audacious-media-player.org/)
+### XMMS, [Audacious](http://audacious-media-player.org/), [BMP](http://sourceforge.net/projects/beepmp/)
 
 * Open Source, descendant of XMMS
 
