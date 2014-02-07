@@ -150,6 +150,11 @@ There exists a huge amount of music players. Here is a list of some and other re
 
 * Open Source, Python, GStreamer, GTK+
 
+### [Pyrana](https://github.com/jdodds/pyrana)
+
+* Open Source, Python, GStreamer, GTK+
+* very minimal
+
 
 ## Web-based streaming players
 
