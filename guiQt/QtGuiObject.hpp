@@ -11,17 +11,27 @@
 
 #include <Python.h>
 #include <QWidget>
+#include <QPointer>
 #include "GuiObject.hpp"
 
 extern PyTypeObject QtGuiObject_Type;
+
+struct GuiObjectWidget;
+
 
 struct QtGuiObject : GuiObject {
 	int init(PyObject* args, PyObject* kwds);
 	PyObject* getattr(const char* key);
 	int setattr(const char* key, PyObject* value);
 
-	QWidget* getNativeObj(); // This function can be called without the Python GIL.
-	void setNativeObj(QWidget* v);
+	// Note: QPointer is like a weak_ref. The parent widget
+	// always owns the pointer.
+	// Also note: Every access to it must be in the main thread.
+	// There is no way to assure that the widget stays alive
+	// while we are in another thread!
+	QPointer<GuiObjectWidget> widget;
+	GuiObjectWidget* getParentWidget();
+
 	void addChild(NSView* child);
 	void updateContent();
 };

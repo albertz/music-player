@@ -7,13 +7,16 @@
 //
 
 #include "QtGuiObject.hpp"
-#include "PyObjCBridge.h"
 #include "PythonHelpers.h"
-#import "ControlWithChilds.hpp"
-#import "GuiObjectView.hpp"
+#include "PyThreading.hpp"
+#include "ControlWithChilds.hpp"
+#include "GuiObjectView.hpp"
+#include <QApplication>
+#include <QThread>
+#include <functional>
 
-void runOnMainQueue(void (^block)(void)) {
-	if([NSThread isMainThread])
+void runOnMainQueue(std::function<void(void)> block) {
+	if(QApplication::instance()->thread() == QThread::currentThread())
 		block();
 	else
 		dispatch_sync(dispatch_get_main_queue(), block);
@@ -118,17 +121,12 @@ static void imp_meth_updateContent(GuiObject* obj) {
 	((CocoaGuiObject*) obj)->updateContent();
 }
 
-NSView* CocoaGuiObject::getNativeObj() {
-	// This function can be called without the Python GIL.
-	id nativeObj = nil;
-	nativeGuiObject.operate<void>([&](PyObject*& ptr) { nativeObj = PyObjCObj_GetNativeObj(ptr); });
-	return nativeObj;
-}
-
-void CocoaGuiObject::setNativeObj(NSView* v) {
-	PyObject* nativeObj = PyObjCObj_NewNative(v);
-	nativeGuiObject.operate<void>([&](PyObject*& ptr) { std::swap(ptr, nativeObj); });
-	Py_XDECREF(nativeObj);
+GuiObjectWidget* QtGuiObject::getParentWidget() {
+	assert(QApplication::instance()->thread() == QThread::currentThread());
+	PyScopedGIL gil;
+	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
+		
+	}
 }
 
 void CocoaGuiObject::addChild(NSView* child) {

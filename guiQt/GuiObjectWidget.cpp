@@ -22,16 +22,22 @@ GuiObjectWidget::GuiObjectWidget(QtGuiObject* control) {
     self = [super initWithFrame:frame];
     if(!self) return nil;
 
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
-	canHaveFocus = attrChain_bool_default(control->attr, "canHaveFocus", false);
-	PyGILState_Release(gstate);
-
+	{
+		PyScopedGIL gil;
+		controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
+		canHaveFocus = attrChain_bool_default(control->attr, "canHaveFocus", false);
+	}
+	
 	if(!controlRef) {
 		printf("Cocoa GuiObject: cannot create controlRef\n");
 		return nil;
 	}
 
+	if(canHaveFocus)
+		this->setFocusPolicy(Qt::StrongFocus);
+	else
+		this->setFocusPolicy(Qt::NoFocus);
+	
 	//if(canHaveFocus)
 	//	[self setDrawsBackground:YES];
 
@@ -50,11 +56,7 @@ QtGuiObject* GuiObjectWidget::getControl() {
 }
 
 
-- (BOOL)acceptsFirstResponder
-{
-	return canHaveFocus;
-}
-
+/*
 - (BOOL)becomeFirstResponder
 {
 	if(![super becomeFirstResponder]) return NO;
@@ -70,18 +72,18 @@ QtGuiObject* GuiObjectWidget::getControl() {
 	//[self setBackgroundColor:[NSColor textBackgroundColor]];
 	return YES;
 }
+*/
 
-- (void)mouseDown:(NSEvent *)theEvent
-{
-	[super mouseDown:theEvent];
+void GuiObjectWidget::mousePressEvent(QMouseEvent* ev) {
+	QWidget::mousePressEvent(ev);
 	
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	CocoaGuiObject* control = [self getControl];
+	PyScopedGIL gil;
+	QtGuiObject* control = getControl();
 	if(control) control->handleCurSelectedSong();
 	Py_XDECREF(control);
-	PyGILState_Release(gstate);
 }
 
+/*
 - (void)mouseDragged:(NSEvent *)ev
 {
 	bool res = false;
@@ -132,5 +134,5 @@ QtGuiObject* GuiObjectWidget::getControl() {
 	if(!res)
 		[super mouseDragged:ev];
 }
+*/
 
-@end

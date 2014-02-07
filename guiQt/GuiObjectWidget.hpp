@@ -21,8 +21,11 @@ struct GuiObjectWidget : QWidget {
 	
 	GuiObjectWidget(QtGuiObject* control);
 	~GuiObjectWidget();
+
 	virtual QtGuiObject* getControl(); // new ref
 	virtual void updateContent();
+	
+	virtual void mousePressEvent(QMouseEvent*);
 	
 	bool canHaveFocus;	
 };
