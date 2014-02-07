@@ -118,6 +118,12 @@ There exists a huge amount of music players. Here is a list of some and other re
 * Open Source, written in Python, Qt, GStreamer
 * modelled as a mini-version of Amarok
 
+### [Guayadeque](http://guayadeque.org/)
+
+* Open Source, C++, wxWidgets, GStreamer
+* Smart play mode = intelligent queue
+* Crossfader, Silence detector
+
 ### [Pimp: Python Interactive Music Player](http://pimplayer.berlios.de/)
 
 * Open Source, written in Python
