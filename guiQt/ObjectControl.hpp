@@ -6,10 +6,13 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "GuiObjectView.hpp"
+#ifndef __MusicPlayer_guiQt_ObjectControl_hpp__
+#define __MusicPlayer_guiQt_ObjectControl_hpp__
 
-@interface ObjectControlView : GuiObjectView
+#include "GuiObjectView.hpp"
 
-- (id)initWithControl:(CocoaGuiObject*)control;
+struct ObjectControlView : GuiObjectView {
+	ObjectControlView(QtObjectControl* control);
+};
 
-@end
+#endif
