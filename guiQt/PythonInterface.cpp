@@ -3,8 +3,7 @@
 #include <Python.h>
 #include <pythread.h>
 #include <iostream>
-#include <QApplication>
-#include <QThread>
+#include "App.hpp"
 #include "QtGuiObject.hpp"
 #include "PythonHelpers.h"
 #include "Builders.hpp"
@@ -47,23 +46,23 @@ static void QtGuiObject_dealloc(PyObject* obj) {
 }
 
 static int QtGuiObject_init(PyObject* self, PyObject* args, PyObject* kwds) {
-	return ((CocoaGuiObject*) self)->init(args, kwds);
+	return ((QtGuiObject*) self)->init(args, kwds);
 }
 
 static PyObject* QtGuiObject_getattr(PyObject* self, char* key) {
-	return ((CocoaGuiObject*) self)->getattr(key);
+	return ((QtGuiObject*) self)->getattr(key);
 }
 
 static int QtGuiObject_setattr(PyObject* self, char* key, PyObject* value) {
-	return ((CocoaGuiObject*) self)->setattr(key, value);
+	return ((QtGuiObject*) self)->setattr(key, value);
 }
 
 // http://docs.python.org/2/c-api/typeobj.html
 
 PyTypeObject QtGuiObject_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	"CocoaGuiObject",
-	sizeof(CocoaGuiObject),	// basicsize
+	"QtGuiObject",
+	sizeof(QtGuiObject),	// basicsize
 	0,	// itemsize
 	QtGuiObject_dealloc,		/*tp_dealloc*/
 	0,                  /*tp_print*/
@@ -81,7 +80,7 @@ PyTypeObject QtGuiObject_Type = {
 	0, // tp_setattro
 	0, // tp_as_buffer
 	Py_TPFLAGS_HAVE_CLASS|Py_TPFLAGS_HAVE_WEAKREFS|Py_TPFLAGS_HAVE_GC, // flags
-	"CocoaGuiObject type", // doc
+	"QtGuiObject type", // doc
 	0, // tp_traverse
 	0, // tp_clear
 	0, // tp_richcompare
@@ -106,8 +105,6 @@ PyTypeObject QtGuiObject_Type = {
 PyObject *
 guiQt_main(PyObject* self) {
 	// This is called from Python and replaces the main() control.
-	// Basically we do a replacement of NSApplicationMain().
-	// For reference: http://www.cocoawithlove.com/2009/01/demystifying-nsapplication-by.html
 	
 	// It might make sense to assert that we are the main thread.
 	// However, there is no good cross-platform way to do this (afaik).
@@ -117,12 +114,7 @@ guiQt_main(PyObject* self) {
 	
 	int ret = 0;
 	Py_BEGIN_ALLOW_THREADS
-	// XXX: Maybe grab argv from Python?
-	int argc = 1;
-	const char* argv[] = {"musicplayer", NULL};	
-	QApplication app(argc, argv);
-	app.setOrganizationName("Albert Zeyer");
-	app.setApplicationName("MusicPlayer");
+	App app;
 	ret = app.exec();	
 	Py_END_ALLOW_THREADS
 	
@@ -134,7 +126,7 @@ guiQt_main(PyObject* self) {
 PyObject *
 guiQt_quit(PyObject* self) {
 	Py_BEGIN_ALLOW_THREADS
-	QApplication::instance()->quit();
+	qApp->quit();
 	Py_END_ALLOW_THREADS
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -144,7 +136,7 @@ guiQt_quit(PyObject* self) {
 PyObject*
 guiQt_updateControlMenu(PyObject* self) {
 	Py_BEGIN_ALLOW_THREADS
-	[[NSApp delegate] updateControlMenu];
+	//[[NSApp delegate] updateControlMenu];
 	Py_END_ALLOW_THREADS
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -167,15 +159,15 @@ guiCocoa_buildControlList(PyObject* self, PyObject* args) {
 }
 
 PyObject*
-guiCocoa_buildControlObject(PyObject* self, PyObject* args) {
+guiQt_buildControlObject(PyObject* self, PyObject* args) {
 	PyObject* control = NULL;
 	if(!PyArg_ParseTuple(args, "O:buildControlObject", &control))
 		return NULL;
 	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "_guiCocoa.buildControlObject: we expect a CocoaGuiObject");
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControlObject: we expect a QtGuiObject");
 		return NULL;
 	}
-	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
+	QtGuiObject* guiObject = (CocoaGuiObject*) control;
 	buildControlObject(guiObject);
 	
 	Py_INCREF(control);
@@ -188,7 +180,7 @@ guiCocoa_buildControlOneLineText(PyObject* self, PyObject* args) {
 	if(!PyArg_ParseTuple(args, "O:buildControlOneLineText", &control))
 		return NULL;
 	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "_guiCocoa.buildControlOneLineText: we expect a CocoaGuiObject");
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControlOneLineText: we expect a QtGuiObject");
 		return NULL;
 	}
 	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
@@ -204,7 +196,7 @@ guiCocoa_buildControlClickableLabel(PyObject* self, PyObject* args) {
 	if(!PyArg_ParseTuple(args, "O:buildControlClickableLabel", &control))
 		return NULL;
 	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "_guiCocoa.buildControlClickableLabel: we expect a CocoaGuiObject");
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControlClickableLabel: we expect a QtGuiObject");
 		return NULL;
 	}
 	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;

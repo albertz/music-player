@@ -9,10 +9,10 @@
 #ifndef __MusicPlayer_guiQt_ObjectControl_hpp__
 #define __MusicPlayer_guiQt_ObjectControl_hpp__
 
-#include "GuiObjectView.hpp"
+#include "GuiObjectWidget.hpp"
 
-struct ObjectControlView : GuiObjectView {
-	ObjectControlView(QtObjectControl* control);
+struct ObjectControlWidget : GuiObjectWidget {
+	ObjectControlWidget(QtGuiObject* control);
 };
 
 #endif

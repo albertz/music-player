@@ -10,5 +10,6 @@ static int dummy_argc = 1;
 static char* dummy_argv[] = {(char*)"musicplayer", NULL};
 
 App::App() : QApplication(dummy_argc, dummy_argv) {
-	
+	this->setOrganizationName("Albert Zeyer");
+	this->setApplicationName("MusicPlayer");	
 }

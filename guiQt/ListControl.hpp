@@ -6,14 +6,14 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import "GuiObjectView.hpp"
-#import "ControlWithChilds.hpp"
+#ifndef __MusicPlayer_guiQt_ListControl_hpp__
+#define __MusicPlayer_guiQt_ListControl_hpp__
 
-@interface ListControlView : GuiObjectView <ControlWithChilds>
+#include "GuiObjectWidget.hpp"
 
-- (id)initWithControl:(CocoaGuiObject*)control;
+struct ListControlWidget : GuiObjectWidget {
+	ListControlWidget(QtGuiObject* control);
+	virtual void childIter(ChildIterCallback);
+};
 
-@end
-
-
+#endif
