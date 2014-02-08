@@ -142,22 +142,8 @@ guiQt_updateControlMenu(PyObject* self) {
 	return Py_None;
 }
 
-PyObject*
-guiCocoa_buildControlList(PyObject* self, PyObject* args) {
-	PyObject* control = NULL;
-	if(!PyArg_ParseTuple(args, "O:buildControlList", &control))
-		return NULL;	
-	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "guiQt.buildControlList: we expect a QtGuiObject");
-		return NULL;
-	}
-	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
-	buildControlList(guiObject);
-	
-	Py_INCREF(control);
-	return control;
-}
 
+// TODO: make this a macro or dynamic or so...
 PyObject*
 guiQt_buildControlObject(PyObject* self, PyObject* args) {
 	PyObject* control = NULL;
@@ -167,40 +153,8 @@ guiQt_buildControlObject(PyObject* self, PyObject* args) {
 		PyErr_Format(PyExc_ValueError, "guiQt.buildControlObject: we expect a QtGuiObject");
 		return NULL;
 	}
-	QtGuiObject* guiObject = (CocoaGuiObject*) control;
+	PyQtGuiObject* guiObject = (PyQtGuiObject*) control;
 	buildControlObject(guiObject);
-	
-	Py_INCREF(control);
-	return control;
-}
-
-PyObject*
-guiCocoa_buildControlOneLineText(PyObject* self, PyObject* args) {
-	PyObject* control = NULL;
-	if(!PyArg_ParseTuple(args, "O:buildControlOneLineText", &control))
-		return NULL;
-	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "guiQt.buildControlOneLineText: we expect a QtGuiObject");
-		return NULL;
-	}
-	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
-	buildControlOneLineText(guiObject);
-	
-	Py_INCREF(control);
-	return control;
-}
-
-PyObject*
-guiCocoa_buildControlClickableLabel(PyObject* self, PyObject* args) {
-	PyObject* control = NULL;
-	if(!PyArg_ParseTuple(args, "O:buildControlClickableLabel", &control))
-		return NULL;
-	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "guiQt.buildControlClickableLabel: we expect a QtGuiObject");
-		return NULL;
-	}
-	CocoaGuiObject* guiObject = (CocoaGuiObject*) control;
-	buildControlClickableLabel(guiObject);
 	
 	Py_INCREF(control);
 	return control;
@@ -211,11 +165,8 @@ guiCocoa_buildControlClickableLabel(PyObject* self, PyObject* args) {
 static PyMethodDef module_methods[] = {
 	{"main",	(PyCFunction)guiQt_main,	METH_NOARGS,	"overtakes main()"},
 	{"quit",	(PyCFunction)guiQt_quit,	METH_NOARGS,	"quit application"},
-	{"updateControlMenu",	(PyCFunction)guiCocoa_updateControlMenu,	METH_NOARGS,	""},
-	{"buildControlList",  guiQt_buildControlList, METH_VARARGS, ""},
+	{"updateControlMenu",	(PyCFunction)guiQt_updateControlMenu,	METH_NOARGS,	""},
 	{"buildControlObject",  guiQt_buildControlObject, METH_VARARGS, ""},
-	{"buildControlOneLineText",  guiQt_buildControlOneLineText, METH_VARARGS, ""},
-	{"buildControlClickableLabel",  guiQt_buildControlClickableLabel, METH_VARARGS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 

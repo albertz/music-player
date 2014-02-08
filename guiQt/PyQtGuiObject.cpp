@@ -16,7 +16,7 @@
 static Vec imp_get_pos(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
-		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
 		if(widget) {
 			QPoint pos = widget->pos();
 			ret.x = pos.x();
@@ -29,7 +29,7 @@ static Vec imp_get_pos(GuiObject* obj) {
 static Vec imp_get_size(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
-		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
 		if(widget) {
 			QSize size = widget->frameSize();
 			ret.x = size.width();
@@ -42,7 +42,7 @@ static Vec imp_get_size(GuiObject* obj) {
 static Vec imp_get_innnerSize(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
-		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
 		if(widget) {
 			QSize size = widget->size();
 			ret.x = size.width();
@@ -55,7 +55,7 @@ static Vec imp_get_innnerSize(GuiObject* obj) {
 static Autoresize imp_get_autoresize(GuiObject* obj) {
 	Autoresize ret;
 	execInMainThread_sync([&]() {
-		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
 		if(widget) {
 			// TODO ...
 			// Not sure. I think Qt doesn't do autoresizing.
@@ -66,7 +66,7 @@ static Autoresize imp_get_autoresize(GuiObject* obj) {
 
 static void imp_set_pos(GuiObject* obj, const Vec& v) {
 	execInMainThread_sync([&]() {
-		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
 		if(widget)
 			widget->move(v.x, v.y);
 	});
@@ -74,7 +74,7 @@ static void imp_set_pos(GuiObject* obj, const Vec& v) {
 
 static void imp_set_size(GuiObject* obj, const Vec& v) {
 	execInMainThread_sync([&]() {
-		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
 		if(widget)
 			widget->resize(v.x, v.y);
 	});
@@ -94,8 +94,8 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 	}
 	
 	execInMainThread_sync([&]() {
-		GuiObjectWidget* childWidget = ((QtGuiObject*) child)->widget;
-		((QtGuiObject*) obj)->addChild(childWidget);
+		QtBaseWidget* childWidget = ((PyQtGuiObject*) child)->widget;
+		((PyQtGuiObject*) obj)->addChild(childWidget);
 	});
 }
 
@@ -119,7 +119,7 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 	});
 }
 
-QtBaseWidget* QtGuiObject::getParentWidget() {
+QtBaseWidget* PyQtGuiObject::getParentWidget() {
 	assert(QApplication::instance()->thread() == QThread::currentThread());
 	PyScopedGIL gil;
 	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
@@ -128,7 +128,7 @@ QtBaseWidget* QtGuiObject::getParentWidget() {
 	return NULL;
 }
 
-void PyQtGuiObject::addChild(GuiObjectWidget* child) {
+void PyQtGuiObject::addChild(QtBaseWidget* child) {
 	// Must not have the Python GIL.
 	execInMainThread_sync([&]() {
 		if(!widget) return;
@@ -138,7 +138,7 @@ void PyQtGuiObject::addChild(GuiObjectWidget* child) {
 
 void PyQtGuiObject::updateContent() {
 	// Must not have the Python GIL.
-	execInMainThread_sync([]() {	
+	execInMainThread_sync([&]() {	
 		if(!widget) return;
 		widget->updateContent();
 	});
@@ -146,8 +146,8 @@ void PyQtGuiObject::updateContent() {
 
 
 
-int QtGuiObject::init(PyObject* args, PyObject* kwds) {
-	PyTypeObject* const selfType = &CocoaGuiObject_Type;
+int PyQtGuiObject::init(PyObject* args, PyObject* kwds) {
+	PyTypeObject* const selfType = &QtGuiObject_Type;
 	PyObject* base = (PyObject*) selfType->tp_base;
 	if(base == (PyObject*) &PyBaseObject_Type) base = NULL;
 	
@@ -201,12 +201,12 @@ int QtGuiObject::init(PyObject* args, PyObject* kwds) {
 	return 0;
 }
 
-PyObject* QtGuiObject::getattr(const char* key) {
+PyObject* PyQtGuiObject::getattr(const char* key) {
 	// fallthrough for now
 	return Py_TYPE(this)->tp_base->tp_getattr((PyObject*) this, (char*) key);
 }
 
-int QtGuiObject::setattr(const char* key, PyObject* value) {
+int PyQtGuiObject::setattr(const char* key, PyObject* value) {
 	// fallthrough for now
 	return Py_TYPE(this)->tp_base->tp_setattr((PyObject*) this, (char*) key, value);
 }
