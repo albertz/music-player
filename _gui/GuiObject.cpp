@@ -4,6 +4,9 @@
 
 
 int GuiObject::init(PyObject* args, PyObject* kwds) {
+	(void)args; // unused
+	(void)kwds; // unused
+	
 	// If the GuiObject type has no base set,
 	// grab _GuiObject from the gui module and set it as the base.
 	PyTypeObject* const selfType = &GuiObject_Type;
@@ -115,6 +118,8 @@ static PyMethodDef md_addChild = {
 
 static
 PyObject* guiObject_method_updateContent(PyObject* _self, PyObject* _unused_arg) {
+	(void)_unused_arg; // unused
+	
 	GuiObject* self = (GuiObject*) _self;
 	auto func = self->meth_updateContent;
 	if(!func) {

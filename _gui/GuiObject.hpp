@@ -97,6 +97,7 @@ struct GuiObject {
 	void (*meth_updateContent)(GuiObject*);
 	
 	// Custom. not exposed to Python right now but might later. Optional.
+	// This is called *with* the Python GIL.
 	void (*meth_childIter)(GuiObject*, boost::function<void(GuiObject* child, bool& stop)>); // used by tp_traverse if set
 	
 	// other helpers
