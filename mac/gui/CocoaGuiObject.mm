@@ -10,6 +10,7 @@
 #include "CocoaGuiObject.hpp"
 #include "PyObjCBridge.h"
 #include "PythonHelpers.h"
+#include "PyThreading.hpp"
 #import "ControlWithChilds.hpp"
 #import "GuiObjectView.hpp"
 
@@ -95,11 +96,14 @@ static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
 }
 
 static void imp_addChild(GuiObject* obj, GuiObject* child) {
-	if(!PyType_IsSubtype(Py_TYPE(child), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "CocoaGuiObject.addChild: we expect a CocoaGuiObject");
-		return;
+	{
+		PyScopedGIL gil;
+		if(!PyType_IsSubtype(Py_TYPE(child), &CocoaGuiObject_Type)) {
+			PyErr_Format(PyExc_ValueError, "CocoaGuiObject.addChild: we expect a CocoaGuiObject");
+			return;
+		}
 	}
-
+	
 	NSView* childView = ((CocoaGuiObject*) child)->getNativeObj();
 	if(!childView) return;
 	((CocoaGuiObject*) obj)->addChild(childView);
