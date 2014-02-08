@@ -3,8 +3,8 @@
 #include <Python.h>
 #include <pythread.h>
 #include <iostream>
-#include "App.hpp"
-#include "QtGuiObject.hpp"
+#include "QtApp.hpp"
+#include "PyQtGuiObject.hpp"
 #include "PythonHelpers.h"
 #include "Builders.hpp"
 
@@ -24,7 +24,7 @@ static PyObject* QtGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
 	
 	// This is why we need this custom alloc: To call the C++ constructor.
     memset(obj, '\0', size);
-	new ((QtGuiObject*) obj) QtGuiObject();
+	new ((PyQtGuiObject*) obj) PyQtGuiObject();
 	
     if (type->tp_flags & Py_TPFLAGS_HEAPTYPE)
         Py_INCREF(type);
@@ -41,20 +41,20 @@ static PyObject* QtGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
 
 static void QtGuiObject_dealloc(PyObject* obj) {
 	// This is why we need this custom dealloc: To call the C++ destructor.
-	((CocoaGuiObject*) obj)->~QtGuiObject();
+	((PyQtGuiObject*) obj)->~PyQtGuiObject();
 	Py_TYPE(obj)->tp_free(obj);
 }
 
 static int QtGuiObject_init(PyObject* self, PyObject* args, PyObject* kwds) {
-	return ((QtGuiObject*) self)->init(args, kwds);
+	return ((PyQtGuiObject*) self)->init(args, kwds);
 }
 
 static PyObject* QtGuiObject_getattr(PyObject* self, char* key) {
-	return ((QtGuiObject*) self)->getattr(key);
+	return ((PyQtGuiObject*) self)->getattr(key);
 }
 
 static int QtGuiObject_setattr(PyObject* self, char* key, PyObject* value) {
-	return ((QtGuiObject*) self)->setattr(key, value);
+	return ((PyQtGuiObject*) self)->setattr(key, value);
 }
 
 // http://docs.python.org/2/c-api/typeobj.html
@@ -62,7 +62,7 @@ static int QtGuiObject_setattr(PyObject* self, char* key, PyObject* value) {
 PyTypeObject QtGuiObject_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
 	"QtGuiObject",
-	sizeof(QtGuiObject),	// basicsize
+	sizeof(PyQtGuiObject),	// basicsize
 	0,	// itemsize
 	QtGuiObject_dealloc,		/*tp_dealloc*/
 	0,                  /*tp_print*/
@@ -84,7 +84,7 @@ PyTypeObject QtGuiObject_Type = {
 	0, // tp_traverse
 	0, // tp_clear
 	0, // tp_richcompare
-	offsetof(QtGuiObject, weakreflist), // weaklistoffset
+	offsetof(PyQtGuiObject, weakreflist), // weaklistoffset
 	0, // iter
 	0, // iternext
 	0, // methods
@@ -94,7 +94,7 @@ PyTypeObject QtGuiObject_Type = {
 	0, // dict
 	0, // descr_get
 	0, // descr_set
-	offsetof(QtGuiObject, __dict__), // dictoffset
+	offsetof(PyQtGuiObject, __dict__), // dictoffset
 	QtGuiObject_init, // tp_init
 	QtGuiObject_alloc, // alloc
 	PyType_GenericNew, // new
@@ -114,7 +114,7 @@ guiQt_main(PyObject* self) {
 	
 	int ret = 0;
 	Py_BEGIN_ALLOW_THREADS
-	App app;
+	QtApp app;
 	ret = app.exec();	
 	Py_END_ALLOW_THREADS
 	

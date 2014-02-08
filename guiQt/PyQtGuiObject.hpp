@@ -18,7 +18,6 @@ extern PyTypeObject QtGuiObject_Type;
 
 struct GuiObjectWidget;
 
-
 struct PyQtGuiObject : GuiObject {
 	int init(PyObject* args, PyObject* kwds);
 	PyObject* getattr(const char* key);

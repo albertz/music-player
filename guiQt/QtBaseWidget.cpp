@@ -6,16 +6,16 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#include "GuiObjectWidget.hpp"
+#include "QtBaseWidget.hpp"
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
 
-GuiObjectWidget::~GuiObjectWidget() {
+QtBaseWidget::~QtBaseWidget() {
 	PyScopedGIL gil;
 	Py_CLEAR(controlRef);
 }
 
-GuiObjectWidget::GuiObjectWidget(QtGuiObject* control) : QWidget(control->getParentWidget()) {
+QtBaseWidget::QtBaseWidget(QtGuiObject* control) : QWidget(control->getParentWidget()) {
 	//this->QWidget(control->parent);
 	
 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
@@ -44,7 +44,7 @@ GuiObjectWidget::GuiObjectWidget(QtGuiObject* control) : QWidget(control->getPar
 	return self;
 }
 
-QtGuiObject* GuiObjectWidget::getControl() {
+PyQtGuiObject* QtBaseWidget::getControl() {
 	QtGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
 	if(!control) return NULL;
 	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
@@ -74,11 +74,11 @@ QtGuiObject* GuiObjectWidget::getControl() {
 }
 */
 
-void GuiObjectWidget::mousePressEvent(QMouseEvent* ev) {
+void QtBaseWidget::mousePressEvent(QMouseEvent* ev) {
 	QWidget::mousePressEvent(ev);
 	
 	PyScopedGIL gil;
-	QtGuiObject* control = getControl();
+	PyQtGuiObject* control = getControl();
 	if(control) control->handleCurSelectedSong();
 	Py_XDECREF(control);
 }
@@ -136,7 +136,7 @@ void GuiObjectWidget::mousePressEvent(QMouseEvent* ev) {
 }
 */
 
-void GuiObjectWidget::updateContent() {
+void QtBaseWidget::updateContent() {
 	PyScopedGIL gil;
 	
 	PyObject* s = PyString_FromString("updateContent");

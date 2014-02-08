@@ -9,7 +9,7 @@
 #ifndef __MusicPlayer_guiQt_ObjectControl_hpp__
 #define __MusicPlayer_guiQt_ObjectControl_hpp__
 
-#include "GuiObjectWidget.hpp"
+#include "QtBaseWidget.hpp"
 
 struct ObjectControlWidget : GuiObjectWidget {
 	ObjectControlWidget(QtGuiObject* control);

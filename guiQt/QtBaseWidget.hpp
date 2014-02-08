@@ -1,19 +1,19 @@
 //
-//  GuiObjectWidget.hpp
+//  QtBaseWidget.hpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 23.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#ifndef __MusicPlayer_guiQt_GuiObjectWidget_hpp__
-#define __MusicPlayer_guiQt_GuiObjectWidget_hpp__
+#ifndef __MusicPlayer_guiQt_QtBaseWidget_hpp__
+#define __MusicPlayer_guiQt_QtBaseWidget_hpp__
 
-#include "QtGuiObject.hpp"
+#include "PyQtGuiObject.hpp"
 #include <QWidget>
 #include <boost/function.hpp>
 
-struct GuiObjectWidget : QWidget {
+struct QtBaseWidget : QWidget {
 	// Note that we can keep all Python references only in guiObjectList because that
 	// is handled in childIter: or otherwise in weakrefs.
 	// Otherwise, our owner, the CocoaGuiObject.tp_traverse would not find all refs
@@ -21,10 +21,10 @@ struct GuiObjectWidget : QWidget {
 	PyWeakReference* controlRef;
 	bool canHaveFocus;	
 	
-	GuiObjectWidget(QtGuiObject* control);
+	GuiObjectWidget(PyQtGuiObject* control);
 	~GuiObjectWidget();
 
-	virtual QtGuiObject* getControl(); // new ref
+	virtual PyQtGuiObject* getControl(); // new ref
 	virtual void updateContent();
 	typedef boost::function<void(GuiObject*, bool& stop)> ChildIterCallback;
 	virtual void childIter(ChildIterCallback) {}

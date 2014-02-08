@@ -7,12 +7,12 @@
 #include <boost/function.hpp>
 #include <assert.h>
 
-class App : public QApplication
+class QtApp : public QApplication
 {
 	Q_OBJECT
 		
 public:
-	App();
+	QtApp();
 	
 signals:
 	
@@ -45,13 +45,13 @@ void execInMainThread_sync(boost::function<void(void)> func) {
 	if(qApp->thread() == QThread::currentThread())
 		func();
 	else {
-		((App*) qApp)->invokeGenericExec(func, Qt::BlockingQueuedConnection);
+		((QtApp*) qApp)->invokeGenericExec(func, Qt::BlockingQueuedConnection);
 	}
 }
 
 static inline
 void execInMainThread_async(boost::function<void(void)> func) {
-	((App*) qApp)->invokeGenericExec(func, Qt::QueuedConnection);
+	((QtApp*) qApp)->invokeGenericExec(func, Qt::QueuedConnection);
 }
 
 #endif
