@@ -1,18 +1,18 @@
 //
-//  ListControl.hpp
+//  QtListWidget.hpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 21.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#ifndef __MusicPlayer_guiQt_ListControl_hpp__
-#define __MusicPlayer_guiQt_ListControl_hpp__
+#ifndef __MusicPlayer_guiQt_QtListWidget_hpp__
+#define __MusicPlayer_guiQt_QtListWidget_hpp__
 
-#include "GuiObjectWidget.hpp"
+#include "QtBaseWidget.hpp"
 
-struct ListControlWidget : GuiObjectWidget {
-	ListControlWidget(QtGuiObject* control);
+struct QtListWidget : QtBaseWidget {
+	ListWidget(PyQtGuiObject* control);
 	virtual void childIter(ChildIterCallback);
 };
 

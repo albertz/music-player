@@ -1,16 +1,18 @@
 //
-//  ClickableLabelControl.hpp
+//  QtClickableLabelWidget.hpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 24.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "OneLineTextControl.hpp"
+#ifndef __MusicPlayer_guiQt_QtClickableLabelWidget_hpp__
+#define __MusicPlayer_guiQt_QtClickableLabelWidget_hpp__
 
-@interface ClickableLabelControlView : OneLineTextControlView
+#include "QtOneLineTextWidget.hpp"
 
-- (id)initWithControl:(CocoaGuiObject*)control;
-- (PyObject*)getTextObj;
+struct QtClickableLabelWidget : QtOneLineTextWidget {
+	virtual PyObject* getTextObj();
+};
 
-@end
+#endif

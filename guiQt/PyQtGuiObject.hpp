@@ -16,7 +16,7 @@
 
 extern PyTypeObject QtGuiObject_Type;
 
-struct GuiObjectWidget;
+struct QtBaseWidget;
 
 struct PyQtGuiObject : GuiObject {
 	int init(PyObject* args, PyObject* kwds);
@@ -28,8 +28,8 @@ struct PyQtGuiObject : GuiObject {
 	// Also note: Every access to it must be in the main thread.
 	// There is no way to assure that the widget stays alive
 	// while we are in another thread!
-	QPointer<GuiObjectWidget> widget;
-	GuiObjectWidget* getParentWidget();
+	QPointer<QtBaseWidget> widget;
+	QtBaseWidget* getParentWidget();
 
 	void addChild(GuiObjectWidget* child);
 	void updateContent();

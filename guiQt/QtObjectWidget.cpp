@@ -8,6 +8,7 @@
 
 #import "ObjectControl.hpp"
 
+/*
 @implementation ObjectControlView
 
 - (id)initWithControl:(CocoaGuiObject*)control;
@@ -21,3 +22,4 @@
 }
 
 @end
+*/

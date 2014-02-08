@@ -6,12 +6,17 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "GuiObjectView.hpp"
+#ifndef __MusicPlayer_guiQt_QtOneLineTextWidget_hpp__
+#define __MusicPlayer_guiQt_QtOneLineTextWidget_hpp__
 
-@interface OneLineTextControlView : NSTextField <GuiObjectProt, GuiObjectProt_customContent>
+#include "QtBaseWidget.hpp"
+#include <QLineEdit>
 
-- (id)initWithControl:(CocoaGuiObject*)control;
-- (PyObject*)getTextObj;
-- (void)updateContent;
+struct QtOneLineTextWidget : QtBaseWidget, QLineEdit {
+	QtOneLineTextWidget(PyQtGuiObject* control);
+	
+	virtual PyObject* getTextObj();
+	virtual void updateContent();
+};
 
-@end
+#endif

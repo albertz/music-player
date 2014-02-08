@@ -1,20 +1,16 @@
 //
-//  QtGuiObject.cpp
+//  PyQtGuiObject.cpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 18.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#include "QtGuiObject.hpp"
+#include "PyQtGuiObject.hpp"
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
-#include "ControlWithChilds.hpp"
-#include "GuiObjectWidget.hpp"
-#include "App.hpp"
-#include <QApplication>
-#include <QThread>
-#include <functional>
+#include "QtBaseWidget.hpp"
+#include "QtApp.hpp"
 
 
 static Vec imp_get_pos(GuiObject* obj) {
@@ -103,33 +99,36 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 	});
 }
 
+static void imp_meth_updateContent(GuiObject* obj) {
+	((PyQtGuiObject*) obj)->updateContent();
+}
+
 // Called *with* the Python GIL.
 static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* child, bool& stop)> callback) {
-/*
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-
-	if([view respondsToSelector:@selector(childIter:)]) {
-		[(id<ControlWithChilds>)view childIter:^(GuiObject* child, bool& stop){
-			callback(child, stop);
-		 }];
-	}
-	*/
+	// We can only access the widget from the main thread, thus this becomes a bit
+	// more complicated.
+	
+	PyScopedGIUnlock unlock;
+	execInMainThread_sync([&]() {
+		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
+		
+		PyScopedGIL gil;
+		// Warning: The callback might be called from another (the main) thread
+		// here. Not sure if that is a problem. I guess (hope) not.
+		widget->childIter(callback);
+	});
 }
 
-static void imp_meth_updateContent(GuiObject* obj) {
-	((QtGuiObject*) obj)->updateContent();
-}
-
-GuiObjectWidget* QtGuiObject::getParentWidget() {
+QtBaseWidget* QtGuiObject::getParentWidget() {
 	assert(QApplication::instance()->thread() == QThread::currentThread());
 	PyScopedGIL gil;
 	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
-		return ((QtGuiObject*) parent)->widget;
+		return ((PyQtGuiObject*) parent)->widget;
 	}
 	return NULL;
 }
 
-void QtGuiObject::addChild(GuiObjectWidget* child) {
+void PyQtGuiObject::addChild(GuiObjectWidget* child) {
 	// Must not have the Python GIL.
 	execInMainThread_sync([&]() {
 		if(!widget) return;
@@ -137,14 +136,17 @@ void QtGuiObject::addChild(GuiObjectWidget* child) {
 	});
 }
 
-void QtGuiObject::updateContent() {
-	if(!widget) return;
-	widget->updateContent();
+void PyQtGuiObject::updateContent() {
+	// Must not have the Python GIL.
+	execInMainThread_sync([]() {	
+		if(!widget) return;
+		widget->updateContent();
+	});
 }
 
 
 
-int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
+int QtGuiObject::init(PyObject* args, PyObject* kwds) {
 	PyTypeObject* const selfType = &CocoaGuiObject_Type;
 	PyObject* base = (PyObject*) selfType->tp_base;
 	if(base == (PyObject*) &PyBaseObject_Type) base = NULL;
@@ -194,17 +196,17 @@ int CocoaGuiObject::init(PyObject* args, PyObject* kwds) {
 	set_size = imp_set_size;
 	set_autoresize = imp_set_autoresize;
 	meth_addChild = imp_addChild;
-	meth_childIter = imp_meth_childIter;
 	meth_updateContent = imp_meth_updateContent;
+	meth_childIter = imp_meth_childIter;
 	return 0;
 }
 
-PyObject* CocoaGuiObject::getattr(const char* key) {
+PyObject* QtGuiObject::getattr(const char* key) {
 	// fallthrough for now
 	return Py_TYPE(this)->tp_base->tp_getattr((PyObject*) this, (char*) key);
 }
 
-int CocoaGuiObject::setattr(const char* key, PyObject* value) {
+int QtGuiObject::setattr(const char* key, PyObject* value) {
 	// fallthrough for now
 	return Py_TYPE(this)->tp_base->tp_setattr((PyObject*) this, (char*) key, value);
 }

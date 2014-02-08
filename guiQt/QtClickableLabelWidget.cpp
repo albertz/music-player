@@ -6,9 +6,11 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "ClickableLabelControl.hpp"
+#import "QtClickableLabelWidget.hpp"
 #import "Builders.hpp"
 
+// TODO...
+#if 0
 @implementation ClickableLabelControlView
 {
 	NSTrackingRectTag trackingRect;
@@ -134,3 +136,4 @@
 }
 
 @end
+#endif

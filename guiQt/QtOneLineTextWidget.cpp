@@ -1,20 +1,18 @@
 //
-//  OneLineTextControl.mm
+//  QtOneLineTextWidget.cpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 23.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "OneLineTextControl.hpp"
+#import "QtOneLineTextWidget.hpp"
 #import "PythonHelpers.h"
 #import "Builders.hpp"
 
 
-@implementation OneLineTextControlView
-{
-	PyWeakReference* controlRef;
-}
+// TODO...
+#if 0
 
 - (void)dealloc
 {
@@ -135,4 +133,5 @@
 	});
 }
 
-@end
+#endif
+	

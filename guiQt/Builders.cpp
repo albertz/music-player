@@ -1,21 +1,10 @@
 
 #include "Builders.hpp"
-#include "ListControl.hpp"
-#include "ObjectControl.hpp"
-#include "OneLineTextControl.hpp"
-#include "ClickableLabelControl.hpp"
+#include "QtObjectWidget.hpp"
 #include "PythonHelpers.h"
 
 
-
-bool buildControlList(QtGuiObject* control) {
-	ListControlView* view = [[ListControlView alloc] initWithControl:control];
-	control->setNativeObj(view);
-	return view != nil;
-}
-
-
-bool buildControlObject(QtGuiObject* control) {
+bool buildControlObject(PyQtGuiObject* control) {
 	if(!_buildControlObject_pre(control)) return false;
 	
 	Vec size = control->setupChilds();
@@ -23,11 +12,28 @@ bool buildControlObject(QtGuiObject* control) {
 	return _buildControlObject_post(control);
 }
 
-bool _buildControlObject_pre(QtGuiObject* control) {
+bool _buildControlObject_pre(PyQtGuiObject* control) {
 	ObjectControlView* view = [[ObjectControlView alloc] initWithControl:control];
 	control->setNativeObj(view);
 	return view != nil;
 }
+
+
+bool _buildControlObject_post(PyQtGuiObject* control) {
+	QWidget* _widget = control->getNativeObj();
+	if(!_widget || ![_view isKindOfClass:[ObjectControlView class]]) {
+		printf("_buildControlObject_post: bad native obj\n");
+		return false;
+	}
+	ObjectControlView* view = (ObjectControlView*) _view;
+	NSColor* color = backgroundColor(control);
+	if(color) {
+		[view setDrawsBackground:YES];
+		[view setBackgroundColor:color];
+	}	
+	return true;
+}
+
 
 static void iterControlParents(GuiObject* control, std::function<bool(GuiObject*)> callback) {
 	GuiObject* obj = control;
@@ -45,7 +51,7 @@ static void iterControlParents(GuiObject* control, std::function<bool(GuiObject*
 	Py_XDECREF(obj);
 }
 
-QColor backgroundColor(QtGuiObject* control) {
+QColor backgroundColor(PyQtGuiObject* control) {
 	bool any = false;
 	iterControlParents(control, [&](GuiObject* obj) {
 		if(attrChain_bool_default(obj->attr, "highlight", false)) {
@@ -60,7 +66,7 @@ QColor backgroundColor(QtGuiObject* control) {
 	return QColor(0,0,0,0);
 }
 
-QColor foregroundColor(QtGuiObject* control) {
+QColor foregroundColor(PyQtGuiObject* control) {
 	bool any = false;
 	iterControlParents(control, [&](GuiObject* obj) {
 		if(attrChain_bool_default(obj->attr, "lowlight", false)) {
@@ -73,31 +79,4 @@ QColor foregroundColor(QtGuiObject* control) {
 	if(any)
 		return QApplication::palette().color(Qt::Disabled, Qt::WindowText);
 	return QColor(0,0,0);
-}
-
-bool _buildControlObject_post(QtGuiObject* control) {
-	QWidget* _widget = control->getNativeObj();
-	if(!_widget || ![_view isKindOfClass:[ObjectControlView class]]) {
-		printf("_buildControlObject_post: bad native obj\n");
-		return false;
-	}
-	ObjectControlView* view = (ObjectControlView*) _view;
-	NSColor* color = backgroundColor(control);
-	if(color) {
-		[view setDrawsBackground:YES];
-		[view setBackgroundColor:color];
-	}	
-	return true;
-}
-
-bool buildControlOneLineText(QtGuiObject* control) {
-	OneLineTextControlView* view = [[OneLineTextControlView alloc] initWithControl:control];
-	control->setNativeObj(view);
-	return view != nil;
-}
-
-bool buildControlClickableLabel(QtGuiObject* control) {
-	ClickableLabelControlView* view = [[ClickableLabelControlView alloc] initWithControl:control];
-	control->setNativeObj(view);
-	return view != nil;
 }

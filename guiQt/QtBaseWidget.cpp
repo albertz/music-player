@@ -15,7 +15,7 @@ QtBaseWidget::~QtBaseWidget() {
 	Py_CLEAR(controlRef);
 }
 
-QtBaseWidget::QtBaseWidget(QtGuiObject* control) : QWidget(control->getParentWidget()) {
+QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget()) {
 	//this->QWidget(control->parent);
 	
 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);

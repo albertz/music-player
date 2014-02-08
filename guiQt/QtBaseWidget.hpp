@@ -21,17 +21,16 @@ struct QtBaseWidget : QWidget {
 	PyWeakReference* controlRef;
 	bool canHaveFocus;	
 	
-	GuiObjectWidget(PyQtGuiObject* control);
-	~GuiObjectWidget();
+	QtBaseWidget(PyQtGuiObject* control);
+	~QtBaseWidget();
 
 	virtual PyQtGuiObject* getControl(); // new ref
 	virtual void updateContent();
 	typedef boost::function<void(GuiObject*, bool& stop)> ChildIterCallback;
 	virtual void childIter(ChildIterCallback) {}
 	
-	virtual void mousePressEvent(QMouseEvent*);
-	
-	
+	virtual void mousePressEvent(QMouseEvent*);	
+	// TODO: dragging
 };
 
 
