@@ -31,7 +31,7 @@ struct PyQtGuiObject : GuiObject {
 	QPointer<QtBaseWidget> widget;
 	QtBaseWidget* getParentWidget();
 
-	void addChild(GuiObjectWidget* child);
+	void addChild(QtBaseWidget* child);
 	void updateContent();
 };
 

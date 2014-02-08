@@ -6,13 +6,13 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#ifndef __MusicPlayer_guiQt_ObjectControl_hpp__
-#define __MusicPlayer_guiQt_ObjectControl_hpp__
+#ifndef __MusicPlayer_guiQt_QtObjectWidget_hpp__
+#define __MusicPlayer_guiQt_QtObjectWidget_hpp__
 
 #include "QtBaseWidget.hpp"
 
-struct ObjectControlWidget : GuiObjectWidget {
-	ObjectControlWidget(QtGuiObject* control);
+struct QtObjectWidget : QtBaseWidget {
+	QtObjectWidget(PyQtGuiObject* control);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include "Builders.hpp"
 #include "QtObjectWidget.hpp"
 #include "PythonHelpers.h"
+#include <QApplication>
 
 
 bool buildControlObject(PyQtGuiObject* control) {
@@ -13,13 +14,17 @@ bool buildControlObject(PyQtGuiObject* control) {
 }
 
 bool _buildControlObject_pre(PyQtGuiObject* control) {
-	ObjectControlView* view = [[ObjectControlView alloc] initWithControl:control];
-	control->setNativeObj(view);
-	return view != nil;
+	// TODO...
+//	ObjectControlView* view = [[ObjectControlView alloc] initWithControl:control];
+//	control->setNativeObj(view);
+//	return view != nil;
+	return false;
 }
 
 
 bool _buildControlObject_post(PyQtGuiObject* control) {
+	// TODO...
+/*
 	QWidget* _widget = control->getNativeObj();
 	if(!_widget || ![_view isKindOfClass:[ObjectControlView class]]) {
 		printf("_buildControlObject_post: bad native obj\n");
@@ -32,10 +37,12 @@ bool _buildControlObject_post(PyQtGuiObject* control) {
 		[view setBackgroundColor:color];
 	}	
 	return true;
+	*/
+	return false;
 }
 
 
-static void iterControlParents(GuiObject* control, std::function<bool(GuiObject*)> callback) {
+static void iterControlParents(GuiObject* control, boost::function<bool(GuiObject*)> callback) {
 	GuiObject* obj = control;
 	Py_XINCREF(obj);
 	while(obj) {
@@ -77,6 +84,6 @@ QColor foregroundColor(PyQtGuiObject* control) {
 	});
 	
 	if(any)
-		return QApplication::palette().color(Qt::Disabled, Qt::WindowText);
+		return QApplication::palette().color(QPalette::Disabled, QPalette::WindowText);
 	return QColor(0,0,0);
 }

@@ -1,12 +1,12 @@
 //
-//  ObjectControl.mm
+//  QtObjectWidget.cpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 23.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "ObjectControl.hpp"
+#import "QtObjectWidget.hpp"
 
 /*
 @implementation ObjectControlView
