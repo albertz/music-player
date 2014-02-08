@@ -10,104 +10,102 @@
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
 #include "ControlWithChilds.hpp"
-#include "GuiObjectView.hpp"
+#include "GuiObjectWidget.hpp"
+#include "App.hpp"
 #include <QApplication>
 #include <QThread>
 #include <functional>
 
-void runOnMainQueue(std::function<void(void)> block) {
-	if(QApplication::instance()->thread() == QThread::currentThread())
-		block();
-	else
-		dispatch_sync(dispatch_get_main_queue(), block);
-}
 
 static Vec imp_get_pos(GuiObject* obj) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-	if(!view) return Vec();
-	__block CGPoint pos;
-	runOnMainQueue(^{
-		pos = [view frame].origin;
+	Vec ret;
+	execInMainThread_sync([&]() {
+		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		if(widget) {
+			QPoint pos = widget->pos();
+			ret.x = pos.x();
+			ret.y = pos.y();
+		}
 	});
-	return Vec((int)pos.x, (int)pos.y);
+	return ret;
 }
 
 static Vec imp_get_size(GuiObject* obj) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-	if(!view) return Vec();
-	__block CGSize size;
-	runOnMainQueue(^{
-		size = [view frame].size;
+	Vec ret;
+	execInMainThread_sync([&]() {
+		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		if(widget) {
+			QSize size = widget->frameSize();
+			ret.x = size.width();
+			ret.y = size.height();
+		}
 	});
-	return Vec((int)size.width, (int)size.height);
+	return ret;
 }
 
 static Vec imp_get_innnerSize(GuiObject* obj) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-	if(!view) return Vec();
-	__block CGSize size;
-	runOnMainQueue(^{
-		size = [view bounds].size;
+	Vec ret;
+	execInMainThread_sync([&]() {
+		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		if(widget) {
+			QSize size = widget->size();
+			ret.x = size.width();
+			ret.y = size.height();
+		}
 	});
-	return Vec((int)size.width, (int)size.height);
+	return ret;
 }
 
 static Autoresize imp_get_autoresize(GuiObject* obj) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-	if(!view) return Autoresize();
-	__block NSUInteger flags;
-	runOnMainQueue(^{
-		flags = [view autoresizingMask];
+	Autoresize ret;
+	execInMainThread_sync([&]() {
+		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		if(widget) {
+			// TODO ...
+			// Not sure. I think Qt doesn't do autoresizing.
+		}
 	});
-	Autoresize r;
-	r.x = flags & NSViewMinXMargin;
-	r.y = flags & NSViewMinYMargin;
-	r.w = flags & NSViewWidthSizable;
-	r.h = flags & NSViewHeightSizable;
-	return r;
+	return ret;
 }
 
 static void imp_set_pos(GuiObject* obj, const Vec& v) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-	if(!view) return;
-	runOnMainQueue(^{
-		[view setFrameOrigin:NSMakePoint(v.x, v.y)];
+	execInMainThread_sync([&]() {
+		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		if(widget)
+			widget->move(v.x, v.y);
 	});
 }
 
 static void imp_set_size(GuiObject* obj, const Vec& v) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-	if(!view) return;
-	runOnMainQueue(^{
-		[view setFrameSize:NSMakeSize(v.x, v.y)];
+	execInMainThread_sync([&]() {
+		GuiObjectWidget* widget = ((QtGuiObject*) obj)->widget;
+		if(widget)
+			widget->resize(v.x, v.y);
 	});
 }
 
 static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
-	if(!view) return;
-	NSUInteger flags = 0;
-	if(r.x) flags |= NSViewMinXMargin;
-	if(r.y) flags |= NSViewMinYMargin;
-	if(r.w) flags |= NSViewWidthSizable;
-	if(r.h) flags |= NSViewHeightSizable;
-	runOnMainQueue(^{
-		[view setAutoresizingMask:flags];
-	});
+	// TODO ...
 }
 
 static void imp_addChild(GuiObject* obj, GuiObject* child) {
-	if(!PyType_IsSubtype(Py_TYPE(child), &CocoaGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "CocoaGuiObject.addChild: we expect a CocoaGuiObject");
-		return;
+	{
+		PyScopedGIL gil;
+		if(!PyType_IsSubtype(Py_TYPE(child), &QtGuiObject_Type)) {
+			PyErr_Format(PyExc_ValueError, "QtGuiObject.addChild: we expect a QtGuiObject");
+			return;
+		}
 	}
-
-	NSView* childView = ((CocoaGuiObject*) child)->getNativeObj();
-	if(!childView) return;
-	((CocoaGuiObject*) obj)->addChild(childView);
+	
+	execInMainThread_sync([&]() {
+		GuiObjectWidget* childWidget = ((QtGuiObject*) child)->widget;
+		((QtGuiObject*) obj)->addChild(childWidget);
+	});
 }
 
+// Called *with* the Python GIL.
 static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* child, bool& stop)> callback) {
+/*
 	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 
 	if([view respondsToSelector:@selector(childIter:)]) {
@@ -115,46 +113,33 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 			callback(child, stop);
 		 }];
 	}
+	*/
 }
 
 static void imp_meth_updateContent(GuiObject* obj) {
-	((CocoaGuiObject*) obj)->updateContent();
+	((QtGuiObject*) obj)->updateContent();
 }
 
 GuiObjectWidget* QtGuiObject::getParentWidget() {
 	assert(QApplication::instance()->thread() == QThread::currentThread());
 	PyScopedGIL gil;
 	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
-		
+		return ((QtGuiObject*) parent)->widget;
 	}
+	return NULL;
 }
 
-void CocoaGuiObject::addChild(NSView* child) {
-	NSView* view = getNativeObj();
-	if(!view) return;
-	runOnMainQueue(^{
-		[view addSubview:child];
+void QtGuiObject::addChild(GuiObjectWidget* child) {
+	// Must not have the Python GIL.
+	execInMainThread_sync([&]() {
+		if(!widget) return;
+		child->setParent(widget);
 	});
 }
 
-void CocoaGuiObject::updateContent() {
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	
-	NSView* view = getNativeObj();
-	if(view && [view respondsToSelector:@selector(updateContent)]) {
-		[(id<GuiObjectProt_customContent>)view updateContent];
-	}
-	else {
-		PyObject* s = PyString_FromString("updateContent");
-		PyObject* func = s ? PyObject_GenericGetAttr((PyObject*) this, s) : NULL;
-		PyObject* res = func ? PyObject_CallFunction(func, NULL) : NULL;
-		if(!res && PyErr_Occurred()) PyErr_Print();
-		Py_XDECREF(s);
-		Py_XDECREF(func);
-		Py_XDECREF(res);
-	}
-	
-	PyGILState_Release(gstate);
+void QtGuiObject::updateContent() {
+	if(!widget) return;
+	widget->updateContent();
 }
 
 

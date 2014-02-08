@@ -32,7 +32,7 @@ struct QtGuiObject : GuiObject {
 	QPointer<GuiObjectWidget> widget;
 	GuiObjectWidget* getParentWidget();
 
-	void addChild(NSView* child);
+	void addChild(GuiObjectWidget* child);
 	void updateContent();
 };
 

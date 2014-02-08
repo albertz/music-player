@@ -15,7 +15,7 @@ GuiObjectWidget::~GuiObjectWidget() {
 	Py_CLEAR(controlRef);
 }
 
-GuiObjectWidget::GuiObjectWidget(QtGuiObject* control) {
+GuiObjectWidget::GuiObjectWidget(QtGuiObject* control) : QWidget(control->getParentWidget()) {
 	//this->QWidget(control->parent);
 	
 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
@@ -135,4 +135,16 @@ void GuiObjectWidget::mousePressEvent(QMouseEvent* ev) {
 		[super mouseDragged:ev];
 }
 */
+
+void GuiObjectWidget::updateContent() {
+	PyScopedGIL gil;
+	
+	PyObject* s = PyString_FromString("updateContent");
+	PyObject* func = s ? PyObject_GenericGetAttr((PyObject*) this, s) : NULL;
+	PyObject* res = func ? PyObject_CallFunction(func, NULL) : NULL;
+	if(!res && PyErr_Occurred()) PyErr_Print();
+	Py_XDECREF(s);
+	Py_XDECREF(func);
+	Py_XDECREF(res);	
+}
 
