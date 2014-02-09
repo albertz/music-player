@@ -3,6 +3,12 @@
 top_srcdir=$$PWD
 top_builddir=$$OUT_PWD
 
+MOC_DIR=$$PWD/build/qt/moc
+OBJECTS_DIR=$$PWD/build/qt/objs
+UI_DIR=$$PWD/build/qt/ui
+RCC_DIR=$$PWD/build/qt/rcc
+
+
 # No mac-scope because of "Using OS scope before setting MAKEFILE_GENERATOR" error from qmake.
 uname = $$system(uname)
 equals(uname, Darwin) {
