@@ -183,7 +183,7 @@ int PyQtGuiObject::init(PyObject* args, PyObject* kwds) {
 		selfType->tp_clear = ((PyTypeObject*) base)->tp_clear;
 		
 		if(PyType_Ready(selfType) < 0)
-			Py_FatalError("Can't initialize CocoaGuiObject type");
+			Py_FatalError("Can't initialize QtGuiObject type");
 	}
 	else
 		((PyTypeObject*) base)->tp_init((PyObject*) this, args, kwds);
