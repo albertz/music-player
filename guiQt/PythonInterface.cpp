@@ -116,9 +116,17 @@ guiQt_main(PyObject* self) {
 	// in the main thread.
 	
 	int ret = 0;
-	Py_BEGIN_ALLOW_THREADS
+	PyThreadState* _save = PyEval_SaveThread();
 	QtApp app;
-	ret = app.exec();	
+	PyEval_RestoreThread(_save);
+	
+	// now we can call back to Python to do some GUI init.
+	
+	Py_BEGIN_ALLOW_THREADS
+	// Enter the Qt main event loop.
+	ret = app.exec();
+	// Note that it depends on the Qt backend whether
+	// we return here or not.
 	Py_END_ALLOW_THREADS
 	
 	PyErr_SetObject(PyExc_SystemExit, PyInt_FromLong(ret));
