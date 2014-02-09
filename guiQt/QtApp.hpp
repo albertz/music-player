@@ -22,7 +22,6 @@ public slots:
 	void genericExec(boost::function<void(void)> func) {
 		func();
 	}
-
 private:
 	QMetaMethod genericExec_method; // cached
 public:
@@ -32,6 +31,9 @@ public:
 	
 private slots:
 	void handleApplicationQuit();
+	
+public slots:
+	//void aboutWindow();
 	
 };
 
