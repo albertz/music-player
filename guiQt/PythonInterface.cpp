@@ -223,7 +223,7 @@ guiQt_buildControl(PyObject* args, PyObject* kws) {
 		return NULL;
 	}
 	
-	PyQtGuiObject* control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) QtGuiObject_Type, NULL);
+	PyQtGuiObject* control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
 	if(!control) return NULL;
 	
 	assert(control->root == NULL);
