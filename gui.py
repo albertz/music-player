@@ -266,9 +266,10 @@ def _initPost():
 
 
 def handleApplicationQuit():
-	from State import modules
+	import utils
 	utils.quit = True
 	# first set/send signals to all modules
+	from State import modules
 	for m in modules: m.stop(join=False)
 	try:
 		# in case there are any subprocesses, interrupt them
