@@ -22,16 +22,9 @@ public slots:
 	}
 
 private:
-	// cache this
-	QMetaMethod genericExec_method;
+	QMetaMethod genericExec_method; // cached
 public:
 	void invokeGenericExec(boost::function<void(void)> func, Qt::ConnectionType connType) {
-		if(!genericExec_method.enclosingMetaObject()) {
-			QByteArray normalizedSignature = QMetaObject::normalizedSignature("genericExec(boost::function<void(void)>)");
-			int methodIndex = this->metaObject()->indexOfSlot(normalizedSignature);
-			assert(methodIndex >= 0);
-			genericExec_method = this->metaObject()->method(methodIndex);
-		}
 		genericExec_method.invoke(this, connType, Q_ARG(boost::function<void(void)>, func));
 	}
 	

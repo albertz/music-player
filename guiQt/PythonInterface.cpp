@@ -7,6 +7,7 @@
 #include "PyQtGuiObject.hpp"
 #include "PythonHelpers.h"
 #include "PyUtils.h"
+#include "PyThreading.hpp"
 #include "Builders.hpp"
 #include "FunctionWrapper.hpp"
 
@@ -122,30 +123,29 @@ guiQt_main(PyObject* self) {
 	}
 	
 	int ret = 0;
-	PyThreadState* _save = PyEval_SaveThread();
+	Py_BEGIN_ALLOW_THREADS
 	QtApp app;
-	PyEval_RestoreThread(_save);
 	
-	// now we can call back to Python to do some GUI init.
 	{
+		PyScopedGIL gil;	
 		PyObject* init1 = PyObject_CallMethod(guiMod, "_initPre", NULL);
 		if(!init1) return NULL;
 		Py_DECREF(init1);
-		
-		//setupAppleMenu()
-		//setupMainWindow()
-		//AppKit.NSApp.updateWindows()
-		
+	}
+	
+	setupMenu();
+	setupMainWindow();
+	
+	{	
+		PyScopedGIL gil;	
 		PyObject* init2 = PyObject_CallMethod(guiMod, "_initPost", NULL);
 		if(!init2) return NULL;
 		Py_DECREF(init2);
 	}
 	
-	Py_BEGIN_ALLOW_THREADS
 	// Enter the Qt main event loop.
 	ret = app.exec();
-	// Note that it depends on the Qt backend whether
-	// we return here or not.
+	// Note that it depends on the Qt backend whether we return here or not.
 	Py_END_ALLOW_THREADS
 	
 	PyErr_SetObject(PyExc_SystemExit, PyInt_FromLong(ret));

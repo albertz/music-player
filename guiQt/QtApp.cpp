@@ -12,6 +12,13 @@ static int dummy_argc = 1;
 static char* dummy_argv[] = {(char*)"musicplayer", NULL};
 
 QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
+	{
+		QByteArray normalizedSignature = QMetaObject::normalizedSignature("genericExec(boost::function<void(void)>)");
+		int methodIndex = this->metaObject()->indexOfSlot(normalizedSignature);
+		assert(methodIndex >= 0);
+		genericExec_method = this->metaObject()->method(methodIndex);
+	}
+
 	this->setOrganizationName("Albert Zeyer");
 	this->setApplicationName("MusicPlayer");
 	
@@ -29,7 +36,7 @@ void QtApp::handleApplicationQuit() {
 		return;
 	}
 
-	PyObject* ret = PyObject_CallMethod(guiMod, "handleApplicationQuit", NULL);
+	PyObject* ret = PyObject_CallMethod(guiMod, (char*)"handleApplicationQuit", NULL);
 	if(!ret && PyErr_Occurred()) PyErr_Print();
 	Py_XDECREF(ret);
 }

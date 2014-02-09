@@ -113,3 +113,11 @@ QColor foregroundColor(PyQtGuiObject* control) {
 		return QApplication::palette().color(QPalette::Disabled, QPalette::WindowText);
 	return QColor(0,0,0);
 }
+
+void setupMenu() {
+	
+}
+
+void setupMainWindow() {
+	
+}
