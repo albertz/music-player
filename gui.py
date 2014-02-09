@@ -265,6 +265,24 @@ def _initPost():
 	print "GUI init ready"
 
 
+def handleApplicationQuit():
+	from State import modules
+	utils.quit = True
+	# first set/send signals to all modules
+	for m in modules: m.stop(join=False)
+	try:
+		# in case there are any subprocesses, interrupt them
+		# maybe some modules are hanging and waiting for such
+		import sys, os, signal
+		os.kill(0, signal.SIGINT)
+	except KeyboardInterrupt: pass # well, we expect that...
+	except Exception: pass
+	# now join all
+	for m in modules: m.stop()
+	print "Bye!"
+
+
+
 # This function is later supposed to give the right gui context
 # depending where we call it from. This can maybe be managed/set via
 # contextlib or so.

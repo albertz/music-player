@@ -91,22 +91,6 @@ def setupAfterAppFinishedLaunching():
 
 	gui._initPost()
 
-def handleApplicationQuit():
-	from State import modules
-	utils.quit = True
-	# first set/send signals to all modules
-	for m in modules: m.stop(join=False)
-	try:
-		# in case there are any subprocesses, interrupt them
-		# maybe some modules are hanging and waiting for such
-		import sys, os, signal
-		os.kill(0, signal.SIGINT)
-	except KeyboardInterrupt: pass # well, we expect that...
-	except Exception: pass
-	# now join all
-	for m in modules: m.stop()
-	print "Bye!"
-
 
 def getWindow(name):
 	global windows
