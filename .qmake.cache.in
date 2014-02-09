@@ -6,7 +6,7 @@ top_builddir=$$OUT_PWD
 # Note on same-named files:
 # There is/was the undocumented object_with_source, object_parallel_to_source,
 # but is was removed and/or requires Qt5.
-# There is no real sane way to do this, so we don't.
+# There is no real sane way to do this, so we dont.
 # For mocs, we must do it because it screwes up the source dir otherwise (`$$files(*.cpp)` ...).
 # Let's just hope there aren't two equally named moc files.
 MOC_DIR=$$PWD/build/qt/moc
