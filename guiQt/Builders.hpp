@@ -11,7 +11,25 @@
 
 #include "PyQtGuiObject.hpp"
 #include <QColor>
+#include <string>
+#include <boost/function.hpp>
 
+typedef boost::function<bool(PyQtGuiObject*)> ControlBuilderFunc;
+void registerControlBuilder(const std::string& controlType, ControlBuilderFunc buildFunc);
+void iterControlTypes(boost::function<void(const std::string&, ControlBuilderFunc)> callback);
+
+#define RegisterControl(type) \
+	struct _RegisterControl_ ## type { \
+		_RegisterControl_ ## type() { \
+			registerControlBuilder(#type, [](PyQtGuiObject* control) { \
+				QtBaseWidget* widget = new Qt ## type ## Widget(control); \
+				(void) widget; \
+				return true; \
+			}); \
+		} \
+	} _registerControl_ ## type ## _instance;
+
+bool buildControl(const std::string& controlType, PyQtGuiObject* control);
 bool buildControlObject(PyQtGuiObject* control);
 bool _buildControlObject_pre(PyQtGuiObject* control);
 bool _buildControlObject_post(PyQtGuiObject* control);

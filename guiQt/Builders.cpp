@@ -3,6 +3,34 @@
 #include "QtObjectWidget.hpp"
 #include "PythonHelpers.h"
 #include <QApplication>
+#include <map>
+#include <string>
+
+typedef std::map<std::string, ControlBuilderFunc> ControlBuilders;
+// Must be lazily inited. Static-init will not work because we might access
+// it before it is static-inited.
+ControlBuilders* controlBuilders;
+
+void registerControlBuilder(const std::string& controlType, ControlBuilderFunc buildFunc) {
+	if(!controlBuilders) controlBuilders = new ControlBuilders;
+	(*controlBuilders)[controlType] = buildFunc;
+}
+
+void iterControlTypes(boost::function<void(const std::string&, ControlBuilderFunc)> callback) {
+	for(auto& pair : *controlBuilders) {
+		callback(pair.first, pair.second);
+	}
+}
+
+bool buildControl(const std::string& controlType, PyQtGuiObject* control) {
+	assert(!controlBuilders);
+	auto it = controlBuilders->find(controlType);
+	if(it == controlBuilders->end()) {
+		printf("Qt buildControl: %s type not found\n", controlType.c_str());
+		return false;
+	}
+	return it->second(control);
+}
 
 
 bool buildControlObject(PyQtGuiObject* control) {
@@ -23,22 +51,13 @@ bool _buildControlObject_pre(PyQtGuiObject* control) {
 
 
 bool _buildControlObject_post(PyQtGuiObject* control) {
-	// TODO...
-/*
-	QWidget* _widget = control->getNativeObj();
-	if(!_widget || ![_view isKindOfClass:[ObjectControlView class]]) {
-		printf("_buildControlObject_post: bad native obj\n");
-		return false;
+	QtBaseWidget* widget = control->widget;
+	QColor color = backgroundColor(control);
+	if(color.alpha() > 0) {
+//		[view setDrawsBackground:YES];
+//		[view setBackgroundColor:color];
 	}
-	ObjectControlView* view = (ObjectControlView*) _view;
-	NSColor* color = backgroundColor(control);
-	if(color) {
-		[view setDrawsBackground:YES];
-		[view setBackgroundColor:color];
-	}	
 	return true;
-	*/
-	return false;
 }
 
 

@@ -9,6 +9,8 @@
 #import "QtClickableLabelWidget.hpp"
 #import "Builders.hpp"
 
+RegisterControl(ClickableLabel)
+
 // TODO...
 #if 0
 @implementation ClickableLabelControlView

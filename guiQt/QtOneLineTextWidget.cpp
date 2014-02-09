@@ -11,6 +11,8 @@
 #import "Builders.hpp"
 
 
+RegisterControl(OneLineText)
+
 // TODO...
 #if 0
 

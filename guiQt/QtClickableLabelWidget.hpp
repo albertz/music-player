@@ -12,6 +12,7 @@
 #include "QtOneLineTextWidget.hpp"
 
 struct QtClickableLabelWidget : QtOneLineTextWidget {
+	QtClickableLabelWidget(PyQtGuiObject* control);
 	virtual PyObject* getTextObj();
 };
 

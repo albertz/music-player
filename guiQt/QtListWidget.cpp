@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 
+RegisterControl(List)
 
 // TODO...
 #if 0

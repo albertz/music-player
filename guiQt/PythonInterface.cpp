@@ -7,6 +7,7 @@
 #include "PyQtGuiObject.hpp"
 #include "PythonHelpers.h"
 #include "Builders.hpp"
+#include "FunctionWrapper.hpp"
 
 
 static PyObject* QtGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
@@ -143,18 +144,19 @@ guiQt_updateControlMenu(PyObject* self) {
 }
 
 
-// TODO: make this a macro or dynamic or so...
 PyObject*
-guiQt_buildControlObject(PyObject* self, PyObject* args) {
+guiQt_buildControl(const std::string& controlType, ControlBuilderFunc builderFunc, PyObject* self, PyObject* args) {
 	PyObject* control = NULL;
-	if(!PyArg_ParseTuple(args, "O:buildControlObject", &control))
+	if(!PyArg_ParseTuple(args, ("O:buildControl" + controlType).c_str(), &control))
 		return NULL;
 	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "guiQt.buildControlObject: we expect a QtGuiObject");
+		PyErr_Format(PyExc_ValueError, ("guiQt.buildControl" + controlType + ": we expect a QtGuiObject").c_str());
 		return NULL;
 	}
 	PyQtGuiObject* guiObject = (PyQtGuiObject*) control;
-	buildControlObject(guiObject);
+	bool res = builderFunc(guiObject);
+	if(!res)
+		printf("guiQt.buildControl%s: warning, returned error\n", controlType.c_str());
 	
 	Py_INCREF(control);
 	return control;
@@ -166,12 +168,11 @@ static PyMethodDef module_methods[] = {
 	{"main",	(PyCFunction)guiQt_main,	METH_NOARGS,	"overtakes main()"},
 	{"quit",	(PyCFunction)guiQt_quit,	METH_NOARGS,	"quit application"},
 	{"updateControlMenu",	(PyCFunction)guiQt_updateControlMenu,	METH_NOARGS,	""},
-	{"buildControlObject",  guiQt_buildControlObject, METH_VARARGS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 
 PyDoc_STRVAR(module_doc,
-"GUI Cocoa implementation.");
+"GUI Qt implementation.");
 
 
 PyMODINIT_FUNC
@@ -180,22 +181,45 @@ initguiQt(void)
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 
 	if(PyType_Ready(&QtGuiObject_Type) < 0) {
-		Py_FatalError("Can't initialize CocoaGuiObject type");
+		Py_FatalError("Can't initialize QtGuiObject type");
 		return;
 	}
 
 	PyObject* m = Py_InitModule3("guiQt", module_methods, module_doc);
-	if(!m)
-		goto fail;
+	if(!m) {
+		Py_FatalError("Can't initialize guiQt module");
+		return;		
+	}
 	
+	bool fail = false;
+
 	if(PyModule_AddObject(m, "QtGuiObject", (PyObject*) &QtGuiObject_Type) != 0)
-		goto fail;
+		fail = true;
 
-	return;
+	iterControlTypes([&](const std::string& controlType, ControlBuilderFunc builderFunc) {
+		struct PythonWrapper {
+			std::string controlType;
+			ControlBuilderFunc builderFunc;
+			PyObject* operator()(PyObject* args, PyObject* kw) {
+				return guiQt_buildControl(controlType, builderFunc, args, kw);
+			}
+		};
+		PythonWrapper wrapper;
+		wrapper.controlType = controlType;
+		wrapper.builderFunc = builderFunc;
+		PyObject* funcObj = (PyObject*) newFunctionWrapper(wrapper);
+		if(!funcObj) {
+			fail = true;
+			return;
+		}
+		if(PyModule_AddObject(m, ("builControl" + controlType).c_str(), funcObj) != 0)
+			fail = true;
+	});
 
-fail:
-	if(PyErr_Occurred())
-		PyErr_Print();
-	
-	Py_FatalError("guiQt module init error");
+	if(fail) {
+		if(PyErr_Occurred())
+			PyErr_Print();
+		
+		Py_FatalError("guiQt module init error");
+	}
 }
