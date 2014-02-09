@@ -115,12 +115,31 @@ guiQt_main(PyObject* self) {
 	// Anyway, on the Python side, we should have called this
 	// in the main thread.
 	
+	PyObject* guiMod = getModule("gui"); // borrowed
+	if(!guiMod) {
+		PyErr_Format(PyExc_SystemError, "guiQt.main: gui module not found");
+		return NULL;
+	}
+	
 	int ret = 0;
 	PyThreadState* _save = PyEval_SaveThread();
 	QtApp app;
 	PyEval_RestoreThread(_save);
 	
 	// now we can call back to Python to do some GUI init.
+	{
+		PyObject* init1 = PyObject_CallMethod(guiMod, "_initPre", NULL);
+		if(!init1) return NULL;
+		Py_DECREF(init1);
+		
+		//setupAppleMenu()
+		//setupMainWindow()
+		//AppKit.NSApp.updateWindows()
+		
+		PyObject* init2 = PyObject_CallMethod(guiMod, "_initPost", NULL);
+		if(!init2) return NULL;
+		Py_DECREF(init2);
+	}
 	
 	Py_BEGIN_ALLOW_THREADS
 	// Enter the Qt main event loop.
