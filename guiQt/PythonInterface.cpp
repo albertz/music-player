@@ -106,6 +106,7 @@ PyTypeObject QtGuiObject_Type = {
 
 PyObject *
 guiQt_main(PyObject* self) {
+	(void)self;
 	// This is called from Python and replaces the main() control.
 	
 	// It might make sense to assert that we are the main thread.
@@ -127,6 +128,7 @@ guiQt_main(PyObject* self) {
 
 PyObject *
 guiQt_quit(PyObject* self) {
+	(void)self;
 	Py_BEGIN_ALLOW_THREADS
 	qApp->quit();
 	Py_END_ALLOW_THREADS
@@ -137,6 +139,7 @@ guiQt_quit(PyObject* self) {
 
 PyObject*
 guiQt_updateControlMenu(PyObject* self) {
+	(void)self;
 	Py_BEGIN_ALLOW_THREADS
 	//[[NSApp delegate] updateControlMenu];
 	Py_END_ALLOW_THREADS
@@ -151,7 +154,7 @@ pyBuildControl(const std::string& controlType, ControlBuilderFunc builderFunc, P
 	if(!PyArg_ParseTuple(args, ("O:buildControl" + controlType).c_str(), &control))
 		return NULL;
 	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, ("guiQt.buildControl" + controlType + ": we expect a QtGuiObject").c_str());
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControl%s: we expect a QtGuiObject", controlType.c_str());
 		return NULL;
 	}
 	PyQtGuiObject* guiObject = (PyQtGuiObject*) control;
@@ -165,7 +168,8 @@ pyBuildControl(const std::string& controlType, ControlBuilderFunc builderFunc, P
 }
 
 PyObject*
-guiQt_buildControl(PyObject* args, PyObject* kws) {
+guiQt_buildControl(PyObject* self, PyObject* args, PyObject* kws) {
+	(void)self;
 	PyObject* userAttr = NULL;
 	PyQtGuiObject* parent = NULL;
 	static const char *kwlist[] = {"userAttr", "parent", NULL};
@@ -191,7 +195,7 @@ guiQt_buildControl(PyObject* args, PyObject* kws) {
 	
 	std::string controlType;
 	{
-		PyObject* typeClass = PyObject_CallMethod(userAttr, "getTypeClass", NULL);
+		PyObject* typeClass = PyObject_CallMethod(userAttr, (char*)"getTypeClass", NULL);
 		if(!typeClass) return NULL;
 		PyObject* typeClassName = PyObject_GetAttrString(typeClass, "__name__");
 		if(!typeClassName) { Py_DECREF(typeClass); return NULL; }
@@ -237,7 +241,7 @@ guiQt_buildControl(PyObject* args, PyObject* kws) {
 	Py_XINCREF(control->attr);
 	
 	assert(control->subjectObject == NULL);
-	control->subjectObject = PyObject_CallMethod(userAttr, "__get__", "(O)", parent->subjectObject);
+	control->subjectObject = PyObject_CallMethod(userAttr, (char*)"__get__", (char*)"(O)", parent->subjectObject);
 	if(control->subjectObject == NULL) {
 		Py_DECREF(control);
 		return NULL;
@@ -258,7 +262,7 @@ static PyMethodDef module_methods[] = {
 	{"main",	(PyCFunction)guiQt_main,	METH_NOARGS,	"overtakes main()"},
 	{"quit",	(PyCFunction)guiQt_quit,	METH_NOARGS,	"quit application"},
 	{"updateControlMenu",	(PyCFunction)guiQt_updateControlMenu,	METH_NOARGS,	""},
-	{"buildControl",  guiQt_buildControl, METH_VARARGS|METH_KEYWORDS, ""},
+	{"buildControl",  (PyCFunction)guiQt_buildControl, METH_VARARGS|METH_KEYWORDS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 
@@ -267,8 +271,7 @@ PyDoc_STRVAR(module_doc,
 
 
 PyMODINIT_FUNC
-initguiQt(void)
-{
+initguiQt(void) {
 	PyEval_InitThreads(); /* Start the interpreter's thread-awareness */
 
 	if(PyType_Ready(&QtGuiObject_Type) < 0) {
