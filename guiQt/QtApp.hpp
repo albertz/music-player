@@ -14,6 +14,8 @@ class QtApp : public QApplication
 public:
 	QtApp();
 	
+	inline static QtApp* instance() { return (QtApp*) qApp; }
+	
 signals:
 	
 public slots:

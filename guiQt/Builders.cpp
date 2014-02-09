@@ -114,10 +114,6 @@ QColor foregroundColor(PyQtGuiObject* control) {
 	return QColor(0,0,0);
 }
 
-void setupMenu() {
-	
-}
-
 void setupMainWindow() {
 	
 }

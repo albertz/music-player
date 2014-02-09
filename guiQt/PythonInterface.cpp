@@ -10,6 +10,7 @@
 #include "PyThreading.hpp"
 #include "Builders.hpp"
 #include "FunctionWrapper.hpp"
+#include "QtMenu.hpp"
 
 
 static PyObject* QtGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
