@@ -1,5 +1,7 @@
 
 #include "QtApp.hpp"
+#include "PythonHelpers.h"
+#include "PyThreading.hpp"
 
 // Dummy vars for QApplication.
 // Note that the App construction is late at init. The Python code
@@ -11,5 +13,23 @@ static char* dummy_argv[] = {(char*)"musicplayer", NULL};
 
 QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 	this->setOrganizationName("Albert Zeyer");
-	this->setApplicationName("MusicPlayer");	
+	this->setApplicationName("MusicPlayer");
+	
+	connect(this, SIGNAL(aboutToQuit()), this, SLOT(handleApplicationQuit()));
+}
+
+void QtApp::handleApplicationQuit() {
+	PyScopedGIL gil;
+	
+	printf("about to quit ...\n");
+	
+	PyObject* guiMod = getModule("gui"); // borrowed
+	if(!guiMod) {
+		printf("QtApp::handleApplicationQuit: gui module not found");
+		return;
+	}
+
+	PyObject* ret = PyObject_CallMethod(guiMod, "handleApplicationQuit", NULL);
+	if(!ret && PyErr_Occurred()) PyErr_Print();
+	Py_XDECREF(ret);
 }

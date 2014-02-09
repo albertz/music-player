@@ -35,6 +35,9 @@ public:
 		genericExec_method.invoke(this, connType, Q_ARG(boost::function<void(void)>, func));
 	}
 	
+private slots:
+	void handleApplicationQuit();
+	
 };
 
 // WARNING: Python GIL must not be held when calling this.
