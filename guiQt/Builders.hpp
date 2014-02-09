@@ -17,6 +17,7 @@
 typedef boost::function<bool(PyQtGuiObject*)> ControlBuilderFunc;
 void registerControlBuilder(const std::string& controlType, ControlBuilderFunc buildFunc);
 void iterControlTypes(boost::function<void(const std::string&, ControlBuilderFunc)> callback);
+ControlBuilderFunc getControlBuilder(const std::string& controlType);
 
 #define RegisterControl(type) \
 	struct _RegisterControl_ ## type { \

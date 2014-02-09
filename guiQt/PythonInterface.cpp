@@ -6,6 +6,7 @@
 #include "QtApp.hpp"
 #include "PyQtGuiObject.hpp"
 #include "PythonHelpers.h"
+#include "PyUtils.h"
 #include "Builders.hpp"
 #include "FunctionWrapper.hpp"
 
@@ -145,7 +146,7 @@ guiQt_updateControlMenu(PyObject* self) {
 
 
 PyObject*
-guiQt_buildControl(const std::string& controlType, ControlBuilderFunc builderFunc, PyObject* self, PyObject* args) {
+pyBuildControl(const std::string& controlType, ControlBuilderFunc builderFunc, PyObject* args, PyObject* kws) {
 	PyObject* control = NULL;
 	if(!PyArg_ParseTuple(args, ("O:buildControl" + controlType).c_str(), &control))
 		return NULL;
@@ -156,10 +157,99 @@ guiQt_buildControl(const std::string& controlType, ControlBuilderFunc builderFun
 	PyQtGuiObject* guiObject = (PyQtGuiObject*) control;
 	bool res = builderFunc(guiObject);
 	if(!res)
+		// XXX: handle somehow? ...
 		printf("guiQt.buildControl%s: warning, returned error\n", controlType.c_str());
 	
 	Py_INCREF(control);
 	return control;
+}
+
+PyObject*
+guiQt_buildControl(PyObject* args, PyObject* kws) {
+	PyObject* userAttr = NULL;
+	PyQtGuiObject* parent = NULL;
+	static const char *kwlist[] = {"userAttr", "parent", NULL};
+	if(!PyArg_ParseTupleAndKeywords(
+			args, kws, "O:buildControl", (char**)kwlist,
+			&userAttr, &parent))
+		return NULL;
+
+	if(!PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControl: parent must be a QtGuiObject");
+		return NULL;
+	}
+
+	if(parent->root == NULL) {
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControl: parent.root is NULL");
+		return NULL;		
+	}
+	
+	if(parent->subjectObject == NULL) {
+		PyErr_Format(PyExc_ValueError, "guiQt.buildControl: parent.subjectObject is NULL");
+		return NULL;		
+	}
+	
+	std::string controlType;
+	{
+		PyObject* typeClass = PyObject_CallMethod(userAttr, "getTypeClass", NULL);
+		if(!typeClass) return NULL;
+		PyObject* typeClassName = PyObject_GetAttrString(typeClass, "__name__");
+		if(!typeClassName) { Py_DECREF(typeClass); return NULL; }
+		if(!pyStr(typeClassName, controlType)) { Py_DECREF(typeClass); Py_DECREF(typeClassName); return NULL; }
+		PyObject* traitsMod = getModule("Traits"); // borrowed
+		if(!traitsMod) {
+			PyErr_Format(PyExc_ValueError, "guiQt.buildControl: Traits module not found");
+			Py_DECREF(typeClass); Py_DECREF(typeClassName);
+			return NULL;
+		}
+		PyObject* traitsClass = PyObject_GetAttrString(traitsMod, controlType.c_str());
+		if(!traitsClass) {
+			PyErr_Format(PyExc_ValueError, "guiQt.buildControl: Traits.%s not found", controlType.c_str());
+			Py_DECREF(typeClass); Py_DECREF(typeClassName);
+			return NULL;
+		}
+		if(traitsClass != typeClass) {
+			PyErr_Format(PyExc_ValueError, "guiQt.buildControl: Traits.%s is different class", controlType.c_str());
+			Py_DECREF(typeClass); Py_DECREF(typeClassName); Py_DECREF(traitsClass);
+			return NULL;
+		}
+		Py_DECREF(typeClass);
+		Py_DECREF(typeClassName);
+		Py_DECREF(traitsClass);		
+	}
+	ControlBuilderFunc builderFunc = getControlBuilder(controlType);
+	if(!builderFunc) {
+		PyErr_Format(PyExc_NotImplementedError, "guiQt.buildControl: %s-widget not implemented yet", controlType.c_str());
+		return NULL;
+	}
+	
+	PyQtGuiObject* control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) QtGuiObject_Type, NULL);
+	if(!control) return NULL;
+	
+	assert(control->root == NULL);
+	control->root = parent->root;
+	Py_XINCREF(control->root);
+	assert(control->parent == NULL);
+	control->parent = parent;
+	Py_XINCREF(control->parent);
+	assert(control->attr == NULL);
+	control->attr = userAttr;
+	Py_XINCREF(control->attr);
+	
+	assert(control->subjectObject == NULL);
+	control->subjectObject = PyObject_CallMethod(userAttr, "__get__", "(O)", parent->subjectObject);
+	if(control->subjectObject == NULL) {
+		Py_DECREF(control);
+		return NULL;
+	}
+	
+	bool res = builderFunc(control);
+	if(!res)
+		// XXX: handle somehow? ...
+		printf("guiQt.buildControl: warning, returned error\n");
+	
+	// forward control
+	return (PyObject*) control;
 }
 
 
@@ -168,6 +258,7 @@ static PyMethodDef module_methods[] = {
 	{"main",	(PyCFunction)guiQt_main,	METH_NOARGS,	"overtakes main()"},
 	{"quit",	(PyCFunction)guiQt_quit,	METH_NOARGS,	"quit application"},
 	{"updateControlMenu",	(PyCFunction)guiQt_updateControlMenu,	METH_NOARGS,	""},
+	{"buildControl",  guiQt_buildControl, METH_VARARGS|METH_KEYWORDS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 
@@ -201,7 +292,7 @@ initguiQt(void)
 			std::string controlType;
 			ControlBuilderFunc builderFunc;
 			PyObject* operator()(PyObject* args, PyObject* kw) {
-				return guiQt_buildControl(controlType, builderFunc, args, kw);
+				return pyBuildControl(controlType, builderFunc, args, kw);
 			}
 		};
 		PythonWrapper wrapper;

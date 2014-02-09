@@ -22,6 +22,13 @@ void iterControlTypes(boost::function<void(const std::string&, ControlBuilderFun
 	}
 }
 
+ControlBuilderFunc getControlBuilder(const std::string& controlType) {
+	assert(!controlBuilders);
+	auto it = controlBuilders->find(controlType);
+	if(it == controlBuilders->end()) return NULL;
+	return it->second;	
+}
+
 bool buildControl(const std::string& controlType, PyQtGuiObject* control) {
 	assert(!controlBuilders);
 	auto it = controlBuilders->find(controlType);
