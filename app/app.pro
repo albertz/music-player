@@ -56,6 +56,10 @@ mac {
 	PythonBase.path = Contents/Resources/pylib
 	QMAKE_BUNDLE_DATA += PythonBase
 
+	GuiQt.files = $$top_builddir/guiQt.so
+	GuiQt.path = Contents/Resources/Python
+	QMAKE_BUNDLE_DATA += GuiQt	
+
 	# Contents/Info.plist
 	MusicPlayer_InfoPlistFile = $$top_srcdir/mac/MusicPlayer/MusicPlayer-Info.plist
 	Info_plist.target = Info.plist
