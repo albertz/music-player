@@ -16,6 +16,8 @@
 		2331F86416C16BC40037D148 /* traceback.c in Sources */ = {isa = PBXBuildFile; fileRef = 2331F86216C16BC40037D148 /* traceback.c */; };
 		236EC2CE18A3D81D001E18D6 /* mac_sysutils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 236EC2CB18A3D81D001E18D6 /* mac_sysutils.mm */; };
 		236EC2CF18A3D81D001E18D6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 236EC2CC18A3D81D001E18D6 /* main.cpp */; };
+		236EC2D218A7A64F001E18D6 /* FunctionWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 236EC2D018A7A64F001E18D6 /* FunctionWrapper.cpp */; };
+		236EC2D318A7A64F001E18D6 /* FunctionWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 236EC2D118A7A64F001E18D6 /* FunctionWrapper.hpp */; };
 		2373133D188191050052054E /* pa_mac_core_blocking.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132918818D260052054E /* pa_mac_core_blocking.c */; };
 		23731340188191050052054E /* pa_mac_core_utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132C18818D260052054E /* pa_mac_core_utilities.c */; };
 		23731342188191050052054E /* pa_mac_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 2373132E18818D260052054E /* pa_mac_core.c */; };
@@ -251,8 +253,6 @@
 		23DC628018913D7300E1DFE3 /* ObjectControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC627E18913D7300E1DFE3 /* ObjectControl.mm */; };
 		23DC628318913F5D00E1DFE3 /* GuiObjectView.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC628118913F5D00E1DFE3 /* GuiObjectView.hpp */; };
 		23DC628418913F5D00E1DFE3 /* GuiObjectView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */; };
-		23DC628718914A8C00E1DFE3 /* FunctionWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23DC628518914A8C00E1DFE3 /* FunctionWrapper.cpp */; };
-		23DC628818914A8C00E1DFE3 /* FunctionWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC628618914A8C00E1DFE3 /* FunctionWrapper.hpp */; };
 		23DC628B1891B40000E1DFE3 /* OneLineTextControl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC62891891B40000E1DFE3 /* OneLineTextControl.hpp */; };
 		23DC628C1891B40000E1DFE3 /* OneLineTextControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC628A1891B40000E1DFE3 /* OneLineTextControl.mm */; };
 		23DC628F1892595C00E1DFE3 /* ClickableLabelControl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC628D1892595C00E1DFE3 /* ClickableLabelControl.hpp */; };
@@ -428,6 +428,8 @@
 		236EC2CB18A3D81D001E18D6 /* mac_sysutils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = mac_sysutils.mm; path = ../../app/mac_sysutils.mm; sourceTree = "<group>"; };
 		236EC2CC18A3D81D001E18D6 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../app/main.cpp; sourceTree = "<group>"; };
 		236EC2CD18A3D81D001E18D6 /* sysutils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = sysutils.hpp; path = ../../app/sysutils.hpp; sourceTree = "<group>"; };
+		236EC2D018A7A64F001E18D6 /* FunctionWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FunctionWrapper.cpp; path = ../_gui/FunctionWrapper.cpp; sourceTree = "<group>"; };
+		236EC2D118A7A64F001E18D6 /* FunctionWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = FunctionWrapper.hpp; path = ../_gui/FunctionWrapper.hpp; sourceTree = "<group>"; };
 		237312EE18818CBE0052054E /* pa_mac_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pa_mac_core.h; path = ../core/external/portaudio/include/pa_mac_core.h; sourceTree = "<group>"; };
 		237312EF18818CBE0052054E /* portaudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = portaudio.h; path = ../core/external/portaudio/include/portaudio.h; sourceTree = "<group>"; };
 		237312F218818CDE0052054E /* pa_unix_hostapis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pa_unix_hostapis.c; path = ../core/external/portaudio/src/os/unix/pa_unix_hostapis.c; sourceTree = "<group>"; };
@@ -680,8 +682,6 @@
 		23DC627E18913D7300E1DFE3 /* ObjectControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ObjectControl.mm; path = gui/ObjectControl.mm; sourceTree = "<group>"; };
 		23DC628118913F5D00E1DFE3 /* GuiObjectView.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = GuiObjectView.hpp; path = gui/GuiObjectView.hpp; sourceTree = "<group>"; };
 		23DC628218913F5D00E1DFE3 /* GuiObjectView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GuiObjectView.mm; path = gui/GuiObjectView.mm; sourceTree = "<group>"; };
-		23DC628518914A8C00E1DFE3 /* FunctionWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FunctionWrapper.cpp; path = gui/FunctionWrapper.cpp; sourceTree = "<group>"; };
-		23DC628618914A8C00E1DFE3 /* FunctionWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = FunctionWrapper.hpp; path = gui/FunctionWrapper.hpp; sourceTree = "<group>"; };
 		23DC62891891B40000E1DFE3 /* OneLineTextControl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = OneLineTextControl.hpp; path = gui/OneLineTextControl.hpp; sourceTree = "<group>"; };
 		23DC628A1891B40000E1DFE3 /* OneLineTextControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OneLineTextControl.mm; path = gui/OneLineTextControl.mm; sourceTree = "<group>"; };
 		23DC628D1892595C00E1DFE3 /* ClickableLabelControl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ClickableLabelControl.hpp; path = gui/ClickableLabelControl.hpp; sourceTree = "<group>"; };
@@ -907,8 +907,6 @@
 				237313E11889642A0052054E /* AppDelegate.h */,
 				237313E21889642A0052054E /* AppDelegate.m */,
 				237313E5188965D10052054E /* PythonInterface.mm */,
-				23DC628518914A8C00E1DFE3 /* FunctionWrapper.cpp */,
-				23DC628618914A8C00E1DFE3 /* FunctionWrapper.hpp */,
 				237313F2188A962A0052054E /* PyObjCBridge.h */,
 				237313F4188A96EF0052054E /* PyObjCBridge.m */,
 				23DC627A189136CD00E1DFE3 /* Builders.hpp */,
@@ -937,6 +935,8 @@
 		237313F6188AAD7E0052054E /* _gui.so */ = {
 			isa = PBXGroup;
 			children = (
+				236EC2D018A7A64F001E18D6 /* FunctionWrapper.cpp */,
+				236EC2D118A7A64F001E18D6 /* FunctionWrapper.hpp */,
 				23731408188AAE830052054E /* PythonInterface.cpp */,
 				2373140A188AAFB90052054E /* GuiObject.hpp */,
 				2373140E188AB3F60052054E /* GuiObject.cpp */,
@@ -1283,7 +1283,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23DC628818914A8C00E1DFE3 /* FunctionWrapper.hpp in Headers */,
 				23DC626E188E719B00E1DFE3 /* ListControl.hpp in Headers */,
 				237313E31889642A0052054E /* AppDelegate.h in Headers */,
 				23DC6279188EA46A00E1DFE3 /* ControlWithChilds.hpp in Headers */,
@@ -1302,6 +1301,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				236EC2D318A7A64F001E18D6 /* FunctionWrapper.hpp in Headers */,
 				2373140B188AAFB90052054E /* GuiObject.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1700,7 +1700,6 @@
 			files = (
 				23DC6277188E73A100E1DFE3 /* TableViewDelegate.m in Sources */,
 				23DC626F188E719B00E1DFE3 /* ListControl.mm in Sources */,
-				23DC628718914A8C00E1DFE3 /* FunctionWrapper.cpp in Sources */,
 				23DC628C1891B40000E1DFE3 /* OneLineTextControl.mm in Sources */,
 				23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */,
 				23DC6275188E73A100E1DFE3 /* NSFlippedView.m in Sources */,
@@ -1720,6 +1719,7 @@
 			files = (
 				2373140F188AB3F60052054E /* GuiObject.cpp in Sources */,
 				23731409188AAE830052054E /* PythonInterface.cpp in Sources */,
+				236EC2D218A7A64F001E18D6 /* FunctionWrapper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
