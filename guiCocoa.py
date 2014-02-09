@@ -82,16 +82,14 @@ def setupAppleMenu():
 	AppKit.NSApp.setMainMenu_(mainMenu)
 
 def setupAfterAppFinishedLaunching():
-	from State import modules
-	for m in modules: m.start()
+	import gui
+	gui._initPre()
 
 	setupAppleMenu()
 	setupMainWindow()
 	AppKit.NSApp.updateWindows()
 
-	import main
-	main.successStartup = True
-	print "setupAfterAppFinishedLaunching ready"
+	gui._initPost()
 
 def handleApplicationQuit():
 	from State import modules
