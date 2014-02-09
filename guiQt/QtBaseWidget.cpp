@@ -16,11 +16,10 @@ QtBaseWidget::~QtBaseWidget() {
 }
 
 QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget()) {
-	//this->QWidget(control->parent);
-	
-	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
-    self = [super initWithFrame:frame];
-    if(!self) return nil;
+
+	//NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
+    //self = [super initWithFrame:frame];
+    //if(!self) return nil;
 
 	{
 		PyScopedGIL gil;
@@ -28,10 +27,8 @@ QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentW
 		canHaveFocus = attrChain_bool_default(control->attr, "canHaveFocus", false);
 	}
 	
-	if(!controlRef) {
-		printf("Cocoa GuiObject: cannot create controlRef\n");
-		return nil;
-	}
+	if(!controlRef)
+		printf("QtBaseWidget: cannot create controlRef\n");
 
 	if(canHaveFocus)
 		this->setFocusPolicy(Qt::StrongFocus);
@@ -40,15 +37,13 @@ QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentW
 	
 	//if(canHaveFocus)
 	//	[self setDrawsBackground:YES];
-
-	return self;
 }
 
 PyQtGuiObject* QtBaseWidget::getControl() {
-	QtGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
+	PyQtGuiObject* control = (PyQtGuiObject*) PyWeakref_GET_OBJECT(controlRef);
 	if(!control) return NULL;
-	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		printf("Cocoa GuiObjectView: control is wrong type\n");
+	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
+		printf("QtBaseWidget: control is wrong type\n");
 		return NULL;
 	}
 	Py_INCREF(control);

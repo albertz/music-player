@@ -12,7 +12,7 @@
 #include "QtBaseWidget.hpp"
 
 struct QtListWidget : QtBaseWidget {
-	ListWidget(PyQtGuiObject* control);
+	QtListWidget(PyQtGuiObject* control);
 	virtual void childIter(ChildIterCallback);
 };
 
