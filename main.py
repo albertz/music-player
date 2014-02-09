@@ -116,12 +116,10 @@ def main():
 
 	if not appinfo.args.nogui:
 		import gui
-		try:
-			# This will overtake the main loop and raise SystemExit at its end.
-			gui.main()
-		except SystemExit:
-			raise
-	
+		# This will overtake the main loop and raise SystemExit at its end,
+		# or never return.
+		gui.main()
+
 	for m in modules: m.start()
 
 	global successStartup
