@@ -283,6 +283,26 @@ def handleApplicationQuit():
 	print "Bye!"
 
 
+# On Mac/Win/Linux, these are the windows.
+RootObjs = {}
+
+class RootObj:
+	obj = None
+	name = "Object"
+	priority = -10
+
+def registerRootObj(obj, name, priority):
+	desc = RootObj()
+	desc.obj = obj
+	desc.name = name
+	desc.priority = priority
+	RootObjs[name] = desc
+
+def iterRootObjs():
+	objs = list(RootObjs)
+	objs.sort(key=lambda o: o.priority)
+	return objs
+
 
 # This function is later supposed to give the right gui context
 # depending where we call it from. This can maybe be managed/set via
