@@ -302,7 +302,7 @@ def registerRootObj(obj, name, title=None, priority=-10):
 
 def iterRootObjs():
 	objs = list(RootObjs.values())
-	objs.sort(key=lambda o: o.priority)
+	objs.sort(key=lambda o: o.priority, reverse=True)
 	return objs
 
 
