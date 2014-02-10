@@ -125,7 +125,9 @@ guiQt_main(PyObject* self) {
 	
 	int ret = 0;
 	Py_BEGIN_ALLOW_THREADS
-	QtApp app;
+	// Keep it static. Noone should access it when we return
+	// from here, but I like to be safe anyway.
+	static QtApp app;
 	
 	{
 		PyScopedGIL gil;	
