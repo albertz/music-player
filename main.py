@@ -114,13 +114,20 @@ def main():
 	# dummy functions where appropriate.
 	import gui
 
+	# Import some core modules. They propagate themselves to other
+	# subsystems, like GUI.
+	import State
+	import Preferences
+
 	if not appinfo.args.nogui:
 		# This will overtake the main loop and raise SystemExit at its end,
 		# or never return.
 		gui.main()
 
-	from State import state, modules
+	# We have no GUI. Continue with some simple console control handling.
 	import stdinconsole
+	modules = State.modules
+	state = State.state
 
 	for m in modules: m.start()
 
