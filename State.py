@@ -217,3 +217,24 @@ def reloadModules():
 	# reload all our modules
 	for m in modules:
 		m.reload()
+
+
+
+class About(object):
+	@UserAttrib(type=Traits.OneLineText)
+	def appname(self):
+		import appinfo
+		return appinfo.progname
+
+	@UserAttrib(type=Traits.OneLineText)
+	def developer(self):
+		return "by Albert Zeyer"
+
+	@UserAttrib(type=Traits.Action, name="Homepage")
+	def homepage(self):
+		import gui
+		gui.about()
+
+about = About()
+gui.registerRootObj(obj=about, name="About", priority=-9)
+
