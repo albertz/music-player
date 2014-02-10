@@ -7,9 +7,10 @@
 from utils import *
 import Traits
 from Song import Song
-
 from collections import deque
 from threading import RLock
+import appinfo
+import gui
 
 class RecentlyplayedList(object):
 	GuiLimit = 5
@@ -175,6 +176,9 @@ try:
 except NameError:
 	state = State()
 
+gui.registerRootObj(obj=state, name="Main", title=appinfo.progname, priority=0)
+
+
 try:
 	modules
 except NameError:
@@ -202,8 +206,6 @@ for modname in [
 	if not getModule(modname):
 		modules.append(Module(modname))
 
-for m in modules:
-	print m
 
 def reloadModules():
 	# reload some custom random Python modules

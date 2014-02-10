@@ -289,12 +289,14 @@ RootObjs = {}
 class RootObj:
 	obj = None
 	name = "Object"
+	title = "Object"
 	priority = -10
 
-def registerRootObj(obj, name, priority):
+def registerRootObj(obj, name, title=None, priority=-10):
 	desc = RootObj()
 	desc.obj = obj
 	desc.name = name
+	desc.title = title or name
 	desc.priority = priority
 	RootObjs[name] = desc
 

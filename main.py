@@ -99,7 +99,6 @@ def main():
 		print "Error while importing AppKit"
 		sys.excepthook(*sys.exc_info())
 
-
 	# Import core module here. This is mostly as an early error check.
 	try:
 		import musicplayer
@@ -110,15 +109,18 @@ def main():
 		pprint(os.environ)
 		raise
 
-
-	from State import state, modules
-	import stdinconsole
+	# Import gui module here. Again, mostly as an early error check.
+	# If there is no gui, the module should still load and provide
+	# dummy functions where appropriate.
+	import gui
 
 	if not appinfo.args.nogui:
-		import gui
 		# This will overtake the main loop and raise SystemExit at its end,
 		# or never return.
 		gui.main()
+
+	from State import state, modules
+	import stdinconsole
 
 	for m in modules: m.start()
 
