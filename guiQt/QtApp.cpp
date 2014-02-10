@@ -48,6 +48,6 @@ void QtApp::openWindowViaMenu() {
 		return;
 	}
 
-	QAction* act = qobject_cast<QAction*>(sender);
+	QAction* act = qobject_cast<QAction*>(sender());
 	printf("window: %s\n", act->objectName().toUtf8().constData());
 }
