@@ -49,5 +49,22 @@ void QtApp::openWindowViaMenu() {
 	}
 
 	QAction* act = qobject_cast<QAction*>(sender());
-	printf("window: %s\n", act->objectName().toUtf8().constData());
+	if(!act) {
+		printf("QtApp::openWindowViaMenu: sender is not QAction\n");
+		return;
+	}
+	if(act->objectName().isEmpty()) {
+		printf("QtApp::openWindowViaMenu: sender name is empty\n");
+		return;
+	}
+	
+	openWindow(act->objectName().toStdString());
+}
+
+void QtApp::openMainWindow() {
+	openWindow("Main");
+}
+
+void QtApp::openWindow(const std::string& name) {
+	
 }

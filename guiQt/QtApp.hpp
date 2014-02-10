@@ -33,7 +33,9 @@ private slots:
 	void handleApplicationQuit();
 	
 public slots:
-	void openWindowViaMenu();
+	void openWindowViaMenu(); // gets window from sender()
+	void openMainWindow();
+	void openWindow(const std::string& name);
 	
 };
 
