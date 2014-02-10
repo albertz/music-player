@@ -143,3 +143,5 @@ class Preferences(object):
 
 prefs = Preferences()
 
+import gui
+gui.registerRootObj(obj=prefs, name="Preferences", priority=-5)
