@@ -2,6 +2,7 @@
 #include "QtApp.hpp"
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
+#include <QAction>
 
 // Dummy vars for QApplication.
 // Note that the App construction is late at init. The Python code
@@ -39,4 +40,14 @@ void QtApp::handleApplicationQuit() {
 	PyObject* ret = PyObject_CallMethod(guiMod, (char*)"handleApplicationQuit", NULL);
 	if(!ret && PyErr_Occurred()) PyErr_Print();
 	Py_XDECREF(ret);
+}
+
+void QtApp::openWindowViaMenu() {
+	if(sender() == NULL) {
+		printf("QtApp::openWindowViaMenu: no sender\n");
+		return;
+	}
+
+	QAction* act = qobject_cast<QAction*>(sender);
+	printf("window: %s\n", act->objectName().toUtf8().constData());
 }

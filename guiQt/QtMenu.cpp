@@ -1,6 +1,7 @@
 
 
 #include "QtMenu.hpp"
+#include "QtApp.hpp"
 #include <QMenuBar>
 
 QMenuBar* mainMenuBar = NULL;
@@ -12,9 +13,16 @@ void setupMenu() {
 	mainMenuBar = new QMenuBar(0);
 	QMenuBar* menu = mainMenuBar;
 	
-	QMenu* m = menu->addMenu("Window");
+	QMenu* m;
+	QAction* act;
+	//m = menu->addMenu("Edit");
+	
+	m = menu->addMenu("Window");
+	act = m->addAction("Main window", QtApp::instance(), SLOT(openWindowViaMenu()));
+	
+	//act->
 	//m->addAction();
-
-
+	
+	
 	// TODO...
 }

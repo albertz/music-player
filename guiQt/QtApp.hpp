@@ -33,7 +33,7 @@ private slots:
 	void handleApplicationQuit();
 	
 public slots:
-	//void aboutWindow();
+	void openWindowViaMenu();
 	
 };
 
