@@ -286,19 +286,40 @@ def handleApplicationQuit():
 # On Mac/Win/Linux, these are the windows.
 RootObjs = {}
 
-class RootObj:
+class RootObj(object):
 	obj = None
 	name = "Object"
-	title = "Object"
+	title = None
 	priority = -10
 
-def registerRootObj(obj, name, title=None, priority=-10):
-	desc = RootObj()
-	desc.obj = obj
-	desc.name = name
-	desc.title = title or name
-	desc.priority = priority
-	RootObjs[name] = desc
+	def __init__(self, **kwargs):
+		for key, value in kwargs.items():
+			if not hasattr(self, key): raise AttributeError, "%s invalid" % key
+			if key.startswith("_"): raise AttributeError, "%s is read-only" % key
+			setattr(self, key, value)
+		if self.title is None: self.title = self.name
+		if self.__class__ is RootObj and self.obj is None:
+			raise AttributeError, "obj must be set"
+
+def registerRootObj(**kwargs):
+	desc = RootObj(**kwargs)
+	RootObjs[desc.name] = desc
+
+class CtxRootObj(RootObj):
+	clazz = None
+
+	@property
+	def obj(self):
+		c = ctx()
+		if self.name in c.rootObjs:
+			return c.rootObjs[self.name]
+		obj = self.clazz(ctx=c)
+		c.rootObjs[self.name] = obj
+		return obj
+
+def registerCtxRootObj(**kwargs):
+	desc = CtxRootObj(**kwargs)
+	RootObjs[desc.name] = desc
 
 def iterRootObjs():
 	objs = list(RootObjs.values())
@@ -317,6 +338,10 @@ def ctx():
 	if _ctx: return _ctx
 	from utils import Event, initBy
 	class Ctx(object):
+		# context-based root objects. via registerCtxRootObj()
+		@initBy
+		def rootObjs(self): return {}
+
 		@property
 		def curSelectedSong(self):
 			song = getattr(self, "_curSelectedSong", None)

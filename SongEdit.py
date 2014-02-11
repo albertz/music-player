@@ -7,6 +7,7 @@
 import utils
 from utils import UserAttrib, Event, initBy
 import Traits
+import gui
 
 # Note: I'm not too happy with all the complicated update handling here...
 # In general, the design is ok. But it needs some more specification
@@ -197,3 +198,5 @@ class SongEdit:
 			setattr(self.song, key, sel[key])
 		self._updateEvent.push() # the song is updating itself - but the edit fields aren't atm...
 
+
+gui.registerCtxRootObj(clazz=SongEdit, name="SongEdit", title="Song edit", priority=-2)

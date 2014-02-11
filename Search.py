@@ -8,6 +8,7 @@ import utils, math
 from utils import UserAttrib, initBy, Event, formatTime
 import Traits
 import songdb
+import gui
 
 class Search:
 	Keys = ("artist", "title", "duration", "rating")
@@ -51,3 +52,5 @@ class Search:
 	def searchResults_updateEvent(self): return Event()
 	
 search = Search()
+
+gui.registerRootObj(obj=search, name="Search", priority=-1)
