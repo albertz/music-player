@@ -71,11 +71,13 @@ void QtApp::openWindow(const std::string& name) {
 }
 
 void QtApp::minimizeWindow() {
-	
+	QWidget* win = qApp->activeWindow();
+	if(win) win->showMinimized();
 }
 
 void QtApp::closeWindow() {
-
+	QWidget* win = qApp->activeWindow();
+	if(win) win->close();
 }
 
 void QtApp::edit_cut() {
