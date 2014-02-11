@@ -67,7 +67,9 @@ void QtApp::openMainWindow() {
 }
 
 void QtApp::openWindow(const std::string& name) {
-	
+	QWidget* win = new QWidget();
+	win->setWindowTitle(name);
+	// ...
 }
 
 void QtApp::minimizeWindow() {
