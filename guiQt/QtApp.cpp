@@ -1,5 +1,6 @@
 
 #include "QtApp.hpp"
+#include "QtMenu.hpp"
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
 #include <QAction>
@@ -86,10 +87,53 @@ void QtApp::edit_selectAll() {
 	
 }
 
+void QtApp::handlePlayerUpdate() {
+	updateControlMenu();
+}
+
 void QtApp::playPause() {
+	PyScopedGIL gil;
+	PyObject* mod = getModule("State"); // borrowed
+	if(!mod) return;
+
+	PyObject* player = NULL;
+	PyObject* playing = NULL;
+	bool playingBool = false;
 	
+	player = attrChain(mod, "state.player");
+	if(!player) goto final;
+
+	playing = PyObject_GetAttrString(player, "playing");
+	if(!playing) goto final;
+	
+	switch(PyObject_IsTrue(playing)) {
+	case 1: playingBool = true; break;
+	case 0: playingBool = false; break;
+	default: goto final;
+	}
+	
+	playingBool = !playingBool;
+	PyObject_SetAttrString_retain(player, "playing", PyBool_FromLong(playingBool));
+
+final:
+	if(PyErr_Occurred()) PyErr_Print();
+	Py_XDECREF(player);
+	Py_XDECREF(playing);
 }
 
 void QtApp::nextSong() {
+	PyScopedGIL gil;
+	PyObject* mod = getModule("State"); // borrowed
+	if(!mod) return;
+
+	PyObject* player = NULL;
+	PyObject* ret = NULL;
 	
+	player = attrChain(mod, "state.player");
+	ret = PyObject_CallMethod(player, "nextSong", NULL);
+
+final:
+	if(PyErr_Occurred()) PyErr_Print();
+	Py_XDECREF(player);
+	Py_XDECREF(ret);
 }

@@ -6,6 +6,7 @@
 #include "PythonHelpers.h"
 #include "PyUtils.h"
 #include <QMenuBar>
+#include <QPointer>
 
 QMenuBar* mainMenuBar = NULL;
 
@@ -54,15 +55,26 @@ static void iterRootObjs(QMenu* parent) {
 	if(PyErr_Occurred()) PyErr_Print();
 }
 
+static QPointer<QMenu> controlMenu;
+static QAction* control_song;
+static QAction* control_playPause;
+static QAction* control_nextSong;
+
 void setupControlMenu(QMenu* m) {
-	m->addAction("no song yet");
-	m->addAction("Play", QtApp::instance(), SLOT(playPause()));
-	m->addAction("Next song", QtApp::instance(), SLOT(nextSong()));
+	controlMenu = m;
+	control_song = m->addAction("no song yet");
+	control_playPause= m->addAction("Play", QtApp::instance(), SLOT(playPause()));
+	control_nextSong = m->addAction("Next song", QtApp::instance(), SLOT(nextSong()));
 	
 #ifdef __APPLE__
 	extern void qt_mac_set_dock_menu(QMenu *);
 	qt_mac_set_dock_menu(m);
 #endif
+}
+
+void updateControlMenu() {
+	if(!controlMenu) return;
+	
 }
 
 void setupMenu() {

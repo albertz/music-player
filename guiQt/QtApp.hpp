@@ -42,6 +42,7 @@ public slots:
 	void edit_paste();
 	void edit_selectAll();
 
+	void handlePlayerUpdate(); // basically song-change and play-pause-change
 	void playPause();
 	void nextSong();
 	
