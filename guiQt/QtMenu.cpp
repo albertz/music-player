@@ -109,6 +109,12 @@ void setupMenu() {
 	
 	m = menu->addMenu("Window");
 	iterRootObjs(m);
+#ifdef __APPLE__
+	// I think this only makes sense on OSX, right?
+	m->addSeparator();
+	m->addAction("Minimize window", QtApp::instance(), SLOT(minimizeWindow()), QKeySequence("Ctrl+m"));
+	m->addAction("Close window", QtApp::instance(), SLOT(closeWindow()), QKeySequence("Ctrl+w"));
+#endif
 	
 	m = menu->addMenu("Control");
 	setupControlMenu(m);

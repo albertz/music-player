@@ -70,6 +70,14 @@ void QtApp::openWindow(const std::string& name) {
 	
 }
 
+void QtApp::minimizeWindow() {
+	
+}
+
+void QtApp::closeWindow() {
+
+}
+
 void QtApp::edit_cut() {
 	QWidget* w = QApplication::focusWidget();
 	//...

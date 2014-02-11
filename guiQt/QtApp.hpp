@@ -36,7 +36,9 @@ public slots:
 	void openWindowViaMenu(); // gets window from sender()
 	void openMainWindow();
 	void openWindow(const std::string& name);
-	
+	void minimizeWindow();
+	void closeWindow();
+
 	void edit_cut();
 	void edit_copy();
 	void edit_paste();
