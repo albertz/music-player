@@ -38,12 +38,25 @@ static void iterRootObjs(QMenu* parent) {
 		PyObject* nameObj = PyObject_GetAttrString(item, "name");
 		std::string name;
 		if(!nameObj || !pyStr(nameObj, name)) {
-			printf("Qt iterRootObjs: cannot get name\n");
 			if(PyErr_Occurred()) PyErr_Print();			
 		}
-		else {
+		PyObject* keyShortcutObj = PyObject_GetAttrString(item, "keyShortcut");
+		std::string keyShortcut;
+		if(!keyShortcutObj) {
+			if(PyErr_Occurred()) PyErr_Print();			
+		}
+		else if(keyShortcutObj != Py_None && !pyStr(keyShortcutObj, keyShortcut)) {
+			if(PyErr_Occurred()) PyErr_Print();			
+		}
+		
+		if(!name.empty()) {
 			QAction* act = parent->addAction(QString::fromStdString(name + " window"), QtApp::instance(), SLOT(openWindowViaMenu()));
-			if(act) act->setObjectName(QString::fromStdString(name));
+			if(act) {
+				act->setObjectName(QString::fromStdString(name));
+				if(!keyShortcut.empty())
+					// Note: On OSX, "ctrl" -> cmd, "meta" -> ctrl
+					act->setShortcut(QKeySequence(QString::fromStdString("Ctrl+" + keyShortcut)));
+			}
 		}
 		Py_XDECREF(nameObj);
 	    Py_DECREF(item);
