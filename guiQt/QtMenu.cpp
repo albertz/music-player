@@ -19,7 +19,7 @@ static void iterRootObjs(QMenu* parent) {
 		return;
 	}
 	
-	PyObject* rootObjs = PyObject_CallMethod(guiMod, "iterRootObjs", NULL);
+	PyObject* rootObjs = PyObject_CallMethod(guiMod, (char*)"iterRootObjs", NULL);
 	if(!rootObjs) {
 		printf("gui.iterRootObjs failed\n");
 		if(PyErr_Occurred()) PyErr_Print();
@@ -74,7 +74,8 @@ void setupControlMenu(QMenu* m) {
 
 void updateControlMenu() {
 	if(!controlMenu) return;
-	
+
+	// TODO...	
 }
 
 void setupMenu() {
@@ -85,7 +86,6 @@ void setupMenu() {
 	QMenuBar* menu = mainMenuBar;
 	
 	QMenu* m;
-	QAction* act;
 	
 	// http://stackoverflow.com/questions/21701694/how-to-create-edit-menu-in-qt-esp-macosx
 	m = menu->addMenu("Edit");	
