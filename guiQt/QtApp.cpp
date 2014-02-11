@@ -23,6 +23,7 @@ QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 
 	this->setOrganizationName("Albert Zeyer");
 	this->setApplicationName("MusicPlayer");
+	this->setQuitOnLastWindowClosed(false);
 	
 	connect(this, SIGNAL(aboutToQuit()), this, SLOT(handleApplicationQuit()));
 }
