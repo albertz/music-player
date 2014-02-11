@@ -119,10 +119,7 @@ void setupMenu() {
 	m = menu->addMenu("Control");
 	setupControlMenu(m);
 	
-	//act->
-	//m->addAction();
-	
-	
-	// TODO...
+	m = menu->addMenu("Debug");
+	m->addAction("reset player", QtApp::instance(), SLOT(debug_resetPlayer()));	
 }
 

@@ -48,6 +48,7 @@ public slots:
 	void playPause();
 	void nextSong();
 	
+	void debug_resetPlayer();
 };
 
 // WARNING: Python GIL must not be held when calling this.

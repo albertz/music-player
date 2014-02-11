@@ -145,3 +145,7 @@ final:
 	Py_XDECREF(player);
 	Py_XDECREF(ret);
 }
+
+void QtApp::debug_resetPlayer() {
+	
+}
