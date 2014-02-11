@@ -37,6 +37,14 @@ public slots:
 	void openMainWindow();
 	void openWindow(const std::string& name);
 	
+	void edit_cut();
+	void edit_copy();
+	void edit_paste();
+	void edit_selectAll();
+
+	void playPause();
+	void nextSong();
+	
 };
 
 // WARNING: Python GIL must not be held when calling this.

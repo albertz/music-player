@@ -68,3 +68,28 @@ void QtApp::openMainWindow() {
 void QtApp::openWindow(const std::string& name) {
 	
 }
+
+void QtApp::edit_cut() {
+	QWidget* w = QApplication::focusWidget();
+	//...
+}
+
+void QtApp::edit_copy() {
+	
+}
+
+void QtApp::edit_paste() {
+	
+}
+
+void QtApp::edit_selectAll() {
+	
+}
+
+void QtApp::playPause() {
+	
+}
+
+void QtApp::nextSong() {
+	
+}

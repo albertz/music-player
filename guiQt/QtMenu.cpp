@@ -54,6 +54,17 @@ static void iterRootObjs(QMenu* parent) {
 	if(PyErr_Occurred()) PyErr_Print();
 }
 
+void setupControlMenu(QMenu* m) {
+	m->addAction("no song yet");
+	m->addAction("Play", QtApp::instance(), SLOT(playPause()));
+	m->addAction("Next song", QtApp::instance(), SLOT(nextSong()));
+	
+#ifdef __APPLE__
+	extern void qt_mac_set_dock_menu(QMenu *);
+	qt_mac_set_dock_menu(m);
+#endif
+}
+
 void setupMenu() {
 	// http://qt-project.org/doc/qt-4.8/qmenubar.html#QMenuBar
 	// I guess it's Mac specific to create the menu bar this way.
@@ -63,10 +74,19 @@ void setupMenu() {
 	
 	QMenu* m;
 	QAction* act;
-	//m = menu->addMenu("Edit");
+	
+	// http://stackoverflow.com/questions/21701694/how-to-create-edit-menu-in-qt-esp-macosx
+	m = menu->addMenu("Edit");	
+	m->addAction("Cut", QtApp::instance(), SLOT(edit_cut()), QKeySequence::Cut);
+	m->addAction("Copy", QtApp::instance(), SLOT(edit_copy()), QKeySequence::Copy);
+	m->addAction("Paste", QtApp::instance(), SLOT(edit_paste()), QKeySequence::Paste);
+	m->addAction("Select all", QtApp::instance(), SLOT(edit_selectAll()), QKeySequence::SelectAll);
 	
 	m = menu->addMenu("Window");
 	iterRootObjs(m);
+	
+	m = menu->addMenu("Control");
+	setupControlMenu(m);
 	
 	//act->
 	//m->addAction();
@@ -74,3 +94,4 @@ void setupMenu() {
 	
 	// TODO...
 }
+
