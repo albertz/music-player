@@ -176,7 +176,7 @@ try:
 except NameError:
 	state = State()
 
-gui.registerRootObj(obj=state, name="Main", title=appinfo.progname, priority=0)
+gui.registerRootObj(obj=state, name="Main", title=appinfo.progname, priority=0, keyShortcut='1')
 
 
 try:

@@ -291,6 +291,7 @@ class RootObj(object):
 	name = "Object"
 	title = None
 	priority = -10
+	keyShortcut = None
 
 	def __init__(self, **kwargs):
 		for key, value in kwargs.items():

@@ -53,4 +53,4 @@ class Search:
 	
 search = Search()
 
-gui.registerRootObj(obj=search, name="Search", priority=-1)
+gui.registerRootObj(obj=search, name="Search", priority=-1, keyShortcut='2')

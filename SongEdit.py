@@ -199,4 +199,4 @@ class SongEdit:
 		self._updateEvent.push() # the song is updating itself - but the edit fields aren't atm...
 
 
-gui.registerCtxRootObj(clazz=SongEdit, name="Song edit", priority=-2)
+gui.registerCtxRootObj(clazz=SongEdit, name="Song edit", priority=-2, keyShortcut='i')
