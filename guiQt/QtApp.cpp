@@ -4,6 +4,7 @@
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
 #include <QAction>
+#include <QTextCodec>
 
 // Dummy vars for QApplication.
 // Note that the App construction is late at init. The Python code
@@ -21,6 +22,11 @@ QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 		genericExec_method = this->metaObject()->method(methodIndex);
 	}
 
+#if QT_VERSION < 0x050000
+	// This only exists in Qt4. Afaik, Qt5 uses utf8 by default.
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf8"));
+#endif
+	
 	this->setOrganizationName("Albert Zeyer");
 	this->setApplicationName("MusicPlayer");
 	this->setQuitOnLastWindowClosed(false);

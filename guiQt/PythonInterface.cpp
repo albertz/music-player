@@ -11,7 +11,6 @@
 #include "Builders.hpp"
 #include "FunctionWrapper.hpp"
 #include "QtMenu.hpp"
-#include <QTextCodec>
 
 
 static PyObject* QtGuiObject_alloc(PyTypeObject *type, Py_ssize_t nitems) {
@@ -130,11 +129,6 @@ guiQt_main(PyObject* self) {
 	// from here, but I like to be safe anyway.
 	static QtApp app;
 	
-#if QT_VERSION < 0x050000
-	// This only exists in Qt4. Afaik, Qt5 uses utf8 by default.
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf8"));
-#endif
-
 	{
 		PyScopedGIL gil;	
 		PyObject* init1 = PyObject_CallMethod(guiMod, "_initPre", NULL);
