@@ -116,8 +116,11 @@ def main():
 
 	# Import some core modules. They propagate themselves to other
 	# subsystems, like GUI.
+	# XXX: Maybe move all this to `State` module?
 	import State
 	import Preferences
+	import Search
+	import SongEdit
 
 	if not appinfo.args.nogui:
 		# This will overtake the main loop and raise SystemExit at its end,
