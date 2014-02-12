@@ -38,6 +38,4 @@ bool _buildControlObject_post(PyQtGuiObject* control);
 QColor backgroundColor(PyQtGuiObject* control);
 QColor foregroundColor(PyQtGuiObject* control);
 
-void setupMainWindow();
-
 #endif

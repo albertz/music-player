@@ -137,7 +137,7 @@ guiQt_main(PyObject* self) {
 	}
 	
 	setupMenu();
-	setupMainWindow();
+	app.openMainWindow();
 	
 	{	
 		PyScopedGIL gil;	
