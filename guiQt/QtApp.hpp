@@ -7,14 +7,16 @@
 #include <boost/function.hpp>
 #include <assert.h>
 
+
 class QtApp : public QApplication
 {
 	Q_OBJECT
-		
+	
 public:
 	QtApp();
 	
 	inline static QtApp* instance() { return (QtApp*) qApp; }
+	static bool isFork(); // checked via pid
 	
 signals:
 	

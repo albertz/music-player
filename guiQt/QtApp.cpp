@@ -7,6 +7,8 @@
 #include "QtBaseWidget.hpp"
 #include <QAction>
 #include <QTextCodec>
+#include <sys/types.h>
+#include <unistd.h>
 
 // Dummy vars for QApplication.
 // Note that the App construction is late at init. The Python code
@@ -15,6 +17,8 @@
 // like "--qtargs" and pass those here.
 static int dummy_argc = 1;
 static char* dummy_argv[] = {(char*)"musicplayer", NULL};
+
+static pid_t qtApp_pid;
 
 QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 	{
@@ -29,11 +33,17 @@ QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf8"));
 #endif
 	
+	qtApp_pid = getpid();
+	
 	this->setOrganizationName("Albert Zeyer");
 	this->setApplicationName("MusicPlayer");
 	this->setQuitOnLastWindowClosed(false);
 	
 	connect(this, SIGNAL(aboutToQuit()), this, SLOT(handleApplicationQuit()));
+}
+
+bool QtApp::isFork() {
+	return qtApp_pid != getpid();
 }
 
 void QtApp::handleApplicationQuit() {

@@ -105,9 +105,13 @@ static void imp_meth_updateContent(GuiObject* obj) {
 
 // Called *with* the Python GIL.
 static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* child, bool& stop)> callback) {
+	if(QtApp::isFork())
+		// I think there is no safe way in a fork to do this.
+		// Thus just skip it.
+		return;
+		
 	// We can only access the widget from the main thread, thus this becomes a bit
 	// more complicated.
-	
 	PyScopedGIUnlock unlock;
 	execInMainThread_sync([&]() {
 		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
