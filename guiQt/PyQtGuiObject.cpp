@@ -99,7 +99,7 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 	}
 	
 	execInMainThread_sync([&]() {
-		QtBaseWidget* childWidget = ((PyQtGuiObject*) child)->widget;
+		auto childWidget = ((PyQtGuiObject*) child)->widget;
 		((PyQtGuiObject*) obj)->addChild(childWidget);
 	});
 }
@@ -142,15 +142,16 @@ QtBaseWidget* PyQtGuiObject::getParentWidget() {
 	return NULL;
 }
 
-void PyQtGuiObject::addChild(QtBaseWidget* child) {
+void PyQtGuiObject::addChild(QPointer<QtBaseWidget> child) {
 	if(QtApp::isFork()) {
 		printf("PyQtGuiObject::addChild called in fork\n");
 		return;
 	}
-	
+		
 	// Must not have the Python GIL.
 	execInMainThread_sync([&]() {
 		if(!widget) return;
+		if(!child) return;
 		child->setParent(widget);
 	});
 }
