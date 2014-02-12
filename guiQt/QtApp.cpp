@@ -133,6 +133,7 @@ void QtApp::openWindow(const std::string& name) {
 	
 	QtBaseWidget* win = new QtBaseWidget(control);
 	win->setWindowTitle(QString::fromStdString(name));
+	win->setAttribute(Qt::WA_DeleteOnClose);
 	
 	assert(control->root == NULL);
 	control->root = control;
