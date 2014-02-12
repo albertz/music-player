@@ -116,12 +116,17 @@ void QtApp::openWindow(const std::string& name) {
 		}
 	}
 	
-	if(!control)
-		control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
 	if(!control) {
-		if(PyErr_Occurred()) PyErr_Print();
-		Py_DECREF(rootObj);
-		return;
+		control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
+		if(!control) {
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_DECREF(rootObj);
+			return;
+		}
+
+		assert(control->root == NULL);
+		control->root = control;
+		Py_XINCREF(control->root);		
 	}
 	
 	if(PyObject_SetAttrString(rootObj, "guiObj", (PyObject*) control) < 0) {
@@ -132,13 +137,9 @@ void QtApp::openWindow(const std::string& name) {
 	}
 	
 	QtBaseWidget* win = new QtBaseWidget(control);
-	win->setWindowTitle(QString::fromStdString(name));
-	win->setAttribute(Qt::WA_DeleteOnClose);
-	
-	assert(control->root == NULL);
-	control->root = control;
-	Py_XINCREF(control->root);		
 	control->widget = win;
+	win->setWindowTitle(QString::fromStdString(name));
+	win->setAttribute(Qt::WA_DeleteOnClose);	
 	
 	Vec size = control->setupChilds();
 	win->setMinimumSize(size.x, size.y);
