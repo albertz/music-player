@@ -3,6 +3,8 @@
 #include "QtMenu.hpp"
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
+#include "PyQtGuiObject.hpp"
+#include "QtBaseWidget.hpp"
 #include <QAction>
 #include <QTextCodec>
 
@@ -74,11 +76,68 @@ void QtApp::openMainWindow() {
 }
 
 void QtApp::openWindow(const std::string& name) {
-	QWidget* win = new QWidget();
+	PyScopedGIL gil;
+
+	PyObject* rootObj = handleModuleCommand("gui", "RootObjs.__getitem__", "(s)", name.c_str());
+	if(!rootObj) return; // Python errs already handled in handleModuleCommand
+	
+	PyQtGuiObject* control = NULL;
+	control = (PyQtGuiObject*) PyObject_GetAttrString(rootObj, "guiObj");
+	if(!control) {
+		if(PyErr_Occurred()) PyErr_Print();
+		Py_DECREF(rootObj);
+		return;		
+	}
+	
+	if((PyObject*) control == Py_None) Py_CLEAR(control);
+	if(control) {
+		if(PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
+			QtBaseWidget* win = control->widget;
+			if(win) {
+				win->show();
+				return;
+			}
+			// continue with existing control but create new window
+		}
+		else {
+			printf("Qt open window: existing rootObj.guiObj is of wrong type\n");
+			// reset and continue with new control creation
+			Py_CLEAR(control);			
+		}
+	}
+	
+	if(!control)
+		control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
+	if(!control) {
+		if(PyErr_Occurred()) PyErr_Print();
+		Py_DECREF(rootObj);
+		return;
+	}
+	
+	if(PyObject_SetAttrString(rootObj, "guiObj", (PyObject*) control) < 0) {
+		if(PyErr_Occurred()) PyErr_Print();
+		Py_DECREF(rootObj);
+		Py_DECREF(control);
+		return;		
+	}
+	
+	QtBaseWidget* win = new QtBaseWidget(control);
 	win->setWindowTitle(QString::fromStdString(name));
+	
+	assert(control->root == NULL);
+	control->root = control;
+	Py_XINCREF(control->root);		
+	control->widget = win;
+	
+	Vec size = control->setupChilds();
+	win->setMinimumSize(size.x, size.y);
+
 	// ...
 	
 	win->show();
+	
+	Py_DECREF(rootObj);
+	Py_DECREF(control);
 }
 
 void QtApp::minimizeWindow() {
