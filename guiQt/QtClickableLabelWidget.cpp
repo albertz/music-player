@@ -1,15 +1,17 @@
 //
-//  ClickableLabelControl.mm
+//  QtClickableLabelWidget.cpp
 //  MusicPlayer
 //
 //  Created by Albert Zeyer on 24.01.14.
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "QtClickableLabelWidget.hpp"
-#import "Builders.hpp"
+#include "QtClickableLabelWidget.hpp"
+#include "Builders.hpp"
 
 RegisterControl(ClickableLabel)
+
+QtClickableLabelWidget::QtClickableLabelWidget(PyQtGuiObject* control) : QtOneLineTextWidget(control) {}
 
 // TODO...
 #if 0

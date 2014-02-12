@@ -6,7 +6,10 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "QtObjectWidget.hpp"
+#include "QtObjectWidget.hpp"
+
+
+QtObjectWidget::QtObjectWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
 
 /*
 @implementation ObjectControlView

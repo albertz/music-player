@@ -13,6 +13,8 @@
 
 RegisterControl(OneLineText)
 
+QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
+
 // TODO...
 #if 0
 

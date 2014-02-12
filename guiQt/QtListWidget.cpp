@@ -15,6 +15,8 @@
 
 RegisterControl(List)
 
+QtListWidget::QtListWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
+
 // TODO...
 #if 0
 
