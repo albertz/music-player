@@ -288,6 +288,7 @@ RootObjs = {}
 
 class RootObj(object):
 	obj = None
+	guiObj = None
 	name = "Object"
 	title = None
 	priority = -10
@@ -310,13 +311,24 @@ class CtxRootObj(RootObj):
 	clazz = None
 
 	@property
-	def obj(self):
+	def _rootObj(self):
 		c = ctx()
 		if self.name in c.rootObjs:
 			return c.rootObjs[self.name]
 		obj = self.clazz(ctx=c)
-		c.rootObjs[self.name] = obj
-		return obj
+		attribs = dict([(key,getattr(self,key)) for key in dir(self) if not key.startswith("_")])
+		del attribs["obj"]
+		rootObj = RootObj(obj=obj, **attribs)
+		c.rootObjs[self.name] = rootObj
+		return rootObj
+
+	@property
+	def obj(self): return self._rootObj.obj
+
+	@property
+	def guiObj(self): return self._rootObj.guiObj
+	@guiObj.setter
+	def guiObj(self, value): self._rootObj.guiObj = value
 
 def registerCtxRootObj(**kwargs):
 	desc = CtxRootObj(**kwargs)
