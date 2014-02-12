@@ -2,6 +2,7 @@
 #include "QtApp.hpp"
 #include "QtMenu.hpp"
 #include "PythonHelpers.h"
+#include "PyUtils.h"
 #include "PyThreading.hpp"
 #include "PyQtGuiObject.hpp"
 #include "QtBaseWidget.hpp"
@@ -127,6 +128,14 @@ void QtApp::openWindow(const std::string& name) {
 		assert(control->root == NULL);
 		control->root = control;
 		Py_XINCREF(control->root);		
+		assert(control->subjectObject == NULL);
+		control->subjectObject = PyObject_GetAttrString(rootObj, "obj");
+		if(!control->subjectObject) {
+			if(PyErr_Occurred()) PyErr_Print();			
+			Py_DECREF(rootObj);
+			Py_DECREF(control);
+			return;
+		}
 	}
 	
 	if(PyObject_SetAttrString(rootObj, "guiObj", (PyObject*) control) < 0) {
@@ -136,10 +145,42 @@ void QtApp::openWindow(const std::string& name) {
 		return;		
 	}
 	
+	// check subjectObject
+	{
+		PyObject* subjectObject = PyObject_GetAttrString(rootObj, "obj");
+		if(!subjectObject) {
+			if(PyErr_Occurred()) PyErr_Print();
+			// continue, maybe it doesn't matter			
+		}
+		else {
+			if(subjectObject != control->subjectObject) {
+				printf("Qt open window: got new subject object\n");
+				// strange, but just overtake and continue
+				Py_CLEAR(control->subjectObject);
+				control->subjectObject = subjectObject;
+				subjectObject = NULL;
+			}
+		}
+		Py_XDECREF(subjectObject);
+	}
+	
 	QtBaseWidget* win = new QtBaseWidget(control);
 	control->widget = win;
-	win->setWindowTitle(QString::fromStdString(name));
 	win->setAttribute(Qt::WA_DeleteOnClose);	
+	
+	// set title
+	{
+		PyObject* title = PyObject_GetAttrString(rootObj, "title");
+		std::string titleStr;
+		if(!title || !pyStr(title, titleStr)) {
+			if(PyErr_Occurred()) PyErr_Print();			
+			win->setWindowTitle(QString::fromStdString(name));
+		}
+		else {			
+			win->setWindowTitle(QString::fromStdString(titleStr));
+		}
+		Py_XDECREF(title);
+	}
 	
 	Vec size = control->setupChilds();
 	win->setMinimumSize(size.x, size.y);
