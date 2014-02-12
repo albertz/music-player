@@ -277,10 +277,15 @@ guiQt_buildControl(PyObject* self, PyObject* args, PyObject* kws) {
 		return NULL;
 	}
 	
-	bool res = builderFunc(control);
-	if(!res)
-		// XXX: handle somehow? ...
-		printf("guiQt.buildControl: warning, returned error\n");
+	{
+		PyScopedGIUnlock gunlock;
+		execInMainThread_sync([&]() {
+			bool res = builderFunc(control);
+			if(!res)
+				// XXX: handle somehow? ...
+				printf("guiQt.buildControl: warning, returned error\n");		
+		});
+	}
 	
 	// forward control
 	return (PyObject*) control;

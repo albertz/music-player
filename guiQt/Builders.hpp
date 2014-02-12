@@ -14,6 +14,8 @@
 #include <string>
 #include <boost/function.hpp>
 
+// The builder functions don't expect to hold the GIL, but they
+// must be called in the main thread.
 typedef boost::function<bool(PyQtGuiObject*)> ControlBuilderFunc;
 void registerControlBuilder(const std::string& controlType, ControlBuilderFunc buildFunc);
 void iterControlTypes(boost::function<void(const std::string&, ControlBuilderFunc)> callback);
