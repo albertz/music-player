@@ -114,7 +114,11 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 		// I think there is no safe way in a fork to do this.
 		// Thus just skip it.
 		return;
-		
+	
+	// XXX: WARNING: If this is called with the Python global module-import lock,
+	// and the main thread in the meanwhile waits for the module-import lock,
+	// this is a deadlock!
+	
 	// We can only access the widget from the main thread, thus this becomes a bit
 	// more complicated.
 	PyScopedGIUnlock unlock;
