@@ -131,7 +131,7 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 QtBaseWidget* PyQtGuiObject::getParentWidget() {
 	if(QtApp::isFork()) {
 		printf("PyQtGuiObject::getParentWidget called in fork\n");
-		return;
+		return NULL;
 	}
 
 	assert(QApplication::instance()->thread() == QThread::currentThread());
