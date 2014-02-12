@@ -131,7 +131,7 @@ guiQt_main(PyObject* self) {
 	
 	{
 		PyScopedGIL gil;	
-		PyObject* init1 = PyObject_CallMethod(guiMod, "_initPre", NULL);
+		PyObject* init1 = PyObject_CallMethod(guiMod, (char*)"_initPre", NULL);
 		if(!init1) return NULL;
 		Py_DECREF(init1);
 	}
@@ -141,7 +141,7 @@ guiQt_main(PyObject* self) {
 	
 	{	
 		PyScopedGIL gil;	
-		PyObject* init2 = PyObject_CallMethod(guiMod, "_initPost", NULL);
+		PyObject* init2 = PyObject_CallMethod(guiMod, (char*)"_initPost", NULL);
 		if(!init2) return NULL;
 		Py_DECREF(init2);
 	}
