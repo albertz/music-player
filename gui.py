@@ -204,7 +204,8 @@ class _GuiObject:
 		x, y = self.OuterSpace
 		maxX, maxY = 0, 0
 		lastControl = None
-		
+
+		from utils import iterUserAttribs
 		for attr in iterUserAttribs(self.subjectObject):
 			control = buildControl(attr, self)
 			if not self.firstChildGuiObject:
