@@ -9,7 +9,7 @@
 typedef std::map<std::string, ControlBuilderFunc> ControlBuilders;
 // Must be lazily inited. Static-init will not work because we might access
 // it before it is static-inited.
-ControlBuilders* controlBuilders;
+static ControlBuilders* controlBuilders;
 
 void registerControlBuilder(const std::string& controlType, ControlBuilderFunc buildFunc) {
 	if(!controlBuilders) controlBuilders = new ControlBuilders;
@@ -17,20 +17,21 @@ void registerControlBuilder(const std::string& controlType, ControlBuilderFunc b
 }
 
 void iterControlTypes(boost::function<void(const std::string&, ControlBuilderFunc)> callback) {
+	assert(controlBuilders);
 	for(auto& pair : *controlBuilders) {
 		callback(pair.first, pair.second);
 	}
 }
 
 ControlBuilderFunc getControlBuilder(const std::string& controlType) {
-	assert(!controlBuilders);
+	assert(controlBuilders);
 	auto it = controlBuilders->find(controlType);
 	if(it == controlBuilders->end()) return NULL;
 	return it->second;	
 }
 
 bool buildControl(const std::string& controlType, PyQtGuiObject* control) {
-	assert(!controlBuilders);
+	assert(controlBuilders);
 	auto it = controlBuilders->find(controlType);
 	if(it == controlBuilders->end()) {
 		printf("Qt buildControl: %s type not found\n", controlType.c_str());

@@ -20,7 +20,7 @@ void iterControlTypes(boost::function<void(const std::string&, ControlBuilderFun
 ControlBuilderFunc getControlBuilder(const std::string& controlType);
 
 #define RegisterControl(type) \
-	struct _RegisterControl_ ## type { \
+	static struct _RegisterControl_ ## type { \
 		_RegisterControl_ ## type() { \
 			registerControlBuilder(#type, [](PyQtGuiObject* control) { \
 				QtBaseWidget* widget = new Qt ## type ## Widget(control); \
