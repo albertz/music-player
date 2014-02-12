@@ -13,6 +13,11 @@ RegisterControl(ClickableLabel)
 
 QtClickableLabelWidget::QtClickableLabelWidget(PyQtGuiObject* control) : QtOneLineTextWidget(control) {}
 
+PyObject* QtClickableLabelWidget::getTextObj() {
+	// TODO...
+	return NULL;
+}
+
 // TODO...
 #if 0
 @implementation ClickableLabelControlView

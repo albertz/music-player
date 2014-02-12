@@ -85,6 +85,11 @@ static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
 }
 
 static void imp_addChild(GuiObject* obj, GuiObject* child) {
+	if(QtApp::isFork()) {
+		printf("PyQtGuiObject::imp_addChild called in fork\n");
+		return;
+	}
+
 	{
 		PyScopedGIL gil;
 		if(!PyType_IsSubtype(Py_TYPE(child), &QtGuiObject_Type)) {
@@ -124,6 +129,11 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 }
 
 QtBaseWidget* PyQtGuiObject::getParentWidget() {
+	if(QtApp::isFork()) {
+		printf("PyQtGuiObject::getParentWidget called in fork\n");
+		return;
+	}
+
 	assert(QApplication::instance()->thread() == QThread::currentThread());
 	PyScopedGIL gil;
 	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
@@ -133,6 +143,11 @@ QtBaseWidget* PyQtGuiObject::getParentWidget() {
 }
 
 void PyQtGuiObject::addChild(QtBaseWidget* child) {
+	if(QtApp::isFork()) {
+		printf("PyQtGuiObject::addChild called in fork\n");
+		return;
+	}
+	
 	// Must not have the Python GIL.
 	execInMainThread_sync([&]() {
 		if(!widget) return;

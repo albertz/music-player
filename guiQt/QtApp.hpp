@@ -58,6 +58,7 @@ public slots:
 // executes some other Python code earlier, it will deadlock.
 static inline
 void execInMainThread_sync(boost::function<void(void)> func) {
+	assert(!QtApp::isFork());
 	if(qApp->thread() == QThread::currentThread())
 		func();
 	else {

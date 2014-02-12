@@ -17,6 +17,10 @@ RegisterControl(List)
 
 QtListWidget::QtListWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
 
+void QtListWidget::childIter(ChildIterCallback) {
+// TODO...	
+}
+
 // TODO...
 #if 0
 

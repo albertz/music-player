@@ -6,14 +6,23 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#import "QtOneLineTextWidget.hpp"
-#import "PythonHelpers.h"
-#import "Builders.hpp"
+#include "QtOneLineTextWidget.hpp"
+#include "PythonHelpers.h"
+#include "Builders.hpp"
 
 
 RegisterControl(OneLineText)
 
 QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
+
+PyObject* QtOneLineTextWidget::getTextObj() {
+	// TODO...
+	return NULL;
+}
+
+void QtOneLineTextWidget::updateContent() {
+	// TODO...	
+}
 
 // TODO...
 #if 0
