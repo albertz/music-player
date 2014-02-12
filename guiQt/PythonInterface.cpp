@@ -204,7 +204,7 @@ guiQt_buildControl(PyObject* self, PyObject* args, PyObject* kws) {
 	PyQtGuiObject* parent = NULL;
 	static const char *kwlist[] = {"userAttr", "parent", NULL};
 	if(!PyArg_ParseTupleAndKeywords(
-			args, kws, "O:buildControl", (char**)kwlist,
+			args, kws, "OO:buildControl", (char**)kwlist,
 			&userAttr, &parent))
 		return NULL;
 
