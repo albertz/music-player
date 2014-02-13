@@ -115,9 +115,12 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 		// Thus just skip it.
 		return;
 	
-	// XXX: WARNING: If this is called with the Python global module-import lock,
+	// TODO: WARNING: If this is called with the Python global module-import lock,
 	// and the main thread in the meanwhile waits for the module-import lock,
 	// this is a deadlock!
+	// Example where this happen:
+	//  Main thread: Calls some Python code, that does some import, waits there on the lock.
+	//  Other Python thread: While doing import, it does GC cleanup, calls this function.
 	
 	// We can only access the widget from the main thread, thus this becomes a bit
 	// more complicated.
