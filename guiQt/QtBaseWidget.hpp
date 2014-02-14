@@ -12,10 +12,10 @@
 #include <Python.h>
 #include <QWidget>
 #include <boost/function.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <assert.h>
+#include "PyThreading.hpp"
 
 struct GuiObject;
 struct PyQtGuiObject;
@@ -31,11 +31,11 @@ struct QtBaseWidget : QWidget {
 	// We reset that in the destructor. When you hold its mutex-lock,
 	// the ref is either NULL or a valid pointer to this QtBaseWidget.
 	struct LockedRef {
-		boost::mutex mutex;
+		PyMutex mutex;
 		QtBaseWidget* ptr;		
 		LockedRef(QtBaseWidget& w) : ptr(&w) {}
 		void reset() {
-			boost::mutex::scoped_lock lock(mutex);
+			PyScopedLock lock(mutex);
 			ptr = NULL;
 		}
 	};	
