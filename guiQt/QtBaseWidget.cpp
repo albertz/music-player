@@ -11,12 +11,18 @@
 #include "PyThreading.hpp"
 
 QtBaseWidget::~QtBaseWidget() {
-	PyScopedGIL gil;
-	Py_CLEAR(controlRef);
+	selfRef->reset();
+	selfRef.reset();
+	
+	{
+		PyScopedGIL gil;
+		Py_CLEAR(controlRef);
+	}
 }
 
 QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget()) {
-
+	selfRef = new LockedRef(*this);
+	
 	//NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
     //self = [super initWithFrame:frame];
     //if(!self) return nil;
