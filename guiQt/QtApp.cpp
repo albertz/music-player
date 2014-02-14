@@ -8,6 +8,8 @@
 #include "QtBaseWidget.hpp"
 #include <QAction>
 #include <QTextCodec>
+#include <QThread>
+#include <QApplication>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -87,6 +89,8 @@ void QtApp::openMainWindow() {
 }
 
 void QtApp::openWindow(const std::string& name) {
+	assert(QThread::currentThread() == qApp->thread());
+	
 	PyScopedGIL gil;
 
 	PyObject* rootObj = handleModuleCommand("gui", "RootObjs.__getitem__", "(s)", name.c_str());
@@ -103,7 +107,7 @@ void QtApp::openWindow(const std::string& name) {
 	if((PyObject*) control == Py_None) Py_CLEAR(control);
 	if(control) {
 		if(PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
-			QtBaseWidget* win = control->widget;
+			QtBaseWidget::ScopedRef win(control->widget);
 			if(win) {
 				win->show();
 				return;
@@ -165,7 +169,7 @@ void QtApp::openWindow(const std::string& name) {
 	}
 	
 	QtBaseWidget* win = new QtBaseWidget(control);
-	control->widget = win;
+	control->widget = QtBaseWidget::WeakRef(*win);
 	win->setAttribute(Qt::WA_DeleteOnClose);	
 	
 	// set title

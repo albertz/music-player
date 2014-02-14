@@ -9,13 +9,15 @@
 #ifndef __MusicPlayer_guiQt_QtBaseWidget_hpp__
 #define __MusicPlayer_guiQt_QtBaseWidget_hpp__
 
+#include <Python.h>
 #include <QWidget>
 #include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+#include <assert.h>
 
-
+struct GuiObject;
 struct PyQtGuiObject;
 
 struct QtBaseWidget : QWidget {
@@ -36,29 +38,29 @@ struct QtBaseWidget : QWidget {
 			boost::mutex::scoped_lock lock(mutex);
 			ptr = NULL;
 		}
-	};
+	};	
 	boost::shared_ptr<LockedRef> selfRef;
-	
-	struct WeakRef {
-		boost::weak_ptr<LockedRef> ref;
-		WeakRef(QtBaseWidget& w) { ref = w.selfRef; }
-	};
+
+	struct WeakRef;
 	
 	struct ScopedRef {
 		boost::shared_ptr<LockedRef> _ref;
 		QtBaseWidget* ptr;
-		ScopedRef(WeakRef& ref) : ptr(NULL) {
-			_ref = ref.ref.lock();
-			if(_ref) {
-				_ref->mutex.lock();
-				ptr = _ref->ptr;
-			}
-		}
-		~ScopedRef() {
-			if(_ref) _ref->mutex.unlock();
-		}
+		bool lock;
+		ScopedRef(WeakRef& ref);
+		~ScopedRef();
+		operator bool() { return ptr; }
+		QtBaseWidget* operator->() { return ptr; }
 	};
 	
+	struct WeakRef {
+		typedef boost::weak_ptr<LockedRef> Ref;
+		Ref ref;
+		WeakRef() {}
+		WeakRef(QtBaseWidget& w) { ref = w.selfRef; }
+		ScopedRef scoped() { return ScopedRef(*this); }
+	};
+		
 	QtBaseWidget(PyQtGuiObject* control);
 	~QtBaseWidget();
 

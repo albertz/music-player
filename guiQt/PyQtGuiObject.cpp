@@ -120,21 +120,20 @@ static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* c
 	widget.ptr->childIter(callback);
 }
 
-QtBaseWidget* PyQtGuiObject::getParentWidget() {
+QtBaseWidget::WeakRef PyQtGuiObject::getParentWidget() {
 	if(QtApp::isFork()) {
 		printf("PyQtGuiObject::getParentWidget called in fork\n");
-		return NULL;
+		return QtBaseWidget::WeakRef();
 	}
 
-	assert(QApplication::instance()->thread() == QThread::currentThread());
 	PyScopedGIL gil;
 	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
 		return ((PyQtGuiObject*) parent)->widget;
 	}
-	return NULL;
+	return QtBaseWidget::WeakRef();
 }
 
-void PyQtGuiObject::addChild(QPointer<QtBaseWidget> child) {
+void PyQtGuiObject::addChild(QtBaseWidget::WeakRef child) {
 	if(QtApp::isFork()) {
 		printf("PyQtGuiObject::addChild called in fork\n");
 		return;
@@ -142,17 +141,20 @@ void PyQtGuiObject::addChild(QPointer<QtBaseWidget> child) {
 		
 	// Must not have the Python GIL.
 	execInMainThread_sync([&]() {
-		if(!widget) return;
-		if(!child) return;
-		child->setParent(widget);
+		QtBaseWidget::ScopedRef widgetRef(widget);
+		if(!widgetRef) return;
+		QtBaseWidget::ScopedRef childRef(child);
+		if(!childRef) return;
+		childRef->setParent(widgetRef.ptr);
 	});
 }
 
 void PyQtGuiObject::updateContent() {
 	// Must not have the Python GIL.
 	execInMainThread_sync([&]() {	
-		if(!widget) return;
-		widget->updateContent();
+		QtBaseWidget::ScopedRef widgetRef(widget);
+		if(!widgetRef) return;
+		widgetRef->updateContent();
 	});
 }
 

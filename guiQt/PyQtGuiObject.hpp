@@ -25,7 +25,7 @@ struct PyQtGuiObject : GuiObject {
 	int setattr(const char* key, PyObject* value);
 
 	QtBaseWidget::WeakRef widget;
-	QtBaseWidget* getParentWidget();
+	QtBaseWidget::WeakRef getParentWidget();
 
 	void addChild(QtBaseWidget::WeakRef child);
 	void updateContent();

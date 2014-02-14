@@ -7,8 +7,25 @@
 //
 
 #include "QtBaseWidget.hpp"
+#include "PyQtGuiObject.hpp"
 #include "PythonHelpers.h"
 #include "PyThreading.hpp"
+#include <QThread>
+#include <QApplication>
+
+QtBaseWidget::ScopedRef::ScopedRef(WeakRef& ref) : ptr(NULL), lock(true) {
+   _ref = ref.ref.lock();
+   if(_ref) {
+	   lock = (QThread::currentThread() == qApp->thread());
+	   if(lock) _ref->mutex.lock();
+	   ptr = _ref->ptr;
+   }
+}
+
+QtBaseWidget::ScopedRef::~ScopedRef() {
+   if(_ref && lock)
+	   _ref->mutex.unlock();
+}
 
 QtBaseWidget::~QtBaseWidget() {
 	selfRef->reset();
@@ -20,8 +37,8 @@ QtBaseWidget::~QtBaseWidget() {
 	}
 }
 
-QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget()) {
-	selfRef = new LockedRef(*this);
+QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget().scoped().ptr) {
+	selfRef = boost::shared_ptr<LockedRef>(new LockedRef(*this));
 	
 	//NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
     //self = [super initWithFrame:frame];
