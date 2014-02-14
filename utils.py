@@ -556,6 +556,8 @@ class Module:
 			mainFunc = getattr(self.module, self.mainFuncName)
 			try:
 				mainFunc()
+			except KeyboardInterrupt:
+				break
 			except Exception:
 				print "Exception in module", self.name
 				sys.excepthook(*sys.exc_info())
