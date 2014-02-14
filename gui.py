@@ -207,7 +207,12 @@ class _GuiObject:
 
 		from utils import iterUserAttribs
 		for attr in iterUserAttribs(self.subjectObject):
-			control = buildControl(attr, self)
+			try:
+				control = buildControl(attr, self)
+			except NotImplementedError as e:
+				print e
+				# Skip this control and continue. The rest of the GUI might still be usable.
+				continue
 			if not self.firstChildGuiObject:
 				self.firstChildGuiObject = control
 			if attr.hasUpdateEvent():
