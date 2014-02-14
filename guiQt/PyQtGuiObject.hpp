@@ -13,6 +13,7 @@
 #include <QWidget>
 #include <QPointer>
 #include "GuiObject.hpp"
+#include "QtBaseWidget.hpp"
 
 extern PyTypeObject QtGuiObject_Type;
 
@@ -23,15 +24,10 @@ struct PyQtGuiObject : GuiObject {
 	PyObject* getattr(const char* key);
 	int setattr(const char* key, PyObject* value);
 
-	// Note: QPointer is like a weak_ref. The parent widget
-	// always owns the pointer.
-	// Also note: Every access to it must be in the main thread.
-	// There is no way to assure that the widget stays alive
-	// while we are in another thread!
-	QPointer<QtBaseWidget> widget;
+	QtBaseWidget::WeakRef widget;
 	QtBaseWidget* getParentWidget();
 
-	void addChild(QPointer<QtBaseWidget> child);
+	void addChild(QtBaseWidget::WeakRef child);
 	void updateContent();
 };
 

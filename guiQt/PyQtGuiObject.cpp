@@ -16,9 +16,9 @@
 static Vec imp_get_pos(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
-		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
-		if(widget) {
-			QPoint pos = widget->pos();
+		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
+		if(widget.ptr) {
+			QPoint pos = widget.ptr->pos();
 			ret.x = pos.x();
 			ret.y = pos.y();
 		}
@@ -29,9 +29,9 @@ static Vec imp_get_pos(GuiObject* obj) {
 static Vec imp_get_size(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
-		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
-		if(widget) {
-			QSize size = widget->frameSize();
+		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
+		if(widget.ptr) {
+			QSize size = widget.ptr->frameSize();
 			ret.x = size.width();
 			ret.y = size.height();
 		}
@@ -42,9 +42,9 @@ static Vec imp_get_size(GuiObject* obj) {
 static Vec imp_get_innnerSize(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
-		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
-		if(widget) {
-			QSize size = widget->size();
+		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
+		if(widget.ptr) {
+			QSize size = widget.ptr->size();
 			ret.x = size.width();
 			ret.y = size.height();
 		}
@@ -55,8 +55,8 @@ static Vec imp_get_innnerSize(GuiObject* obj) {
 static Autoresize imp_get_autoresize(GuiObject* obj) {
 	Autoresize ret;
 	execInMainThread_sync([&]() {
-		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
-		if(widget) {
+		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
+		if(widget.ptr) {
 			// TODO ...
 			// Not sure. I think Qt doesn't do autoresizing.
 		}
@@ -66,17 +66,17 @@ static Autoresize imp_get_autoresize(GuiObject* obj) {
 
 static void imp_set_pos(GuiObject* obj, const Vec& v) {
 	execInMainThread_sync([&]() {
-		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
-		if(widget)
-			widget->move(v.x, v.y);
+		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
+		if(widget.ptr)
+			widget.ptr->move(v.x, v.y);
 	});
 }
 
 static void imp_set_size(GuiObject* obj, const Vec& v) {
 	execInMainThread_sync([&]() {
-		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
-		if(widget)
-			widget->resize(v.x, v.y);
+		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
+		if(widget.ptr)
+			widget.ptr->resize(v.x, v.y);
 	});
 }
 

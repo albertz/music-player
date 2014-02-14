@@ -59,7 +59,8 @@ bool _buildControlObject_pre(PyQtGuiObject* control) {
 
 
 bool _buildControlObject_post(PyQtGuiObject* control) {
-	QtBaseWidget* widget = control->widget;
+	QtBaseWidget::ScopedRef widget(control->widget);
+	if(!widget.ptr) return false;
 	QColor color = backgroundColor(control);
 	if(color.alpha() > 0) {
 //		[view setDrawsBackground:YES];

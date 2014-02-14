@@ -9,13 +9,14 @@
 #ifndef __MusicPlayer_guiQt_QtBaseWidget_hpp__
 #define __MusicPlayer_guiQt_QtBaseWidget_hpp__
 
-#include "PyQtGuiObject.hpp"
 #include <QWidget>
 #include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+
+struct PyQtGuiObject;
 
 struct QtBaseWidget : QWidget {
 	// Note that we can keep all Python references only in guiObjectList because that
@@ -36,15 +37,15 @@ struct QtBaseWidget : QWidget {
 			ptr = NULL;
 		}
 	};
-	boost::shared_ptr<LockedRef<QtBaseWidget> > selfRef;
+	boost::shared_ptr<LockedRef> selfRef;
 	
 	struct WeakRef {
-		boost::weak_ptr<LockedRef<QtBaseWidget> > ref;
+		boost::weak_ptr<LockedRef> ref;
 		WeakRef(QtBaseWidget& w) { ref = w.selfRef; }
 	};
 	
 	struct ScopedRef {
-		boost::shared_ptr<LockedRef<QtBaseWidget> > _ref;
+		boost::shared_ptr<LockedRef> _ref;
 		QtBaseWidget* ptr;
 		ScopedRef(WeakRef& ref) : ptr(NULL) {
 			_ref = ref.ref.lock();
