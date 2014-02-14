@@ -1139,10 +1139,15 @@ class _AsyncCallQueue:
 		try:
 			name = repr(func)
 			res = func()
-			q.put((clazz.Types.result, res))
 		except Exception as exc:
 			print "Exception in asyncExecHost", name, exc
 			q.put((clazz.Types.exception, exc))
+		else:
+			try:
+				q.put((clazz.Types.result, res))
+			except IOError:
+				# broken pipe or so. parent quit. treat like a SIGINT
+				raise KeyboardInterrupt
 
 def asyncCall(func, name=None, mustExec=False):
 	"""
