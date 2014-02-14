@@ -111,28 +111,13 @@ static void imp_meth_updateContent(GuiObject* obj) {
 // Called *with* the Python GIL.
 static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* child, bool& stop)> callback) {
 	if(QtApp::isFork())
-		// I think there is no safe way in a fork to do this.
-		// Thus just skip it.
+		// Don't care in the fork about it. We should anyway be very careful
+		// when touching Qt GUI objects in a fork.
 		return;
-	
-	// TODO: WARNING: If this is called with the Python global module-import lock,
-	// and the main thread in the meanwhile waits for the module-import lock,
-	// this is a deadlock!
-	// Example where this happen:
-	//  Main thread: Calls some Python code, that does some import, waits there on the lock.
-	//  Other Python thread: While doing import, it does GC cleanup, calls this function.
-	
-	// We can only access the widget from the main thread, thus this becomes a bit
-	// more complicated.
-	PyScopedGIUnlock unlock;
-	execInMainThread_sync([&]() {
-		QtBaseWidget* widget = ((PyQtGuiObject*) obj)->widget;
-		
-		PyScopedGIL gil;
-		// Warning: The callback might be called from another (the main) thread
-		// here. Not sure if that is a problem. I guess (hope) not.
-		widget->childIter(callback);
-	});
+
+	QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
+	if(!widget.ptr) return;
+	widget.ptr->childIter(callback);
 }
 
 QtBaseWidget* PyQtGuiObject::getParentWidget() {
