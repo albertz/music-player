@@ -6,7 +6,7 @@
 
 import appinfo
 import sys
-from utils import safe_property
+from utils import safe_property, do_in_mainthread
 
 
 # define fallback
@@ -72,7 +72,7 @@ class _GuiObject:
 		if self.parent:
 			self.subjectObject = self.attr.__get__(self.parent.subjectObject)
 		if getattr(self.subjectObject, "_updateEvent", None):
-			self._updateHandler = lambda: utils.do_in_mainthread(self.updateContent, wait=False)
+			self._updateHandler = lambda: do_in_mainthread(self.updateContent, wait=False)
 			getattr(self.subjectObject, "_updateEvent").register(self._updateHandler)
 
 	def updateChild(self, control):
@@ -217,7 +217,7 @@ class _GuiObject:
 				self.firstChildGuiObject = control
 			if attr.hasUpdateEvent():
 				def controlUpdateHandler(control=control):
-					utils.do_in_mainthread(lambda: self.updateChild(control), wait=False)
+					do_in_mainthread(lambda: self.updateChild(control), wait=False)
 				control._updateHandler = controlUpdateHandler
 				attr.updateEvent(self.subjectObject).register(control._updateHandler)
 			self.addChild(control)
