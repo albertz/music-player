@@ -7,9 +7,15 @@
 //
 
 #include "QtObjectWidget.hpp"
+#include "Builders.hpp"
 
+RegisterControl(Object)
 
-QtObjectWidget::QtObjectWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
+QtObjectWidget::QtObjectWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
+	PyScopedGIL gil;
+	Vec size = control->setupChilds();
+	control->set_size(control, size);
+}
 
 /*
 @implementation ObjectControlView

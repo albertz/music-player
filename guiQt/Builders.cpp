@@ -44,8 +44,6 @@ bool buildControl(const std::string& controlType, PyQtGuiObject* control) {
 bool buildControlObject(PyQtGuiObject* control) {
 	if(!_buildControlObject_pre(control)) return false;
 	
-	Vec size = control->setupChilds();
-	control->set_size(control, size);
 	return _buildControlObject_post(control);
 }
 
