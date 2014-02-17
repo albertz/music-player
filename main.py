@@ -164,7 +164,9 @@ def main():
 			state.updates.put((e, (), {}))
 			state.updates.cancelAll()
 			break
-	for m in modules: m.stop()
+
+	# Default quit handling.
+	gui.handleApplicationQuit()
 
 
 if __name__ == '__main__':
