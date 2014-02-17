@@ -102,7 +102,7 @@ def systemRun(cmd):
 
 externalPath = os.path.normpath(env["PROJECT_DIR"] + "/../core/external")
 
-def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/","/opt/", externalPath], stripVersion = True):
+def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/local/", "/opt/", "/Users", "/home", externalPath], stripVersion = True):
 	binDir = os.path.dirname(binPath)
 	targetDylibDirFull = binDir + "/" + targetDylibDir
 
@@ -111,7 +111,7 @@ def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/
 	otoolOut = Popen(["otool","-L",binPath],stdout=PIPE).stdout.readlines()
 	otoolOut = otoolOut[2:] # ignore first two lines
 	for l in otoolOut:
-		f = re.match("^\s+([\w/.-@]+)", l).groups()[0]
+		f = re.match("^\s+([\w/.\-@]+)", l).groups()[0]
 		fbase = os.path.basename(f)
 
 		if f.startswith("@"): # e.g. "@executable_path/..."
