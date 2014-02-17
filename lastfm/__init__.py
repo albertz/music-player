@@ -131,6 +131,7 @@ class Client:
 	def doWebAction(action):
 		import threading, time
 		curThread = threading.currentThread()
+		lastExcType = None
 		while True:
 			if getattr(curThread, "cancel", False):
 				raise KeyboardInterrupt
@@ -141,14 +142,12 @@ class Client:
 				# last.fm server busy or so
 				# wait a bit and retry
 				time.sleep(1)
-			except rest.RESTSocketError:
-				# maybe no internet connection
-				# dont print an error, dont spam	
-				# wait a bit and retry
-				time.sleep(1)
-			except ssl.SSLError:
-				# timeout or so
-				# dont print an error, dont spam	
+			except (rest.RESTSocketError, ssl.SSLError) as exc:
+				# maybe no internet connection or timeout or so
+				# dont print an error if same exc, dont spam
+				if type(exc) is not lastExcType:
+					print "Last.fm error:", exc
+					lastExcType = type(exc)
 				# wait a bit and retry
 				time.sleep(1)
 			except Exception:
