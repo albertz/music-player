@@ -53,7 +53,7 @@ class OAuthReturnHandler:
 		oself.handler = Handler		
 		def tryOrFail(fn):
 			try: fn(); return True
-			except: return False
+			except Exception: return False
 		# Try with some default ports first to avoid cluttering the users Google Authorized Access list.
 		tryOrFail(lambda: oself.startserver(port = 8123)) or \
 		tryOrFail(lambda: oself.startserver(port = 8321)) or \
