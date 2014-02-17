@@ -158,6 +158,7 @@ class State(object):
 		return loadPlayer(self)
 
 	def quit(self):
+		# XXX: Is this still used?
 		def doQuit():
 			""" This works in all threads except the main thread. It will quit the whole app.
 			For more information about why we do it this way, read the comment in main.py.
@@ -166,7 +167,7 @@ class State(object):
 			os.kill(0, signal.SIGINT)
 			sys.stdin.close() # so that the terminal closes, if it is used
 			import gui
-			gui.quit() # might do some additional stuff
+			gui.handleApplicationQuit() # might do some additional stuff
 		import thread
 		thread.start_new_thread(doQuit, ())
 
