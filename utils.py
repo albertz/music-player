@@ -1108,7 +1108,9 @@ class AsyncTask:
 	def test(cls):
 		pass
 
-class ForwardedKeyboardInterrupt(Exception): pass
+class ForwardedKeyboardInterrupt(Exception):
+	pass
+
 class _AsyncCallQueue:
 	Self = None
 	class Types:
