@@ -205,17 +205,20 @@ class LastfmSession(object):
 		headers, params = self.build_access_headers(params, withSessionKey=False)
 		
 		response = self.rest_client.POST(url, headers=headers, params=params)
-		self.token = response["session"]["key"]
+		self.token = str(response["session"]["key"])
 		self.user_name = response["session"]["name"]
 		return self.token
 
 	def build_access_headers(self, params=None, withSessionKey=True):
 		params = params or {}
 		params = params.copy()
-		params["api_key"] = self.consumer_creds.key
+		# We must not have unicode because we just want to sent pure ASCII
+		# (which might contain UTF8 encoded unicode).
+		assert all([type(v) is str for v in params.values()])
+		params["api_key"] = str(self.consumer_creds.key)
 		if withSessionKey:
 			assert self.token
-			params["sk"] = self.token
+			params["sk"] = str(self.token)
 		params["api_sig"] = build_api_sig(params, self.consumer_creds.secret)
 		params["format"] = "json"
 		headers = {}
