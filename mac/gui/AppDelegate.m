@@ -144,7 +144,7 @@ final:
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSNotification *)aNotification
 {
 	printf("My app delegate: should terminate\n");
-	handleModuleCommand_noReturn("guiCocoa", "handleApplicationQuit", NULL);
+	handleModuleCommand_noReturn("gui", "handleApplicationQuit", NULL);
 	return NSTerminateNow;
 }
 
