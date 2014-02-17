@@ -1181,7 +1181,7 @@ def asyncCall(func, name=None, mustExec=False):
 			# ignore
 
 	task = AsyncTask(func=doCall, name=name, mustExec=mustExec)
-	
+
 	while True:
 		# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
 		# this will raise an EOFError here.
