@@ -20,7 +20,14 @@ equals(uname, Darwin) {
 	QMAKE_CFLAGS += -isysroot /Developer/SDKs/MacOSX10.7.sdk
 	QMAKE_CFLAGS += -mmacosx-version-min=10.6
 	QMAKE_CFLAGS += -g
-	QMAKE_CXXFLAGS += $$QMAKE_CFLAGS
+	QMAKE_CXXFLAGS += -isysroot /Developer/SDKs/MacOSX10.7.sdk
+	QMAKE_CXXFLAGS += -mmacosx-version-min=10.6
+	QMAKE_CXXFLAGS += -g
+	QMAKE_LFLAGS += -isysroot /Developer/SDKs/MacOSX10.7.sdk
+	QMAKE_LFLAGS += -mmacosx-version-min=10.6
+	QMAKE_LFLAGS += -g
+
+	# maybe also this for libs: -single_module -compatibility_version 1 -current_version 1
 
 	# We use our own Python.
 	INCLUDEPATH += $$PWD/python-embedded/CPython/Include
