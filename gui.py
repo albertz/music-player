@@ -274,6 +274,7 @@ def _initPost():
 def handleApplicationQuit():
 	import utils
 	utils.quit = True
+
 	# first set/send signals to all modules
 	from State import modules
 	for m in modules: m.stop(join=False)
@@ -284,8 +285,26 @@ def handleApplicationQuit():
 		os.kill(0, signal.SIGINT)
 	except KeyboardInterrupt: pass # well, we expect that...
 	except Exception: pass
+
 	# now join all
 	for m in modules: m.stop()
+
+	# Do some cleanup before we let Python do the final cleanup.
+	# E.g., it might happen that Python will not GC the player instance
+	# soon enough in its `Py_Finalize()`. In that situation, bad things
+	# will happen, because most probably, the player instances worker
+	# thread is still running in the background. This most probably
+	# leads to a crash.
+	RootObjs.clear()
+	try: ctx().rootObjs.clear()
+	except Exception: pass # might already be out of scope
+	import State
+	State.state = None
+	import songdb
+	songdb.flush()
+	import gc
+	for _ in range(3): gc.collect()
+
 	print "Bye!"
 
 
