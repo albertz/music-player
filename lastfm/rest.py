@@ -37,6 +37,7 @@ class ProperHTTPSConnection(httplib.HTTPConnection):
         httplib.HTTPConnection.__init__(self, host, port, timeout=10)
         self.ca_certs = trusted_cert_file
         self.cert_reqs = ssl.CERT_REQUIRED
+        assert os.path.exists(self.ca_certs)
 
     def connect(self):
         sock = create_connection((self.host, self.port))
