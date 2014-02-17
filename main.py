@@ -129,10 +129,8 @@ def main():
 
 	# We have no GUI. Continue with some simple console control handling.
 	import stdinconsole
-	modules = State.modules
-	state = State.state
 
-	for m in modules: m.start()
+	for m in State.modules: m.start()
 
 	global successStartup
 	successStartup = True
@@ -161,8 +159,8 @@ def main():
 	while True:
 		try: stdinconsole.readNextInput() # wait for KeyboardInterrupt
 		except BaseException, e:
-			state.updates.put((e, (), {}))
-			state.updates.cancelAll()
+			State.state.updates.put((e, (), {}))
+			State.state.updates.cancelAll()
 			break
 
 	# Default quit handling.
