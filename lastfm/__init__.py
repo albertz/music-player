@@ -111,8 +111,10 @@ class StoredSession(session.LastfmSession):
 		from urlparse import parse_qs
 		token = parse_qs(httpd_access_token_callback)
 		token = token["token"][0]
-	
-		self.obtain_access_token(token)		
+
+		print "Last.fm: obtain access token ..."
+		self.obtain_access_token(token)
+		print "Last.fm: write final credentials"
 		self.write_creds(self.token)
 	
 	def unlink(self):
