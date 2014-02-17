@@ -5,6 +5,7 @@
 *.so
 *.dylib
 *.o
+*.a
 a.out
 *.db
 *~
