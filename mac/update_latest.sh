@@ -1,15 +1,19 @@
 #!/bin/zsh
 
-cd "$(dirname "$0")"
+# Goto project root dir.
+cd "$(dirname "$0")"/..
+rootdir="$(pwd)"
+
 [ -x /usr/local/bin/git ] && alias git=/usr/local/bin/git
 gitrev="$(git show HEAD  --format=format:%h | head -n1)" || exit 1
 
 unset CC
 unset CXX
 unset CFLAGS
-xcodebuild || exit 1
+make || exit 1
+[ -e MusicPlayer.app ] || { echo "MusicPlayer.app does not exist"; exit 1; }
 
-pushd build/Release || { echo "build/Release does not exist"; exit 1; }
+pushd mac/build/Release || { echo "mac/build/Release does not exist"; exit 1; }
 
 [ "$(find . -name "*-$gitrev.zip")" != "" ] && \
 	{ echo "package exists:" *"-$gitrev.zip"; exit 1; }
@@ -23,7 +27,11 @@ done
 zipfilename="$zipfilename-$i-$gitrev.zip"
 
 rm MusicPlayer-MacApp-20*.zip
-zip -9 -r $zipfilename MusicPlayer.app || exit 1
+popd
+
+zip -9 -r mac/build/Release/$zipfilename MusicPlayer.app || exit 1
+
+pushd mac/build/Release || { echo "mac/build/Release does not exist"; exit 1; }
 
 dfile="download_macapp_latest.php"
 echo "<?php header( 'Location: http://sourceforge.net/projects/az-music-player/files/${zipfilename}/download' ); ?>" >$dfile
