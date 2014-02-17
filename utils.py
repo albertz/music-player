@@ -1161,19 +1161,27 @@ def asyncCall(func, name=None, mustExec=False):
 	If `mustExec` is set, the other process must `exec()` after the `fork()`.
 	If it is not set, it might omit the `exec()`, depending on the platform.
 	"""
+
 	def doCall(queue):
 		q = _AsyncCallQueue(queue)
 		try:
-			res = func()
-			q.put(q.Types.result, res)
-		except KeyboardInterrupt as exc:
-			print "Exception in asyncCall", name, ": KeyboardInterrupt"
-			q.put(q.Types.exception, ForwardedKeyboardInterrupt(exc))
-		except BaseException as exc:
-			print "Exception in asyncCall", name
-			sys.excepthook(*sys.exc_info())
-			q.put(q.Types.exception, exc)
+			try:
+				res = func()
+			except KeyboardInterrupt as exc:
+				print "Exception in asyncCall", name, ": KeyboardInterrupt"
+				q.put(q.Types.exception, ForwardedKeyboardInterrupt(exc))
+			except BaseException as exc:
+				print "Exception in asyncCall", name
+				sys.excepthook(*sys.exc_info())
+				q.put(q.Types.exception, exc)
+			else:
+				q.put(q.Types.result, res)
+		except (KeyboardInterrupt, ForwardedKeyboardInterrupt):
+			print "asyncCall: SIGINT in put, probably the parent died"
+			# ignore
+
 	task = AsyncTask(func=doCall, name=name, mustExec=mustExec)
+	
 	while True:
 		# If there is an unhandled exception in doCall or the process got killed/segfaulted or so,
 		# this will raise an EOFError here.
