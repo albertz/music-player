@@ -125,7 +125,6 @@ class StoredSession(session.LastfmSession):
 		self.delete_creds()
 		session.LastfmSession.unlink(self)
 
-import threading
 
 class Client:
 	def __init__(self):		
