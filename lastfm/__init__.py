@@ -90,7 +90,11 @@ class StoredSession(session.LastfmSession):
 
 	def delete_creds(self):
 		import os
-		os.unlink(self.TOKEN_FILE)
+		try:
+			os.unlink(self.TOKEN_FILE)
+		except OSError:
+			# file does not exist or so. ignore
+			pass
 
 	def link(self):
 		#request_token = self.obtain_request_token()
