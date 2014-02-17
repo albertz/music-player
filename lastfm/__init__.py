@@ -89,6 +89,7 @@ class StoredSession(session.LastfmSession):
 		f.close()
 
 	def delete_creds(self):
+		import os
 		os.unlink(self.TOKEN_FILE)
 
 	def link(self):
