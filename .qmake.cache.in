@@ -2,6 +2,7 @@
 
 top_srcdir=$$PWD
 top_builddir=$$OUT_PWD
+DESTDIR = $$OUT_PWD
 
 # Note on same-named files:
 # There is/was the undocumented object_with_source, object_parallel_to_source,
