@@ -133,86 +133,86 @@ void handleFatalError(const char* msg) {
 // http://www.opensource.apple.com/source/openmpi/openmpi-8/openmpi/opal/mca/backtrace/darwin/MoreBacktrace/MoreDebugging/MoreAddrToSym.c
 void *FindSymbol(const struct mach_header *img, const char *symbol)
 {
-    if ((img == NULL) || (symbol == NULL))
-        return NULL;
+	if ((img == NULL) || (symbol == NULL))
+		return NULL;
 
-    // only 64bit supported
+	// only 64bit supported
 #if defined (__LP64__)
 
-    if(img->magic != MH_MAGIC_64)
-        // we currently only support Intel 64bit
-        return NULL;
+	if(img->magic != MH_MAGIC_64)
+		// we currently only support Intel 64bit
+		return NULL;
 
-    struct mach_header_64 *image = (struct mach_header_64*) img;
+	struct mach_header_64 *image = (struct mach_header_64*) img;
 
-    struct segment_command_64 *seg_linkedit = NULL;
-    struct segment_command_64 *seg_text = NULL;
-    struct symtab_command *symtab = NULL;
-    unsigned int index;
+	struct segment_command_64 *seg_linkedit = NULL;
+	struct segment_command_64 *seg_text = NULL;
+	struct symtab_command *symtab = NULL;
+	unsigned int index;
 
-    struct load_command *cmd = (struct load_command*)(image + 1);
+	struct load_command *cmd = (struct load_command*)(image + 1);
 
-    for (index = 0; index < image->ncmds; index += 1, cmd = (struct load_command*)((char*)cmd + cmd->cmdsize))
-    {
-        switch(cmd->cmd)
-        {
-            case LC_SEGMENT_64: {
-                struct segment_command_64* segcmd = (struct segment_command_64*)cmd;
-                if (!strcmp(segcmd->segname, SEG_TEXT))
-                    seg_text = segcmd;
-                else if (!strcmp(segcmd->segname, SEG_LINKEDIT))
-                    seg_linkedit = segcmd;
-                break;
-            }
+	for (index = 0; index < image->ncmds; index += 1, cmd = (struct load_command*)((char*)cmd + cmd->cmdsize))
+	{
+		switch(cmd->cmd)
+		{
+			case LC_SEGMENT_64: {
+				struct segment_command_64* segcmd = (struct segment_command_64*)cmd;
+				if (!strcmp(segcmd->segname, SEG_TEXT))
+					seg_text = segcmd;
+				else if (!strcmp(segcmd->segname, SEG_LINKEDIT))
+					seg_linkedit = segcmd;
+				break;
+			}
 
-            case LC_SYMTAB:
-                symtab = (struct symtab_command*)cmd;
-                break;
+			case LC_SYMTAB:
+				symtab = (struct symtab_command*)cmd;
+				break;
 
-            default:
-                break;
-        }
-    }
+			default:
+				break;
+		}
+	}
 
-    if ((seg_text == NULL) || (seg_linkedit == NULL) || (symtab == NULL))
-        return NULL;
+	if ((seg_text == NULL) || (seg_linkedit == NULL) || (symtab == NULL))
+		return NULL;
 
-    unsigned long vm_slide = (unsigned long)image - (unsigned long)seg_text->vmaddr;
-    unsigned long file_slide = ((unsigned long)seg_linkedit->vmaddr - (unsigned long)seg_text->vmaddr) - seg_linkedit->fileoff;
-    struct nlist_64 *symbase = (struct nlist_64*)((unsigned long)image + (symtab->symoff + file_slide));
-    char *strings = (char*)((unsigned long)image + (symtab->stroff + file_slide));
-    struct nlist_64 *sym;
+	unsigned long vm_slide = (unsigned long)image - (unsigned long)seg_text->vmaddr;
+	unsigned long file_slide = ((unsigned long)seg_linkedit->vmaddr - (unsigned long)seg_text->vmaddr) - seg_linkedit->fileoff;
+	struct nlist_64 *symbase = (struct nlist_64*)((unsigned long)image + (symtab->symoff + file_slide));
+	char *strings = (char*)((unsigned long)image + (symtab->stroff + file_slide));
+	struct nlist_64 *sym;
 
-    for (index = 0, sym = symbase; index < symtab->nsyms; index += 1, sym += 1)
-    {
-        if (sym->n_un.n_strx != 0 && !strcmp(symbol, strings + sym->n_un.n_strx))
-        {
-            unsigned long address = vm_slide + sym->n_value;
-            if (sym->n_desc & N_ARM_THUMB_DEF)
-                return (void*)(address | 1);
-            else
-                return (void*)(address);
-        }
-    }   
+	for (index = 0, sym = symbase; index < symtab->nsyms; index += 1, sym += 1)
+	{
+		if (sym->n_un.n_strx != 0 && !strcmp(symbol, strings + sym->n_un.n_strx))
+		{
+			unsigned long address = vm_slide + sym->n_value;
+			if (sym->n_desc & N_ARM_THUMB_DEF)
+				return (void*)(address | 1);
+			else
+				return (void*)(address);
+		}
+	}   
 #endif
 
-    return NULL;
+	return NULL;
 }
 
 
 
 void print_backtrace() {
-    void *callstack[128];
-    int framesC = backtrace(callstack, sizeof(callstack));
-    printf("backtrace() returned %d addresses\n", framesC);
-    char** strs = backtrace_symbols(callstack, framesC);
-    for(int i = 0; i < framesC; ++i) {
-        if(strs[i])
-            printf("%s\n", strs[i]);
-        else
-            break;
-    }
-    free(strs);
+	void *callstack[128];
+	int framesC = backtrace(callstack, sizeof(callstack));
+	printf("backtrace() returned %d addresses\n", framesC);
+	char** strs = backtrace_symbols(callstack, framesC);
+	for(int i = 0; i < framesC; ++i) {
+		if(strs[i])
+			printf("%s\n", strs[i]);
+		else
+			break;
+	}
+	free(strs);
 
 	{
 		typedef void (*PyDumpTracebackFunc)(int fd, PyThreadState *tstate);
