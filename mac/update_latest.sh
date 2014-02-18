@@ -38,5 +38,5 @@ echo "<?php header( 'Location: http://sourceforge.net/projects/az-music-player/f
 
 popd
 
-rsync -avP build/Release/*.zip albertzeyer@frs.sourceforge.net:/home/frs/project/az-music-player/
-rsync -avP build/Release/$dfile albertzeyer,az-music-player@web.sourceforge.net:htdocs/
+rsync -avP mac/build/Release/*.zip albertzeyer@frs.sourceforge.net:/home/frs/project/az-music-player/
+rsync -avP mac/build/Release/$dfile albertzeyer,az-music-player@web.sourceforge.net:htdocs/
