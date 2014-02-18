@@ -113,6 +113,11 @@ int main(int argc, char *argv[])
 	sys_argc = argc;
 	sys_argv = argv;
 	
+#ifdef __APPLE__
+	extern void install_breakpoint_handlers();
+	install_breakpoint_handlers();
+#endif
+	
 	forkExecProc = haveArg("--forkExecProc");
 	bool shell = haveArg("--shell");
 	bool pyShell = haveArg("--pyshell");
