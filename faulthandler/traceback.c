@@ -241,6 +241,7 @@ dump_traceback(int fd, PyThreadState *tstate, int write_header)
 
    This function is signal safe. */
 
+__attribute__((visibility("default")))
 void
 _Py_DumpTraceback(int fd, PyThreadState *tstate)
 {
@@ -301,6 +302,7 @@ _Py_DumpTracebackThreads(int fd,
     return NULL;
 }
 
+__attribute__((visibility("default")))
 void _Py_DumpTracebackAllThreads() {
 	_Py_DumpTracebackThreads(1, PyGILState_GetThisThreadState()->interp, PyGILState_GetThisThreadState());
 }
