@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include <signal.h>
 
+#include <mach_override.h>
+#include <Foundation/NSDebug.h>
+#include <execinfo.h>
+#include <dlfcn.h>
+
 
 // for AmIBeingDebugged
 #include <assert.h>
@@ -119,6 +124,61 @@ void handleFatalError(const char* msg) {
 	_exit(1);
 }
 
+void print_backtrace() {
+    void *callstack[128];
+    int framesC = backtrace(callstack, sizeof(callstack));
+    printf("backtrace() returned %d addresses\n", framesC);
+    char** strs = backtrace_symbols(callstack, framesC);
+    for(int i = 0; i < framesC; ++i) {
+        if(strs[i])
+            printf("%s\n", strs[i]);
+        else
+            break;
+    }
+    free(strs);
+
+	{
+		typedef void (*PyDumpTracebackFunc)(int fd, PyThreadState *tstate);
+		PyDumpTracebackFunc _Py_DumpTraceback = (PyDumpTracebackFunc) dlsym(RTLD_DEFAULT, "_Py_DumpTraceback");
+		if(_Py_DumpTraceback) {
+			PyGILState_STATE gstate = PyGILState_Ensure();
+			PyThreadState* tstate = PyThreadState_Get();
+			if(tstate != NULL)
+				_Py_DumpTraceback(STDOUT_FILENO, tstate);
+			else
+				printf("print_backtrace: could not get Python thread state\n");
+			PyGILState_Release(gstate);
+		}
+		else
+			printf("print_backtrace: _Py_DumpTraceback not found\n");
+	}
+}
+
+typedef void (*NSAutoreleaseNoPoolFunc) (void* obj);
+NSAutoreleaseNoPoolFunc __NSAutoreleaseNoPool_reenter;
+
+void __NSAutoreleaseNoPool_replacement(void* obj) {
+	__NSAutoreleaseNoPool_reenter(obj);
+	
+	printf("__NSAutoreleaseNoPool backtrace:\n");
+	print_backtrace();	
+}
+
+void install_breakpoint_handlers() {
+	kern_return_t err = 0;
+	
+	// TODO: This does not work. It doesn't find the symbol.
+	// http://stackoverflow.com/questions/21849208/how-can-i-get-the-nsautoreleasenopool-address
+	NSAutoreleaseNoPoolFunc __NSAutoreleaseNoPool = (NSAutoreleaseNoPoolFunc) dlsym(RTLD_DEFAULT, "__NSAutoreleaseNoPool");
+	if(__NSAutoreleaseNoPool)
+		err = mach_override_ptr(
+			(void*)__NSAutoreleaseNoPool,
+			(void*)__NSAutoreleaseNoPool_replacement,
+			(void**)&__NSAutoreleaseNoPool_reenter);
+		
+	// Enable some further Cocoa debugging.
+	NSDebugEnabled = true;
+}
 
 
 extern int main_wrapped(int argc, char *argv[]);
