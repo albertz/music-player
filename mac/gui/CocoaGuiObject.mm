@@ -110,12 +110,14 @@ static void imp_addChild(GuiObject* obj, GuiObject* child) {
 }
 
 static void imp_meth_childIter(GuiObject* obj, boost::function<void(GuiObject* child, bool& stop)> callback) {
-	NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
+	@autoreleasepool {
+		NSView* view = ((CocoaGuiObject*) obj)->getNativeObj();
 
-	if([view respondsToSelector:@selector(childIter:)]) {
-		[(id<ControlWithChilds>)view childIter:^(GuiObject* child, bool& stop){
-			callback(child, stop);
-		 }];
+		if([view respondsToSelector:@selector(childIter:)]) {
+			[(id<ControlWithChilds>)view childIter:^(GuiObject* child, bool& stop){
+				callback(child, stop);
+			 }];
+		}
 	}
 }
 
@@ -147,18 +149,20 @@ void CocoaGuiObject::addChild(NSView* child) {
 void CocoaGuiObject::updateContent() {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
-	NSView* view = getNativeObj();
-	if(view && [view respondsToSelector:@selector(updateContent)]) {
-		[(id<GuiObjectProt_customContent>)view updateContent];
-	}
-	else {
-		PyObject* s = PyString_FromString("updateContent");
-		PyObject* func = s ? PyObject_GenericGetAttr((PyObject*) this, s) : NULL;
-		PyObject* res = func ? PyObject_CallFunction(func, NULL) : NULL;
-		if(!res && PyErr_Occurred()) PyErr_Print();
-		Py_XDECREF(s);
-		Py_XDECREF(func);
-		Py_XDECREF(res);
+	@autoreleasepool {
+		NSView* view = getNativeObj();
+		if(view && [view respondsToSelector:@selector(updateContent)]) {
+			[(id<GuiObjectProt_customContent>)view updateContent];
+		}
+		else {
+			PyObject* s = PyString_FromString("updateContent");
+			PyObject* func = s ? PyObject_GenericGetAttr((PyObject*) this, s) : NULL;
+			PyObject* res = func ? PyObject_CallFunction(func, NULL) : NULL;
+			if(!res && PyErr_Occurred()) PyErr_Print();
+			Py_XDECREF(s);
+			Py_XDECREF(func);
+			Py_XDECREF(res);
+		}
 	}
 	
 	PyGILState_Release(gstate);
