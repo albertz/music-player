@@ -129,7 +129,7 @@ def onMediaKeyUp(control):
 			state.playPause()
 		elif control == "next":
 			state.nextSong()
-	except:
+	except Exception:
 		sys.excepthook(*sys.exc_info())
 
 def mediakeysMain():
