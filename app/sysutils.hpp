@@ -16,7 +16,11 @@ extern "C" {
 
 extern const char* StartupStr;
 
+__attribute__((visibility("default")))
 bool AmIBeingDebugged();
+
+__attribute__((visibility("default")))
+void print_backtrace();
 
 __attribute__((visibility("default")))
 void handleFatalError(const char* msg);
