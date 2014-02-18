@@ -363,7 +363,7 @@ def buildControlSongDisplay(control):
 					bmpThumbRet = musicplayer.calcBitmapThumbnail(song, 600, 81, procCallback = calcBmpCallback)
 					if bmpThumbRet:
 						queue.put(bmpThumbRet)
-				except:
+				except Exception:
 					print "doBmpCalc raised exception"
 					sys.excepthook(*sys.exc_info())
 				queue.put(None)
