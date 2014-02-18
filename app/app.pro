@@ -12,7 +12,15 @@ SOURCES += $$files(*.cpp)
 CONFIG -= qt
 
 mac {
+	# Add mach_override.
+	INCLUDEPATH += ../mach_override
+	HEADERS += $$files(../mach_override/*.h)
+	HEADERS += $$files(../mach_override/libudis86/*.h)
+	SOURCES += $$files(../mach_override/*.c)
+	SOURCES += $$files(../mach_override/libudis86/*.c)
+	LIBS += -framework CoreServices
 
+	# MacOSX related files.
 	OBJECTIVE_SOURCES += $$files(*.mm)
 
 	# We don't have a qmake build for it. It's build via Xcode.
