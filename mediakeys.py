@@ -108,9 +108,11 @@ class MacMediaKeyEventsTap:
 		utils.daemonThreadCall(self.runEventsCapture, name = "mediakeys runEventsCapture")
 
 	def stop(self):
+		import AppKit
+		pool = AppKit.NSAutoreleasePool.alloc().init()
 		import Quartz
 		Quartz.CFRunLoopStop(self.runLoopRef)
-
+		del pool
 
 if sys.platform == "darwin":
 	EventListener = MacMediaKeyEventsTap
