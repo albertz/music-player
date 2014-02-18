@@ -175,7 +175,9 @@ void install_breakpoint_handlers() {
 			(void*)__NSAutoreleaseNoPool,
 			(void*)__NSAutoreleaseNoPool_replacement,
 			(void**)&__NSAutoreleaseNoPool_reenter);
-		
+	//if(!__NSAutoreleaseNoPool)
+	//	printf("__NSAutoreleaseNoPool not found\n");
+	
 	// Enable some further Cocoa debugging.
 	NSDebugEnabled = true;
 }
