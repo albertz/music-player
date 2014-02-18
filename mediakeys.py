@@ -151,6 +151,6 @@ if __name__ == '__main__':
 	import time, sys
 	try:
 		while True: time.sleep(10)
-	except: pass
+	except Exception: pass
 	tap.stop()
 	print
