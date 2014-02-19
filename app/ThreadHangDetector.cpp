@@ -6,4 +6,242 @@
 //  Copyright (c) 2014 Albert Zeyer. All rights reserved.
 //
 
-#include "ThreadHangDetector.h"
+#include <Python.h>
+#include <map>
+#include <pthread.h>
+#include <time.h>
+#include <sys/time.h>
+#include <stdio.h>
+#include <assert.h>
+
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+#endif
+
+#include "ThreadHangDetector.hpp"
+#include "sysutils.hpp"
+#include "pthread_mutex.hpp"
+
+typedef unsigned long AbsMsTime;
+
+
+#ifdef __MACH__
+#define ORWL_NANO (+1.0E-9)
+#define ORWL_GIGA UINT64_C(1000000000)
+
+static double orwl_timebase = 0.0;
+static uint64_t orwl_timestart = 0;
+
+AbsMsTime current_abs_time() {
+	// be more careful in a multithreaded environement
+	if (!orwl_timestart) {
+		mach_timebase_info_data_t tb = { 0, 0 };
+		mach_timebase_info(&tb);
+		orwl_timebase = tb.numer;
+		orwl_timebase /= tb.denom;
+		orwl_timestart = mach_absolute_time();
+	}
+	struct timespec ts;
+	double diff = (mach_absolute_time() - orwl_timestart) * orwl_timebase;
+	ts.tv_sec = diff * ORWL_NANO;
+	ts.tv_nsec = diff - (ts.tv_sec * ORWL_GIGA);
+	return (unsigned long) ((ts.tv_sec * 1000UL)
+							+ (ts.tv_nsec / 1000000UL));
+}
+#else
+
+AbsMsTime current_abs_time() {
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &systemtime);
+	return (unsigned long) ((ts.tv_sec * 1000UL)
+							+ (ts.tv_nsec / 1000000UL));
+}
+#endif
+
+
+
+struct ThreadInfo {
+	float timeoutSecs;
+	AbsMsTime lastLifeSignal;
+};
+
+void* backgroundThread_proc(void*);
+
+struct ThreadHangDetector {
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+	ThreadId backgroundThread;
+	enum {
+		State_Normal,
+		State_JoinBackgroundThread,
+		State_Exit
+	} state;
+	std::map<ThreadId, ThreadInfo> timers;
+	
+	ThreadHangDetector() {
+		backgroundThread = 0;
+		state = State_Normal;
+		int ret;
+		mutex = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
+        ret = pthread_mutex_init(&mutex, NULL);
+        assert(ret == 0);
+		cond = (pthread_cond_t) PTHREAD_COND_INITIALIZER;
+		ret = pthread_cond_init(&cond, NULL);
+		assert(ret == 0);
+	}
+	
+	~ThreadHangDetector() {
+		{
+			Mutex::ScopedLock lock(mutex);
+			timers.clear();
+			_joinBackgroundThread();
+			state = State_Exit;
+		}
+		pthread_mutex_destroy(&mutex);
+		pthread_cond_destroy(&cond);
+	}
+	
+	void registerCurThread(float timeoutSecs) {
+		if(state == State_Exit) {
+			printf("ThreadHangDetector_registerCurThread after exit\n");
+			return;
+		}
+		
+		ThreadId threadId = (ThreadId)pthread_self();
+		
+		ThreadInfo info;
+		info.timeoutSecs = timeoutSecs;
+		info.lastLifeSignal = current_abs_time();
+		
+		{
+			Mutex::ScopedLock lock(mutex);
+			timers[threadId] = info;
+
+			while(true) {
+				if(state == State_Exit) break;
+
+				if(state == State_Normal) {
+					if(!backgroundThread)
+						_startBackgroundThread();
+					break;
+				}
+
+				struct timespec waitTime;
+				waitTime.tv_sec = 0;
+				waitTime.tv_nsec = 1UL * 1000UL * 1000UL; // 1ms in nanosecs
+				pthread_cond_timedwait(&cond, &mutex, &waitTime);
+			}
+		}
+	}
+	
+	void lifeSignalCurThread() {
+		if(state == State_Exit) {
+			printf("ThreadHangDetector_lifeSignalCurThread after exit\n");
+			return;
+		}
+		
+		ThreadId threadId = (ThreadId)pthread_self();
+		
+		Mutex::ScopedLock lock(mutex);
+		timers[threadId].lastLifeSignal = current_abs_time();
+	}
+	
+	void unregisterCurThread() {
+		if(state == State_Exit) {
+			printf("ThreadHangDetector_unregisterCurThread after exit\n");
+			return;
+		}
+		
+		ThreadId threadId = (ThreadId)pthread_self();
+		
+		Mutex::ScopedLock lock(mutex);
+		timers.erase(threadId);
+
+		while(true) {
+			if(state == State_Exit) break;
+			
+			if(state == State_Normal) {
+				if(timers.empty())
+					_joinBackgroundThread();
+				break;
+			}
+			
+			struct timespec waitTime;
+			waitTime.tv_sec = 0;
+			waitTime.tv_nsec = 1UL * 1000UL * 1000UL; // 1ms in nanosecs
+			pthread_cond_timedwait(&cond, &mutex, &waitTime);
+		}
+	}
+	
+	void _startBackgroundThread() {
+		assert(state == State_Normal);
+		assert(!backgroundThread);
+		pthread_t t = 0;
+		int ret = pthread_create(&t, NULL, &backgroundThread_proc, NULL);
+		assert(ret == 0);
+		assert(t);
+		backgroundThread = (ThreadId) t;
+	}
+
+	void _joinBackgroundThread() {
+		pthread_t t = (pthread_t) backgroundThread;
+		if(!t) return;
+		backgroundThread = NULL;
+		assert(state == State_Normal);
+		state = State_JoinBackgroundThread;
+		pthread_cond_broadcast(&cond);
+		
+		pthread_mutex_unlock(&mutex);
+		pthread_join(t, NULL);
+		pthread_mutex_lock(&mutex);
+		
+		assert(state == State_JoinBackgroundThread);
+		state = State_Normal;
+	}
+	
+	void _backgroundThread() {
+		struct timespec waitTime;
+		waitTime.tv_sec = 0;
+		waitTime.tv_nsec = 100UL * 1000UL * 1000UL; // 100ms in nanosecs
+		
+		Mutex::ScopedLock lock(mutex);
+		while(true) {
+			if(state != State_Normal) break;
+			
+			AbsMsTime curTime = current_abs_time();
+			for(const auto& it : timers) {
+				const ThreadInfo& info = it.second;
+				assert(curTime >= info.lastLifeSignal);
+				if(curTime - info.lastLifeSignal > AbsMsTime(info.timeoutSecs * 1000)) {
+					
+				}
+			}
+			
+			pthread_cond_timedwait(&cond, &mutex, &waitTime);
+		}
+	}
+};
+
+static ThreadHangDetector detector;
+
+
+void* backgroundThread_proc(void*) {
+	detector._backgroundThread();
+}
+
+
+void ThreadHangDetector_registerCurThread(float timeoutSecs) {
+	detector.registerCurThread(timeoutSecs);
+}
+
+void ThreadHangDetector_lifeSignalCurThread() {
+	detector.lifeSignalCurThread();
+}
+
+void ThreadHangDetector_unregisterCurThread() {
+	detector.unregisterCurThread();
+}
+
+
