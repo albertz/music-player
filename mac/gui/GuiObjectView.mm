@@ -115,6 +115,7 @@
 			dragPosition.x -= 16;
 			dragPosition.y += 32;
 			
+			Py_BEGIN_ALLOW_THREADS
 			[self
 			 dragImage:dragImage
 			 at:dragPosition
@@ -123,6 +124,7 @@
 			 pasteboard:pboard
 			 source:self
 			 slideBack:NO];
+			Py_END_ALLOW_THREADS
 			
 			res = true;
 		}
