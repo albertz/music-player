@@ -187,3 +187,8 @@ def dump10Secs():
 	f.close()
 	
 	return wavfn
+
+
+def hangMainThread(secs):
+	import utils, time
+	utils.do_in_mainthread(lambda: time.sleep(secs), True)
