@@ -11,6 +11,9 @@ SOURCES += $$files(*.cpp)
 # We don't need/link Qt at this point.
 CONFIG -= qt
 
+CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11
+
 mac {
 	# Add mach_override.
 	INCLUDEPATH += ../mach_override
