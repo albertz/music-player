@@ -8,9 +8,10 @@
 
 #include <Python.h>
 #include <dlfcn.h>
+#include <signal.h>
+#import "AppDelegate.h"
 #import "PyObjCBridge.h"
 #include "PythonHelpers.h"
-#import "AppDelegate.h"
 
 
 static void handleFatalError(const char* msg) {
@@ -21,6 +22,15 @@ static void handleFatalError(const char* msg) {
 	else
 		printf("Error^2: Error handler not found. This is probably not executed within the orig exec.\n");
 	_exit(1);
+}
+
+static void print_backtrace(int bInSignalHandler) {
+	typedef void Handler(int);
+	Handler* handler = (Handler*) dlsym(RTLD_DEFAULT, "print_backtrace");
+	if(handler)
+		handler(bInSignalHandler);
+	else
+		printf("Error: print_backtrace not found. This is probably not executed within the orig exec.\n");
 }
 
 NSWindow* getWindow(const char* name) {
@@ -38,6 +48,12 @@ final:
 	return res;
 }
 
+#define ALARM_TIMEOUT 5
+
+static void alarm_handler(int sig) {
+	printf("Main thread hanging for %i seconds\n", ALARM_TIMEOUT);
+	print_backtrace(true);
+}
 
 @implementation AppDelegate
 
@@ -105,6 +121,18 @@ final:
 	PyGILState_Release(gstate);
 }
 
+- (void)updateHangAlarm
+{
+	alarm(ALARM_TIMEOUT);
+}
+
+- (void)setupHangAlarm
+{
+	signal(SIGALRM, alarm_handler);
+	[self updateHangAlarm];
+	[NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updateHangAlarm) userInfo:nil repeats:YES];
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	printf("My app delegate: finish launching\n");
@@ -125,7 +153,13 @@ final:
 		goto final;
 	}
 	ret = PyObject_CallFunction(callback, NULL);
+	if(!ret) {
+		fatalErrorMsg = "Startup error. Python exception in setupAfterAppFinishedLaunching occured.";
+		goto final;
+	}
 	
+	[self setupHangAlarm];
+
 final:
 	if(PyErr_Occurred()) {
 		PyErr_Print();
