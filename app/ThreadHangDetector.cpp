@@ -171,7 +171,8 @@ struct ThreadHangDetector {
 						print_backtrace(true);
 					});
 					info.lastLifeSignal = current_abs_time(); // reset, don't immediately spam again
-					info.timeoutSecs = (float) pow(sqrt(info.timeoutSecs) + 1, 2); // increase quadratically
+					// I guess we dont want the following. Not sure...
+					//info.timeoutSecs = (float) pow(sqrt(info.timeoutSecs) + 1, 2); // increase quadratically
 				}
 			}
 			
