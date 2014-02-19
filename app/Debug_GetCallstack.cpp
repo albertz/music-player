@@ -124,7 +124,7 @@ struct GetCallstackFunctor {
 void* GetPCFromUContext(void* ucontext);
 
 __attribute__((noinline))
-static void _callstack_signal_handler(int signr, siginfo_t *info, void *secret) {	
+static void _callstack_signal_handler(int signr, siginfo_t *info, void *secret) {
 	threadCallback(signr, info, secret);
 	
 	// continue calling thread
@@ -134,7 +134,7 @@ static void _callstack_signal_handler(int signr, siginfo_t *info, void *secret) 
 static void _setup_callstack_signal_handler() {
 	struct sigaction sa;
 	sigfillset(&sa.sa_mask);
-	sa.sa_flags = SA_SIGINFO;
+	sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
 	sa.sa_sigaction = _callstack_signal_handler;
 	sigaction(CALLSTACK_SIG, &sa, NULL);	
 }
