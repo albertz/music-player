@@ -9,14 +9,7 @@ void print_backtrace(int bInSignalHandler) {
 	void *callstack[128];
 	int framesC = backtrace(callstack, sizeof(callstack));
 	printf("backtrace() returned %d addresses\n", framesC);
-	char** strs = backtrace_symbols(callstack, framesC);
-	for(int i = 0; i < framesC; ++i) {
-		if(strs[i])
-			printf("%s\n", strs[i]);
-		else
-			break;
-	}
-	free(strs);
+	backtrace_symbols_fd(callstack, framesC, STDOUT_FILENO);
 
 	{
 		typedef void (*PyDumpTracebackFunc)(int fd, PyThreadState *tstate);
