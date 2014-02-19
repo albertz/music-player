@@ -20,7 +20,7 @@ __attribute__((visibility("default")))
 bool AmIBeingDebugged();
 
 __attribute__((visibility("default")))
-void print_backtrace();
+void print_backtrace(int bInSignalHandler);
 
 __attribute__((visibility("default")))
 void handleFatalError(const char* msg);
