@@ -172,7 +172,10 @@ struct ThreadHangDetector {
 				const ThreadInfo& info = it.second;
 				assert(curTime >= info.lastLifeSignal);
 				if(curTime - info.lastLifeSignal > AbsMsTime(info.timeoutSecs * 1000)) {
-
+					ExecInThread(threadId, [](int,void*,void*) {
+						printf("Thread is hanging\n");
+						print_backtrace(true);
+					});
 				}
 			}
 			
