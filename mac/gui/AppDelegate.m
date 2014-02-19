@@ -48,12 +48,41 @@ final:
 	return res;
 }
 
-#define ALARM_TIMEOUT 5
-
-static void alarm_handler(int sig) {
-	printf("Main thread hanging for %i seconds\n", ALARM_TIMEOUT);
-	print_backtrace(true);
+static void ThreadHangDetector_registerCurThread(const char* threadName, float timeoutSecs) {
+	typedef void Handler(const char*, float);
+	static Handler* handler = NULL;
+	if(!handler) handler = (Handler*) dlsym(RTLD_DEFAULT, "ThreadHangDetector_registerCurThread");
+	if(!handler) {
+		printf("ThreadHangDetector_registerCurThread not found\n");
+		return;
+	}
+	handler(threadName, timeoutSecs);
 }
+
+static void ThreadHangDetector_lifeSignalCurThread() {
+	typedef void Handler();
+	static Handler* handler = NULL;
+	if(!handler) handler = (Handler*) dlsym(RTLD_DEFAULT, "ThreadHangDetector_lifeSignalCurThread");
+	if(!handler) {
+		printf("ThreadHangDetector_lifeSignalCurThread not found\n");
+		return;
+	}
+	handler();
+}
+
+static void ThreadHangDetector_unregisterCurThread() {
+	typedef void Handler();
+	static Handler* handler = NULL;
+	if(!handler) handler = (Handler*) dlsym(RTLD_DEFAULT, "ThreadHangDetector_unregisterCurThread");
+	if(!handler) {
+		printf("ThreadHangDetector_unregisterCurThread not found\n");
+		return;
+	}
+	handler();
+}
+
+
+#define ALARM_TIMEOUT 5
 
 @implementation AppDelegate
 
@@ -123,13 +152,12 @@ final:
 
 - (void)updateHangAlarm
 {
-	alarm(ALARM_TIMEOUT);
+	ThreadHangDetector_lifeSignalCurThread();
 }
 
 - (void)setupHangAlarm
 {
-	signal(SIGALRM, alarm_handler);
-	[self updateHangAlarm];
+	ThreadHangDetector_registerCurThread("Main", ALARM_TIMEOUT);
 	[NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updateHangAlarm) userInfo:nil repeats:YES];
 }
 
@@ -178,6 +206,7 @@ final:
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSNotification *)aNotification
 {
 	printf("My app delegate: should terminate\n");
+	ThreadHangDetector_unregisterCurThread();
 	handleModuleCommand_noReturn("gui", "handleApplicationQuit", NULL);
 	return NSTerminateNow;
 }
