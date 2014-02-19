@@ -69,6 +69,7 @@
 
 static ThreadId callingThread = 0;
 static ThreadId targetThread = 0;
+static volatile bool callFinishedSignal = false;
 static boost::function<void(int signum, void* siginfo, void* sigsecret)> threadCallback;
 
 
@@ -80,11 +81,7 @@ struct GetCallstackFunctor {
 	GetCallstackFunctor() : threadCallstackBuffer(NULL), threadCallstackBufferSize(0), threadCallstackCount(0) {}
 	
 	void operator()(int signr, void *info, void *secret) {
-#if HAVE_EXECINFO
-		ThreadId myThread = (ThreadId)pthread_self();
-		//notes << "_callstack_signal_handler, self: " << myThread << ", target: " << targetThread << ", caller: " << callingThread << endl;
-		if(myThread != targetThread) return;
-		
+#if HAVE_EXECINFO		
 		threadCallstackCount = backtrace(threadCallstackBuffer, threadCallstackBufferSize);
 		
 		// Search for the frame origin.
@@ -125,10 +122,14 @@ void* GetPCFromUContext(void* ucontext);
 
 __attribute__((noinline))
 static void _callstack_signal_handler(int signr, siginfo_t *info, void *secret) {
-	threadCallback(signr, info, secret);
-	
+	ThreadId myThread = (ThreadId)pthread_self();
+	if(myThread != targetThread)
+		printf("Warning: _callstack_signal_handler not called in target thread\n");
+	else
+		threadCallback(signr, info, secret);
+		
 	// continue calling thread
-	pthread_kill((pthread_t)callingThread, CALLSTACK_SIG);
+	callFinishedSignal = true;
 }
 
 static void _setup_callstack_signal_handler() {
@@ -148,6 +149,7 @@ void ExecInThread(ThreadId threadId, boost::function<void(int,void*,void*)> func
 	callingThread = (ThreadId)pthread_self();
 	targetThread = threadId;
 	threadCallback = func;
+	callFinishedSignal = false;
 	
 	_setup_callstack_signal_handler();
 
@@ -157,14 +159,8 @@ void ExecInThread(ThreadId threadId, boost::function<void(int,void*,void*)> func
 		return;
 	}
 	
-	{
-		sigset_t mask;
-		sigfillset(&mask);
-		sigdelset(&mask, CALLSTACK_SIG);
-
-		// wait for CALLSTACK_SIG on this thread
-		sigsuspend(&mask);
-	}
+	while(!callFinishedSignal)
+		usleep(100);
 	
 	threadCallback = NULL;
 }
