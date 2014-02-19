@@ -24,15 +24,6 @@ static void handleFatalError(const char* msg) {
 	_exit(1);
 }
 
-static void print_backtrace(int bInSignalHandler) {
-	typedef void Handler(int);
-	Handler* handler = (Handler*) dlsym(RTLD_DEFAULT, "print_backtrace");
-	if(handler)
-		handler(bInSignalHandler);
-	else
-		printf("Error: print_backtrace not found. This is probably not executed within the orig exec.\n");
-}
-
 NSWindow* getWindow(const char* name) {
 	NSWindow* res = NULL;
 
