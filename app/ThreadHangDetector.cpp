@@ -17,6 +17,7 @@
 #include "sysutils.hpp"
 #include "pthread_mutex.hpp"
 
+static ThreadId mainThread = (ThreadId) pthread_self();
 
 
 struct ThreadInfo {
@@ -169,6 +170,10 @@ struct ThreadHangDetector {
 					ExecInThread(threadId, [&](int,void*,void*) {
 						printf("%s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
 						print_backtrace(true, true);
+					});
+					ExecInThread(mainThread, [&](int,void*,void*) {
+						printf("Main thread:\n");
+						print_backtrace(true, false);
 					});
 					info.lastLifeSignal = current_abs_time(); // reset, don't immediately spam again
 					// I guess we dont want the following. Not sure...
