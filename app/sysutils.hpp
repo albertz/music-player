@@ -15,6 +15,7 @@ std::string getResourcePath();
 std::string getTildeExpandedPath(const std::string& path);
 bool fileExists(const std::string& path);
 
+// no C++ mangling for these symbols
 extern "C" {
 
 	extern const char* StartupStr;
@@ -38,8 +39,12 @@ AbsMsTime current_abs_time();
 void* GetPCFromUContext(void* ucontext);
 
 typedef long ThreadId;
-int GetCallstack(ThreadId threadId, void **buffer, int size);
+
+// On Linux/Unix/Mac, the function will be called from a signal handler, running in the target thread.
 void ExecInThread(ThreadId threadId, boost::function<void(int signum, void* siginfo, void* sigsecret)> func);
+
+// Uses ExecInThread if the threadId != 0 and != current thread.
+int GetCallstack(ThreadId threadId, void **buffer, int size);
 
 
 #endif

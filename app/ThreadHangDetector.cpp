@@ -8,6 +8,7 @@
 
 #include <Python.h>
 #include <map>
+#include <string>
 #include <pthread.h>
 #include <stdio.h>
 #include <assert.h>
@@ -19,6 +20,7 @@
 
 
 struct ThreadInfo {
+	std::string name;
 	float timeoutSecs;
 	AbsMsTime lastLifeSignal;
 };
@@ -26,7 +28,7 @@ struct ThreadInfo {
 void* backgroundThread_proc(void*);
 
 struct ThreadHangDetector {
-	pthread_mutex_t mutex;
+	Mutex mutex;
 	pthread_cond_t cond;
 	ThreadId backgroundThread;
 	enum {
@@ -39,12 +41,8 @@ struct ThreadHangDetector {
 	ThreadHangDetector() {
 		backgroundThread = 0;
 		state = State_Normal;
-		int ret;
-		mutex = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
-        ret = pthread_mutex_init(&mutex, NULL);
-        assert(ret == 0);
 		cond = (pthread_cond_t) PTHREAD_COND_INITIALIZER;
-		ret = pthread_cond_init(&cond, NULL);
+		int ret = pthread_cond_init(&cond, NULL);
 		assert(ret == 0);
 	}
 	
@@ -55,11 +53,10 @@ struct ThreadHangDetector {
 			_joinBackgroundThread();
 			state = State_Exit;
 		}
-		pthread_mutex_destroy(&mutex);
 		pthread_cond_destroy(&cond);
 	}
 	
-	void registerCurThread(float timeoutSecs) {
+	void registerCurThread(const std::string& threadName, float timeoutSecs) {
 		if(state == State_Exit) {
 			printf("ThreadHangDetector_registerCurThread after exit\n");
 			return;
@@ -68,6 +65,7 @@ struct ThreadHangDetector {
 		ThreadId threadId = (ThreadId)pthread_self();
 		
 		ThreadInfo info;
+		info.name = threadName;
 		info.timeoutSecs = timeoutSecs;
 		info.lastLifeSignal = current_abs_time();
 		
@@ -87,7 +85,7 @@ struct ThreadHangDetector {
 				struct timespec waitTime;
 				waitTime.tv_sec = 0;
 				waitTime.tv_nsec = 1UL * 1000UL * 1000UL; // 1ms in nanosecs
-				pthread_cond_timedwait(&cond, &mutex, &waitTime);
+				pthread_cond_timedwait(&cond, &mutex.mutex, &waitTime);
 			}
 		}
 	}
@@ -127,7 +125,7 @@ struct ThreadHangDetector {
 			struct timespec waitTime;
 			waitTime.tv_sec = 0;
 			waitTime.tv_nsec = 1UL * 1000UL * 1000UL; // 1ms in nanosecs
-			pthread_cond_timedwait(&cond, &mutex, &waitTime);
+			pthread_cond_timedwait(&cond, &mutex.mutex, &waitTime);
 		}
 	}
 	
@@ -149,9 +147,9 @@ struct ThreadHangDetector {
 		state = State_JoinBackgroundThread;
 		pthread_cond_broadcast(&cond);
 		
-		pthread_mutex_unlock(&mutex);
+		mutex.unlock();
 		pthread_join(t, NULL);
-		pthread_mutex_lock(&mutex);
+		mutex.lock();
 		
 		assert(state == State_JoinBackgroundThread);
 		state = State_Normal;
@@ -163,23 +161,26 @@ struct ThreadHangDetector {
 		waitTime.tv_nsec = 100UL * 1000UL * 1000UL; // 100ms in nanosecs
 		
 		Mutex::ScopedLock lock(mutex);
-		while(true) {
+		while(true) { loopStart:
 			if(state != State_Normal) break;
 			
 			AbsMsTime curTime = current_abs_time();
 			for(const auto& it : timers) {
 				ThreadId threadId = it.first;
-				const ThreadInfo& info = it.second;
+				ThreadInfo info = it.second;
 				assert(curTime >= info.lastLifeSignal);
 				if(curTime - info.lastLifeSignal > AbsMsTime(info.timeoutSecs * 1000)) {
-					ExecInThread(threadId, [](int,void*,void*) {
-						printf("Thread is hanging\n");
+					mutex.unlock();
+					ExecInThread(threadId, [&](int,void*,void*) {
+						printf("%s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
 						print_backtrace(true);
 					});
+					mutex.lock();
+					goto loopStart; // because we were unlocked, better restart the loop
 				}
 			}
 			
-			pthread_cond_timedwait(&cond, &mutex, &waitTime);
+			pthread_cond_timedwait(&cond, &mutex.mutex, &waitTime);
 		}
 	}
 };
@@ -192,8 +193,8 @@ void* backgroundThread_proc(void*) {
 }
 
 
-void ThreadHangDetector_registerCurThread(float timeoutSecs) {
-	detector.registerCurThread(timeoutSecs);
+void ThreadHangDetector_registerCurThread(const char* threadName, float timeoutSecs) {
+	detector.registerCurThread(threadName, timeoutSecs);
 }
 
 void ThreadHangDetector_lifeSignalCurThread() {
