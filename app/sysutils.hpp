@@ -24,7 +24,7 @@ extern "C" {
 	bool AmIBeingDebugged();
 	
 	__attribute__((visibility("default")))
-	void print_backtrace(int bInSignalHandler);
+	void print_backtrace(int bInSignalHandler, int bAllThreads);
 	
 	__attribute__((visibility("default")))
 	void handleFatalError(const char* msg);

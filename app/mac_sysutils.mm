@@ -207,7 +207,7 @@ void __NSAutoreleaseNoPool_replacement(void* obj) {
 	__NSAutoreleaseNoPool_reenter(obj);
 	
 	printf("__NSAutoreleaseNoPool backtrace:\n");
-	print_backtrace(false);	
+	print_backtrace(false, false);
 }
 
 void install_breakpoint_handlers() {
