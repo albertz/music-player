@@ -85,7 +85,7 @@ struct ThreadHangDetector {
 				struct timespec waitTime;
 				waitTime.tv_sec = 0;
 				waitTime.tv_nsec = 1UL * 1000UL * 1000UL; // 1ms in nanosecs
-				pthread_cond_timedwait(&cond, &mutex.mutex, &waitTime);
+				pthread_cond_timedwait_relative_np(&cond, &mutex.mutex, &waitTime);
 			}
 		}
 	}
@@ -125,7 +125,7 @@ struct ThreadHangDetector {
 			struct timespec waitTime;
 			waitTime.tv_sec = 0;
 			waitTime.tv_nsec = 1UL * 1000UL * 1000UL; // 1ms in nanosecs
-			pthread_cond_timedwait(&cond, &mutex.mutex, &waitTime);
+			pthread_cond_timedwait_relative_np(&cond, &mutex.mutex, &waitTime);
 		}
 	}
 	
@@ -155,32 +155,30 @@ struct ThreadHangDetector {
 		state = State_Normal;
 	}
 	
-	void _backgroundThread() {
-		struct timespec waitTime;
-		waitTime.tv_sec = 0;
-		waitTime.tv_nsec = 100UL * 1000UL * 1000UL; // 100ms in nanosecs
-		
+	void _backgroundThread() {		
 		Mutex::ScopedLock lock(mutex);
-		while(true) { loopStart:
+		while(true) {
 			if(state != State_Normal) break;
 			
 			AbsMsTime curTime = current_abs_time();
-			for(const auto& it : timers) {
+			for(auto& it : timers) {
 				ThreadId threadId = it.first;
-				ThreadInfo info = it.second;
+				ThreadInfo& info = it.second;
 				assert(curTime >= info.lastLifeSignal);
 				if(curTime - info.lastLifeSignal > AbsMsTime(info.timeoutSecs * 1000)) {
-					mutex.unlock();
 					ExecInThread(threadId, [&](int,void*,void*) {
 						printf("%s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
 						print_backtrace(true);
 					});
-					mutex.lock();
-					goto loopStart; // because we were unlocked, better restart the loop
+					info.lastLifeSignal = current_abs_time(); // reset, don't immediately spam again
+					info.timeoutSecs = (float) pow(sqrt(info.timeoutSecs) + 1, 2); // increase quadratically
 				}
 			}
 			
-			pthread_cond_timedwait(&cond, &mutex.mutex, &waitTime);
+			struct timespec ts;
+			ts.tv_sec = 0;
+			ts.tv_nsec = 100UL * 1000UL * 1000UL; // 100ms in nanoseconds
+			pthread_cond_timedwait_relative_np(&cond, &mutex.mutex, &ts);
 		}
 	}
 };
@@ -190,6 +188,7 @@ static ThreadHangDetector detector;
 
 void* backgroundThread_proc(void*) {
 	detector._backgroundThread();
+	return NULL;
 }
 
 
