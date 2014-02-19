@@ -247,6 +247,9 @@
 		23BD9B6A18B4AD8600F20232 /* syn.c in Sources */ = {isa = PBXBuildFile; fileRef = 23BD9B5918B4AD8600F20232 /* syn.c */; };
 		23BD9B6B18B4AD8600F20232 /* udis86.c in Sources */ = {isa = PBXBuildFile; fileRef = 23BD9B5D18B4AD8600F20232 /* udis86.c */; };
 		23BD9B6C18B4AD8600F20232 /* mach_override.c in Sources */ = {isa = PBXBuildFile; fileRef = 23BD9B5E18B4AD8600F20232 /* mach_override.c */; };
+		23BD9B7218B4B7CD00F20232 /* ThreadHangDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BD9B7018B4B7CD00F20232 /* ThreadHangDetector.cpp */; };
+		23BD9B7618B4F2FC00F20232 /* Debug_GetCallstack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BD9B7318B4F2FC00F20232 /* Debug_GetCallstack.cpp */; };
+		23BD9B7718B4F2FC00F20232 /* Debug_GetPCFromUContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BD9B7418B4F2FC00F20232 /* Debug_GetPCFromUContext.cpp */; };
 		23BEFDE015F42EB20003A05B /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23BEFDDF15F42EB20003A05B /* icon.icns */; };
 		23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */; };
 		23DC6267188AC36900E1DFE3 /* CocoaGuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 23DC6265188AC36900E1DFE3 /* CocoaGuiObject.hpp */; };
@@ -690,6 +693,11 @@
 		23BD9B5E18B4AD8600F20232 /* mach_override.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mach_override.c; sourceTree = "<group>"; };
 		23BD9B5F18B4AD8600F20232 /* mach_override.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_override.h; sourceTree = "<group>"; };
 		23BD9B6318B4AD8600F20232 /* udis86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = udis86.h; sourceTree = "<group>"; };
+		23BD9B7018B4B7CD00F20232 /* ThreadHangDetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadHangDetector.cpp; path = ../../app/ThreadHangDetector.cpp; sourceTree = "<group>"; };
+		23BD9B7118B4B7CD00F20232 /* ThreadHangDetector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ThreadHangDetector.hpp; path = ../../app/ThreadHangDetector.hpp; sourceTree = "<group>"; };
+		23BD9B7318B4F2FC00F20232 /* Debug_GetCallstack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Debug_GetCallstack.cpp; path = ../../app/Debug_GetCallstack.cpp; sourceTree = "<group>"; };
+		23BD9B7418B4F2FC00F20232 /* Debug_GetPCFromUContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Debug_GetPCFromUContext.cpp; path = ../../app/Debug_GetPCFromUContext.cpp; sourceTree = "<group>"; };
+		23BD9B7518B4F2FC00F20232 /* pthread_mutex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = pthread_mutex.hpp; path = ../../app/pthread_mutex.hpp; sourceTree = "<group>"; };
 		23BEFDDD15E3E24A0003A05B /* build-copyScript.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "build-copyScript.py"; sourceTree = "<group>"; };
 		23BEFDDF15F42EB20003A05B /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 		23DC6264188AC36900E1DFE3 /* CocoaGuiObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CocoaGuiObject.mm; path = gui/CocoaGuiObject.mm; sourceTree = "<group>"; };
@@ -1212,11 +1220,16 @@
 		23A14A3F15E3B2CC00376BF6 /* MusicPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				23BD9B4D18B4AD8600F20232 /* mach_override */,
+				236EC2CD18A3D81D001E18D6 /* sysutils.hpp */,
+				23BD9B7118B4B7CD00F20232 /* ThreadHangDetector.hpp */,
+				23BD9B7518B4F2FC00F20232 /* pthread_mutex.hpp */,
+				23BD9B7318B4F2FC00F20232 /* Debug_GetCallstack.cpp */,
+				23BD9B7418B4F2FC00F20232 /* Debug_GetPCFromUContext.cpp */,
+				23BD9B7018B4B7CD00F20232 /* ThreadHangDetector.cpp */,
 				23BD9B4B18B4AD5C00F20232 /* sysutils.cpp */,
 				236EC2CB18A3D81D001E18D6 /* mac_sysutils.mm */,
 				236EC2CC18A3D81D001E18D6 /* main.cpp */,
-				236EC2CD18A3D81D001E18D6 /* sysutils.hpp */,
+				23BD9B4D18B4AD8600F20232 /* mach_override */,
 				23A14A4015E3B2CC00376BF6 /* Supporting Files */,
 			);
 			path = MusicPlayer;
@@ -1890,7 +1903,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				236EC2CF18A3D81D001E18D6 /* main.cpp in Sources */,
+				23BD9B7718B4F2FC00F20232 /* Debug_GetPCFromUContext.cpp in Sources */,
 				23BD9B6718B4AD8600F20232 /* itab.c in Sources */,
+				23BD9B7618B4F2FC00F20232 /* Debug_GetCallstack.cpp in Sources */,
 				23BD9B6818B4AD8600F20232 /* syn-att.c in Sources */,
 				23BD9B6518B4AD8600F20232 /* decode.c in Sources */,
 				23BD9B6618B4AD8600F20232 /* input.c in Sources */,
@@ -1900,6 +1915,7 @@
 				23BD9B6B18B4AD8600F20232 /* udis86.c in Sources */,
 				23BD9B6C18B4AD8600F20232 /* mach_override.c in Sources */,
 				23BD9B6918B4AD8600F20232 /* syn-intel.c in Sources */,
+				23BD9B7218B4B7CD00F20232 /* ThreadHangDetector.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
