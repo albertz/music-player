@@ -32,6 +32,9 @@ extern "C" {
 
 // debugging stuff
 
+typedef unsigned long AbsMsTime;
+AbsMsTime current_abs_time();
+
 void* GetPCFromUContext(void* ucontext);
 
 typedef long ThreadId;
