@@ -130,8 +130,10 @@ def fixBin(binPath, targetDylibDir, installNameToolTargetDir, badPaths = ["/usr/
 		if not [True for badPath in badPaths if f.startswith(badPath)]: continue
 
 		if stripVersion:
+			fbase, fext = os.path.splitext(fbase)
+			if not fext: fext = ".dylib"
 			fbase = fbase.split(".")
-			fbase = fbase[0] + "." + fbase[-1]
+			fbase = fbase[0] + fext
 				
 		#print f, "->", targetDylibDir + "/" + fbase, "in", binPath
 		systemRun(["install_name_tool", "-change", f, installNameToolTargetDir + "/" + fbase, binPath])
@@ -146,3 +148,9 @@ fixBin(PYDIR + "/musicplayer.so", ".", "@executable_path/../Resources/Python")
 # When we run the MusicPlayer within Xcode, it sets the DYLD_LIBRARY_PATH to env["BUILT_PRODUCTS_DIR"]
 # and it might load the musicplayer.so from there. Thus, we need to fix that one also.
 fixBin(env["BUILT_PRODUCTS_DIR"] + "/musicplayer.so", ".", "@executable_path/../Resources/Python")
+
+# This module currently only exists when we compile with QMake.
+# QMake actually copies the file into our app bundle.
+if os.path.exists(PYDIR + "/guiQt.so"):
+	fixBin(PYDIR + "/guiQt.so", ".", "@executable_path/../Resources/Python")
+
