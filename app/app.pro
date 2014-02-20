@@ -69,7 +69,11 @@ mac {
 
 	GuiQt.files = $$top_builddir/guiQt.so
 	GuiQt.path = Contents/Resources/Python
-	QMAKE_BUNDLE_DATA += GuiQt	
+	QMAKE_BUNDLE_DATA += GuiQt
+
+	QtResources.files = $$QMAKE_LIBDIR_QT/QtGui.framework/Resources/qt_menu.nib
+	QtResources.path = Contents/Resources/
+	QMAKE_BUNDLE_DATA += QtResources
 
 	# Contents/Info.plist
 	MusicPlayer_InfoPlistFile = $$top_srcdir/mac/MusicPlayer/MusicPlayer-Info.plist
