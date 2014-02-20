@@ -153,8 +153,6 @@ class Client:
 				if type(exc) is not lastExcType:
 					lastExcType = type(exc)
 					print "Last.fm connection error:", exc
-					import sys
-					sys.excepthook(*sys.exc_info())
 				# wait a bit and retry
 				time.sleep(1)
 			except Exception:
