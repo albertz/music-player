@@ -222,9 +222,9 @@ void install_breakpoint_handlers() {
 			(void*)__NSAutoreleaseNoPool_replacement,
 			(void**)&__NSAutoreleaseNoPool_reenter);
 	
-	if(!__NSAutoreleaseNoPool && floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
-		printf("On MacOSX <=10.6: __NSAutoreleaseNoPool not found (used for debugging)\n");
-	}
+//	if(!__NSAutoreleaseNoPool && floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
+//		printf("On MacOSX <=10.6: __NSAutoreleaseNoPool not found (used for debugging)\n");
+//	}
 	
 	// Enable some further Cocoa debugging.
 	NSDebugEnabled = true;
