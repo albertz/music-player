@@ -15,5 +15,6 @@ QtObjectWidget::QtObjectWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	PyScopedGIL gil;
 	control->OuterSpace = Vec(0,0);
 	Vec size = control->setupChilds();
-	resize(size.x, size.y);
+
+	resize(size.x, size.y);	
 }
