@@ -60,7 +60,7 @@ void print_backtrace(int bInSignalHandler, int bAllThreads) {
 	{
 		PyThreadState* tstate;
 		PyGILState_STATE gstate;
-		if(bInSignalHandler) {
+		if(!bInSignalHandler) {
 			/* PyThreadState_Get() doesn't give the state of the current thread if
 			 the thread doesn't hold the GIL. Read the thread local storage (TLS)
 			 instead: call PyGILState_GetThisThreadState(). */
@@ -71,26 +71,26 @@ void print_backtrace(int bInSignalHandler, int bAllThreads) {
 			tstate = PyThreadState_Get();
 		}
 
-		if(tstate) {
-			if(bAllThreads && bInSignalHandler) { /* all threads only works in signal handler */
-				typedef void (*PyDumpTracebackAllFunc)(void);
-				PyDumpTracebackAllFunc _Py_DumpTracebackAllThreads = (PyDumpTracebackAllFunc) dlsym(RTLD_DEFAULT, "_Py_DumpTracebackAllThreads");
-				if(_Py_DumpTracebackAllThreads)
-					_Py_DumpTracebackAllThreads();
-				else
-					printf("print_backtrace: _Py_DumpTracebackAllThreads not found\n");
-			}
-			else {
-				typedef void (*PyDumpTracebackFunc)(int fd, PyThreadState *tstate);
-				PyDumpTracebackFunc _Py_DumpTraceback = (PyDumpTracebackFunc) dlsym(RTLD_DEFAULT, "_Py_DumpTraceback");
-				if(_Py_DumpTraceback)
-					_Py_DumpTraceback(STDOUT_FILENO, tstate);
-				else
-					printf("print_backtrace: _Py_DumpTraceback not found\n");
-			}
+		if(bAllThreads && bInSignalHandler) { /* all threads only works in signal handler */
+			printf("All Python threads:\n");
+			typedef void (*PyDumpTracebackAllFunc)(void);
+			PyDumpTracebackAllFunc _Py_DumpTracebackAllThreads = (PyDumpTracebackAllFunc) dlsym(RTLD_DEFAULT, "_Py_DumpTracebackAllThreads");
+			if(_Py_DumpTracebackAllThreads)
+				_Py_DumpTracebackAllThreads();
+			else
+				printf("print_backtrace: _Py_DumpTracebackAllThreads not found\n");
+		}
+		else if(tstate) {
+			printf("Current Python thread:\n");
+			typedef void (*PyDumpTracebackFunc)(int fd, PyThreadState *tstate);
+			PyDumpTracebackFunc _Py_DumpTraceback = (PyDumpTracebackFunc) dlsym(RTLD_DEFAULT, "_Py_DumpTraceback");
+			if(_Py_DumpTraceback)
+				_Py_DumpTraceback(STDOUT_FILENO, tstate);
+			else
+				printf("print_backtrace: _Py_DumpTraceback not found\n");
 		}
 		else
-			printf("print_backtrace: could not get Python thread state\n");
+			printf("print_backtrace: This thread does not seem to have a Python thread.\n");
 
 		if(!bInSignalHandler)
 			PyGILState_Release(gstate);

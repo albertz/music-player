@@ -167,12 +167,13 @@ struct ThreadHangDetector {
 				ThreadInfo& info = it.second;
 				assert(curTime >= info.lastLifeSignal);
 				if(curTime - info.lastLifeSignal > AbsMsTime(info.timeoutSecs * 1000)) {
+					printf("%s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
 					ExecInThread(threadId, [&](int,void*,void*) {
-						printf("%s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
+						printf("%s Thread backtrace\n", info.name.c_str());
 						print_backtrace(true, true);
 					});
 					ExecInThread(mainThread, [&](int,void*,void*) {
-						printf("Main thread:\n");
+						printf("Main thread backtrace:\n");
 						print_backtrace(true, false);
 					});
 					info.lastLifeSignal = current_abs_time(); // reset, don't immediately spam again

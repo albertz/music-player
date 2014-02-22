@@ -302,7 +302,30 @@ _Py_DumpTracebackThreads(int fd,
     return NULL;
 }
 
+// This is expected to be called only from signal handlers (or in an evironment where all threads are stopped).
 __attribute__((visibility("default")))
 void _Py_DumpTracebackAllThreads(void) {
-	_Py_DumpTracebackThreads(1, PyGILState_GetThisThreadState()->interp, PyGILState_GetThisThreadState());
+	PyInterpreterState* interp = NULL;
+	PyThreadState* tstate = NULL;
+	
+	// The current active Python thread (that might not be us).
+	tstate = _PyThreadState_Current;
+
+	// No Python state is currently active. Try to get our own, we we have one assigned.
+	if(!tstate)
+		tstate = PyGILState_GetThisThreadState();
+	
+	// No thread found so far. Try the interpreter head.
+	if(!tstate)
+		interp = PyInterpreterState_Head();
+	
+	if(!interp && tstate)
+		interp = tstate->interp;
+
+	if(!interp) {
+		printf("_Py_DumpTracebackAllThreads: no Python interpreter found\n");
+		return;
+	}
+
+	_Py_DumpTracebackThreads(STDOUT_FILENO, interp, tstate);
 }
