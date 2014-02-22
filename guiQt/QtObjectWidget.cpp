@@ -13,22 +13,7 @@ RegisterControl(Object)
 
 QtObjectWidget::QtObjectWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	PyScopedGIL gil;
+	control->OuterSpace = Vec(0,0);
 	Vec size = control->setupChilds();
 	control->set_size(control, size);
 }
-
-/*
-@implementation ObjectControlView
-
-- (id)initWithControl:(CocoaGuiObject*)control;
-{
-    self = [super initWithControl:control];
-    if(!self) return nil;
-
-	control->OuterSpace = Vec(0,0);
-
-    return self;
-}
-
-@end
-*/
