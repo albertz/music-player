@@ -649,6 +649,11 @@ def do_in_mainthread(f, wait=True):
 	if quit:
 		raise KeyboardInterrupt
 
+	global isFork
+	if isFork:
+		debugWarn("called do_in_mainthread in fork")
+		raise SystemError, "called do_in_mainthread in fork"
+
 	import objc
 	try:
 		NSObject = objc.lookUpClass("NSObject")
