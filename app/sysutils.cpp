@@ -81,7 +81,7 @@ void print_backtrace(int bInSignalHandler, int bAllThreads) {
 				printf("print_backtrace: _Py_DumpTracebackAllThreads not found\n");
 		}
 		else if(tstate) {
-			printf("Current Python thread:\n");
+			printf("Own Python thread:\n");
 			typedef void (*PyDumpTracebackFunc)(int fd, PyThreadState *tstate);
 			PyDumpTracebackFunc _Py_DumpTraceback = (PyDumpTracebackFunc) dlsym(RTLD_DEFAULT, "_Py_DumpTraceback");
 			if(_Py_DumpTraceback)
