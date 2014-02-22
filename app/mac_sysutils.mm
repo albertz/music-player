@@ -210,6 +210,11 @@ void __NSAutoreleaseNoPool_replacement(void* obj) {
 	print_backtrace(false, false);
 }
 
+void _CoreFoundation_fork_error() {
+	printf("_CoreFoundation_fork_error backtrace:\n");
+	print_backtrace(false, true);	
+}
+
 void install_breakpoint_handlers() {
 	kern_return_t err = 0;
 	
@@ -220,11 +225,16 @@ void install_breakpoint_handlers() {
 		err = mach_override_ptr(
 			(void*)__NSAutoreleaseNoPool,
 			(void*)__NSAutoreleaseNoPool_replacement,
-			(void**)&__NSAutoreleaseNoPool_reenter);
-	
+			(void**)&__NSAutoreleaseNoPool_reenter);	
 //	if(!__NSAutoreleaseNoPool && floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
 //		printf("On MacOSX <=10.6: __NSAutoreleaseNoPool not found (used for debugging)\n");
 //	}
+	
+	void* _CF_forkError = dlsym(RTLD_DEFAULT, "__THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIONALITY___YOU_MUST_EXEC__");
+	if(_CF_forkError)
+		err = mach_override_ptr(_CF_forkError, (void*)_CoreFoundation_fork_error, NULL);
+	else
+		printf("__THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIONALITY___YOU_MUST_EXEC__ not found\n");
 	
 	// Enable some further Cocoa debugging.
 	NSDebugEnabled = true;
