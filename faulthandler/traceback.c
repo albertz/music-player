@@ -311,7 +311,7 @@ void _Py_DumpTracebackAllThreads(void) {
 	// The current active Python thread (that might not be us).
 	tstate = _PyThreadState_Current;
 
-	// No Python state is currently active. Try to get our own, we we have one assigned.
+	// No Python state is currently active. Try to get our own, if we have one assigned.
 	if(!tstate)
 		tstate = PyGILState_GetThisThreadState();
 	
