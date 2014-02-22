@@ -156,14 +156,16 @@ void QtBaseWidget::mousePressEvent(QMouseEvent* ev) {
 void QtBaseWidget::updateContent() {	
 	PyScopedGIL gil;
 	
+	PyObject* control = (PyObject*) getControl();
+	if(!control) return;
+	
 	PyObject* s = PyString_FromString("updateContent");
-	Py_INCREF(this);
-	PyObject* func = s ? PyObject_GenericGetAttr((PyObject*) this, s) : NULL;
+	PyObject* func = s ? PyObject_GenericGetAttr(control, s) : NULL;
 	PyObject* res = func ? PyObject_CallFunction(func, NULL) : NULL;
 	if(!res && PyErr_Occurred()) PyErr_Print();
 	Py_XDECREF(s);
 	Py_XDECREF(func);
 	Py_XDECREF(res);
-	Py_DECREF(this);
+	Py_DECREF(control);
 }
 
