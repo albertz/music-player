@@ -10,9 +10,15 @@ successStartup = False
 import better_exchook
 better_exchook.install()
 
+import sys
+
 try:
 	import faulthandler
-	faulthandler.enable(all_threads=True)
+	# Only enable if we don't execute from within the MusicPlayer binary.
+	# The MusicPlayer binary will setup its own crash handlers.
+	# Import the `faulthandler` module though, we might use it.
+	if not getattr(sys, "MusicPlayerBin", None):
+		faulthandler.enable(all_threads=True)
 except ImportError:
 	print "note: faulthandler module not available"
 	faulthandler = None
