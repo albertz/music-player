@@ -230,7 +230,7 @@ void install_breakpoint_handlers() {
 //		printf("On MacOSX <=10.6: __NSAutoreleaseNoPool not found (used for debugging)\n");
 //	}
 	
-	void* _CF_forkError = dlsym(RTLD_DEFAULT, "__THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIONALITY___YOU_MUST_EXEC__");
+	void* _CF_forkError = FindSymbol(img, "___THE_PROCESS_HAS_FORKED_AND_YOU_CANNOT_USE_THIS_COREFOUNDATION_FUNCTIONALITY___YOU_MUST_EXEC__");
 	if(_CF_forkError)
 		err = mach_override_ptr(_CF_forkError, (void*)_CoreFoundation_fork_error, NULL);
 	else
