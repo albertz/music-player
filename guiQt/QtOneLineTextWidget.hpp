@@ -12,9 +12,10 @@
 #include "QtBaseWidget.hpp"
 #include <QLineEdit>
 
-struct QtOneLineTextWidget : QtBaseWidget, QLineEdit {
+struct QtOneLineTextWidget : QtBaseWidget {	
 	QtOneLineTextWidget(PyQtGuiObject* control);
 	
+	QLineEdit* lineEditWidget;
 	virtual PyObject* getTextObj();
 	virtual void updateContent();
 };

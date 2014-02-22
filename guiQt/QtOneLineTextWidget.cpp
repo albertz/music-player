@@ -27,6 +27,8 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	if(h < 0) h = 22;
 	control->PresetSize = Vec((int)w, (int)h);
 	
+	lineEditWidget = new QLineEdit(this);
+	
 	// set size: 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
 	
 	bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
@@ -80,14 +82,18 @@ void QtOneLineTextWidget::updateContent() {
 		}
 	}
 	
-	WeakRef selfRefCopy(*this);	
-	execInMainThread_async([=]() {
+	WeakRef selfRefCopy(*this);
+	
+	// Note: We had this async before. But I think other code wants to know the actual size
+	// and we only get it after we set the text.
+	execInMainThread_sync([=]() {
 		ScopedRef selfRef(selfRefCopy.scoped());
 		if(selfRef) {
 			auto self = dynamic_cast<QtOneLineTextWidget*>(selfRef.get());
 			assert(self);
+			assert(self->lineEditWidget);
 			
-			self->setText(QString::fromStdString(s));
+			self->lineEditWidget->setText(QString::fromStdString(s));
 	
 			PyScopedGIL gil;
 			
@@ -103,7 +109,8 @@ void QtOneLineTextWidget::updateContent() {
 			
 			bool autosizeWidth = attrChain_bool_default(control->attr, "autosizeWidth", false);
 			if(autosizeWidth) {
-				//[self sizeToFit];
+				self->lineEditWidget->adjustSize();
+				self->adjustSize(); // adjust size to the text content
 				PyObject* res = PyObject_CallMethod((PyObject*) control, (char*)"layoutLine", NULL);
 				if(!res && PyErr_Occurred()) PyErr_Print();
 				Py_XDECREF(res);
