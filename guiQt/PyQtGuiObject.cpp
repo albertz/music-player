@@ -127,9 +127,11 @@ QtBaseWidget::WeakRef PyQtGuiObject::getParentWidget() {
 	}
 
 	PyScopedGIL gil;
-	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
+	if((PyObject*)parent == Py_None)
+		return QtBaseWidget::WeakRef();
+	if(parent && !PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type))
 		return ((PyQtGuiObject*) parent)->widget;
-	}
+	printf("PyQtGuiObject::getParentWidget: parent type is invalid\n");
 	return QtBaseWidget::WeakRef();
 }
 
