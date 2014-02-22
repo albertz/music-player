@@ -423,7 +423,7 @@ class Song(object):
 			res = asyncCall(
 				func = getattr(self, "_calc_" + attrib),
 				name = "calc Song(%s) %s" % (self.userString.encode("utf-8"), attrib))
-		except ForwardedKeyboardInterrupt:
+		except (KeyboardInterrupt, ForwardedKeyboardInterrupt):
 			return None
 		for attr,value in res.items():
 			setattr(self, attr, value)
