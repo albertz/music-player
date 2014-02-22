@@ -28,8 +28,8 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	control->PresetSize = Vec((int)w, (int)h);
 	
 	lineEditWidget = new QLineEdit(this);
-	
-	// set size: 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
+
+	control->set_size(control, control->PresetSize);	
 	
 	bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
 	
