@@ -19,17 +19,17 @@ RegisterControl(OneLineText)
 
 QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	
-	// XXX: Move to QtBaseWidget?
 	PyScopedGIL gil;
 	long w = attrChain_int_default(control->attr, "width", -1);
 	long h = attrChain_int_default(control->attr, "height", -1);
 	if(w < 0) w = 30;
 	if(h < 0) h = 22;
 	control->PresetSize = Vec((int)w, (int)h);
+	resize(w, h);	
 	
 	lineEditWidget = new QLineEdit(this);
-
-	control->set_size(control, control->PresetSize);	
+	lineEditWidget->resize(w, h);
+	lineEditWidget->show();
 	
 	bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
 	

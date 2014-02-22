@@ -40,9 +40,7 @@ QtBaseWidget::~QtBaseWidget() {
 QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget().scoped().ptr) {
 	selfRef = boost::shared_ptr<LockedRef>(new LockedRef(*this));
 	
-	//NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
-    //self = [super initWithFrame:frame];
-    //if(!self) return nil;
+	resize(control->PresetSize.x, control->PresetSize.y);
 	
 	{
 		PyScopedGIL gil;

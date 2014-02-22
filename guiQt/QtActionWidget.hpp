@@ -5,7 +5,10 @@
 #include "QtBaseWidget.hpp"
 #include <QPushButton>
 
-struct QtActionWidget : QtBaseWidget {
+class QtActionWidget : public QtBaseWidget {
+	Q_OBJECT
+
+public:	
 	QtActionWidget(PyQtGuiObject* control);
 	QPushButton* buttonWidget;
 
