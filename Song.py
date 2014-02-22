@@ -423,7 +423,7 @@ class Song(object):
 			res = asyncCall(
 				func = getattr(self, "_calc_" + attrib),
 				name = "calc Song(%s) %s" % (self.userString.encode("utf-8"), attrib))
-		except (KeyboardInterrupt, ForwardedKeyboardInterrupt):
+		except ForwardedKeyboardInterrupt:
 			return None
 		for attr,value in res.items():
 			setattr(self, attr, value)
@@ -476,7 +476,11 @@ class Song(object):
 		gotNewValueEvent = threading.Event()
 		def doCalc():
 			utils.setCurThreadName("Py %s" % threading.currentThread().name)
-			value = self.calcAndSet(attrib)
+			try:
+				value = self.calcAndSet(attrib)
+			except KeyboardInterrupt:
+				# This is from some user code. We are probably exiting. Just proceed with None.
+				value = None
 			with lock:
 				if not afterJoinEvent.isSet():
 					return
