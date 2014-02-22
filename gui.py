@@ -281,9 +281,8 @@ def handleApplicationQuit():
 	"""
 
 	import utils
-	if utils.quit: return # Already called before.
-
-	utils.quit = True
+	if utils.quit > 1: return # Already called before.
+	utils.quit = 1
 
 	# first set/send signals to all modules
 	from State import modules
@@ -315,6 +314,7 @@ def handleApplicationQuit():
 	import gc
 	for _ in range(3): gc.collect()
 
+	utils.quit = 2
 	print "Bye!"
 
 
