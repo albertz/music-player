@@ -431,7 +431,7 @@ class Song(object):
 
 	LocalAttribAccuracy = 0.9
 	
-	def getFast(self, attrib, accuracy=1):
+	def getFast(self, attrib, accuracy=1.0):
 		# self.__getattr__ is wrapped and calls getFast().
 		# Thus, access self.__dict__ directly.
 		# First, check local self.__dict__ cache.
