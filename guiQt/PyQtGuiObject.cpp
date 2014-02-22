@@ -31,7 +31,7 @@ static Vec imp_get_size(GuiObject* obj) {
 	execInMainThread_sync([&]() {
 		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
 		if(widget.ptr) {
-			QSize size = widget.ptr->frameSize();
+			QSize size = widget.ptr->size();
 			ret.x = size.width();
 			ret.y = size.height();
 		}
