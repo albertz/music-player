@@ -188,6 +188,7 @@ int main(int argc, char *argv[])
 		PySys_SetObject((char*)"stdout", PyFile_FromFile(stdout, (char*)"<stdout>", (char*)"w", fclose));
 		PySys_SetObject((char*)"stderr", PySys_GetObject((char*)"stdout"));
 	}
+	PySys_SetObject((char*)"MusicPlayerBin", PyString_FromString(argv[0]));
 
 	// Preload imp and thread. I hope to fix this bug: https://github.com/albertz/music-player/issues/8 , there was a crash in initthread which itself has called initimp
 	PyObject* m = NULL;
