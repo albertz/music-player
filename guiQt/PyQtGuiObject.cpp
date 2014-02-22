@@ -17,8 +17,8 @@ static Vec imp_get_pos(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
 		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
-		if(widget.ptr) {
-			QPoint pos = widget.ptr->pos();
+		if(widget) {
+			QPoint pos = widget->pos();
 			ret.x = pos.x();
 			ret.y = pos.y();
 		}
@@ -30,8 +30,8 @@ static Vec imp_get_size(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
 		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
-		if(widget.ptr) {
-			QSize size = widget.ptr->size();
+		if(widget) {
+			QSize size = widget->size();
 			ret.x = size.width();
 			ret.y = size.height();
 		}
@@ -43,8 +43,8 @@ static Vec imp_get_innnerSize(GuiObject* obj) {
 	Vec ret;
 	execInMainThread_sync([&]() {
 		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
-		if(widget.ptr) {
-			QSize size = widget.ptr->size();
+		if(widget) {
+			QSize size = widget->size();
 			ret.x = size.width();
 			ret.y = size.height();
 		}
@@ -56,7 +56,7 @@ static Autoresize imp_get_autoresize(GuiObject* obj) {
 	Autoresize ret;
 	execInMainThread_sync([&]() {
 		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
-		if(widget.ptr) {
+		if(widget) {
 			// TODO ...
 			// Not sure. I think Qt doesn't do autoresizing.
 		}
@@ -67,16 +67,16 @@ static Autoresize imp_get_autoresize(GuiObject* obj) {
 static void imp_set_pos(GuiObject* obj, const Vec& v) {
 	execInMainThread_sync([&]() {
 		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
-		if(widget.ptr)
-			widget.ptr->move(v.x, v.y);
+		if(widget)
+			widget->move(v.x, v.y);
 	});
 }
 
 static void imp_set_size(GuiObject* obj, const Vec& v) {
 	execInMainThread_sync([&]() {
 		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
-		if(widget.ptr)
-			widget.ptr->resize(v.x, v.y);
+		if(widget)
+			widget->resize(v.x, v.y);
 	});
 }
 
