@@ -59,6 +59,8 @@ PyObject* QtOneLineTextWidget::getTextObj() {
 }
 
 void QtOneLineTextWidget::updateContent() {
+	PyScopedGIL gil;
+
 	PyQtGuiObject* control = getControl();
 	if(!control) return;
 	
