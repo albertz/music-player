@@ -7,61 +7,33 @@
 //
 
 #include "QtOneLineTextWidget.hpp"
-#include "PythonHelpers.h"
+#include "QtApp.hpp"
 #include "Builders.hpp"
+#include "PythonHelpers.h"
+#include "PyUtils.h"
+#include <string>
+#include <assert.h>
 
 
 RegisterControl(OneLineText)
 
-QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
-
-PyObject* QtOneLineTextWidget::getTextObj() {
-	// TODO...
-	return NULL;
-}
-
-void QtOneLineTextWidget::updateContent() {
-	// TODO...	
-}
-
-// TODO...
-#if 0
-
-- (void)dealloc
-{
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	Py_CLEAR(controlRef);
-	PyGILState_Release(gstate);
-}
-
-- (id)initWithControl:(CocoaGuiObject*)control
-{
-	{
-		PyGILState_STATE gstate = PyGILState_Ensure();
-		long w = attrChain_int_default(control->attr, "width", -1);
-		long h = attrChain_int_default(control->attr, "height", -1);
-		if(w < 0) w = 30;
-		if(h < 0) h = 22;
-		control->PresetSize = Vec((int)w, (int)h);
-		PyGILState_Release(gstate);
-	}
+QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	
-	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
-    self = [super initWithFrame:frame];
-    if(!self) return nil;
-
-	[self setBordered:NO];
+	// XXX: Move to QtBaseWidget?
+	PyScopedGIL gil;
+	long w = attrChain_int_default(control->attr, "width", -1);
+	long h = attrChain_int_default(control->attr, "height", -1);
+	if(w < 0) w = 30;
+	if(h < 0) h = 22;
+	control->PresetSize = Vec((int)w, (int)h);
 	
-	bool withBorder = false;
-	{
-		PyGILState_STATE gstate = PyGILState_Ensure();
-		controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
-		withBorder = attrChain_bool_default(control->attr, "withBorder", false);
-		PyGILState_Release(gstate);
-	}
+	// set size: 	NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
 	
-	if(!controlRef) return nil;
-
+	bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
+	
+	// [self setBordered:NO];
+	
+	/*
 	if(withBorder) {
 		[self setBezeled:YES];
 		[self setBezelStyle:NSTextFieldRoundedBezel];
@@ -71,34 +43,21 @@ void QtOneLineTextWidget::updateContent() {
 	[self setEditable:NO];
 	[[self cell] setUsesSingleLineMode:YES];
 	[[self cell] setLineBreakMode:NSLineBreakByTruncatingTail];
-
-	return self;
+	*/
+	
+	
 }
 
-- (CocoaGuiObject*)getControl;
-{
-	CocoaGuiObject* control = (CocoaGuiObject*) PyWeakref_GET_OBJECT(controlRef);
-	if(!control) return NULL;
-	if(!PyType_IsSubtype(Py_TYPE(control), &CocoaGuiObject_Type)) {
-		printf("Cocoa GuiObjectView: control is wrong type\n");
-		return NULL;
-	}
-	Py_INCREF(control);
-	return control;
-}
-
-- (PyObject*)getTextObj
-{
-	CocoaGuiObject* control = [self getControl];
+PyObject* QtOneLineTextWidget::getTextObj() {
+	PyQtGuiObject* control = getControl();
 	PyObject* textObj = control ? control->subjectObject : NULL;
 	Py_XINCREF(textObj);
 	Py_XDECREF(control);
 	return textObj;
 }
 
-- (void)updateContent
-{
-	CocoaGuiObject* control = [self getControl];
+void QtOneLineTextWidget::updateContent() {
+	PyQtGuiObject* control = getControl();
 	if(!control) return;
 	
 	if(control->attr && control->parent && control->parent->subjectObject) {
@@ -110,41 +69,48 @@ void QtOneLineTextWidget::updateContent() {
 		Py_CLEAR(old);
 	}
 
-	NSString* s = @"???";
+	std::string s = "???";
 	{
-		PyObject* labelContent = [self getTextObj];
+		PyObject* labelContent = getTextObj();
 		if(!labelContent && PyErr_Occurred()) PyErr_Print();
 		if(labelContent) {
-			NSString* _s = convertToStr(labelContent);
-			if(_s) s = _s;
+			if(!pyStr(labelContent, s)) {
+				if(PyErr_Occurred()) PyErr_Print();
+			}
 		}
 	}
 	
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[self setStringValue:s];
-
-		PyGILState_STATE gstate = PyGILState_Ensure();
-		
-		NSColor* color = backgroundColor(control);
-		if(color) {
-			[self setDrawsBackground:YES];
-			[self setBackgroundColor:color];
-		}
-		
-		[self setTextColor:foregroundColor(control)];
-		
-		bool autosizeWidth = attrChain_bool_default(control->attr, "autosizeWidth", false);
-		if(autosizeWidth) {
-			[self sizeToFit];
-			PyObject* res = PyObject_CallMethod((PyObject*) control, (char*)"layoutLine", NULL);
-			if(!res && PyErr_Occurred()) PyErr_Print();
-			Py_XDECREF(res);
+	WeakRef selfRefCopy(*this);	
+	execInMainThread_async([=]() {
+		ScopedRef selfRef(selfRefCopy.scoped());
+		if(selfRef) {
+			auto self = dynamic_cast<QtOneLineTextWidget*>(selfRef.get());
+			assert(self);
+			
+			self->setText(QString::fromStdString(s));
+	
+			PyScopedGIL gil;
+			
+			/*
+			NSColor* color = backgroundColor(control);
+			if(color) {
+				[self setDrawsBackground:YES];
+				[self setBackgroundColor:color];
+			}
+			*/
+			
+			//[self setTextColor:foregroundColor(control)];
+			
+			bool autosizeWidth = attrChain_bool_default(control->attr, "autosizeWidth", false);
+			if(autosizeWidth) {
+				//[self sizeToFit];
+				PyObject* res = PyObject_CallMethod((PyObject*) control, (char*)"layoutLine", NULL);
+				if(!res && PyErr_Occurred()) PyErr_Print();
+				Py_XDECREF(res);
+			}
 		}
 		
 		Py_DECREF(control);
-		PyGILState_Release(gstate);
 	});
 }
 
-#endif
-	
