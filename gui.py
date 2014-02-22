@@ -272,7 +272,17 @@ def _initPost():
 
 
 def handleApplicationQuit():
+	"""
+	Depending on the environment, this might be called multiple times.
+	It should do some cleanup and save the DBs and such.
+
+	Once this get called, the app is not expected to be in a
+	functional state anymore.
+	"""
+
 	import utils
+	if utils.quit: return # Already called before.
+
 	utils.quit = True
 
 	# first set/send signals to all modules
