@@ -156,6 +156,13 @@ struct ThreadHangDetector {
 		state = State_Normal;
 	}
 	
+	// Only call this in a signal handler. All threads must be stopped.
+	ThreadId _getPythonThreadId() {
+		volatile PyThreadState* tstate = _PyThreadState_Current;
+		if(!tstate) return 0;
+		return (ThreadId) tstate->thread_id;
+	}
+	
 	void _backgroundThread() {		
 		Mutex::ScopedLock lock(mutex);
 		while(true) {
@@ -168,14 +175,22 @@ struct ThreadHangDetector {
 				assert(curTime >= info.lastLifeSignal);
 				if(curTime - info.lastLifeSignal > AbsMsTime(info.timeoutSecs * 1000)) {
 					printf("%s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
+					ThreadId pythonThreadId = 0;
 					ExecInThread(threadId, [&](int,void*,void*) {
 						printf("%s Thread backtrace\n", info.name.c_str());
 						print_backtrace(true, true);
+						pythonThreadId = _getPythonThreadId();
 					});
-					ExecInThread(mainThread, [&](int,void*,void*) {
-						printf("Main thread backtrace:\n");
-						print_backtrace(true, false);
-					});
+					if(threadId != mainThread)
+						ExecInThread(mainThread, [&](int,void*,void*) {
+							printf("Main thread backtrace:\n");
+							print_backtrace(true, false);
+						});
+					if(pythonThreadId && pythonThreadId != threadId && pythonThreadId != mainThread)
+						ExecInThread(pythonThreadId, [&](int,void*,void*) {
+							printf("Current Python thread backtrace:\n");
+							print_backtrace(true, false);
+						});
 					info.lastLifeSignal = current_abs_time(); // reset, don't immediately spam again
 					// I guess we dont want the following. Not sure...
 					//info.timeoutSecs = (float) pow(sqrt(info.timeoutSecs) + 1, 2); // increase quadratically
