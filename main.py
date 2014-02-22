@@ -114,6 +114,10 @@ def main():
 	# dummy functions where appropriate.
 	import gui
 
+	# Default quit handling.
+	import atexit
+	atexit.register(gui.handleApplicationQuit)
+
 	# Import some core modules. They propagate themselves to other
 	# subsystems, like GUI.
 	# XXX: Maybe move all this to `State` module?
@@ -162,9 +166,6 @@ def main():
 			State.state.updates.put((e, (), {}))
 			State.state.updates.cancelAll()
 			break
-
-	# Default quit handling.
-	gui.handleApplicationQuit()
 
 
 if __name__ == '__main__':
