@@ -174,19 +174,25 @@ struct ThreadHangDetector {
 				ThreadInfo& info = it.second;
 				assert(curTime >= info.lastLifeSignal);
 				if(curTime - info.lastLifeSignal > AbsMsTime(info.timeoutSecs * 1000)) {
-					printf("%s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
+					printf("! %s Thread is hanging for more than %f secs\n", info.name.c_str(), info.timeoutSecs);
 					ThreadId pythonThreadId = 0;
 					ExecInThread(threadId, [&](int,void*,void*) {
-						printf("%s Thread backtrace\n", info.name.c_str());
+						printf("! %s Thread backtrace\n", info.name.c_str());
 						print_backtrace(true, true);
 						pythonThreadId = _getPythonThreadId();
 					});
 					if(threadId != mainThread)
 						ExecInThread(mainThread, [&](int,void*,void*) {
-							printf("Main thread backtrace:\n");
+							printf("! Main thread backtrace:\n");
 							print_backtrace(true, false);
 						});
-					if(pythonThreadId && pythonThreadId != threadId && pythonThreadId != mainThread)
+					if(!pythonThreadId)
+						printf("! No active Python thread\n");
+					else if(pythonThreadId == threadId)
+						printf("! We are the active Python thread\n");
+					else if(pythonThreadId == mainThread)
+						printf("! The main thread is the active Python thread\n");
+					else
 						ExecInThread(pythonThreadId, [&](int,void*,void*) {
 							printf("Current Python thread backtrace:\n");
 							print_backtrace(true, false);
