@@ -13,7 +13,7 @@
 #include <QThread>
 #include <QApplication>
 
-QtBaseWidget::ScopedRef::ScopedRef(WeakRef& ref) : ptr(NULL), lock(true) {
+QtBaseWidget::ScopedRef::ScopedRef(const WeakRef& ref) : ptr(NULL), lock(true) {
    _ref = ref.ref.lock();
    if(_ref) {
 	   lock = (QThread::currentThread() == qApp->thread());

@@ -47,10 +47,11 @@ struct QtBaseWidget : QWidget {
 		boost::shared_ptr<LockedRef> _ref;
 		QtBaseWidget* ptr;
 		bool lock;
-		ScopedRef(WeakRef& ref);
+		ScopedRef(const WeakRef& ref);
 		~ScopedRef();
 		operator bool() { return ptr; }
 		QtBaseWidget* operator->() { return ptr; }
+		QtBaseWidget* get() { return ptr; }
 	};
 	
 	struct WeakRef {
@@ -58,7 +59,7 @@ struct QtBaseWidget : QWidget {
 		Ref ref;
 		WeakRef() {}
 		WeakRef(QtBaseWidget& w) { ref = w.selfRef; }
-		ScopedRef scoped() { return ScopedRef(*this); }
+		ScopedRef scoped() const { return ScopedRef(*this); }
 	};
 		
 	QtBaseWidget(PyQtGuiObject* control);
