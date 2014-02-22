@@ -26,6 +26,7 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	if(h < 0) h = 22;
 	control->PresetSize = Vec((int)w, (int)h);
 	resize(w, h);	
+	setBaseSize(w, h);
 	
 	lineEditWidget = new QLineEdit(this);
 	lineEditWidget->resize(w, h);
