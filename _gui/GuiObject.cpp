@@ -291,6 +291,7 @@ Vec GuiObject::setupChilds() {
 		printf("setupChilds() returned unexpected value (expected is tuple (w,h))\n");
 		if(PyErr_Occurred()) PyErr_Print();
 	}
+	Py_XDECREF(size);
 	return sizeVec;
 }
 
