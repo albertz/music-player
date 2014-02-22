@@ -43,7 +43,7 @@ QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentW
 	//NSRect frame = NSMakeRect(0, 0, control->PresetSize.x, control->PresetSize.y);
     //self = [super initWithFrame:frame];
     //if(!self) return nil;
-
+	
 	{
 		PyScopedGIL gil;
 		controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
