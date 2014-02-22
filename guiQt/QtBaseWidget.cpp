@@ -16,7 +16,8 @@
 QtBaseWidget::ScopedRef::ScopedRef(const WeakRef& ref) : ptr(NULL), lock(true) {
    _ref = ref.ref.lock();
    if(_ref) {
-	   lock = (QThread::currentThread() == qApp->thread());
+	   // We only need to lock if we are not in the main thread.
+	   lock = (QThread::currentThread() != qApp->thread());
 	   if(lock) _ref->mutex.lock();
 	   ptr = _ref->ptr;
    }
