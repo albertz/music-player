@@ -535,6 +535,7 @@ class Module:
 	def __repr__(self): return "<Module %s %r>" % (self.name, self.thread)
 	def start(self):
 		self.thread = Thread(target = self.threadMain, name = self.name + " main")
+		self.thread.daemon = True # Our own exit-handler (see main()) will wait for them.
 		self.thread.waitQueue = None
 		self.thread.cancel = False
 		self.thread.reload = False

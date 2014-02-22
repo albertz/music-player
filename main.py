@@ -115,6 +115,8 @@ def main():
 	import gui
 
 	# Default quit handling.
+	# Note that this is executed after `threading._shutdown`, i.e. after
+	# all non-daemon threads have finished.
 	import atexit
 	atexit.register(gui.handleApplicationQuit)
 
