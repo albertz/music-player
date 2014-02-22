@@ -169,7 +169,6 @@ void QtApp::openWindow(const std::string& name) {
 	}
 	
 	QtBaseWidget* win = new QtBaseWidget(control);
-	control->widget = QtBaseWidget::WeakRef(*win);
 	win->setAttribute(Qt::WA_DeleteOnClose);	
 	
 	// set title

@@ -39,6 +39,7 @@ QtBaseWidget::~QtBaseWidget() {
 
 QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget().scoped().ptr) {
 	selfRef = boost::shared_ptr<LockedRef>(new LockedRef(*this));
+	control->widget = QtBaseWidget::WeakRef(*this);	
 	
 	resize(control->PresetSize.x, control->PresetSize.y);
 	
