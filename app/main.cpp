@@ -45,6 +45,10 @@ bool fileExists(const std::string& path) {
 }
 
 
+pid_t origPid = 0;
+
+// called with --forkExecProc. it's a subprocess for doing some specific work.
+// it's fork()+exec().
 bool forkExecProc = false;
 
 static void addPyPath() {
@@ -87,7 +91,14 @@ static bool checkStartupSuccess() {
 
 void signal_handler(int sig) {
 	printf("Signal handler: %i\n", sig);
-	handleFatalError("There was a fatal error.");
+	print_backtrace(true, true);
+	if(forkExecProc)
+		printf("This is a forkExec subprocess. I just quit.\n");
+	else if(origPid != getpid())
+		printf("This is a forked process. I just quit.\n");
+	else
+		handleFatalError("There was a fatal error.");
+	_exit(100 + sig);
 }
 
 void install_signal_handler() {
@@ -112,6 +123,7 @@ int main(int argc, char *argv[])
 {
 	sys_argc = argc;
 	sys_argv = argv;
+	origPid = getpid();
 	
 #ifdef __APPLE__
 	extern void install_breakpoint_handlers();
