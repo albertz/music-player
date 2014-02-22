@@ -60,7 +60,7 @@ void print_backtrace(int bInSignalHandler, int bAllThreads) {
 	{
 		PyThreadState* tstate;
 		PyGILState_STATE gstate;
-		if(!bInSignalHandler) {
+		if(bInSignalHandler) {
 			/* PyThreadState_Get() doesn't give the state of the current thread if
 			 the thread doesn't hold the GIL. Read the thread local storage (TLS)
 			 instead: call PyGILState_GetThisThreadState(). */
