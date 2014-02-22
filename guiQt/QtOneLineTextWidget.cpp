@@ -60,36 +60,42 @@ PyObject* QtOneLineTextWidget::getTextObj() {
 }
 
 void QtOneLineTextWidget::updateContent() {
-	PyScopedGIL gil;
-
-	PyQtGuiObject* control = getControl();
-	if(!control) return;
-	
-	if(control->attr && control->parent && control->parent->subjectObject) {
-		PyObject* old = NULL;
-		std::swap(old, control->subjectObject);
-		control->subjectObject = control->attr ?
-			PyObject_CallMethod(control->attr, (char*)"__get__", (char*)"(O)", control->parent->subjectObject)
-			: NULL;
-		Py_CLEAR(old);
-	}
-
+	PyQtGuiObject* control = NULL;
 	std::string s = "???";
+
 	{
-		PyObject* labelContent = getTextObj();
-		if(!labelContent && PyErr_Occurred()) PyErr_Print();
-		if(labelContent) {
-			if(!pyStr(labelContent, s)) {
-				if(PyErr_Occurred()) PyErr_Print();
+		PyScopedGIL gil;
+	
+		control = getControl();
+		if(!control) return;
+		
+		if(control->attr && control->parent && control->parent->subjectObject) {
+			PyObject* old = NULL;
+			std::swap(old, control->subjectObject);
+			control->subjectObject = control->attr ?
+				PyObject_CallMethod(control->attr, (char*)"__get__", (char*)"(O)", control->parent->subjectObject)
+				: NULL;
+			Py_CLEAR(old);
+		}
+	
+		{
+			PyObject* labelContent = getTextObj();
+			if(!labelContent && PyErr_Occurred()) PyErr_Print();
+			if(labelContent) {
+				if(!pyStr(labelContent, s)) {
+					if(PyErr_Occurred()) PyErr_Print();
+				}
 			}
 		}
 	}
-	
+
 	WeakRef selfRefCopy(*this);
 	
 	// Note: We had this async before. But I think other code wants to know the actual size
 	// and we only get it after we set the text.
 	execInMainThread_sync([=]() {
+		PyScopedGIL gil;
+
 		ScopedRef selfRef(selfRefCopy.scoped());
 		if(selfRef) {
 			auto self = dynamic_cast<QtOneLineTextWidget*>(selfRef.get());
