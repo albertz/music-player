@@ -488,7 +488,6 @@ class Song(object):
 					return
 			if callback: callback(self, attrib, value)
 		t = threading.Thread(target=doCalc, name = "Song(%s) attrib %s calc" % (self.userString.encode("utf-8"), attrib))
-		t.daemon = False
 		t.start()
 		t.join(timeout=timeout)
 		
