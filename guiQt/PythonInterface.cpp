@@ -253,8 +253,11 @@ guiQt_buildControl(PyObject* self, PyObject* args, PyObject* kws) {
 	}
 	ControlBuilderFunc builderFunc = getControlBuilder(controlType);
 	if(!builderFunc) {
-		PyErr_Format(PyExc_NotImplementedError, "guiQt.buildControl: %s-widget not implemented yet", controlType.c_str());
-		return NULL;
+		// The current layouting engine + setupChilds() will be messed up if this fails.
+		// So just provide some dummy fallback.
+		printf("guiQt.buildControl: %s-widget not implemented yet, using Object-widget as fallback\n", controlType.c_str());
+		builderFunc = getControlBuilder("Object");
+		assert(builderFunc);
 	}
 	
 	PyQtGuiObject* control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
