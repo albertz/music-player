@@ -27,6 +27,8 @@ struct PyQtGuiObject : GuiObject {
 	QtBaseWidget::WeakRef widget;
 	QtBaseWidget::WeakRef getParentWidget();
 
+	Autoresize autoresize;
+	
 	void addChild(QtBaseWidget::WeakRef child);
 	void updateContent();
 };

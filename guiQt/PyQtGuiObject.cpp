@@ -53,15 +53,7 @@ static Vec imp_get_innnerSize(GuiObject* obj) {
 }
 
 static Autoresize imp_get_autoresize(GuiObject* obj) {
-	Autoresize ret;
-	execInMainThread_sync([&]() {
-		QtBaseWidget::ScopedRef widget(((PyQtGuiObject*) obj)->widget);
-		if(widget) {
-			// TODO ...
-			// Not sure. I think Qt doesn't do autoresizing.
-		}
-	});
-	return ret;
+	return ((PyQtGuiObject*) obj)->autoresize;
 }
 
 static void imp_set_pos(GuiObject* obj, const Vec& v) {
@@ -81,7 +73,7 @@ static void imp_set_size(GuiObject* obj, const Vec& v) {
 }
 
 static void imp_set_autoresize(GuiObject* obj, const Autoresize& r) {
-	// TODO ...
+	((PyQtGuiObject*) obj)->autoresize = r;
 }
 
 static void imp_addChild(GuiObject* obj, GuiObject* child) {
