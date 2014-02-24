@@ -142,7 +142,8 @@ def main():
 	# We have no GUI. Continue with some simple console control handling.
 	import stdinconsole
 
-	for m in State.modules: m.start()
+	if not appinfo.args.nomodstartup:
+		for m in State.modules: m.start()
 
 	global successStartup
 	successStartup = True

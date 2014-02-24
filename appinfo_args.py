@@ -66,10 +66,13 @@ argParser.add_argument(
 	"--nolog", action="store_true", help=argparse.SUPPRESS
 )
 argParser.add_argument(
-	"--debug", action="store_true", help="enable debugging"
+	"--debug", action="store_true", help="enable debugging (atm, just more debug output)"
 )
 argParser.add_argument(
 	"--profile", action="store_true", help="enable profiling"
+)
+argParser.add_argument(
+	"--nomodstartup", action="store_strue", help="(debugging) don't load mods at startup"
 )
 
 
