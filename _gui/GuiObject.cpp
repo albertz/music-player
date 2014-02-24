@@ -321,3 +321,18 @@ void GuiObject::handleCurSelectedSong() {
 	Py_DECREF(subj);
 }
 
+void GuiObject::updateSubjectObject() {
+	PyObject* old = NULL;
+	std::swap(old, subjectObject);
+
+	if(attr && parent && parent->subjectObject) {
+		subjectObject = PyObject_CallMethod(attr, (char*)"__get__", (char*)"(O)", parent->subjectObject);
+		if(!subjectObject) {
+			if(PyErr_Occurred()) PyErr_Print();
+		}
+		if(subjectObject == Py_None)
+			Py_CLEAR(subjectObject);
+	}
+	
+	Py_CLEAR(old);
+}

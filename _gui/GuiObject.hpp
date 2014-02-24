@@ -103,6 +103,7 @@ struct GuiObject {
 	// other helpers
 	Vec setupChilds();
 	void handleCurSelectedSong();
+	void updateSubjectObject();
 };
 
 #endif

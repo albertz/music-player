@@ -11,6 +11,12 @@ class QtActionWidget : public QtBaseWidget {
 public:	
 	QtActionWidget(PyQtGuiObject* control);
 	QPushButton* buttonWidget;
+	
+	void updateContent();
+	void updateTitle();
+	
+protected:
+	void resizeEvent(QResizeEvent *);
 
 public slots:
 	void onClick();

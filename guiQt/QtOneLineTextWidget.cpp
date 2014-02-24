@@ -51,6 +51,10 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	
 }
 
+void QtOneLineTextWidget::resizeEvent(QResizeEvent *) {
+	lineEditWidget->resize(size());
+}
+
 PyObject* QtOneLineTextWidget::getTextObj() {
 	PyQtGuiObject* control = getControl();
 	PyObject* textObj = control ? control->subjectObject : NULL;
@@ -69,14 +73,7 @@ void QtOneLineTextWidget::updateContent() {
 		control = getControl();
 		if(!control) return;
 		
-		if(control->attr && control->parent && control->parent->subjectObject) {
-			PyObject* old = NULL;
-			std::swap(old, control->subjectObject);
-			control->subjectObject = control->attr ?
-				PyObject_CallMethod(control->attr, (char*)"__get__", (char*)"(O)", control->parent->subjectObject)
-				: NULL;
-			Py_CLEAR(old);
-		}
+		control->updateSubjectObject();
 	
 		{
 			PyObject* labelContent = getTextObj();
