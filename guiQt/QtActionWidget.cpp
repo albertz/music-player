@@ -11,7 +11,10 @@ QtActionWidget::QtActionWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	buttonWidget->resize(size());
 	buttonWidget->show();
 	connect(buttonWidget, SIGNAL(clicked()), this, SLOT(onClick()));
+
 	updateTitle();
+	buttonWidget->adjustSize();
+	resize(buttonWidget->size());
 }
 
 void QtActionWidget::updateContent() {

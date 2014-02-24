@@ -33,6 +33,8 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	lineEditWidget->show();
 	
 	bool withBorder = attrChain_bool_default(control->attr, "withBorder", false);
+
+	lineEditWidget->setFrame(withBorder);
 	
 	// [self setBordered:NO];
 	
@@ -43,12 +45,11 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	}
 
 	[self setDrawsBackground:NO];
-	[self setEditable:NO];
 	[[self cell] setUsesSingleLineMode:YES];
 	[[self cell] setLineBreakMode:NSLineBreakByTruncatingTail];
 	*/
-	
-	
+
+	lineEditWidget->setReadOnly(true);	
 }
 
 void QtOneLineTextWidget::resizeEvent(QResizeEvent *) {
