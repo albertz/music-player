@@ -72,7 +72,7 @@ argParser.add_argument(
 	"--profile", action="store_true", help="enable profiling"
 )
 argParser.add_argument(
-	"--nomodstartup", action="store_strue", help="(debugging) don't load mods at startup"
+	"--nomodstartup", action="store_true", help="(debugging) don't load mods at startup"
 )
 
 
