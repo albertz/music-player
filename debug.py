@@ -40,18 +40,40 @@ def addDevelSysPath():
 	sys.path = [path] + sys.path
 
 def addSysPythonPath():
+	import appinfo
 	import os
-	paths = os.environ.get("PYTHONPATH", "").split(":")
 
+	paths = os.environ.get("PYTHONPATH", "").split(":")
 	for p in paths:
+		p = p.strip()
+		try:
+			p = os.path.normpath(p)
+			p = os.path.abspath(p)
+		except OSError: continue
+		if not os.path.exists(p): continue
 		if p not in sys.path: sys.path += [p]
 
 	# This will add other custom paths, e.g. for eggs.
 	import site
+	site.main()
 
-	import appinfo
+	def addsitedir(d):
+		try:
+			d = os.path.normpath(d)
+			d = os.path.abspath(d)
+		except OSError: return
+		if os.path.exists(d):
+			site.addsitedir(d)
+
+	# We still might miss some site-dirs.
+	versionStr = ".".join(map(str, sys.version_info[0:2]))
+	addsitedir("/usr/lib/python%s/site-packages" % versionStr)
+	if sys.platform == "darwin":
+		addsitedir("/Library/Python/%s/site-packages" % versionStr)
+	addsitedir("/usr/local/lib/python%s/site-packages" % versionStr)
+
 	if not appinfo.args.forkExecProc:
-		print("Python paths: %r" % sys.path)
+		print("Python paths after: %r" % sys.path)
 
 def reloadMe():
 	"Because this is so common, handy shortcut."
@@ -71,6 +93,7 @@ def iterEggPaths():
 			yield egg
 
 def addEggPaths():
+	"Deprecated. You might just want to use addSysPythonPath(). should do the same but better"
 	for egg in iterEggPaths():
 		if egg not in sys.path:
 			sys.path += [egg]
