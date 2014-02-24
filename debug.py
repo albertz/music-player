@@ -43,15 +43,23 @@ def addSysPythonPath():
 	import appinfo
 	import os
 
-	paths = os.environ.get("PYTHONPATH", "").split(":")
-	for p in paths:
-		p = p.strip()
+	def addpath(p):
 		try:
 			p = os.path.normpath(p)
 			p = os.path.abspath(p)
-		except OSError: continue
-		if not os.path.exists(p): continue
+		except OSError: return
+		if not os.path.exists(p): return
 		if p not in sys.path: sys.path += [p]
+
+	paths = os.environ.get("PYTHONPATH", "").split(":")
+	for p in paths:
+		addpath(p.strip())
+
+	versionStr = ".".join(map(str, sys.version_info[0:2]))
+
+	if sys.platform == "darwin":
+		addpath("/usr/local/Frameworks/Python.framework/Versions/%s/lib/python%s/lib-dynload/" % (versionStr, versionStr))
+		addpath("/System/Frameworks/Python.framework/Versions/%s/lib/python%s/lib-dynload/" % (versionStr, versionStr))
 
 	# This will add other custom paths, e.g. for eggs.
 	import site
@@ -66,11 +74,10 @@ def addSysPythonPath():
 			site.addsitedir(d)
 
 	# We still might miss some site-dirs.
-	versionStr = ".".join(map(str, sys.version_info[0:2]))
+	addsitedir("/usr/local/lib/python%s/site-packages" % versionStr)
 	addsitedir("/usr/lib/python%s/site-packages" % versionStr)
 	if sys.platform == "darwin":
 		addsitedir("/Library/Python/%s/site-packages" % versionStr)
-	addsitedir("/usr/local/lib/python%s/site-packages" % versionStr)
 
 	if not appinfo.args.forkExecProc:
 		print("Python paths after: %r" % sys.path)
