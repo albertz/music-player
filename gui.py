@@ -261,15 +261,6 @@ class _GuiObject:
 		return (maxX + self.OuterSpace[0], maxY + self.OuterSpace[1])
 
 
-def _initPre():
-	from State import modules
-	for m in modules: m.start()
-
-def _initPost():
-	import main
-	main.successStartup = True
-	print "GUI init ready"
-
 
 def handleApplicationQuit():
 	"""

@@ -36,8 +36,8 @@ private slots:
 	
 public slots:
 	void openWindowViaMenu(); // gets window from sender()
-	void openMainWindow();
-	void openWindow(const std::string& name);
+	bool openMainWindow();
+	bool openWindow(const std::string& name);
 	void minimizeWindow();
 	void closeWindow();
 

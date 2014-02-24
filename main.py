@@ -39,6 +39,16 @@ else:
 	profiler = None
 
 
+def handleApplicationInit():
+	import State
+
+	if not appinfo.args.nomodstartup:
+		for m in State.modules: m.start()
+
+	global successStartup
+	successStartup = True
+
+
 def main():
 	import sys, os
 	from pprint import pprint
@@ -142,11 +152,7 @@ def main():
 	# We have no GUI. Continue with some simple console control handling.
 	import stdinconsole
 
-	if not appinfo.args.nomodstartup:
-		for m in State.modules: m.start()
-
-	global successStartup
-	successStartup = True
+	handleApplicationInit()
 
 	# Note on quit behavior: Simply iterating state.updates
 	# and waiting for its end does not work because we would

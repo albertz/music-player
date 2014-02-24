@@ -116,40 +116,37 @@ guiQt_main(PyObject* self) {
 	// We could use Python... For now, we just hope that Qt behaves sane.
 	// Anyway, on the Python side, we should have called this
 	// in the main thread.
-	
-	PyObject* guiMod = getModule("gui"); // borrowed
-	if(!guiMod) {
-		PyErr_Format(PyExc_SystemError, "guiQt.main: gui module not found");
-		return NULL;
-	}
-	
+		
 	int ret = 0;
-	Py_BEGIN_ALLOW_THREADS
-	// Keep it static. Noone should access it when we return
-	// from here, but I like to be safe anyway.
-	static QtApp app;
-	
 	{
-		PyScopedGIL gil;	
-		PyObject* init1 = PyObject_CallMethod(guiMod, (char*)"_initPre", NULL);
-		if(!init1) return NULL;
-		Py_DECREF(init1);
+		PyScopedGIUnlock giunlock;
+
+		// Keep it static. Noone should access it when we return
+		// from here, but I like to be safe anyway.
+		static QtApp app;
+		
+		setupMenu();
+
+		if(!app.openMainWindow()) {
+			PyScopedGIL gil;
+			PyErr_SetString(PyExc_SystemError, "guiQt.main: failed to create main window");
+			return NULL;			
+		}
+		
+		{
+			PyScopedGIL gil;
+			PyObject* initRet = handleModuleCommand("main", "handleApplicationInit", NULL);
+			if(!initRet) {
+				PyErr_SetString(PyExc_SystemError, "guiQt.main: main.handleApplicationInit() error");
+				return NULL;
+			}
+			Py_DECREF(initRet);
+		}
+		
+		// Enter the Qt main event loop.
+		ret = app.exec();
+		// Note that it depends on the Qt backend whether we return here or not.
 	}
-	
-	setupMenu();
-	app.openMainWindow();
-	
-	{	
-		PyScopedGIL gil;	
-		PyObject* init2 = PyObject_CallMethod(guiMod, (char*)"_initPost", NULL);
-		if(!init2) return NULL;
-		Py_DECREF(init2);
-	}
-	
-	// Enter the Qt main event loop.
-	ret = app.exec();
-	// Note that it depends on the Qt backend whether we return here or not.
-	Py_END_ALLOW_THREADS
 	
 	PyErr_SetObject(PyExc_SystemExit, PyInt_FromLong(ret));
 	return NULL;

@@ -84,24 +84,24 @@ void QtApp::openWindowViaMenu() {
 	openWindow(act->objectName().toStdString());
 }
 
-void QtApp::openMainWindow() {
-	openWindow("Main");
+bool QtApp::openMainWindow() {
+	return openWindow("Main");
 }
 
-void QtApp::openWindow(const std::string& name) {
+bool QtApp::openWindow(const std::string& name) {
 	assert(QThread::currentThread() == qApp->thread());
 	
 	PyScopedGIL gil;
 
 	PyObject* rootObj = handleModuleCommand("gui", "RootObjs.__getitem__", "(s)", name.c_str());
-	if(!rootObj) return; // Python errs already handled in handleModuleCommand
+	if(!rootObj) return false; // Python errs already handled in handleModuleCommand
 	
 	PyQtGuiObject* control = NULL;
 	control = (PyQtGuiObject*) PyObject_GetAttrString(rootObj, "guiObj");
 	if(!control) {
 		if(PyErr_Occurred()) PyErr_Print();
 		Py_DECREF(rootObj);
-		return;		
+		return false;		
 	}
 	
 	if((PyObject*) control == Py_None) Py_CLEAR(control);
@@ -110,7 +110,7 @@ void QtApp::openWindow(const std::string& name) {
 			QtBaseWidget::ScopedRef win(control->widget);
 			if(win) {
 				win->show();
-				return;
+				return true;
 			}
 			// continue with existing control but create new window
 		}
@@ -126,7 +126,7 @@ void QtApp::openWindow(const std::string& name) {
 		if(!control) {
 			if(PyErr_Occurred()) PyErr_Print();
 			Py_DECREF(rootObj);
-			return;
+			return false;
 		}
 
 		assert(control->root == NULL);
@@ -138,7 +138,7 @@ void QtApp::openWindow(const std::string& name) {
 			if(PyErr_Occurred()) PyErr_Print();			
 			Py_DECREF(rootObj);
 			Py_DECREF(control);
-			return;
+			return false;
 		}
 	}
 	
@@ -146,7 +146,7 @@ void QtApp::openWindow(const std::string& name) {
 		if(PyErr_Occurred()) PyErr_Print();
 		Py_DECREF(rootObj);
 		Py_DECREF(control);
-		return;		
+		return false;		
 	}
 	
 	// check subjectObject
@@ -194,6 +194,7 @@ void QtApp::openWindow(const std::string& name) {
 	
 	Py_DECREF(rootObj);
 	Py_DECREF(control);
+	return true;
 }
 
 void QtApp::minimizeWindow() {
