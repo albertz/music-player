@@ -280,6 +280,14 @@ int GuiObject::setattr(const char* key, PyObject* value) {
 }
 
 
+void GuiObject::layout() {
+	PyObject* ret = PyObject_CallMethod((PyObject*) this, (char*)"layout", NULL);
+	if(!ret) {
+		if(PyErr_Occurred()) PyErr_Print();
+	}
+	Py_XDECREF(ret);
+}
+
 Vec GuiObject::setupChilds() {
 	Vec sizeVec;
 	PyObject* size = PyObject_CallMethod((PyObject*) this, (char*)"setupChilds", NULL);

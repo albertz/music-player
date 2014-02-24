@@ -101,6 +101,7 @@ struct GuiObject {
 	void (*meth_childIter)(GuiObject*, boost::function<void(GuiObject* child, bool& stop)>); // used by tp_traverse if set
 	
 	// other helpers
+	void layout();
 	Vec setupChilds();
 	void handleCurSelectedSong();
 	void updateSubjectObject();

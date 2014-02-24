@@ -13,6 +13,7 @@
 
 struct QtObjectWidget : QtBaseWidget {
 	QtObjectWidget(PyQtGuiObject* control);
+	void resizeEvent(QResizeEvent *);
 };
 
 #endif

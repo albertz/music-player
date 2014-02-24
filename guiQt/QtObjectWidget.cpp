@@ -19,3 +19,9 @@ QtObjectWidget::QtObjectWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	resize(size.x, size.y);
 	setBaseSize(size.x, size.y);
 }
+
+void QtObjectWidget::resizeEvent(QResizeEvent *) {
+	PyScopedGIL gil;
+	PyQtGuiObject* control = getControl();
+	if(control) control->layout();
+}
