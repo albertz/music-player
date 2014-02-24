@@ -115,8 +115,10 @@ void QtOneLineTextWidget::updateContent() {
 			
 			bool autosizeWidth = attrChain_bool_default(control->attr, "autosizeWidth", false);
 			if(autosizeWidth) {
-				self->lineEditWidget->adjustSize();
-				self->adjustSize(); // adjust size to the text content
+				QFontMetrics metrics(self->lineEditWidget->fontMetrics());
+				int w = metrics.boundingRect(self->lineEditWidget->text()).width();
+				self->resize(w, self->height());
+				
 				PyObject* res = PyObject_CallMethod((PyObject*) control, (char*)"layoutLine", NULL);
 				if(!res && PyErr_Occurred()) PyErr_Print();
 				Py_XDECREF(res);
