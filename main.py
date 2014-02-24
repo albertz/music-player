@@ -49,6 +49,10 @@ def handleApplicationInit():
 
 	if not appinfo.args.nomodstartup:
 		for m in State.modules: m.start()
+	else:
+		# In some cases, we at least need some modules. Start only those.
+		if appinfo.args.shell:
+			State.getModule("stdinconsole").start()
 
 	global successStartup
 	successStartup = True
