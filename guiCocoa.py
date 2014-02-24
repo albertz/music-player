@@ -82,14 +82,12 @@ def setupAppleMenu():
 	AppKit.NSApp.setMainMenu_(mainMenu)
 
 def setupAfterAppFinishedLaunching():
-	import gui
-	gui._initPre()
-
 	setupAppleMenu()
 	setupMainWindow()
 	AppKit.NSApp.updateWindows()
 
-	gui._initPost()
+	import main
+	main.handleApplicationInit()
 
 
 def getWindow(name):
