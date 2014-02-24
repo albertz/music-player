@@ -38,12 +38,14 @@ QtBaseWidget::~QtBaseWidget() {
 	}
 }
 
-QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentWidget().scoped().ptr) {
+QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) :
+	QWidget(control->getParentWidget().scoped().ptr),
+	controlRef(NULL),
+	handleResize(false)
+{	
 	selfRef = boost::shared_ptr<LockedRef>(new LockedRef(*this));
 	control->widget = QtBaseWidget::WeakRef(*this);	
-	
-	resize(control->PresetSize.x, control->PresetSize.y);
-	
+		
 	{
 		PyScopedGIL gil;
 		controlRef = (PyWeakReference*) PyWeakref_NewRef((PyObject*) control, NULL);
@@ -57,7 +59,7 @@ QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) : QWidget(control->getParentW
 		this->setFocusPolicy(Qt::StrongFocus);
 	else
 		this->setFocusPolicy(Qt::NoFocus);
-	
+		
 	//if(canHaveFocus)
 	//	[self setDrawsBackground:YES];
 }
@@ -102,12 +104,20 @@ void QtBaseWidget::mousePressEvent(QMouseEvent* ev) {
 }
 
 void QtBaseWidget::resizeEvent(QResizeEvent* ev) {
+	// TODO: XXX remove this. currently some crash. but also when we return here.
+	return;
+	
+	if(handleResize) return; // avoid infinite recursion
+	handleResize = true;
+	
 	QWidget::resizeEvent(ev);
 	
 	PyScopedGIL gil;
 	PyQtGuiObject* control = getControl();
 	if(control) control->layout();
-	Py_XDECREF(control);	
+	Py_XDECREF(control);
+	
+	handleResize = false;
 }
 
 /*

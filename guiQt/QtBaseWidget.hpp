@@ -70,7 +70,9 @@ struct QtBaseWidget : QWidget {
 	typedef boost::function<void(GuiObject*, bool& stop)> ChildIterCallback;
 	virtual void childIter(ChildIterCallback) {}
 	
-	virtual void mousePressEvent(QMouseEvent*);	
+	virtual void mousePressEvent(QMouseEvent*);
+	
+	bool handleResize;
 	virtual void resizeEvent(QResizeEvent*);
 	// TODO: dragging
 };
