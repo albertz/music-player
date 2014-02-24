@@ -38,6 +38,11 @@ if __name__ == '__main__' and appinfo.args.profile:
 else:
 	profiler = None
 
+# Early check for "--addsyspythonpaths".
+# Add System Python paths.
+if __name__ == '__main__' and appinfo.args.addsyspythonpaths:
+	import debug
+	debug.addSysPythonPath()
 
 def handleApplicationInit():
 	import State

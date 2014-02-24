@@ -74,6 +74,9 @@ argParser.add_argument(
 argParser.add_argument(
 	"--nomodstartup", action="store_true", help="(debugging) don't load mods at startup"
 )
+argParser.add_argument(
+	"--addsyspythonpaths", action="store_true", help="(debugging) add System Python paths"
+)
 
 
 class ArgParserExitException(Exception): pass

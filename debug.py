@@ -39,6 +39,20 @@ def addDevelSysPath():
 	assert path, "devel path not found"
 	sys.path = [path] + sys.path
 
+def addSysPythonPath():
+	import os
+	paths = os.environ.get("PYTHONPATH", "").split(":")
+
+	for p in paths:
+		if p not in sys.path: sys.path += [p]
+
+	# This will add other custom paths, e.g. for eggs.
+	import site
+
+	import appinfo
+	if not appinfo.args.forkExecProc:
+		print("Python paths: %r" % sys.path)
+
 def reloadMe():
 	"Because this is so common, handy shortcut."
 	addDevelSysPath()
