@@ -191,6 +191,7 @@ bool QtApp::openWindow(const std::string& name) {
 	// ...
 	
 	win->show();
+	control->layout();
 	
 	Py_DECREF(rootObj);
 	Py_DECREF(control);

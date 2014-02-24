@@ -52,7 +52,8 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	lineEditWidget->setReadOnly(true);	
 }
 
-void QtOneLineTextWidget::resizeEvent(QResizeEvent *) {
+void QtOneLineTextWidget::resizeEvent(QResizeEvent* ev) {
+	QtBaseWidget::resizeEvent(ev);
 	lineEditWidget->resize(size());
 }
 
@@ -85,6 +86,8 @@ void QtOneLineTextWidget::updateContent() {
 				}
 			}
 		}
+		
+		Py_DECREF(control);
 	}
 
 	WeakRef selfRefCopy(*this);

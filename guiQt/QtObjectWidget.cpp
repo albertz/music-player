@@ -13,15 +13,11 @@ RegisterControl(Object)
 
 QtObjectWidget::QtObjectWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	PyScopedGIL gil;
+	
 	control->OuterSpace = Vec(0,0);
+	resize(control->PresetSize.x, control->PresetSize.y);
+	
 	Vec size = control->setupChilds();
-
 	resize(size.x, size.y);
 	setBaseSize(size.x, size.y);
-}
-
-void QtObjectWidget::resizeEvent(QResizeEvent *) {
-	PyScopedGIL gil;
-	PyQtGuiObject* control = getControl();
-	if(control) control->layout();
 }

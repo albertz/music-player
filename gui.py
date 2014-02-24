@@ -135,6 +135,7 @@ class _GuiObject:
 				control.pos = (x,y)
 				control.size = (w,h)
 				control.autoresize = (False,False,True,False)
+				control.layout()
 				break
 			else:
 				x -= w
@@ -157,6 +158,8 @@ class _GuiObject:
 	def layout(self):		
 		lastVertControls = list(self.childGuiObjectsInColumn())
 		if not lastVertControls: return
+		for control in lastVertControls:
+			control.layoutLine()
 		if not self.autoresize[3]:
 			w,h = self.size
 			lastCtr = lastVertControls[-1]
@@ -239,7 +242,6 @@ class _GuiObject:
 				y = maxY + spaceY
 				control.topGuiObject = lastControl
 				if lastControl:
-					lastControl.layoutLine()
 					lastControl.bottomGuiObject = control
 			
 			else: # very first
@@ -252,11 +254,7 @@ class _GuiObject:
 			maxY = max(maxY, control.pos[1] + control.size[1])
 		
 			control.updateContent()
-		
-		if lastControl:
-			lastControl.layoutLine()
-			self.layout()
-					
+
 		# Handy for now. This return might change.
 		return (maxX + self.OuterSpace[0], maxY + self.OuterSpace[1])
 

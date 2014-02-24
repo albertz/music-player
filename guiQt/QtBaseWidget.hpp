@@ -71,6 +71,7 @@ struct QtBaseWidget : QWidget {
 	virtual void childIter(ChildIterCallback) {}
 	
 	virtual void mousePressEvent(QMouseEvent*);	
+	virtual void resizeEvent(QResizeEvent*);
 	// TODO: dragging
 };
 

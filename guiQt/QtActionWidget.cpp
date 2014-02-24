@@ -43,9 +43,12 @@ void QtActionWidget::updateTitle() {
 		
 		Py_DECREF(attrName);
 	}
+	
+	Py_DECREF(control);
 }
 
-void QtActionWidget::resizeEvent(QResizeEvent *) {
+void QtActionWidget::resizeEvent(QResizeEvent* ev) {
+	QtBaseWidget::resizeEvent(ev);
 	buttonWidget->resize(size());
 }
 
@@ -53,6 +56,7 @@ void QtActionWidget::onClick() {
 	PyScopedGIL gil;
 	PyQtGuiObject* control = getControl();
 	if(!control) return;
+
 	control->updateSubjectObject();
 	if(control->subjectObject) {
 		PyObject* ret = PyObject_CallFunction(control->subjectObject, NULL);
@@ -61,4 +65,6 @@ void QtActionWidget::onClick() {
 		}
 		Py_XDECREF(ret);
 	}
+	
+	Py_DECREF(control);
 }

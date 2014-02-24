@@ -101,6 +101,15 @@ void QtBaseWidget::mousePressEvent(QMouseEvent* ev) {
 	Py_XDECREF(control);
 }
 
+void QtBaseWidget::resizeEvent(QResizeEvent* ev) {
+	QWidget::resizeEvent(ev);
+	
+	PyScopedGIL gil;
+	PyQtGuiObject* control = getControl();
+	if(control) control->layout();
+	Py_XDECREF(control);	
+}
+
 /*
 - (void)mouseDragged:(NSEvent *)ev
 {
