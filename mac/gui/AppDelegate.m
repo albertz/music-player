@@ -239,29 +239,7 @@ final:
 
 - (void)about:(id)sender
 {
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	
-	PyObject* mod = getModule("gui"); // borrowed
-	PyObject* callback = NULL;
-	PyObject* ret = NULL;
-	if(!mod) {
-		printf("Warning: Did not find gui module.\n");
-		goto final;
-	}
-	callback = PyObject_GetAttrString(mod, "about");
-	if(!callback) {
-		printf("Warning: gui.about not found.\n");
-		goto final;
-	}
-	ret = PyObject_CallFunction(callback, NULL);
-	
-final:
-	if(PyErr_Occurred())
-		PyErr_Print();
-	
-	Py_XDECREF(ret);
-	Py_XDECREF(callback);
-	PyGILState_Release(gstate);
+	handleModuleCommand_noReturn("gui", "about", NULL);
 }
 
 - (void)playPause:(id)sender
