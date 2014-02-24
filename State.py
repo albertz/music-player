@@ -159,6 +159,7 @@ class State(object):
 
 	def quit(self):
 		# XXX: Is this still used?
+		# XXX: doesn't really work. OSX ignores the SIGINT if the cocoa mainloop runs
 		def doQuit():
 			""" This works in all threads except the main thread. It will quit the whole app.
 			For more information about why we do it this way, read the comment in main.py.
