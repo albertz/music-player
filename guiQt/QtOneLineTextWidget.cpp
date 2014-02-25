@@ -85,9 +85,7 @@ void QtOneLineTextWidget::updateContent() {
 					if(PyErr_Occurred()) PyErr_Print();
 				}
 			}
-		}
-		
-		Py_DECREF(control);
+		}		
 	}
 
 	WeakRef selfRefCopy(*this);
