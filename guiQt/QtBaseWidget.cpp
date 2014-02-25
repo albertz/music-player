@@ -104,9 +104,6 @@ void QtBaseWidget::mousePressEvent(QMouseEvent* ev) {
 }
 
 void QtBaseWidget::resizeEvent(QResizeEvent* ev) {
-	// TODO: XXX remove this. currently some crash. but also when we return here.
-	return;
-	
 	if(handleResize) return; // avoid infinite recursion
 	handleResize = true;
 	
