@@ -119,6 +119,7 @@ void QtOneLineTextWidget::updateContent() {
 			if(autosizeWidth) {
 				QFontMetrics metrics(self->lineEditWidget->fontMetrics());
 				int w = metrics.boundingRect(self->lineEditWidget->text()).width();
+				w += 5; // TODO: margin size?
 				self->resize(w, self->height());
 				
 				PyObject* res = PyObject_CallMethod((PyObject*) control, (char*)"layoutLine", NULL);
