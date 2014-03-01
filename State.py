@@ -222,11 +222,13 @@ def reloadModules():
 
 class About(object):
 	@UserAttrib(type=Traits.OneLineText)
+	@property
 	def appname(self):
 		import appinfo
 		return appinfo.progname
 
 	@UserAttrib(type=Traits.OneLineText)
+	@property
 	def developer(self):
 		return "by Albert Zeyer"
 
