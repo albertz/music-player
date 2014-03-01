@@ -75,13 +75,13 @@ class _GuiObject:
 			self._updateHandler = lambda: do_in_mainthread(self.updateContent, wait=False)
 			getattr(self.subjectObject, "_updateEvent").register(self._updateHandler)
 
-	def updateChild(self, control):
-		if control.attr and control.attr.updateHandler:
+	def updateChild(self, child):
+		if child.attr and child.attr.updateHandler:
 			try:
-				control.attr.updateHandler(self.subjectObject, control.attr)
+				child.attr.updateHandler(self.subjectObject, child.attr)
 			except Exception:
 				sys.excepthook(*sys.exc_info())
-		control.updateContent()
+		child.updateContent()
 
 	def updateContent(self):
 		self.updateSubjectObject()
