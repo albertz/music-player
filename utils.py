@@ -126,9 +126,9 @@ class Event:
 			self.targets.append(weakref.ref(target))
 		
 class initBy(object):
-	def __init__(self, initFunc):
+	def __init__(self, initFunc, name=None):
 		self.initFunc = initFunc
-		self.name = initFunc.func_name
+		self.name = name or initFunc.func_name
 		self.attrName = "_" + self.name
 	def load(self, inst):
 		if not hasattr(inst, self.attrName):
@@ -196,7 +196,14 @@ class UserAttrib(object):
 
 	updateEventSlot = None
 
-	def __init__(self, **kwargs):
+	def __init__(self, addUpdateEvent=False, **kwargs):
+		# Keep an index. This is so that we know the order of initialization later on.
+		# This is better for the GUI representation so we can order it the same way
+		# as it is defined in the class.
+		# iterUserAttribs() uses this.
+		self.__class__.staticCounter += 1
+		self.index = self.__class__.staticCounter
+
 		for key in dir(self.MetaAttribs):
 			if key.startswith("_"): continue
 			setattr(self, key, getattr(self.MetaAttribs, key))
@@ -206,13 +213,7 @@ class UserAttrib(object):
 			if not hasattr(self.MetaAttribs, key):
 				raise TypeError, "meta attrib %r unknown" % key
 			setattr(self, key, value)
-
-		# Keep an index. This is so that we know the order of initialization later on.
-		# This is better for the GUI representation so we can order it the same way
-		# as it is defined in the class.
-		# iterUserAttribs() uses this.
-		self.__class__.staticCounter += 1
-		self.index = self.__class__.staticCounter
+		self._addUpdateEvent = addUpdateEvent
 
 	def getTypeClass(self):
 		import inspect
@@ -275,6 +276,8 @@ class UserAttrib(object):
 	def __call__(self, attrib):
 		if not self.name:
 			self.name = self._getName(attrib)
+		if self._addUpdateEvent:
+			self.updateEventSlot = initBy(initFunc=Event, name="%s_updateEvent" % self.name)
 		self.value = attrib
 		return self
 	def __repr__(self):
