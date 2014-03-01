@@ -74,7 +74,7 @@ class SongEdit:
 		factor = 10.0 ** (gain / 20.0)
 		return "%f dB (factor %f)" % (gain, factor)
 
-	@UserAttrib(type=Traits.Table(keys=("key", "value")), variableHeight=True, addUpdateEvent=True)
+	@UserAttrib(type=Traits.Table(keys=("key", "value")), variableHeight=True)
 	@property
 	def metadata(self):
 		d = dict(self.song.metadata)
