@@ -248,9 +248,6 @@ class UserAttrib(object):
 					return self(value)
 				return wrappedFunc
 		return Wrapper()
-	def setUpdateEvent(self, updateProp):
-		self.updateEventSlot = updateProp
-		return updateProp
 	def hasUpdateEvent(self):
 		return self.updateEventSlot
 	def updateEvent(self, inst, type=None):
