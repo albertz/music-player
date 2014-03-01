@@ -169,41 +169,42 @@ class UserAttrib(object):
 	Note that this lays in the utils module because it is completely decoupled
 	from the GUI. It only stores information which might be useful for a GUI.
 	"""
+
 	staticCounter = 0
-	def __init__(self, name=None, type=None, writeable=False, updateHandler=None,
-				 alignRight=False,
-				 spaceX=None, spaceY=None,
-				 width=None, height=None,
-				 variableWidth=None, variableHeight=False,
-				 autosizeWidth=False,
-				 highlight=False, lowlight=False,
-				 canHaveFocus=False,
-				 withBorder=False,
-				 searchLook=False,
-				 autoScrolldown=False,
-				 dragHandler=None,
-				 selectionChangeHandler=None,
-				 ):
-		self.name = name
-		self.type = type
-		self.writeable = writeable
-		self.updateHandler = updateHandler
-		self.alignRight = alignRight
-		self.spaceX = spaceX
-		self.spaceY = spaceY
-		self.width = width
-		self.height = height
-		self.variableWidth = variableWidth
-		self.variableHeight = variableHeight
-		self.autosizeWidth = autosizeWidth
-		self.highlight = highlight
-		self.lowlight = lowlight
-		self.canHaveFocus = canHaveFocus
-		self.withBorder = withBorder
-		self.searchLook = searchLook
-		self.autoScrolldown = autoScrolldown
-		self.dragHandler = dragHandler
-		self.selectionChangeHandler = selectionChangeHandler
+
+	class MetaAttribs:
+		name = None
+		type = None
+		writeable = False
+		updateHandler = None
+		alignRight = False
+		spaceX = None
+		spaceY = None
+		width = None
+		height = None
+		variableWidth = None
+		variableHeight = False
+		autosizeWidth = False
+		highlight = False
+		lowlight = False
+		canHaveFocus = False
+		withBorder = False
+		searchLook = False
+		autoScrolldown = False
+		dragHandler = None
+		selectionChangeHandler = None
+
+	def __init__(self, **kwargs):
+		for key in dir(self.MetaAttribs):
+			if key.startswith("_"): continue
+			setattr(self, key, getattr(self.MetaAttribs, key))
+		for key, value in kwargs.iteritems():
+			if key.startswith("_"):
+				raise TypeError, "meta attrib %r invalid" % key
+			if not hasattr(self.MetaAttribs, key):
+				raise TypeError, "meta attrib %r unknown" % key
+			setattr(self, key, value)
+		
 		self.__class__.staticCounter += 1
 		# Keep an index. This is so that we know the order of initialization later on.
 		# This is better for the GUI representation so we can order it the same way
