@@ -14,16 +14,19 @@ import gui
 # and then some drastic simplification. Most of it should be one-liners.
 
 class SongEdit:
+	# This is used by the GUI update system.
 	@initBy
 	def _updateEvent(self): return Event()
-	
+
+	def _updateHandler(self):
+		self._updateEvent.push()
+
 	def __init__(self, ctx=None):
 		if not ctx:
 			import gui
 			ctx = gui.ctx()
 			assert ctx, "no gui context"
 		self.ctx = ctx
-		self._updateHandler = lambda: self._updateEvent.push()
 		ctx.curSelectedSong_updateEvent.register(self._updateHandler)
 		
 	@UserAttrib(type=Traits.Object)
@@ -71,7 +74,7 @@ class SongEdit:
 		factor = 10.0 ** (gain / 20.0)
 		return "%f dB (factor %f)" % (gain, factor)
 
-	@UserAttrib(type=Traits.Table(keys=("key", "value")), variableHeight=True)
+	@UserAttrib(type=Traits.Table(keys=("key", "value")), variableHeight=True, addUpdateEvent=True)
 	@property
 	def metadata(self):
 		d = dict(self.song.metadata)
@@ -100,9 +103,6 @@ class SongEdit:
 		for key,value in sorted(d.items()):
 			l += [{"key": key, "value": value}]
 		return l
-	@metadata.setUpdateEvent
-	@property
-	def metadata_updateEvent(self): return self.song._updateEvent
 
 	def _queryAcoustId(self):
 		fingerprint = self.song.get("fingerprint_AcoustId", timeout=None)[0]
@@ -144,16 +144,14 @@ class SongEdit:
 		self._queryAcoustId_selection = selection
 		
 	@UserAttrib(type=Traits.Table(keys=("artist", "title", "album", "track", "score")),
-		selectionChangeHandler=queryAcoustIdResults_selectionChangeHandler)
+		selectionChangeHandler=queryAcoustIdResults_selectionChangeHandler,
+		addUpdateEvent=True)
 	@property
 	def queryAcoustIdResults(self):
 		if getattr(self, "_queryAcoustIdResults_songId", "") != getattr(self.song, "id", ""):
 			return []
 		return list(getattr(self, "_queryAcoustIdResults", []))
-	@queryAcoustIdResults.setUpdateEvent
-	@initBy
-	def queryAcoustIdResults_updateEvent(self): return Event()
-				
+
 	@UserAttrib(type=Traits.Action, variableWidth=False)
 	def queryAcoustId(self):
 		data = self._queryAcoustId()
@@ -183,7 +181,7 @@ class SongEdit:
 					self._queryAcoustIdResults += [entry]
 		if not self._queryAcoustIdResults:
 			self._queryAcoustIdResults += [{"artist":"- None found -","title":"","album":"","track":""}]
-		self.queryAcoustIdResults_updateEvent.push()
+		self.__class__.queryAcoustIdResults.updateEvent(self).push()
 		
 	@UserAttrib(type=Traits.Action, variableWidth=False, alignRight=True)
 	def apply(self):

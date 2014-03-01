@@ -69,7 +69,8 @@ class Preferences(object):
 
 	@UserAttrib(type=Traits.EditableText,
 		alignRight=True, variableWidth=True,
-		width=200 # this forces a min-width
+		width=200, # this forces a min-width
+		addUpdateEvent=True
 		)
 	def sampleRate(self, updateText=None):
 		if updateText is not None and self._sampleRateStr != updateText:
@@ -79,13 +80,9 @@ class Preferences(object):
 		rate = str(self._sampleRate / 1000)
 		return rate + "k"
 
-	@sampleRate.setUpdateEvent
-	@initBy
-	def sampleRate_updateEvent(self): return Event()
-
 	@UserAttrib(type=Traits.Action, name="apply", alignRight=True, variableWidth=False)
 	def applySampleRate(self):
-		self.sampleRate_updateEvent.push()
+		self.__class__.sampleRate.updateEvent(self).push()
 
 		self._sampleRateStr, rate = None, self._sampleRateStr
 		if rate is None: return
@@ -118,9 +115,9 @@ class Preferences(object):
 		else:
 			attrib.name = "Last.fm is disabled. Enable it."
 
-	@UserAttrib(type=Traits.Action, updateHandler=lastFm_update, variableWidth=False)
+	@UserAttrib(type=Traits.Action, updateHandler=lastFm_update, variableWidth=False, addUpdateEvent=True)
 	def lastFm(self):
-		self.lastFm_updateEvent.push()
+		self.__class__.lastFm.updateEvent(self).push()
 
 		from appinfo import config
 		config.lastFm = not config.lastFm
@@ -128,10 +125,6 @@ class Preferences(object):
 
 		from State import getModule
 		getModule("tracker_lastfm").reload()
-
-	@lastFm.setUpdateEvent
-	@initBy
-	def lastFm_updateEvent(self): return Event()
 
 	@UserAttrib(type=Traits.Action, alignRight=True, name="reset Last.fm login", variableWidth=False)
 	def resetLastFm(self):

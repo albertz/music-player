@@ -26,7 +26,7 @@ class Search:
 			with self._lock:
 				if self._searchText == txt:
 					self._searchResults = res
-					self.searchResults_updateEvent.push()
+					self.__class__.searchResults.updateEvent(self).push()
 		with self._lock:
 			self._searchText = txt
 			utils.daemonThreadCall(search, name="Song DB search")
@@ -41,16 +41,13 @@ class Search:
 	@UserAttrib(type=Traits.Table(keys=Keys,
 		format_duration=lambda d: formatTime(d) if d > 0 else "",
 		format_rating=lambda r: "★" * int(round(r * 5))),
-		variableHeight=True)
+		variableHeight=True,
+		addUpdateEvent=True)
 	@property
 	def searchResults(self):
 		with self._lock:
 			return list(self._searchResults)
 
-	@searchResults.setUpdateEvent
-	@initBy
-	def searchResults_updateEvent(self): return Event()
-	
 search = Search()
 
 gui.registerRootObj(obj=search, name="Search", priority=-1, keyShortcut='2')
