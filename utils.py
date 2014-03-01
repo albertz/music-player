@@ -194,6 +194,8 @@ class UserAttrib(object):
 		dragHandler = None
 		selectionChangeHandler = None
 
+	updateEventSlot = None
+
 	def __init__(self, **kwargs):
 		for key in dir(self.MetaAttribs):
 			if key.startswith("_"): continue
@@ -204,13 +206,14 @@ class UserAttrib(object):
 			if not hasattr(self.MetaAttribs, key):
 				raise TypeError, "meta attrib %r unknown" % key
 			setattr(self, key, value)
-		
-		self.__class__.staticCounter += 1
+
 		# Keep an index. This is so that we know the order of initialization later on.
 		# This is better for the GUI representation so we can order it the same way
 		# as it is defined in the class.
 		# iterUserAttribs() uses this.
+		self.__class__.staticCounter += 1
 		self.index = self.__class__.staticCounter
+
 	def getTypeClass(self):
 		import inspect
 		if inspect.isclass(self.type): return self.type
@@ -245,12 +248,12 @@ class UserAttrib(object):
 				return wrappedFunc
 		return Wrapper()
 	def setUpdateEvent(self, updateProp):
-		self._updates = updateProp
+		self.updateEventSlot = updateProp
 		return updateProp
 	def hasUpdateEvent(self):
-		return getattr(self, "_updates", None)
+		return self.updateEventSlot
 	def updateEvent(self, inst, type=None):
-		return self._updates.__get__(inst, type)
+		return self.updateEventSlot.__get__(inst, type)
 	@classmethod
 	def _set(cls, name, inst, value):
 		cls._getUserAttribDict(inst)[name] = value
