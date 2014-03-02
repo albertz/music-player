@@ -262,8 +262,13 @@ class UserAttrib(object):
 			self.value = value
 			return
 		if hasattr(self.value, "__set__"):
-			return self.value.__set__(inst, value)
-		self.set(inst, value)
+			self.value.__set__(inst, value)
+		else:
+			self.set(inst, value)
+		if self.hasUpdateEvent():
+			# Do it in a separate thread because we don't expect that some __set__
+			# could perform badly or even result in some recursive call.
+			daemonThreadCall(self.updateEvent, args=(inst,), name="%r update event callback" % self)
 	@classmethod
 	def _getName(cls, obj):
 		if hasattr(obj, "name"): return obj.name
