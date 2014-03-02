@@ -158,14 +158,8 @@ class _GuiObject:
 	def layout(self):		
 		lastVertControls = list(self.childGuiObjectsInColumn())
 		if not lastVertControls: return
-		for control in lastVertControls:
-			control.layoutLine()
-		if not self.autoresize[3]:
-			w,h = self.size
-			lastCtr = lastVertControls[-1]
-			h = lastCtr.pos[1] + lastCtr.size[1]
-			self.size = (w,h)
-			return
+
+		# Search variable-height-control.
 		varHeightControl = None
 		for control in lastVertControls:
 			if control.attr.variableHeight:
@@ -175,31 +169,65 @@ class _GuiObject:
 			varHeightControl = lastVertControls[-1]
 			if varHeightControl.attr.variableHeight is False:
 				# It explicitly doesn't want to be of variable size.
-				return
-		y = self.innerSize[1] - self.OuterSpace[1]
-		for control in reversed(lastVertControls):
-			w,h = control.size
-			x = control.pos[0]
-			
-			if control is varHeightControl:
-				h = y - control.pos[1]
-				y = control.pos[1]
+				varHeightControl = None
+
+		# Set y-pos from top to bottom, until we get to the varHeightControl.
+		# XXX: Exactly this is already done in setupChilds, isn't it?
+		if False:
+			y = self.OuterSpace[1]
+			for control in lastVertControls:
+				if control is varHeightControl: break
+
+				x = control.pos[0]
 				control.pos = (x,y)
-				control.size = (w,h)
-				control.autoresize = control.autoresize[0:3] + (True,)
-				control.layout()
-				break
-			else:
-				y -= h
-				for lineControl in control.guiObjectsInLine():
-					lineControl.pos = (lineControl.pos[0],y)
-					lineControl.autoresize = lineControl.autoresize[0:1] + (True,) + lineControl.autoresize[2:4]
-				y -= self.DefaultSpace[1]
-	
+
+				if control.attr.spaceY is not None: y += control.attr.spaceY
+				else: y += self.DefaultSpace[1]
+				y += control.size[1]
+
+		if varHeightControl:
+			# Set y-pos from bottom to top, until we get to the varHeightControl.
+			y = self.innerSize[1] - self.OuterSpace[1]
+			for control in reversed(lastVertControls):
+				w,h = control.size
+				x = control.pos[0]
+
+				if control is varHeightControl:
+					h = y - control.pos[1]
+					y = control.pos[1]
+					control.pos = (x,y)
+					control.size = (w,h)
+					control.autoresize = control.autoresize[0:3] + (True,)
+					# The size has changed, thus update its layout.
+					control.layout()
+					break
+				else:
+					y -= h
+					for lineControl in control.guiObjectsInLine():
+						lineControl.pos = (lineControl.pos[0],y)
+						lineControl.autoresize = lineControl.autoresize[0:1] + (True,) + lineControl.autoresize[2:4]
+					y -= self.DefaultSpace[1]
+
+		for control in lastVertControls:
+			control.layoutLine()
+
+		# If we are not auto-resizable in height,
+		# set our own height according to the last control.
+		if not self.autoresize[3]:
+			w,h = self.size
+			lastCtr = lastVertControls[-1]
+			h = lastCtr.pos[1] + lastCtr.size[1]
+			self.size = (w,h)
+
 	firstChildGuiObject = None
 	childs = {} # (attrName -> guiObject) map. this might change...
 	def setupChilds(self):
-		"If this is a container (a generic object), this does the layouting of the childs"
+		"""
+		If this is a container (a generic object), this creates + setups the child controls.
+		It does some initial layouting, also to calculate a size-indication, which is then returned.
+		However, you can set another size after it and you are supposed to call `layout()`
+		in the end.
+		"""
 
 		self.updateSubjectObject()
 		self.firstChildGuiObject = None
