@@ -154,7 +154,7 @@ final:
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-	printf("My app delegate: finish launching\n");
+	printf("guiCocoa: My app delegate: finish launching\n");
 	
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	
@@ -196,7 +196,7 @@ final:
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSNotification *)aNotification
 {
-	printf("My app delegate: should terminate\n");
+	printf("guiCocoa: My app delegate: should terminate\n");
 	ThreadHangDetector_unregisterCurThread();
 	handleModuleCommand_noReturn("gui", "handleApplicationQuit", NULL);
 	return NSTerminateNow;
@@ -259,7 +259,7 @@ final:
 
 - (void)dealloc
 {
-	printf("My app delegate dealloc\n");
+	printf("guiCocoa: My app delegate dealloc\n");
 }
 
 @end
