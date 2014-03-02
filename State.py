@@ -90,13 +90,21 @@ class RecentlyplayedList(object):
 
 
 class State(object):
+	def _updateCurSongHandler(self):
+		self.__class__.curSongStr.updateEvent(self).push()
+		self.__class__.curSongPos.updateEvent(self).push()
+		self.__class__.curSongDisplay.updateEvent(self).push()
+
+	def __init__(self):
+		self.__class__.curSong.updateEvent(self).register(self._updateCurSongHandler)
+
 	def playPauseUpdate(self, attrib):
 		if self.player.playing:
 			attrib.name = "❚❚"
 		else:
 			attrib.name = "▶"
 
-	@UserAttrib(type=Traits.Action, name="▶", updateHandler=playPauseUpdate)
+	@UserAttrib(type=Traits.Action, name="▶", updateHandler=playPauseUpdate, addUpdateEvent=True)
 	def playPause(self):
 		self.player.playing = not self.player.playing
 
@@ -104,21 +112,21 @@ class State(object):
 	def nextSong(self):
 		self.player.nextSong()
 
-	@UserAttrib(type=Traits.OneLineText, alignRight=True, variableWidth=True, withBorder=True)
+	@UserAttrib(type=Traits.OneLineText, alignRight=True, variableWidth=True, withBorder=True, addUpdateEvent=True)
 	@property
 	def curSongStr(self):
 		if not self.player.curSong: return ""
 		try: return self.player.curSong.userString
 		except Exception: return "???"
 
-	@UserAttrib(type=Traits.OneLineText, alignRight=True, autosizeWidth=True, withBorder=True)
+	@UserAttrib(type=Traits.OneLineText, alignRight=True, autosizeWidth=True, withBorder=True, addUpdateEvent=True)
 	@property
 	def curSongPos(self):
 		if not self.player.curSong: return ""
 		try: return formatTime(self.player.curSongPos) + " / " + formatTime(self.player.curSong.duration)
 		except Exception: return "???"
 
-	@UserAttrib(type=Traits.SongDisplay, variableWidth=True)
+	@UserAttrib(type=Traits.SongDisplay, variableWidth=True, addUpdateEvent=True)
 	def curSongDisplay(self): pass
 
 	@initBy
@@ -139,7 +147,7 @@ class State(object):
 	@initBy
 	def recentlyPlayedList(self): return PersistentObject(RecentlyplayedList, "recentlyplayed.dat")
 
-	@UserAttrib(type=Traits.Object, spaceY=0, highlight=True)
+	@UserAttrib(type=Traits.Object, spaceY=0, highlight=True, addUpdateEvent=True)
 	@initBy
 	def curSong(self): return PersistentObject(Song, "cursong.dat")
 
