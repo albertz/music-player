@@ -188,7 +188,7 @@ struct ThreadHangDetector {
 			// Detect such pauses and reset the timers then.
 			assert(curTime >= watcherThreadTime);
 			if(curTime - watcherThreadTime >= kAppNapTriggerMs) {
-				printf("ThreadHangDetector: AppNap trigger!\n");
+				//printf("ThreadHangDetector: AppNap trigger!\n"); // comment out, dont spam
 				// reset all timers
 				for(auto& it : timers)
 					it.second.lastLifeSignal = curTime;
