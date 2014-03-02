@@ -274,7 +274,7 @@ class UserAttrib(object):
 		if not self.name:
 			self.name = self._getName(attrib)
 		if self._addUpdateEvent:
-			self.updateEventSlot = initBy(initFunc=Event, name="%s_updateEvent" % self.name)
+			self.updateEventSlot = initBy(initFunc=lambda inst: Event(), name="%s_updateEvent" % self.name)
 		self.value = attrib
 		return self
 	def __repr__(self):
