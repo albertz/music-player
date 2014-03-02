@@ -93,11 +93,12 @@ def playerMain():
 	from State import state
 	#state.player.playing = True
 	for ev,args,kwargs in state.updates.read():
-		if ev is PlayerEventCallbacks.onSongChange:
+		if ev is PlayerEventCallbacks.onPlayingStateChange:
+			state.__class__.playPause.updateEvent(state).push()
+		elif ev is PlayerEventCallbacks.onSongChange:
 			state.curSong.save()
 			oldSong = kwargs["oldSong"]
 			if oldSong:
 				if kwargs["skipped"]: oldSong.skipped = True
 				state.recentlyPlayedList.append(oldSong)
 				state.recentlyPlayedList.save()
-		pass # onPlayingStateChange
