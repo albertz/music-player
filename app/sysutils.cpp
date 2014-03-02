@@ -8,14 +8,15 @@
 #include <time.h>
 #include <sys/time.h>
 
+
+
+
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
-#endif
 
 
-#ifdef __MACH__
 #define ORWL_NANO (+1.0E-9)
 #define ORWL_GIGA UINT64_C(1000000000)
 
