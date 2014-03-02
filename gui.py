@@ -98,10 +98,17 @@ class _GuiObject:
 			obj = getattr(obj, "rightGuiObject", None)
 
 	def layoutLine(self):
+		"""
+		In the parent, it searches for all objects which are in (horizontal) line
+		with us (via `guiObjectsInLine`). It then layouts their x-pos and sets
+		the autoresize mask on those controls.
+		"""
 		line = list(self.guiObjectsInLine())
 		minY = min([control.pos[1] for control in line])
 		maxH = max([control.size[1] for control in line])
-		
+
+		# Set x-pos from left to right.
+		# XXX: Haven't we done this already in setupChilds()?
 		x = self.parent.OuterSpace[0]
 		for control in line:
 			spaceX = self.parent.DefaultSpace[0]
@@ -114,6 +121,7 @@ class _GuiObject:
 			
 			x += w + spaceX
 
+		# Search the variable-width-control.
 		varWidthControl = None
 		for control in line:
 			if control.attr.variableWidth:
@@ -123,7 +131,9 @@ class _GuiObject:
 			varWidthControl = line[-1]
 			if varWidthControl.attr.variableWidth is False:
 				# It explicitly doesn't want to be of variable size.
+				# We can return because there is nothing to do anymore.
 				return
+
 		x = self.parent.innerSize[0] - self.parent.OuterSpace[0]
 		for control in reversed(line):
 			w,h = control.size
@@ -134,14 +144,14 @@ class _GuiObject:
 				x = control.pos[0]
 				control.pos = (x,y)
 				control.size = (w,h)
-				control.autoresize = (False,False,True,False)
+				control.autoresize = control.autoresize[:2] + (True,) + control.autoresize[3:]
 				control.layout()
 				break
 			else:
 				x -= w
 				control.pos = (x,y)
 				control.size = (w,h)
-				control.autoresize = (True,False,False,False)
+				control.autoresize = (True,) + control.autoresize[1:]
 
 				spaceX = self.parent.DefaultSpace[0]
 				if control.attr.spaceX is not None: spaceX = control.attr.spaceX
@@ -155,7 +165,14 @@ class _GuiObject:
 				obj = obj.rightGuiObject
 			obj = getattr(obj, "bottomGuiObject", None)
 		
-	def layout(self):		
+	def layout(self):
+		"""
+		This layouts all the child controls according to our size,
+		and sets its autoresize mask.
+		In this function itself, we handle the variable-height-control,
+		and we call `layoutLine()` to handle the variable-width-controls.
+		"""
+
 		lastVertControls = list(self.childGuiObjectsInColumn())
 		if not lastVertControls: return
 
@@ -253,7 +270,7 @@ class _GuiObject:
 				attr.updateEvent(self.subjectObject).register(control._updateHandler)
 			self.addChild(control)
 			self.childs[attr.name] = control
-			
+
 			spaceX, spaceY = self.DefaultSpace
 			if attr.spaceX is not None: spaceX = attr.spaceX
 			if attr.spaceY is not None: spaceY = attr.spaceY
@@ -271,17 +288,23 @@ class _GuiObject:
 				control.topGuiObject = lastControl
 				if lastControl:
 					lastControl.bottomGuiObject = control
-			
+
 			else: # very first
 				pass
-			
+
 			control.pos = (x,y)
+			control.autoresize = (False,False,False,False) # initial, might get changed in `layout()`
 
 			lastControl = control
 			maxX = max(maxX, control.pos[0] + control.size[0])
 			maxY = max(maxY, control.pos[1] + control.size[1])
 		
 			control.updateContent()
+
+		# Recalculate layout based on current size and variable width/height controls.
+		# Note that there are some cases where this recalculation is not needed,
+		# but its much easier to just call it always now.
+		self.layout()
 
 		# Handy for now. This return might change.
 		return (maxX + self.OuterSpace[0], maxY + self.OuterSpace[1])
