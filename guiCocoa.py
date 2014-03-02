@@ -493,7 +493,9 @@ def setupWindow(subjectObject, windowName, title, isMainWindow=False):
 	win.orderFrontRegardless()
 	win.makeMainWindow()
 	win.makeKeyWindow()
-	
+
+	window.layout()
+
 	AppKit.NSApp.activateIgnoringOtherApps_(True)
 	# see http://stackoverflow.com/questions/12292151/crash-in-class-getname-in-applicationopenuntitledfile
 	win.retain()
