@@ -28,6 +28,9 @@ struct ThreadInfo {
 
 void* backgroundThread_proc(void*);
 
+static const int kWatcherThreadSleepTimeMs = 100;
+static const int kAppNapTriggerMs = 1000;
+
 struct ThreadHangDetector {
 	Mutex mutex;
 	pthread_cond_t cond;
@@ -69,6 +72,12 @@ struct ThreadHangDetector {
 		info.name = threadName;
 		info.timeoutSecs = timeoutSecs;
 		info.lastLifeSignal = current_abs_time();
+
+		if(AbsMsTime(timeoutSecs * 1000) <= 2 * kAppNapTriggerMs) {
+			info.timeoutSecs = (2 * kAppNapTriggerMs) / 1000.f;
+			printf("ThreadHangDetector_registerCurThread: timeout (%f) is too low, setting to (%f)",
+				   timeoutSecs, info.timeoutSecs);
+		}
 		
 		{
 			Mutex::ScopedLock lock(mutex);
@@ -165,10 +174,28 @@ struct ThreadHangDetector {
 	
 	void _backgroundThread() {		
 		Mutex::ScopedLock lock(mutex);
+		
+		AbsMsTime watcherThreadTime = current_abs_time();
+		
 		while(true) {
 			if(state != State_Normal) break;
 			
 			AbsMsTime curTime = current_abs_time();
+
+			// AppNap is a concept of MacOSX but it might be implemented on other platforms, too.
+			// The system might set our app to sleep/stop mode, e.g. because we are inactive,
+			// to save battery power, or just because we currently debug, or so.
+			// Detect such pauses and reset the timers then.
+			assert(curTime >= watcherThreadTime);
+			if(curTime - watcherThreadTime >= kAppNapTriggerMs) {
+				printf("ThreadHangDetector: AppNap trigger!\n");
+				// reset all timers
+				for(auto& it : timers)
+					it.second.lastLifeSignal = curTime;
+			}
+			watcherThreadTime = curTime;
+			
+			// Check each thread for hangs.
 			for(auto& it : timers) {
 				ThreadId threadId = it.first;
 				ThreadInfo& info = it.second;
@@ -203,9 +230,10 @@ struct ThreadHangDetector {
 				}
 			}
 			
+			// Sleep a bit.
 			struct timespec ts;
 			ts.tv_sec = 0;
-			ts.tv_nsec = 100UL * 1000UL * 1000UL; // 100ms in nanoseconds
+			ts.tv_nsec = kWatcherThreadSleepTimeMs * 1000UL * 1000UL; // ms in nanoseconds
 			pthread_cond_timedwait_relative_np(&cond, &mutex.mutex, &ts);
 		}
 	}
