@@ -75,12 +75,7 @@ bool _buildControlObject_post(CocoaGuiObject* control) {
 		return false;
 	}
 	ObjectControlView* view = (ObjectControlView*) _view;
-
-	PyObject* ret = PyObject_CallMethod((PyObject*) control, (char*)"layout", NULL);
-	if(!ret) {
-		if(PyErr_Occurred()) PyErr_Print();
-	}
-
+	 
 	NSColor* color = backgroundColor(control);
 	if(color) {
 		[view setDrawsBackground:YES];
