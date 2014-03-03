@@ -146,6 +146,11 @@ final:
 	assert([NSThread isMainThread]);
 	ThreadHangDetector_lifeSignalCurThread();
 
+	// Note:
+	// Earlier, we have used [NSTimer scheduledTimerWithTimeInterval:...].
+	// However, those events don't get executed in sub event-loops, e.g.
+	// while resizing the window or holding the mouse down.
+	// The dispatch system works also in that case, so we use it.
 	double delayInSeconds = 0.5;
 	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
 	dispatch_after(popTime, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^(void){
