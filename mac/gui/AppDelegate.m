@@ -143,13 +143,23 @@ final:
 
 - (void)updateHangAlarm
 {
+	assert([NSThread isMainThread]);
 	ThreadHangDetector_lifeSignalCurThread();
+
+	double delayInSeconds = 0.5;
+	dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+	dispatch_after(popTime, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^(void){
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[self updateHangAlarm];
+		});
+	});
 }
 
 - (void)setupHangAlarm
 {
+	assert([NSThread isMainThread]);
 	ThreadHangDetector_registerCurThread("Main", ALARM_TIMEOUT);
-	[NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updateHangAlarm) userInfo:nil repeats:YES];
+	[self updateHangAlarm];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
