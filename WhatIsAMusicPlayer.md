@@ -38,7 +38,7 @@ Many existing music players don't have their own loudness analyzing algorithm. T
 
 Some professional music players such as iTunes have their own analyzing algorithm.
 
-This project also has its own analyzing algorithm which calculates the loudness of a song based on the [ReplayGain specification](http://www.replaygain.org/).
+This project also has its own analyzing algorithm which calculates the loudness of a song based on the [ReplayGain specification](http://wiki.hydrogenaudio.org/index.php?title=ReplayGain_1.0_specification).
 
 
 ## Avoid [clipping](http://en.wikipedia.org/wiki/Clipping_%28audio%29) issues when incrementing the volume
