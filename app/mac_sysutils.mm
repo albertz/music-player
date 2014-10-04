@@ -130,6 +130,7 @@ void handleFatalError(const char* msg) {
 // https://github.com/0xced/iOS-Artwork-Extractor/blob/master/Classes/FindSymbol.c
 // Adapted from MoreAddrToSym / GetFunctionName()
 // http://www.opensource.apple.com/source/openmpi/openmpi-8/openmpi/opal/mca/backtrace/darwin/MoreBacktrace/MoreDebugging/MoreAddrToSym.c
+// Note: We could also try this instead later: https://github.com/rodionovd/liblorgnette
 void *FindSymbol(const struct mach_header *img, const char *symbol)
 {
 	if ((img == NULL) || (symbol == NULL))
