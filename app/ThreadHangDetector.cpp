@@ -66,6 +66,10 @@ struct ThreadHangDetector {
 			return;
 		}
 		
+		// Don't use the hang detector while we are debugging.
+		if(AmIBeingDebugged())
+			return;
+		
 		ThreadId threadId = (ThreadId)pthread_self();
 		
 		ThreadInfo info;
@@ -121,7 +125,8 @@ struct ThreadHangDetector {
 		ThreadId threadId = (ThreadId)pthread_self();
 		
 		Mutex::ScopedLock lock(mutex);
-		timers.erase(threadId);
+		auto n = timers.erase(threadId);
+		if(n == 0) return; // it was not registered
 
 		while(true) {
 			if(state == State_Exit) break;
