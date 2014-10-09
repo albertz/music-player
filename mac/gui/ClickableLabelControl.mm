@@ -8,6 +8,7 @@
 
 #import "ClickableLabelControl.hpp"
 #import "Builders.hpp"
+#import "Threading.h"
 
 @implementation ClickableLabelControlView
 {
@@ -65,7 +66,7 @@
 
 - (void)mouseDown:(NSEvent *)theEvent
 {
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+	dispatch_async(getAsyncQueue(), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		CocoaGuiObject* control = [self getControl];
 		PyObject* subjObj = control ? control->subjectObject : NULL;

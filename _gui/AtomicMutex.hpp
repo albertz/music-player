@@ -9,6 +9,7 @@
 #ifndef MusicPlayer_AtomicMutex_hpp
 #define MusicPlayer_AtomicMutex_hpp
 
+#include <assert.h>
 #include <boost/atomic.hpp>
 #include <boost/noncopyable.hpp>
 

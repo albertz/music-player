@@ -10,6 +10,7 @@
 #include "PythonHelpers.h"
 #import "PyObjCBridge.h"
 #import "Builders.hpp"
+#import "Threading.h"
 #include "FunctionWrapper.hpp"
 #include <vector>
 #include <string>
@@ -143,7 +144,7 @@
 	}
 
 	// do initial fill in background
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+	dispatch_async(getAsyncQueue(), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		
 		PyObject* lock = NULL;
@@ -522,7 +523,7 @@ final:
 			int idx = selectionIndex;
 			if(idx > 0)
 				[self select:idx - 1];
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+			dispatch_async(getAsyncQueue(), ^{
 				[self removeInList:idx];
 			});
 			res = true;
@@ -533,7 +534,7 @@ final:
 			int idx = selectionIndex;
 			if(idx < guiObjectList.size() - 1)
 				[self select:idx + 1];
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+			dispatch_async(getAsyncQueue(), ^{
 				[self removeInList:idx];
 			});
 			res = true;
@@ -641,7 +642,7 @@ final:
 	NSArray* filenames = [[sender draggingPasteboard] propertyListForType:NSFilenamesPboardType];
 	int index = dragIndex;
 	
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+	dispatch_async(getAsyncQueue(), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		PyObject* dragHandler = PyWeakref_GET_OBJECT(dragHandlerRef);
 		CocoaGuiObject* control = [self getControl];
@@ -748,7 +749,7 @@ final:
 		if(oldIndex >= 0 && oldIndex < guiObjectList.size() && guiObjectList[oldIndex] == obj) {
 			
 			[self select:index];
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+			dispatch_async(getAsyncQueue(), ^{
 				[self removeInList:oldIndex];
 			});
 		}
@@ -852,7 +853,7 @@ final:
 
 	// do subCtr setup in background
 	Py_INCREF(subCtr);
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+	dispatch_async(getAsyncQueue(), ^{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
 		NSView* myView = nil;
