@@ -69,6 +69,7 @@
 		23731409188AAE830052054E /* PythonInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23731408188AAE830052054E /* PythonInterface.cpp */; };
 		2373140B188AAFB90052054E /* GuiObject.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2373140A188AAFB90052054E /* GuiObject.hpp */; };
 		2373140F188AB3F60052054E /* GuiObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2373140E188AB3F60052054E /* GuiObject.cpp */; };
+		23865CA219E6556A00FA9D7B /* Threading.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23865CA119E6556A00FA9D7B /* Threading.mm */; };
 		239D88E3182BC72C0068F287 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DD182BC72C0068F287 /* ffi.c */; };
 		239D88E4182BC72C0068F287 /* types.c in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DE182BC72C0068F287 /* types.c */; };
 		239D88E5182BC72C0068F287 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 239D88DF182BC72C0068F287 /* darwin64.S */; };
@@ -497,6 +498,8 @@
 		23731408188AAE830052054E /* PythonInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PythonInterface.cpp; path = ../_gui/PythonInterface.cpp; sourceTree = "<group>"; };
 		2373140A188AAFB90052054E /* GuiObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = GuiObject.hpp; path = ../_gui/GuiObject.hpp; sourceTree = "<group>"; };
 		2373140E188AB3F60052054E /* GuiObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GuiObject.cpp; path = ../_gui/GuiObject.cpp; sourceTree = "<group>"; };
+		23865CA119E6556A00FA9D7B /* Threading.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Threading.mm; path = gui/Threading.mm; sourceTree = "<group>"; };
+		23865CA319E655DF00FA9D7B /* Threading.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Threading.h; path = gui/Threading.h; sourceTree = "<group>"; };
 		239D88DA182BC5A10068F287 /* _objc.so */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = _objc.so; sourceTree = BUILT_PRODUCTS_DIR; };
 		239D88DD182BC72C0068F287 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ffi.c; path = "pyobjc-core/libffi-src/ffi.c"; sourceTree = "<group>"; };
 		239D88DE182BC72C0068F287 /* types.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = types.c; path = "pyobjc-core/libffi-src/types.c"; sourceTree = "<group>"; };
@@ -963,6 +966,8 @@
 				23DC628A1891B40000E1DFE3 /* OneLineTextControl.mm */,
 				23DC628D1892595C00E1DFE3 /* ClickableLabelControl.hpp */,
 				23DC628E1892595C00E1DFE3 /* ClickableLabelControl.mm */,
+				23865CA119E6556A00FA9D7B /* Threading.mm */,
+				23865CA319E655DF00FA9D7B /* Threading.h */,
 			);
 			name = _guiCocoa.so;
 			sourceTree = "<group>";
@@ -1779,6 +1784,7 @@
 				23DC6266188AC36900E1DFE3 /* CocoaGuiObject.mm in Sources */,
 				23DC6275188E73A100E1DFE3 /* NSFlippedView.m in Sources */,
 				23DC628018913D7300E1DFE3 /* ObjectControl.mm in Sources */,
+				23865CA219E6556A00FA9D7B /* Threading.mm in Sources */,
 				23DC628418913F5D00E1DFE3 /* GuiObjectView.mm in Sources */,
 				237313E41889642A0052054E /* AppDelegate.m in Sources */,
 				23DC627C189136EB00E1DFE3 /* Builders.mm in Sources */,
