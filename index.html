@@ -2,9 +2,9 @@
 <html>
 
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="MusicPlayer : Music player - endlessly plays your music" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="MusicPlayer : Music player - endlessly plays your music">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -32,10 +32,10 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a name="music-player" class="anchor" href="#music-player"><span class="octicon octicon-link"></span></a>Music player</h1>
+<a id="music-player" class="anchor" href="#music-player" aria-hidden="true"><span class="octicon octicon-link"></span></a>Music player</h1>
 
 <p><a href="http://az-music-player.sourceforge.net/download_macapp_latest.php">Download latest MusicPlayer for MacOSX.</a>
-Doesn't work? I really want to help you to make it work, so please write me a mail to <a href="mailto:albzey@gmail.com">albzey@gmail.com</a>. If you are on MacOSX 10.6, you can also try <a href="http://sourceforge.net/projects/az-music-player/files/MusicPlayer-MacApp-20131108-1-a92441c.zip/download">this download</a> which was tested to support MacOSX 10.6. Read <a href="https://sourceforge.net/p/az-music-player/blog/2013/11/macosx-106-compatibility/">here about MacOSX 10.6 compatibility</a>. There are no binary packages for older MacOSX versions but you might be able to compile it yourself.</p>
+Doesn't work? I really want to help you to make it work, so please write me a mail to <a href="mailto:albzey@gmail.com">albzey@gmail.com</a>. If you are on MacOSX 10.6, you can also try <a href="http://sourceforge.net/projects/az-music-player/files/MusicPlayer-MacApp-20141109-1-7998986.zip/download">this download</a> which was tested to support MacOSX 10.6. Read <a href="https://sourceforge.net/p/az-music-player/blog/2013/11/macosx-106-compatibility/">here about MacOSX 10.6 compatibility</a>. There are no binary packages for older MacOSX versions but you might be able to compile it yourself.</p>
 
 <p><img src="https://github.com/albertz/music-player/raw/master/screenshot.png" alt="MusicPlayer screenshot"></p>
 
@@ -50,7 +50,9 @@ Doesn't work? I really want to help you to make it work, so please write me a ma
 <ul>
 <li>song ratings</li>
 <li>context-based choices, e.g. related songs more likely</li>
-</ul><p>Other features of this player:</p>
+</ul>
+
+<p>Other features of this player:</p>
 
 <ul>
 <li>open source, simplified BSD license</li>
@@ -63,24 +65,30 @@ Doesn't work? I really want to help you to make it work, so please write me a ma
 <li>AcoustID fingerprint / MusicBrainz integration</li>
 <li>imports iTunes song ratings</li>
 <li><a href="https://github.com/albertz/music-player/blob/master/mpdBackend.readme.md">MPD backend</a></li>
-</ul><p>Annoyed by all existing players because some subset of:</p>
+</ul>
+
+<p>Annoyed by all existing players because some subset of:</p>
 
 <ul>
 <li>not open source</li>
 <li>missing sound format (<a href="http://flac.sourceforge.net/itunes.html">FLAC</a>, Ogg, ...)</li>
-<li>bugs (<a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=23640">1</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25023">2</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25042">3</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18503">4</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18505">5</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18480">6</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=18478">7</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25073">8</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=25024">9</a>, <a href="http://bugzilla.songbirdnest.com/show_bug.cgi?id=5975">10</a>, ...)</li>
+<li>bugs</li>
 <li>missing output possibility (RAOP, PulseAudio, ...)</li>
 <li>no or too limited DJ mode</li>
 <li>no library / database</li>
 <li>not running well on my platform of choice</li>
-</ul><p>TODO / possible additional missing features:</p>
+</ul>
+
+<p>TODO / possible additional missing features:</p>
 
 <ul>
 <li>BPM determination and clever DJ-like fading</li>
 <li>use tags given by Last.fm (mostly more tags)</li>
 <li>watch music directory for changes (e.g. new files added)</li>
 <li>PyQt GUI interface</li>
-</ul><p>The current GUI is Cocoa only. Additional Qt support is planned. The music player also works without any GUI.</p>
+</ul>
+
+<p>The current GUI is Cocoa only. Additional Qt support is planned. The music player also works without any GUI.</p>
       </section>
     </div>
 
