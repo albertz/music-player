@@ -93,10 +93,10 @@ mac {
 	PRE_TARGETDEPS += $$PkgInfo.target
 
 	# App bundle icon
-	ICON = ../icon.icns
+	ICON = $$top_srcdir/icon.icns
 
 	app_bundle_setup.target = .app_bundle_setup
-	app_bundle_setup.commands = ../mac/MusicPlayer/build-copyScript.py -qmake $$varlist
+	app_bundle_setup.commands = $$top_srcdir/mac/MusicPlayer/build-copyScript.py -qmake $$varlist
 	QMAKE_EXTRA_TARGETS += app_bundle_setup
 	POST_TARGETDEPS += $$app_bundle_setup.target
 }
