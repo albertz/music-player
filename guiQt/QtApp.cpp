@@ -188,7 +188,7 @@ bool QtApp::openWindow(const std::string& name) {
 	Vec size = control->setupChilds();
 	win->setMinimumSize(size.x, size.y);
 
-	// ...
+	// TODO?...
 	
 	win->show();
 	control->layout();
@@ -213,19 +213,19 @@ void QtApp::closeWindow() {
 
 void QtApp::edit_cut() {
 	QWidget* w = QApplication::focusWidget();
-	//...
+	// TODO...
 }
 
 void QtApp::edit_copy() {
-	
+	// TODO...
 }
 
 void QtApp::edit_paste() {
-	
+	// TODO...
 }
 
 void QtApp::edit_selectAll() {
-	
+	// TODO...
 }
 
 void QtApp::handlePlayerUpdate() {

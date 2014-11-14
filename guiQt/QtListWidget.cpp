@@ -10,6 +10,7 @@
 #include "PythonHelpers.h"
 #include "Builders.hpp"
 #include "FunctionWrapper.hpp"
+#include "QtUtils.hpp"
 #include <vector>
 #include <string>
 
@@ -22,13 +23,248 @@
 RegisterControl(List)
 
 QtListWidget::QtListWidget(PyQtGuiObject* control)
-	: QtBaseWidget(control), listWidget(NULL)
+	: QtBaseWidget(control),
+	  listWidget(NULL),
+	  subjectListRef(NULL),
+	  autoScrolldown(false)
 {
 	listWidget = new QListWidget(this);
 	listWidget->resize(size());
 	listWidget->show();
 
-	// TODO...
+	{
+		PyGILState_STATE gstate = PyGILState_Ensure();
+
+		control->OuterSpace = Vec(0,0);
+
+		autoScrolldown = attrChain_bool_default(control->attr, "autoScrolldown", false);
+
+		{
+			PyObject* handler = attrChain(control->attr, "dragHandler");
+			if(!handler) {
+				printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
+				if(PyErr_Occurred())
+					PyErr_Print();
+			}
+			/*
+			if(handler) {
+				if(handler != Py_None) {
+					dragHandlerRef = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
+					if(!dragHandlerRef) {
+						printf("Cocoa ListControl: cannot create dragHandlerRef\n");
+						if(PyErr_Occurred())
+							PyErr_Print();
+					}
+				}
+				Py_CLEAR(handler);
+			}
+			*/
+		}
+
+		if(!control->subjectObject) {
+			printf("Cocoa ListControl: subjectObject is NULL\n");
+		} else {
+			subjectListRef = (PyWeakReference*) PyWeakref_NewRef(control->subjectObject, NULL);
+			if(!subjectListRef) {
+				printf("Cocoa ListControl: cannot create subjectListRef\n");
+				goto finalPyInit;
+			}
+		}
+
+	finalPyInit:
+		if(PyErr_Occurred()) PyErr_Print();
+		PyGILState_Release(gstate);
+	}
+
+	if(!subjectListRef) return;
+
+	/*
+	if(dragHandlerRef) {
+		[self registerForDraggedTypes:@[NSFilenamesPboardType]];
+		dragCursor = [[_NSFlippedView alloc] initWithFrame:NSMakeRect(0,0,[scrollview contentSize].width,2)];
+		[dragCursor setAutoresizingMask:NSViewWidthSizable];
+		[dragCursor setBackgroundColor:[NSColor blackColor]];
+		[documentView addSubview:dragCursor];
+	}
+	*/
+
+	WeakRef selfWeakRef(*this);
+
+	// do initial fill in background
+	dispatch_async_background_queue([selfWeakRef]() {
+		PyGILState_STATE gstate = PyGILState_Ensure();
+
+		PyObject* lock = NULL;
+		PyObject* lockEnterRes = NULL;
+		PyObject* lockExitRes = NULL;
+		PyObject* list = NULL;
+		std::vector<PyObject*> listCopy;
+
+		ScopedRef selfWeakRefScope(selfWeakRef.scoped());
+		QtListWidget* self = (QtListWidget*) selfWeakRefScope.get();
+
+		if(!self) goto finalInitialFill;
+
+		list = PyWeakref_GET_OBJECT(self->subjectListRef);
+		if(!list) goto finalInitialFill;
+		Py_INCREF(list);
+
+		// We must lock the list.lock because we must ensure that we have the
+		// data in sync.
+		lock = PyObject_GetAttrString(list, "lock");
+		if(!lock) {
+			printf("Cocoa ListControl: list.lock not found\n");
+			if(PyErr_Occurred())
+				PyErr_Print();
+			goto finalInitialFill;
+		}
+
+		lockEnterRes = PyObject_CallMethod(lock, (char*)"__enter__", NULL);
+		if(!lockEnterRes) {
+			printf("Cocoa ListControl: list.lock.__enter__ failed\n");
+			if(PyErr_Occurred())
+				PyErr_Print();
+			goto finalInitialFill;
+		}
+
+		{
+			PyObject* listIter = PyObject_GetIter(list);
+			if(!listIter) {
+				printf("Cocoa ListControl: cannot get iter(list)\n");
+				if(PyErr_Occurred())
+					PyErr_Print();
+				goto unlockInitialFill;
+			}
+
+			while(true) {
+				PyObject* listIterItem = PyIter_Next(listIter);
+				if(listIterItem == NULL) break;
+				listCopy.push_back(listIterItem);
+			}
+
+			if(PyErr_Occurred()) {
+				printf("Cocoa ListControl: error while copying list\n");
+				PyErr_Print();
+			}
+			Py_DECREF(listIter);
+		}
+
+		{
+			Py_BEGIN_ALLOW_THREADS
+			const int Step = 5;
+			for(int i = 0; i < listCopy.size(); i += Step) {
+				dispatch_sync_main_queue([self,&listCopy,i,Step]() {
+					for(int j = i; j < listCopy.size() && j < i + Step; ++j) {
+						/*
+						PyGILState_STATE gstate = PyGILState_Ensure();
+						CocoaGuiObject* subCtr = [self buildControlForIndex:j andValue:listCopy[j]];
+						if(subCtr) guiObjectList.push_back(subCtr);
+						PyGILState_Release(gstate);
+						[self scrollviewUpdate];
+						*/
+					}
+				});
+			}
+			Py_END_ALLOW_THREADS
+		}
+
+		// We expect the list ( = control->subjectObject ) to support a certain interface,
+		// esp. to have onInsert, onRemove and onClear as utils.Event().
+		{
+			auto registerEv = [=](const char* evName, PyCallback func) {
+				PyQtGuiObject* control = NULL;
+				PyObject* event = NULL;
+				PyObject* res = NULL;
+				PyObject* callbackWrapper = NULL;
+
+				control = self->getControl();
+				if(!control) goto finalRegisterEv;
+
+				callbackWrapper = (PyObject*) newFunctionWrapper(func);
+				if(!callbackWrapper) {
+					printf("Cocoa ListControl: cannot create callback wrapper for %s\n", evName);
+					goto finalRegisterEv;
+				}
+
+				event = PyObject_GetAttrString(list, evName);
+				if(!event) {
+					printf("Cocoa ListControl: cannot get list event for %s\n", evName);
+					goto finalRegisterEv;
+				}
+
+				res = PyObject_CallMethod(event, (char*)"register", (char*)"(O)", callbackWrapper);
+				if(!res) {
+					printf("Cocoa ListControl: cannot register list event callback for %s\n", evName);
+					goto finalRegisterEv;
+				}
+
+				// And we assign the wrapper-object to the CocoaGuiObject(control),
+				// otherwise there would not be any strong ref to it.
+				// We do this as the last step, so that we do it only if we did not fail so far.
+				char attribName[255];
+				snprintf(attribName, sizeof(attribName), "_%s", evName);
+				if(PyObject_SetAttrString((PyObject*) control, attribName, callbackWrapper) != 0) {
+					printf("Cocoa ListControl: failed to set %s\n", attribName);
+					goto finalRegisterEv;
+				}
+
+			finalRegisterEv:
+				if(PyErr_Occurred())
+					PyErr_Print();
+				Py_XDECREF(control);
+				Py_XDECREF(res);
+				Py_XDECREF(event);
+				Py_XDECREF(callbackWrapper);
+			};
+
+			registerEv("onInsert", [=](PyObject* args, PyObject* kws) {
+				int idx; PyObject* v;
+				static const char *kwlist[] = {"index", "value", NULL};
+				if(!PyArg_ParseTupleAndKeywords(args, kws, "iO:onInsert", (char**)kwlist, &idx, &v))
+					return (PyObject*) NULL;
+				//[self onInsert:idx withValue:v];
+				Py_INCREF(Py_None);
+				return Py_None;
+			});
+			registerEv("onRemove", [=](PyObject* args, PyObject* kws) {
+				int idx;
+				static const char *kwlist[] = {"index", NULL};
+				if(!PyArg_ParseTupleAndKeywords(args, kws, "i:onRemove", (char**)kwlist, &idx))
+					return (PyObject*) NULL;
+				//[self onRemove:idx];
+				Py_INCREF(Py_None);
+				return Py_None;
+			});
+			registerEv("onClear", [=](PyObject* args, PyObject* kws) {
+				static const char *kwlist[] = {NULL};
+				if(!PyArg_ParseTupleAndKeywords(args, kws, ":onClear", (char**)kwlist))
+					return (PyObject*) NULL;
+				//[self onClear];
+				Py_INCREF(Py_None);
+				return Py_None;
+			});
+		}
+
+	unlockInitialFill:
+		lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
+		if(!lockExitRes) {
+			printf("Cocoa ListControl: list.lock.__exit__ failed\n");
+			if(PyErr_Occurred())
+				PyErr_Print();
+		}
+
+	finalInitialFill:
+		Py_XDECREF(lockEnterRes);
+		Py_XDECREF(lockExitRes);
+		Py_XDECREF(lock);
+		Py_XDECREF(list);
+		for(PyObject* listItem : listCopy)
+			Py_DECREF(listItem);
+		listCopy.clear();
+
+		PyGILState_Release(gstate);
+	});
+
 }
 
 QtListWidget::~QtListWidget() {
@@ -126,226 +362,8 @@ void QtListWidget::resizeEvent(QResizeEvent* ev) {
 	dragHandlerRef = NULL;
 	dragIndex = -1;
 	
-	{
-		PyGILState_STATE gstate = PyGILState_Ensure();
-		
-		control->OuterSpace = Vec(0,0);
+	// .... copied out: initial fill
 
-		autoScrolldown = attrChain_bool_default(control->attr, "autoScrolldown", false);
-		
-		{
-			PyObject* handler = attrChain(control->attr, "dragHandler");
-			if(!handler) {
-				printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
-				if(PyErr_Occurred())
-					PyErr_Print();
-			}
-			if(handler) {
-				if(handler != Py_None) {
-					dragHandlerRef = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
-					if(!dragHandlerRef) {
-						printf("Cocoa ListControl: cannot create dragHandlerRef\n");
-						if(PyErr_Occurred())
-							PyErr_Print();
-					}
-				}
-				Py_CLEAR(handler);
-			}
-		}
-		
-		if(!control->subjectObject) {
-			printf("Cocoa ListControl: subjectObject is NULL\n");
-		} else {
-			subjectListRef = (PyWeakReference*) PyWeakref_NewRef(control->subjectObject, NULL);
-			if(!subjectListRef) {
-				printf("Cocoa ListControl: cannot create subjectListRef\n");
-				goto finalPyInit;
-			}
-		}
-		
-	finalPyInit:
-		if(PyErr_Occurred()) PyErr_Print();
-		PyGILState_Release(gstate);
-	}
-
-	if(!subjectListRef) return nil;
-
-	if(dragHandlerRef) {
-		[self registerForDraggedTypes:@[NSFilenamesPboardType]];
-		dragCursor = [[_NSFlippedView alloc] initWithFrame:NSMakeRect(0,0,[scrollview contentSize].width,2)];
-		[dragCursor setAutoresizingMask:NSViewWidthSizable];
-		[dragCursor setBackgroundColor:[NSColor blackColor]];
-		[documentView addSubview:dragCursor];
-	}
-
-	// do initial fill in background
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-		PyGILState_STATE gstate = PyGILState_Ensure();
-		
-		PyObject* lock = NULL;
-		PyObject* lockEnterRes = NULL;
-		PyObject* lockExitRes = NULL;
-		PyObject* list = NULL;
-		std::vector<PyObject*> listCopy;
-		
-		list = PyWeakref_GET_OBJECT(subjectListRef);
-		if(!list) goto finalInitialFill;
-		Py_INCREF(list);
-		
-		// We must lock the list.lock because we must ensure that we have the
-		// data in sync.
-		lock = PyObject_GetAttrString(list, "lock");
-		if(!lock) {
-			printf("Cocoa ListControl: list.lock not found\n");
-			if(PyErr_Occurred())
-				PyErr_Print();
-			goto finalInitialFill;
-		}
-		
-		lockEnterRes = PyObject_CallMethod(lock, (char*)"__enter__", NULL);
-		if(!lockEnterRes) {
-			printf("Cocoa ListControl: list.lock.__enter__ failed\n");
-			if(PyErr_Occurred())
-				PyErr_Print();
-			goto finalInitialFill;
-		}
-
-		{
-			PyObject* listIter = PyObject_GetIter(list);
-			if(!listIter) {
-				printf("Cocoa ListControl: cannot get iter(list)\n");
-				if(PyErr_Occurred())
-					PyErr_Print();
-				goto unlockInitialFill;
-			}
-
-			while(true) {
-				PyObject* listIterItem = PyIter_Next(listIter);
-				if(listIterItem == NULL) break;
-				listCopy.push_back(listIterItem);
-			}
-
-			if(PyErr_Occurred()) {
-				printf("Cocoa ListControl: error while copying list\n");
-				PyErr_Print();
-			}
-			Py_DECREF(listIter);
-		}
-		
-		{
-			Py_BEGIN_ALLOW_THREADS
-			const int Step = 5;
-			for(int i = 0; i < listCopy.size(); i += Step) {
-				dispatch_sync(dispatch_get_main_queue(), ^{
-					for(int j = i; j < listCopy.size() && j < i + Step; ++j) {
-						PyGILState_STATE gstate = PyGILState_Ensure();
-						CocoaGuiObject* subCtr = [self buildControlForIndex:j andValue:listCopy[j]];
-						if(subCtr) guiObjectList.push_back(subCtr);
-						PyGILState_Release(gstate);
-						[self scrollviewUpdate];
-					}
-				});
-			}
-			Py_END_ALLOW_THREADS
-		}
-		
-		// We expect the list ( = control->subjectObject ) to support a certain interface,
-		// esp. to have onInsert, onRemove and onClear as utils.Event().
-		{
-			auto registerEv = [=](const char* evName, PyCallback func) {
-				CocoaGuiObject* control = NULL;
-				PyObject* event = NULL;
-				PyObject* res = NULL;
-				PyObject* callbackWrapper = NULL;
-				
-				control = [self getControl];
-				if(!control) goto finalRegisterEv;
-				
-				callbackWrapper = (PyObject*) newFunctionWrapper(func);
-				if(!callbackWrapper) {
-					printf("Cocoa ListControl: cannot create callback wrapper for %s\n", evName);
-					goto finalRegisterEv;
-				}
-												
-				event = PyObject_GetAttrString(list, evName);
-				if(!event) {
-					printf("Cocoa ListControl: cannot get list event for %s\n", evName);
-					goto finalRegisterEv;
-				}
-				
-				res = PyObject_CallMethod(event, (char*)"register", (char*)"(O)", callbackWrapper);
-				if(!res) {
-					printf("Cocoa ListControl: cannot register list event callback for %s\n", evName);
-					goto finalRegisterEv;
-				}
-				
-				// And we assign the wrapper-object to the CocoaGuiObject(control),
-				// otherwise there would not be any strong ref to it.
-				// We do this as the last step, so that we do it only if we did not fail so far.
-				char attribName[255];
-				snprintf(attribName, sizeof(attribName), "_%s", evName);
-				if(PyObject_SetAttrString((PyObject*) control, attribName, callbackWrapper) != 0) {
-					printf("Cocoa ListControl: failed to set %s\n", attribName);
-					goto finalRegisterEv;
-				}
-
-			finalRegisterEv:
-				if(PyErr_Occurred())
-					PyErr_Print();
-				Py_XDECREF(control);
-				Py_XDECREF(res);
-				Py_XDECREF(event);
-				Py_XDECREF(callbackWrapper);
-			};
-
-			registerEv("onInsert", [=](PyObject* args, PyObject* kws) {
-				int idx; PyObject* v;
-				static const char *kwlist[] = {"index", "value", NULL};
-				if(!PyArg_ParseTupleAndKeywords(args, kws, "iO:onInsert", (char**)kwlist, &idx, &v))
-					return (PyObject*) NULL;
-				[self onInsert:idx withValue:v];
-				Py_INCREF(Py_None);
-				return Py_None;
-			});
-			registerEv("onRemove", [=](PyObject* args, PyObject* kws) {
-				int idx;
-				static const char *kwlist[] = {"index", NULL};
-				if(!PyArg_ParseTupleAndKeywords(args, kws, "i:onRemove", (char**)kwlist, &idx))
-					return (PyObject*) NULL;
-				[self onRemove:idx];
-				Py_INCREF(Py_None);
-				return Py_None;
-			});
-			registerEv("onClear", [=](PyObject* args, PyObject* kws) {
-				static const char *kwlist[] = {NULL};
-				if(!PyArg_ParseTupleAndKeywords(args, kws, ":onClear", (char**)kwlist))
-					return (PyObject*) NULL;
-				[self onClear];
-				Py_INCREF(Py_None);
-				return Py_None;
-			});
-		}
-		
-	unlockInitialFill:
-		lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
-		if(!lockExitRes) {
-			printf("Cocoa ListControl: list.lock.__exit__ failed\n");
-			if(PyErr_Occurred())
-				PyErr_Print();
-		}
-
-	finalInitialFill:
-		Py_XDECREF(lockEnterRes);
-		Py_XDECREF(lockExitRes);
-		Py_XDECREF(lock);
-		Py_XDECREF(list);
-		for(PyObject* listItem : listCopy)
-			Py_DECREF(listItem);
-		listCopy.clear();
-		
-		PyGILState_Release(gstate);
-	});
-		
     return self;
 }
 

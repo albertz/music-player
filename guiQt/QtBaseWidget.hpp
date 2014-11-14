@@ -47,6 +47,8 @@ struct QtBaseWidget : QWidget {
 
 	struct WeakRef;
 	
+	// This is to access the underlying pointer.
+	// While this is in scope, the object cannot be deleted from another thread.
 	struct ScopedRef {
 		boost::shared_ptr<LockedRef> _ref;
 		QtBaseWidget* ptr;

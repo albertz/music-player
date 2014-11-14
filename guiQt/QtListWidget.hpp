@@ -11,16 +11,20 @@
 
 #include "QtBaseWidget.hpp"
 #include <QListWidget>
+#include <Python.h>
 
 class QtListWidget : public QtBaseWidget {
 	Q_OBJECT
+
+protected:
+	QListWidget* listWidget;
+	PyWeakReference* subjectListRef;
+	bool autoScrolldown;
 
 public:
 	QtListWidget(PyQtGuiObject* control);
 	~QtListWidget();
 	virtual void childIter(ChildIterCallback);
-
-	QListWidget* listWidget;
 
 	virtual void updateContent();
 
