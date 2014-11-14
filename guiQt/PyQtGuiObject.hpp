@@ -19,6 +19,14 @@ extern PyTypeObject QtGuiObject_Type;
 
 struct QtBaseWidget;
 
+// This is the Python GUI object (control object).
+// This keeps the same Python interface as the CocoaGuiObject.
+// It bases itself on the _gui.GuiObject class in its init.
+// The CPython API is defined in PythonInterface.cpp.
+// It itself is not the native widget
+// - it just has a reference to it in `widget`.
+// The base native widget class is QtBaseWidget.
+
 struct PyQtGuiObject : GuiObject {
 	int init(PyObject* args, PyObject* kwds);
 	PyObject* getattr(const char* key);

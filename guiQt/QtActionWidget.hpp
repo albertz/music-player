@@ -12,11 +12,11 @@ public:
 	QtActionWidget(PyQtGuiObject* control);
 	QPushButton* buttonWidget;
 	
-	void updateContent();
+	virtual void updateContent();
 	void updateTitle();
 	
 protected:
-	void resizeEvent(QResizeEvent *);
+	virtual void resizeEvent(QResizeEvent *);
 
 public slots:
 	void onClick();

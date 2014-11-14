@@ -13,12 +13,30 @@
 #include <vector>
 #include <string>
 
+// Possible implementations:
+// - QScrollArea (all by myself)
+// - http://www.qtcentre.org/threads/27777-Customize-QListWidgetItem-how-to
+// - see spin box and star delegate examples in Qt Demo
+// - QListWidget::setItemWidget
+
 RegisterControl(List)
 
-QtListWidget::QtListWidget(PyQtGuiObject* control) : QtBaseWidget(control) {}
+QtListWidget::QtListWidget(PyQtGuiObject* control)
+	: QtBaseWidget(control), listWidget(NULL)
+{
+	// TODO...
+}
 
 void QtListWidget::childIter(ChildIterCallback) {
-// TODO...	
+	// TODO...
+}
+
+void QtListWidget::updateContent() {
+	// TODO...
+}
+
+void QtListWidget::resizeEvent(QResizeEvent *) {
+	// TODO...
 }
 
 // TODO...

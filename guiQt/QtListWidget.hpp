@@ -10,10 +10,22 @@
 #define __MusicPlayer_guiQt_QtListWidget_hpp__
 
 #include "QtBaseWidget.hpp"
+#include <QListWidget>
 
-struct QtListWidget : QtBaseWidget {
+class QtListWidget : public QtBaseWidget {
+	Q_OBJECT
+
+public:
 	QtListWidget(PyQtGuiObject* control);
 	virtual void childIter(ChildIterCallback);
+
+	QListWidget* listWidget;
+
+	virtual void updateContent();
+
+protected:
+	virtual void resizeEvent(QResizeEvent *);
+
 };
 
 #endif

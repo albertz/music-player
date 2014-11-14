@@ -20,6 +20,10 @@
 struct GuiObject;
 struct PyQtGuiObject;
 
+// This is the native Qt object.
+// It is handled on the Python side via the
+// handler object PyQtGuiObject.
+
 struct QtBaseWidget : QWidget {
 	// Note that we can keep all Python references only in guiObjectList because that
 	// is handled in childIter: or otherwise in weakrefs.
@@ -64,6 +68,8 @@ struct QtBaseWidget : QWidget {
 		
 	QtBaseWidget(PyQtGuiObject* control);
 	~QtBaseWidget();
+
+	// These are the functions you can override to create a new widget.
 
 	virtual PyQtGuiObject* getControl(); // new ref
 	virtual void updateContent();
