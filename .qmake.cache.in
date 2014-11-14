@@ -20,13 +20,12 @@ equals(uname, Darwin) {
 	QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
 	QMAKE_CFLAGS += -isysroot /Developer/SDKs/MacOSX10.7.sdk
 	QMAKE_CFLAGS += -mmacosx-version-min=10.6
-	QMAKE_CFLAGS += -g
 	QMAKE_CXXFLAGS += -isysroot /Developer/SDKs/MacOSX10.7.sdk
 	QMAKE_CXXFLAGS += -mmacosx-version-min=10.6
-	QMAKE_CXXFLAGS += -g -stdlib=libstdc++
+	QMAKE_CXXFLAGS += -stdlib=libstdc++
 	QMAKE_LFLAGS += -isysroot /Developer/SDKs/MacOSX10.7.sdk
 	QMAKE_LFLAGS += -mmacosx-version-min=10.6
-	QMAKE_LFLAGS += -g -stdlib=libstdc++
+	QMAKE_LFLAGS += -stdlib=libstdc++
 
 	# maybe also this for libs: -single_module -compatibility_version 1 -current_version 1
 
