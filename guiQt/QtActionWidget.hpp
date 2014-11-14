@@ -10,6 +10,7 @@ class QtActionWidget : public QtBaseWidget {
 
 public:	
 	QtActionWidget(PyQtGuiObject* control);
+	~QtActionWidget();
 	QPushButton* buttonWidget;
 	
 	virtual void updateContent();

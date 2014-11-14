@@ -17,6 +17,7 @@ class QtListWidget : public QtBaseWidget {
 
 public:
 	QtListWidget(PyQtGuiObject* control);
+	~QtListWidget();
 	virtual void childIter(ChildIterCallback);
 
 	QListWidget* listWidget;

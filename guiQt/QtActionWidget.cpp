@@ -17,6 +17,11 @@ QtActionWidget::QtActionWidget(PyQtGuiObject* control) : QtBaseWidget(control) {
 	resize(buttonWidget->size());
 }
 
+QtActionWidget::~QtActionWidget() {
+	delete buttonWidget;
+	buttonWidget = 0;
+}
+
 void QtActionWidget::updateContent() {
 	updateTitle();
 }

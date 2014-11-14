@@ -24,7 +24,16 @@ RegisterControl(List)
 QtListWidget::QtListWidget(PyQtGuiObject* control)
 	: QtBaseWidget(control), listWidget(NULL)
 {
+	listWidget = new QListWidget(this);
+	listWidget->resize(size());
+	listWidget->show();
+
 	// TODO...
+}
+
+QtListWidget::~QtListWidget() {
+	delete listWidget;
+	listWidget = 0;
 }
 
 void QtListWidget::childIter(ChildIterCallback) {
@@ -35,8 +44,9 @@ void QtListWidget::updateContent() {
 	// TODO...
 }
 
-void QtListWidget::resizeEvent(QResizeEvent *) {
-	// TODO...
+void QtListWidget::resizeEvent(QResizeEvent* ev) {
+	QtBaseWidget::resizeEvent(ev);
+	listWidget->resize(size());
 }
 
 // TODO...
