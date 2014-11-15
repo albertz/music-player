@@ -13,6 +13,7 @@ xcuserdata
 build
 *.creator.user
 *.pro.user
+*.pro.user.*
 *.app
 
 # from test_bmpthumb.py
