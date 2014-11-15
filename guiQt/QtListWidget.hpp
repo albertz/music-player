@@ -17,7 +17,11 @@ class QtListWidget : public QtBaseWidget {
 	Q_OBJECT
 
 protected:
-	QListWidget* listWidget;
+	class ListModel;
+	class ListView;
+
+	ListModel* listModel;
+	ListView* listWidget;
 	PyWeakReference* subjectListRef;
 	bool autoScrolldown;
 

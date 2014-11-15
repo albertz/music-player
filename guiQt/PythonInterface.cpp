@@ -121,6 +121,8 @@ guiQt_main(PyObject* self) {
 	{
 		PyScopedGIUnlock giunlock;
 
+		QtApp::prepareInit();
+
 		// Keep it static. Noone should access it when we return
 		// from here, but I like to be safe anyway.
 		static QtApp app;

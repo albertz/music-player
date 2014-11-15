@@ -22,13 +22,60 @@
 
 RegisterControl(List)
 
+class QtListWidget::ListModel : public QAbstractItemModel {
+public:
+	ListModel() {
+	}
+
+	virtual QModelIndex index(int row, int column, const QModelIndex &parent) const {
+		if(column > 0) return QModelIndex();
+		if(parent.isValid()) return QModelIndex();
+		return createIndex(row, column);
+	}
+
+	virtual QModelIndex parent(const QModelIndex &child) const {
+		return QModelIndex();
+	}
+
+	virtual int rowCount(const QModelIndex &parent) const {
+		if(parent.isValid()) return 0;
+
+		return 3;
+	}
+
+	virtual int columnCount(const QModelIndex &parent) const {
+		if(parent.isValid()) return 0;
+		return 1;
+	}
+
+	virtual QVariant data(const QModelIndex &index, int role) const {
+		if (role == Qt::DisplayRole)
+			return QVariant("foo");
+		return QVariant();
+	}
+
+	void onInsert(int firstIdx, int lastIdx) {
+		emit dataChanged(createIndex(firstIdx, 0), createIndex(lastIdx, 0));
+	}
+};
+
+class QtListWidget::ListView : public QListView {
+public:
+	ListView(QWidget* parent) : QListView(parent) {
+		setUniformItemSizes(true);
+	}
+};
+
 QtListWidget::QtListWidget(PyQtGuiObject* control)
 	: QtBaseWidget(control),
 	  listWidget(NULL),
 	  subjectListRef(NULL),
 	  autoScrolldown(false)
 {
-	listWidget = new QListWidget(this);
+	listModel = new ListModel();
+
+	listWidget = new ListView(this);
+	listWidget->setModel(listModel);
 	listWidget->resize(size());
 	listWidget->show();
 
@@ -222,6 +269,9 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 				static const char *kwlist[] = {"index", "value", NULL};
 				if(!PyArg_ParseTupleAndKeywords(args, kws, "iO:onInsert", (char**)kwlist, &idx, &v))
 					return (PyObject*) NULL;
+
+				self->listModel->onInsert(idx, idx);
+
 				//[self onInsert:idx withValue:v];
 				Py_INCREF(Py_None);
 				return Py_None;

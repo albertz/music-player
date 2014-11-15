@@ -13,6 +13,7 @@ class QtApp : public QApplication
 	Q_OBJECT
 	
 public:
+	static void prepareInit(); // called before QtApp construction
 	QtApp();
 	
 	inline static QtApp* instance() { return (QtApp*) qApp; }

@@ -23,6 +23,23 @@ static char* dummy_argv[] = {(char*)"musicplayer", NULL};
 
 static pid_t qtApp_pid;
 
+void QtApp::prepareInit() {
+#if QT_VERSION < 0x050000
+	// This only exists in Qt4. Afaik, Qt5 uses utf8 by default.
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf8"));
+#endif
+
+#ifdef Q_OS_MACX
+	// fix OSX 10.9 font
+	// http://successfulsoftware.net/2013/10/23/fixing-qt-4-for-mac-os-x-10-9-mavericks/
+	// https://bugreports.qt-project.org/browse/QTBUG-32789
+	QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
+	// fix OSX 10.10 font
+	// https://bugreports.qt-project.org/browse/QTBUG-40833
+	QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Helvetica Neue");
+#endif
+}
+
 QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 	{
 		QByteArray normalizedSignature = QMetaObject::normalizedSignature("genericExec(boost::function<void(void)>)");
@@ -31,11 +48,6 @@ QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 		genericExec_method = this->metaObject()->method(methodIndex);
 	}
 
-#if QT_VERSION < 0x050000
-	// This only exists in Qt4. Afaik, Qt5 uses utf8 by default.
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf8"));
-#endif
-	
 	qtApp_pid = getpid();
 	
 	this->setOrganizationName("Albert Zeyer");
