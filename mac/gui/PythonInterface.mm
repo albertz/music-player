@@ -137,10 +137,10 @@ guiCocoa_main(PyObject* self) {
 	// Keep own ref to appDelegate because NSApp's ref is only weak.
 	// See: http://stackoverflow.com/q/21189168/133374
 	appDelegate = [[AppDelegate alloc] init];
-	[NSApp setDelegate:appDelegate];
+	[[NSApplication sharedApplication] setDelegate:appDelegate];
 
 	Py_BEGIN_ALLOW_THREADS
-	[NSApp run];
+	[[NSApplication sharedApplication] run];
 	// We should normally not return from `run`.
 	printf("Warning: Returned from NSApp run.\n");
 	Py_END_ALLOW_THREADS
@@ -153,7 +153,7 @@ guiCocoa_main(PyObject* self) {
 PyObject *
 guiCocoa_quit(PyObject* self) {
 	Py_BEGIN_ALLOW_THREADS
-	[NSApp terminate:nil];
+	[[NSApplication sharedApplication] terminate:nil];
 	Py_END_ALLOW_THREADS
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -163,7 +163,7 @@ guiCocoa_quit(PyObject* self) {
 PyObject*
 guiCocoa_updateControlMenu(PyObject* self) {
 	Py_BEGIN_ALLOW_THREADS
-	[[NSApp delegate] updateControlMenu];
+	[appDelegate updateControlMenu];
 	Py_END_ALLOW_THREADS
 	Py_INCREF(Py_None);
 	return Py_None;
