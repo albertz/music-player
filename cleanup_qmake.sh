@@ -16,3 +16,13 @@ grep -v "/Doc/" | \
 }
 
 rm .qmake.cache
+rm .qmake.stash
+
+find . -name moc_\* | \
+{
+	while read fn; do
+		echo $fn
+		rm $fn
+	done
+}
+
