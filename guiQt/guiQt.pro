@@ -8,6 +8,8 @@ QMAKE_EXTENSION_SHLIB = so
 TARGET = guiQt
 DESTDIR = $$top_builddir
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 HEADERS = $$files(*.h*)
 HEADERS += $$files($$top_srcdir/_gui/*.h*)
 HEADERS += $$files($$top_srcdir/core/*.h*)

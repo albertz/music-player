@@ -23,7 +23,15 @@ static char* dummy_argv[] = {(char*)"musicplayer", NULL};
 
 static pid_t qtApp_pid;
 
+// defined in app.
+extern std::string getResourcePath();
+
 void QtApp::prepareInit() {
+	printf("Qt Version: %s\n", qVersion());
+
+	// Needed so that it finds libqcocoa.dylib on MacOSX.
+	QCoreApplication::setLibraryPaths(QStringList() << QString::fromStdString(getResourcePath()));
+
 #if QT_VERSION < 0x050000
 	// This only exists in Qt4. Afaik, Qt5 uses utf8 by default.
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf8"));

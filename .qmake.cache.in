@@ -10,7 +10,7 @@ DESTDIR = $$OUT_PWD
 # There is no real sane way to do this, so we dont.
 # For mocs, we must do it because it screwes up the source dir otherwise (`$$files(*.cpp)` ...).
 # Let's just hope there aren't two equally named moc files.
-MOC_DIR=$$PWD/build/qt/moc
+MOC_DIR=$$OUT_PWD/build/qt/moc
 
 
 # No mac-scope because of "Using OS scope before setting MAKEFILE_GENERATOR" error from qmake.
@@ -32,6 +32,10 @@ equals(uname, Darwin) {
 	# We use our own Python.
 	INCLUDEPATH += $$PWD/python-embedded/CPython/Include
 	INCLUDEPATH += $$PWD/python-embedded/pylib
+
+	# For Boost headers.
+	# Don't add /usr/local/include because that might confuse Qt if there is another Qt.
+	INCLUDEPATH += /usr/local/opt/boost/include
 
 }
 

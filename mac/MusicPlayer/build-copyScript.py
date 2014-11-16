@@ -149,6 +149,20 @@ fixBin(PYDIR + "/musicplayer.so", ".", "@executable_path/../Resources/Python")
 # and it might load the musicplayer.so from there. Thus, we need to fix that one also.
 fixBin(env["BUILT_PRODUCTS_DIR"] + "/musicplayer.so", ".", "@executable_path/../Resources/Python")
 
+# Currently only via `qmake`, for Qt 5...
+if env.get("QTDIR"):
+	# copy plugins/platforms/libqcocoa.dylib
+	target = env["TARGET_BUILD_DIR"] + "/" + env["UNLOCALIZED_RESOURCES_FOLDER_PATH"] + "/platforms/libqcocoa.dylib"
+	target_dir = os.path.dirname(target)
+	try: os.makedirs(target_dir)
+	except OSError: pass
+	cp(env["QTDIR"] + "/plugins/platforms/libqcocoa.dylib", target)
+	fixBin(target,
+		os.path.relpath(
+			PYDIR,
+			target_dir),
+		"@executable_path/../Resources/Python")
+
 # This module currently only exists when we compile with QMake.
 # QMake actually copies the file into our app bundle.
 if os.path.exists(PYDIR + "/guiQt.so"):
