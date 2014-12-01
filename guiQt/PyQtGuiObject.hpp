@@ -41,4 +41,8 @@ struct PyQtGuiObject : GuiObject {
 	void updateContent();
 };
 
+
+PyQtGuiObject* guiQt_createControlObject(PyObject* subjectObject);
+
+
 #endif /* defined(__MusicPlayer__QtGuiObject__) */

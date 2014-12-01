@@ -18,6 +18,7 @@ class QtListWidget : public QtBaseWidget {
 
 protected:
 	class ListModel;
+	class ItemDelegate;
 	class ListView;
 
 	ListModel* listModel;

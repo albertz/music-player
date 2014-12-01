@@ -218,3 +218,13 @@ int PyQtGuiObject::setattr(const char* key, PyObject* value) {
 	// fallthrough for now
 	return Py_TYPE(this)->tp_base->tp_setattr((PyObject*) this, (char*) key, value);
 }
+
+
+PyQtGuiObject* guiQt_createControlObject(PyObject* subjectObject) {
+	assert(subjectObject);
+	PyQtGuiObject* control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
+	if(!control) return NULL;
+	control->subjectObject = subjectObject;
+	Py_INCREF(subjectObject);
+	return control;
+}

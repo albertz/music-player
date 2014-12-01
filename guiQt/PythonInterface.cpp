@@ -107,7 +107,7 @@ PyTypeObject QtGuiObject_Type = {
 
 
 PyObject *
-guiQt_main(PyObject* self) {
+py_guiQt_main(PyObject* self) {
 	(void)self;
 	// This is called from Python and replaces the main() control.
 	
@@ -156,7 +156,7 @@ guiQt_main(PyObject* self) {
 
 
 PyObject *
-guiQt_quit(PyObject* self) {
+py_guiQt_quit(PyObject* self) {
 	(void)self;
 	Py_BEGIN_ALLOW_THREADS
 	qApp->quit();
@@ -167,7 +167,7 @@ guiQt_quit(PyObject* self) {
 
 
 PyObject*
-guiQt_updateControlMenu(PyObject* self) {
+py_guiQt_updateControlMenu(PyObject* self) {
 	(void)self;
 	Py_BEGIN_ALLOW_THREADS
 	//[[NSApp delegate] updateControlMenu];
@@ -177,27 +177,9 @@ guiQt_updateControlMenu(PyObject* self) {
 }
 
 
-PyObject*
-pyBuildControl(const std::string& controlType, ControlBuilderFunc builderFunc, PyObject* args, PyObject* kws) {
-	PyObject* control = NULL;
-	if(!PyArg_ParseTuple(args, ("O:buildControl" + controlType).c_str(), &control))
-		return NULL;
-	if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
-		PyErr_Format(PyExc_ValueError, "guiQt.buildControl%s: we expect a QtGuiObject", controlType.c_str());
-		return NULL;
-	}
-	PyQtGuiObject* guiObject = (PyQtGuiObject*) control;
-	bool res = builderFunc(guiObject);
-	if(!res)
-		// XXX: handle somehow? ...
-		printf("guiQt.buildControl%s: warning, returned error\n", controlType.c_str());
-	
-	Py_INCREF(control);
-	return control;
-}
 
 PyObject*
-guiQt_buildControl(PyObject* self, PyObject* args, PyObject* kws) {
+py_guiQt_buildControl(PyObject* self, PyObject* args, PyObject* kws) {
 	(void)self;
 	PyObject* userAttr = NULL;
 	PyQtGuiObject* parent = NULL;
@@ -296,10 +278,10 @@ guiQt_buildControl(PyObject* self, PyObject* args, PyObject* kws) {
 
 
 static PyMethodDef module_methods[] = {
-	{"main",	(PyCFunction)guiQt_main,	METH_NOARGS,	"overtakes main()"},
-	{"quit",	(PyCFunction)guiQt_quit,	METH_NOARGS,	"quit application"},
-	{"updateControlMenu",	(PyCFunction)guiQt_updateControlMenu,	METH_NOARGS,	""},
-	{"buildControl",  (PyCFunction)guiQt_buildControl, METH_VARARGS|METH_KEYWORDS, ""},
+	{"main",	(PyCFunction)py_guiQt_main,	METH_NOARGS,	"overtakes main()"},
+	{"quit",	(PyCFunction)py_guiQt_quit,	METH_NOARGS,	"quit application"},
+	{"updateControlMenu",	(PyCFunction)py_guiQt_updateControlMenu,	METH_NOARGS,	""},
+	{"buildControl",  (PyCFunction)py_guiQt_buildControl, METH_VARARGS|METH_KEYWORDS, ""},
 	{NULL,				NULL}	/* sentinel */
 };
 
@@ -332,7 +314,21 @@ initguiQt(void) {
 			std::string controlType;
 			ControlBuilderFunc builderFunc;
 			PyObject* operator()(PyObject* args, PyObject* kw) {
-				return pyBuildControl(controlType, builderFunc, args, kw);
+				PyObject* control = NULL;
+				if(!PyArg_ParseTuple(args, ("O:buildControl" + controlType).c_str(), &control))
+					return NULL;
+				if(!PyType_IsSubtype(Py_TYPE(control), &QtGuiObject_Type)) {
+					PyErr_Format(PyExc_ValueError, "guiQt.buildControl%s: we expect a QtGuiObject", controlType.c_str());
+					return NULL;
+				}
+				PyQtGuiObject* guiObject = (PyQtGuiObject*) control;
+				bool res = builderFunc(guiObject);
+				if(!res)
+					// XXX: handle somehow? ...
+					printf("guiQt.buildControl%s: warning, returned error\n", controlType.c_str());
+
+				Py_INCREF(control);
+				return control;
 			}
 		};
 		PythonWrapper wrapper;

@@ -141,25 +141,28 @@ bool QtApp::openWindow(const std::string& name) {
 		}
 	}
 	
+	// We have no control object yet, so create one.
 	if(!control) {
-		control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
-		if(!control) {
+		PyObject* subjectObject = PyObject_GetAttrString(rootObj, "obj");
+		if(!subjectObject) {
 			if(PyErr_Occurred()) PyErr_Print();
 			Py_DECREF(rootObj);
 			return false;
 		}
 
+		control = guiQt_createControlObject(subjectObject);
+		if(!control) {
+			if(PyErr_Occurred()) PyErr_Print();
+			Py_DECREF(rootObj);
+			Py_DECREF(subjectObject);
+			return false;
+		}
+		Py_CLEAR(subjectObject);
+
+		// Root-control.
 		assert(control->root == NULL);
 		control->root = control;
 		Py_XINCREF(control->root);		
-		assert(control->subjectObject == NULL);
-		control->subjectObject = PyObject_GetAttrString(rootObj, "obj");
-		if(!control->subjectObject) {
-			if(PyErr_Occurred()) PyErr_Print();			
-			Py_DECREF(rootObj);
-			Py_DECREF(control);
-			return false;
-		}
 	}
 	
 	if(PyObject_SetAttrString(rootObj, "guiObj", (PyObject*) control) < 0) {

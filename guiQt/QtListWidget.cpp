@@ -13,18 +13,44 @@
 #include "QtUtils.hpp"
 #include <vector>
 #include <string>
+#include <QApplication>
 
 // Possible implementations:
 // - QScrollArea (all by myself)
 // - http://www.qtcentre.org/threads/27777-Customize-QListWidgetItem-how-to
-// - see spin box and star delegate examples in Qt Demo
-// - QListWidget::setItemWidget
+// - http://qt-project.org/doc/qt-4.8/itemviews-stardelegate.html
+// - http://qt-project.org/doc/qt-4.8/qabstractitemdelegate.html
+// - QListWidget::setItemWidget (too slow?)
 
-RegisterControl(List)
+RegisterControl(List);
+
+struct ListItem {
+	PyObject* subjectObject;
+	PyQtGuiObject* control;
+
+	ListItem(PyObject* obj)
+		: subjectObject(obj), control(NULL)
+	{
+		if(obj)
+			Py_INCREF(obj);
+	}
+	~ListItem() {
+		Py_CLEAR(control);
+	}
+};
 
 class QtListWidget::ListModel : public QAbstractItemModel {
+private:
+	std::vector<ListItem*> items;
+
 public:
 	ListModel() {
+	}
+
+	~ListModel() {
+		for(ListItem* item : items)
+			delete item;
+		items.clear();
 	}
 
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent) const {
@@ -33,19 +59,18 @@ public:
 		return createIndex(row, column);
 	}
 
-	virtual QModelIndex parent(const QModelIndex &child) const {
-		return QModelIndex();
+	virtual QModelIndex parent(const QModelIndex& /*child*/) const {
+		return QModelIndex(); // always invalid
 	}
 
 	virtual int rowCount(const QModelIndex &parent) const {
 		if(parent.isValid()) return 0;
-
-		return 3;
+		return (int) items.size();
 	}
 
 	virtual int columnCount(const QModelIndex &parent) const {
 		if(parent.isValid()) return 0;
-		return 1;
+		return 1; // only one row
 	}
 
 	virtual QVariant data(const QModelIndex &index, int role) const {
@@ -54,15 +79,53 @@ public:
 		return QVariant();
 	}
 
+	void controlChildIter(QtBaseWidget::ChildIterCallback cb) {
+		for(ListItem* item : items) {
+			if(!item->control) continue;
+			bool stop = false;
+			cb(item->control, stop);
+			if(stop) break;
+		}
+	}
+
+	void insert(int idx, PyObject* value) {
+		items.insert(items.begin() + idx, new ListItem(value));
+		onInsert(idx, idx);
+	}
+
 	void onInsert(int firstIdx, int lastIdx) {
 		emit dataChanged(createIndex(firstIdx, 0), createIndex(lastIdx, 0));
 	}
 };
 
+class QtListWidget::ItemDelegate : public QAbstractItemDelegate {
+	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		int progress = 33 * index.row();
+
+		QStyleOptionProgressBar progressBarOption;
+        progressBarOption.rect = option.rect;
+        progressBarOption.minimum = 0;
+        progressBarOption.maximum = 0;
+        progressBarOption.progress = progress;
+        progressBarOption.text = QString::number(progress) + "%";
+        progressBarOption.textVisible = true;
+
+        QApplication::style()->drawControl(QStyle::CE_ProgressBar,
+                                           &progressBarOption, painter);
+
+
+	}
+
+	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		return QSize(100, 40);
+	}
+};
+
 class QtListWidget::ListView : public QListView {
 public:
-	ListView(QWidget* parent) : QListView(parent) {
+	ListView(QtListWidget* parent) : QListView(parent) {
 		setUniformItemSizes(true);
+		setItemDelegate(new ItemDelegate());
 	}
 };
 
@@ -322,8 +385,8 @@ QtListWidget::~QtListWidget() {
 	listWidget = 0;
 }
 
-void QtListWidget::childIter(ChildIterCallback) {
-	// TODO...
+void QtListWidget::childIter(ChildIterCallback cb) {
+	listModel->controlChildIter(cb);
 }
 
 void QtListWidget::updateContent() {
@@ -859,15 +922,6 @@ final:
 	}
 	
 	PyGILState_Release(gstate);
-}
-
-- (void)childIter:(ChildIterCallback)block
-{
-	for(CocoaGuiObject* child : guiObjectList) {
-		bool stop = false;
-		block(child, stop);
-		if(stop) return;
-	}
 }
 
 - (CocoaGuiObject*)buildControlForIndex:(int)index andValue:(PyObject*)value {
