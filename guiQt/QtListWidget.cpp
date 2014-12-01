@@ -29,11 +29,9 @@ struct ListItem {
 	PyQtGuiObject* control;
 
 	ListItem(PyObject* obj)
-		: subjectObject(obj), control(NULL)
-	{
-		if(obj)
-			Py_INCREF(obj);
-	}
+		: subjectObject(obj), // we expect to already have increfd
+		  control(NULL)
+	{}
 	~ListItem() {
 		Py_CLEAR(control);
 	}
@@ -88,7 +86,15 @@ public:
 		}
 	}
 
+	void push_back(PyObject* value) {
+		items.push_back(new ListItem(value));
+		int idx = items.size() - 1;
+		onInsert(idx, idx);
+	}
+
 	void insert(int idx, PyObject* value) {
+		if(idx < 0) idx = 0;
+		if(idx > items.size()) idx = items.size();
 		items.insert(items.begin() + idx, new ListItem(value));
 		onInsert(idx, idx);
 	}
@@ -137,11 +143,6 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 {
 	listModel = new ListModel();
 
-	listWidget = new ListView(this);
-	listWidget->setModel(listModel);
-	listWidget->resize(size());
-	listWidget->show();
-
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
@@ -152,7 +153,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 		{
 			PyObject* handler = attrChain(control->attr, "dragHandler");
 			if(!handler) {
-				printf("Cocoa ListControl: error while getting control.attr.dragHandler\n");
+				printf("Qt ListControl: error while getting control.attr.dragHandler\n");
 				if(PyErr_Occurred())
 					PyErr_Print();
 			}
@@ -161,7 +162,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 				if(handler != Py_None) {
 					dragHandlerRef = (PyWeakReference*) PyWeakref_NewRef(handler, NULL);
 					if(!dragHandlerRef) {
-						printf("Cocoa ListControl: cannot create dragHandlerRef\n");
+						printf("Qt ListControl: cannot create dragHandlerRef\n");
 						if(PyErr_Occurred())
 							PyErr_Print();
 					}
@@ -172,11 +173,11 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 		}
 
 		if(!control->subjectObject) {
-			printf("Cocoa ListControl: subjectObject is NULL\n");
+			printf("Qt ListControl: subjectObject is NULL\n");
 		} else {
 			subjectListRef = (PyWeakReference*) PyWeakref_NewRef(control->subjectObject, NULL);
 			if(!subjectListRef) {
-				printf("Cocoa ListControl: cannot create subjectListRef\n");
+				printf("Qt ListControl: cannot create subjectListRef\n");
 				goto finalPyInit;
 			}
 		}
@@ -208,7 +209,6 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 		PyObject* lockEnterRes = NULL;
 		PyObject* lockExitRes = NULL;
 		PyObject* list = NULL;
-		std::vector<PyObject*> listCopy;
 
 		ScopedRef selfWeakRefScope(selfWeakRef.scoped());
 		QtListWidget* self = (QtListWidget*) selfWeakRefScope.get();
@@ -223,7 +223,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 		// data in sync.
 		lock = PyObject_GetAttrString(list, "lock");
 		if(!lock) {
-			printf("Cocoa ListControl: list.lock not found\n");
+			printf("Qt ListControl: list.lock not found\n");
 			if(PyErr_Occurred())
 				PyErr_Print();
 			goto finalInitialFill;
@@ -231,7 +231,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 
 		lockEnterRes = PyObject_CallMethod(lock, (char*)"__enter__", NULL);
 		if(!lockEnterRes) {
-			printf("Cocoa ListControl: list.lock.__enter__ failed\n");
+			printf("Qt ListControl: list.lock.__enter__ failed\n");
 			if(PyErr_Occurred())
 				PyErr_Print();
 			goto finalInitialFill;
@@ -240,42 +240,23 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 		{
 			PyObject* listIter = PyObject_GetIter(list);
 			if(!listIter) {
-				printf("Cocoa ListControl: cannot get iter(list)\n");
+				printf("Qt ListControl: cannot get iter(list)\n");
 				if(PyErr_Occurred())
 					PyErr_Print();
-				goto unlockInitialFill;
+				goto finalInitialFill;
 			}
 
 			while(true) {
 				PyObject* listIterItem = PyIter_Next(listIter);
 				if(listIterItem == NULL) break;
-				listCopy.push_back(listIterItem);
+				self->listModel->push_back(listIterItem /* overtake ownership */);
 			}
 
 			if(PyErr_Occurred()) {
-				printf("Cocoa ListControl: error while copying list\n");
+				printf("Qt ListControl: error while copying list\n");
 				PyErr_Print();
 			}
 			Py_DECREF(listIter);
-		}
-
-		{
-			Py_BEGIN_ALLOW_THREADS
-			const int Step = 5;
-			for(int i = 0; i < listCopy.size(); i += Step) {
-				dispatch_sync_main_queue([self,&listCopy,i,Step]() {
-					for(int j = i; j < listCopy.size() && j < i + Step; ++j) {
-						/*
-						PyGILState_STATE gstate = PyGILState_Ensure();
-						CocoaGuiObject* subCtr = [self buildControlForIndex:j andValue:listCopy[j]];
-						if(subCtr) guiObjectList.push_back(subCtr);
-						PyGILState_Release(gstate);
-						[self scrollviewUpdate];
-						*/
-					}
-				});
-			}
-			Py_END_ALLOW_THREADS
 		}
 
 		// We expect the list ( = control->subjectObject ) to support a certain interface,
@@ -292,19 +273,19 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 
 				callbackWrapper = (PyObject*) newFunctionWrapper(func);
 				if(!callbackWrapper) {
-					printf("Cocoa ListControl: cannot create callback wrapper for %s\n", evName);
+					printf("Qt ListControl: cannot create callback wrapper for %s\n", evName);
 					goto finalRegisterEv;
 				}
 
 				event = PyObject_GetAttrString(list, evName);
 				if(!event) {
-					printf("Cocoa ListControl: cannot get list event for %s\n", evName);
+					printf("Qt ListControl: cannot get list event for %s\n", evName);
 					goto finalRegisterEv;
 				}
 
 				res = PyObject_CallMethod(event, (char*)"register", (char*)"(O)", callbackWrapper);
 				if(!res) {
-					printf("Cocoa ListControl: cannot register list event callback for %s\n", evName);
+					printf("Qt ListControl: cannot register list event callback for %s\n", evName);
 					goto finalRegisterEv;
 				}
 
@@ -314,7 +295,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 				char attribName[255];
 				snprintf(attribName, sizeof(attribName), "_%s", evName);
 				if(PyObject_SetAttrString((PyObject*) control, attribName, callbackWrapper) != 0) {
-					printf("Cocoa ListControl: failed to set %s\n", attribName);
+					printf("Qt ListControl: failed to set %s\n", attribName);
 					goto finalRegisterEv;
 				}
 
@@ -358,26 +339,30 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 			});
 		}
 
-	unlockInitialFill:
-		lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
-		if(!lockExitRes) {
-			printf("Cocoa ListControl: list.lock.__exit__ failed\n");
-			if(PyErr_Occurred())
-				PyErr_Print();
+finalInitialFill:
+		if(lockEnterRes) {
+			lockExitRes = PyObject_CallMethod(lock, (char*)"__exit__", (char*)"OOO", Py_None, Py_None, Py_None);
+			if(!lockExitRes) {
+				printf("Qt ListControl: list.lock.__exit__ failed\n");
+				if(PyErr_Occurred())
+					PyErr_Print();
+			}
 		}
 
-	finalInitialFill:
 		Py_XDECREF(lockEnterRes);
 		Py_XDECREF(lockExitRes);
 		Py_XDECREF(lock);
 		Py_XDECREF(list);
-		for(PyObject* listItem : listCopy)
-			Py_DECREF(listItem);
-		listCopy.clear();
 
 		PyGILState_Release(gstate);
 	});
 
+	// Create the widget and set the model to it at the end so that it doesn't get
+	// events while we are filling the list initially.
+	listWidget = new ListView(this);
+	listWidget->setModel(listModel);
+	listWidget->resize(size());
+	listWidget->show();
 }
 
 QtListWidget::~QtListWidget() {
@@ -497,7 +482,7 @@ void QtListWidget::resizeEvent(QResizeEvent* ev) {
 	}
 	
 	if(index < 0 || index > guiObjectList.size()) {
-		printf("Cocoa ListControl onInsert: invalid index %i, size=%zu\n", index, guiObjectList.size());
+		printf("Qt ListControl onInsert: invalid index %i, size=%zu\n", index, guiObjectList.size());
 		index = (int) guiObjectList.size(); // maybe this recovering works...
 		assert(index >= 0);
 	}
@@ -821,27 +806,27 @@ final:
 
 			parent = (CocoaGuiObject*) control->parent;
 			if(!parent) {
-				printf("Cocoa ListControl performDragOperation: control.parent is unset\n");
+				printf("Qt ListControl performDragOperation: control.parent is unset\n");
 				goto finalCall;
 			}
 			Py_INCREF(parent);
 			if(!PyType_IsSubtype(Py_TYPE(parent), &CocoaGuiObject_Type)) {
-				printf("Cocoa ListControl performDragOperation: control.parent is wrong type\n");
+				printf("Qt ListControl performDragOperation: control.parent is wrong type\n");
 				goto finalCall;
 			}
 
 			if(!control->subjectObject) {
-				printf("Cocoa ListControl performDragOperation: control.subjectObject is unset\n");
+				printf("Qt ListControl performDragOperation: control.subjectObject is unset\n");
 				goto finalCall;
 			}
 			if(!parent->subjectObject) {
-				printf("Cocoa ListControl performDragOperation: control.parent.subjectObject is unset\n");
+				printf("Qt ListControl performDragOperation: control.parent.subjectObject is unset\n");
 				goto finalCall;
 			}
 
 			pyFilenames = PyTuple_New([filenames count]);
 			if(!pyFilenames) {
-				printf("Cocoa ListControl performDragOperation: failed to create pyFilenames\n");
+				printf("Qt ListControl performDragOperation: failed to create pyFilenames\n");
 				goto finalCall;
 			}
 			for(NSUInteger i = 0; i < [filenames count]; ++i) {
@@ -849,7 +834,7 @@ final:
 				std::string cppStr([objcStr UTF8String]);
 				PyObject* pyStr = PyUnicode_DecodeUTF8(&cppStr[0], cppStr.size(), NULL);
 				if(!pyStr) {
-					printf("Cocoa ListControl performDragOperation: failed to convert unicode filename\n");
+					printf("Qt ListControl performDragOperation: failed to convert unicode filename\n");
 					goto finalCall;
 				}
 				PyTuple_SET_ITEM(pyFilenames, i, pyStr);
@@ -857,7 +842,7 @@ final:
 
 			res = PyObject_CallFunction(dragHandler, (char*)"(OOiO)", parent->subjectObject, control->subjectObject, index, pyFilenames);
 			if(!res) {
-				printf("Cocoa ListControl performDragOperation: dragHandler failed\n");
+				printf("Qt ListControl performDragOperation: dragHandler failed\n");
 				goto finalCall;
 			}
 
@@ -947,12 +932,12 @@ final:
 	
 	subCtr = (CocoaGuiObject*) PyObject_CallObject((PyObject*) &CocoaGuiObject_Type, NULL);
 	if(!subCtr) {
-		printf("Cocoa ListControl buildControlForIndex: failed to create CocoaGuiObject\n");
+		printf("Qt ListControl buildControlForIndex: failed to create CocoaGuiObject\n");
 		if(PyErr_Occurred()) PyErr_Print();
 		return NULL;
 	}
 	if(!PyType_IsSubtype(Py_TYPE(subCtr), &CocoaGuiObject_Type)) {
-		printf("Cocoa ListControl buildControlForIndex: CocoaGuiObject created unexpected object\n");
+		printf("Qt ListControl buildControlForIndex: CocoaGuiObject created unexpected object\n");
 		Py_DECREF(subCtr);
 		return NULL;
 	}
@@ -968,7 +953,7 @@ final:
 
 	PyObject* guiCocoaMod = getModule("guiCocoa"); // borrowed ref
 	if(!guiCocoaMod) {
-		printf("Cocoa ListControl buildControlForIndex: cannot get module gui\n");
+		printf("Qt ListControl buildControlForIndex: cannot get module gui\n");
 		if(PyErr_Occurred()) PyErr_Print();
 		Py_DECREF(subCtr);
 		return NULL;
@@ -978,7 +963,7 @@ final:
 	{
 		PyObject* res = PyObject_CallMethod(guiCocoaMod, (char*)"ListItem_AttrWrapper", (char*)"(iOO)", index, value, control);
 		if(!res) {
-			printf("Cocoa ListControl buildControlForIndex: cannot create ListItem_AttrWrapper\n");
+			printf("Qt ListControl buildControlForIndex: cannot create ListItem_AttrWrapper\n");
 			if(PyErr_Occurred()) PyErr_Print();
 			Py_DECREF(subCtr);
 			return NULL;
@@ -997,7 +982,7 @@ final:
 	
 	NSView* childView = subCtr->getNativeObj();
 	if(!childView) {
-		printf("Cocoa ListControl buildControlForIndex: subCtr.nativeGuiObject is nil\n");
+		printf("Qt ListControl buildControlForIndex: subCtr.nativeGuiObject is nil\n");
 		Py_DECREF(subCtr);
 		return NULL;
 	}
