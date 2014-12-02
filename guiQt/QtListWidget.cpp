@@ -72,9 +72,12 @@ public:
 	}
 
 	virtual QVariant data(const QModelIndex &index, int role) const {
-		if (role == Qt::DisplayRole)
-			return QVariant("foo");
-		return QVariant();
+		if(index.column() != 0) return QVariant();
+		if(role != Qt::DisplayRole) return QVariant();
+		int idx = index.row();
+		if(idx < 0) return QVariant();
+		if((size_t)idx >= items.size()) return QVariant();
+		return QVariant::fromValue((void*) items[idx]);
 	}
 
 	void controlChildIter(QtBaseWidget::ChildIterCallback cb) {
@@ -87,21 +90,38 @@ public:
 	}
 
 	void push_back(PyObject* value) {
+		int idx = items.size();
+		beginInsertRows(QModelIndex(), idx, idx);
 		items.push_back(new ListItem(value));
-		int idx = items.size() - 1;
-		onInsert(idx, idx);
+		endInsertRows();
 	}
 
 	void insert(int idx, PyObject* value) {
 		if(idx < 0) idx = 0;
-		if(idx > items.size()) idx = items.size();
+		if((size_t)idx > items.size()) idx = items.size();
+		beginInsertRows(QModelIndex(), idx, idx);
 		items.insert(items.begin() + idx, new ListItem(value));
-		onInsert(idx, idx);
+		endInsertRows();
 	}
 
-	void onInsert(int firstIdx, int lastIdx) {
-		emit dataChanged(createIndex(firstIdx, 0), createIndex(lastIdx, 0));
+	void remove(int idx) {
+		if(idx < 0) return;
+		if((size_t)idx >= items.size()) return;
+		beginRemoveRows(QModelIndex(), idx, idx);
+		ListItem* item = items[idx];
+		items.erase(items.begin() + idx);
+		delete item;
+		endRemoveRows();
 	}
+
+	void clear() {
+		beginResetModel();
+		for(ListItem* item : items)
+			delete item;
+		items.clear();
+		endResetModel();
+	}
+
 };
 
 class QtListWidget::ItemDelegate : public QAbstractItemDelegate {
@@ -142,6 +162,14 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 	  autoScrolldown(false)
 {
 	listModel = new ListModel();
+
+	// Create the widget and set the model to it at the end so that it doesn't get
+	// events while we are filling the list initially.
+	listWidget = new ListView(this);
+	listWidget->setModel(listModel);
+	listWidget->resize(size());
+	listWidget->show();
+
 
 	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
@@ -313,10 +341,8 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 				static const char *kwlist[] = {"index", "value", NULL};
 				if(!PyArg_ParseTupleAndKeywords(args, kws, "iO:onInsert", (char**)kwlist, &idx, &v))
 					return (PyObject*) NULL;
-
-				self->listModel->onInsert(idx, idx);
-
-				//[self onInsert:idx withValue:v];
+				Py_INCREF(v);
+				self->listModel->insert(idx, v /* overtake */);
 				Py_INCREF(Py_None);
 				return Py_None;
 			});
@@ -325,7 +351,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 				static const char *kwlist[] = {"index", NULL};
 				if(!PyArg_ParseTupleAndKeywords(args, kws, "i:onRemove", (char**)kwlist, &idx))
 					return (PyObject*) NULL;
-				//[self onRemove:idx];
+				self->listModel->remove(idx);
 				Py_INCREF(Py_None);
 				return Py_None;
 			});
@@ -333,7 +359,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 				static const char *kwlist[] = {NULL};
 				if(!PyArg_ParseTupleAndKeywords(args, kws, ":onClear", (char**)kwlist))
 					return (PyObject*) NULL;
-				//[self onClear];
+				self->listModel->clear();
 				Py_INCREF(Py_None);
 				return Py_None;
 			});
@@ -357,12 +383,6 @@ finalInitialFill:
 		PyGILState_Release(gstate);
 	});
 
-	// Create the widget and set the model to it at the end so that it doesn't get
-	// events while we are filling the list initially.
-	listWidget = new ListView(this);
-	listWidget->setModel(listModel);
-	listWidget->resize(size());
-	listWidget->show();
 }
 
 QtListWidget::~QtListWidget() {

@@ -26,6 +26,8 @@ static pid_t qtApp_pid;
 // defined in app.
 extern std::string getResourcePath();
 
+Q_DECLARE_METATYPE(QtFunc);
+
 void QtApp::prepareInit() {
 	printf("Qt Version: %s\n", qVersion());
 
@@ -46,11 +48,14 @@ void QtApp::prepareInit() {
 	// https://bugreports.qt-project.org/browse/QTBUG-40833
 	QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Helvetica Neue");
 #endif
+
+	// This forces that the type is registered in Qt.
+	qMetaTypeId<QtFunc>();
 }
 
 QtApp::QtApp() : QApplication(dummy_argc, dummy_argv) {
 	{
-		QByteArray normalizedSignature = QMetaObject::normalizedSignature("genericExec(boost::function<void(void)>)");
+		QByteArray normalizedSignature = QMetaObject::normalizedSignature("genericExec(QtFunc)");
 		int methodIndex = this->metaObject()->indexOfSlot(normalizedSignature);
 		assert(methodIndex >= 0);
 		genericExec_method = this->metaObject()->method(methodIndex);
