@@ -95,7 +95,7 @@ void QtOneLineTextWidget::updateContent() {
 	execInMainThread_sync([=]() {
 		PyScopedGIL gil;
 
-		ScopedRef selfRef(selfRefCopy.scoped());
+		ScopedRef selfRef(selfRefCopy);
 		if(selfRef) {
 			auto self = dynamic_cast<QtOneLineTextWidget*>(selfRef.get());
 			assert(self);

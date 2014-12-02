@@ -28,6 +28,12 @@ QtBaseWidget::ScopedRef::~ScopedRef() {
 	   _ref->mutex.unlock();
 }
 
+QtBaseWidget* QtBaseWidget::WeakRef::getUnsafe() const {
+	boost::shared_ptr<LockedRef> _ref = ref.lock();
+	if(!_ref) return NULL;
+	return _ref->ptr;
+}
+
 QtBaseWidget::~QtBaseWidget() {
 	selfRef->reset();
 	selfRef.reset();
@@ -39,7 +45,7 @@ QtBaseWidget::~QtBaseWidget() {
 }
 
 QtBaseWidget::QtBaseWidget(PyQtGuiObject* control) :
-	QWidget(control->getParentWidget().scoped().ptr),
+	QWidget(control->getParentWidget().getUnsafe()),
 	controlRef(NULL),
 	handleResize(false)
 {	

@@ -122,16 +122,38 @@ public:
 		endResetModel();
 	}
 
+	QtBaseWidget::WeakRef getFirstWidget() const {
+		for(ListItem* item : items) {
+			PyQtGuiObject* control = item->control;
+			if(control) return control->widget;
+		}
+		return QtBaseWidget::WeakRef();
+	}
+
+	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		QtBaseWidget::ScopedRef widget(getFirstWidget());
+
+		return QSize(100, 20);
+	}
+
 };
 
 class QtListWidget::ItemDelegate : public QAbstractItemDelegate {
+	ListModel* listModel;
+
+public:
+	ItemDelegate(ListModel* m) : listModel(m) {}
+
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		ListItem* item = (ListItem*) index.data().value<void*>();
+		if(!item) return;
+
 		int progress = 33 * index.row();
 
 		QStyleOptionProgressBar progressBarOption;
         progressBarOption.rect = option.rect;
         progressBarOption.minimum = 0;
-        progressBarOption.maximum = 0;
+        progressBarOption.maximum = 100;
         progressBarOption.progress = progress;
         progressBarOption.text = QString::number(progress) + "%";
         progressBarOption.textVisible = true;
@@ -143,7 +165,7 @@ class QtListWidget::ItemDelegate : public QAbstractItemDelegate {
 	}
 
 	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
-		return QSize(100, 40);
+		return listModel->sizeHint(option, index);
 	}
 };
 
@@ -151,7 +173,6 @@ class QtListWidget::ListView : public QListView {
 public:
 	ListView(QtListWidget* parent) : QListView(parent) {
 		setUniformItemSizes(true);
-		setItemDelegate(new ItemDelegate());
 	}
 };
 
@@ -163,9 +184,8 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 {
 	listModel = new ListModel();
 
-	// Create the widget and set the model to it at the end so that it doesn't get
-	// events while we are filling the list initially.
 	listWidget = new ListView(this);
+	listWidget->setItemDelegate(new ItemDelegate(listModel));
 	listWidget->setModel(listModel);
 	listWidget->resize(size());
 	listWidget->show();
@@ -238,7 +258,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 		PyObject* lockExitRes = NULL;
 		PyObject* list = NULL;
 
-		ScopedRef selfWeakRefScope(selfWeakRef.scoped());
+		ScopedRef selfWeakRefScope(selfWeakRef);
 		QtListWidget* self = (QtListWidget*) selfWeakRefScope.get();
 
 		if(!self) goto finalInitialFill;

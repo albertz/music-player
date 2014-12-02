@@ -49,7 +49,7 @@ struct QtBaseWidget : QWidget {
 	
 	// This is to access the underlying pointer.
 	// While this is in scope, the object cannot be deleted from another thread.
-	struct ScopedRef {
+	struct ScopedRef : boost::noncopyable {
 		boost::shared_ptr<LockedRef> _ref;
 		QtBaseWidget* ptr;
 		bool lock;
@@ -65,7 +65,7 @@ struct QtBaseWidget : QWidget {
 		Ref ref;
 		WeakRef() {}
 		WeakRef(QtBaseWidget& w) { ref = w.selfRef; }
-		ScopedRef scoped() const { return ScopedRef(*this); }
+		QtBaseWidget* getUnsafe() const;
 	};
 		
 	QtBaseWidget(PyQtGuiObject* control);
