@@ -48,11 +48,9 @@ bool buildControlObject(PyQtGuiObject* control) {
 }
 
 bool _buildControlObject_pre(PyQtGuiObject* control) {
-	// TODO...
-//	ObjectControlView* view = [[ObjectControlView alloc] initWithControl:control];
-//	control->setNativeObj(view);
-//	return view != nil;
-	return false;
+	// This automatically sets control->widget and calls control->setupChilds().
+	new QtObjectWidget(control);
+	return true;
 }
 
 

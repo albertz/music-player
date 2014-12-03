@@ -26,7 +26,8 @@
 RegisterControl(List);
 
 struct ListItem {
-	PyObject* subjectObject;
+	// XXX: need parent
+	PyObject* subjectObject; // XXX: must be weak
 	PyQtGuiObject* control;
 
 	ListItem(PyObject* obj)
@@ -40,8 +41,22 @@ struct ListItem {
 	void setupControl() {
 		assert(subjectObject);
 		if(control) return;
+
 		PyScopedGIL gil;
-		control = guiQt_createControlObject(subjectObject);
+		control = guiQt_createControlObject(subjectObject, NULL /* XXX */);
+		if(!control) return; // XXX err
+
+		// XXX
+		//control->PresetSize.x = [scrollview contentSize].width;
+		//if(!guiObjectList.empty())
+		//	subCtr->PresetSize.y = guiObjectList[0]->get_size(guiObjectList[0]).y;
+
+		if(!_buildControlObject_pre(control)) return; // XXX err
+		// XXX: handle size?
+		if(!_buildControlObject_post(control)) return; // XXX err
+
+		control->updateContent(); // XXX ?
+
 	}
 };
 
@@ -90,9 +105,9 @@ public:
 
 	void controlChildIter(QtBaseWidget::ChildIterCallback cb) {
 		for(ListItem* item : items) {
-			if(!item->control) continue;
 			bool stop = false;
-			cb(item->control, stop);
+			if(item->control)
+				cb(item->control, stop);
 			if(stop) break;
 		}
 	}
@@ -974,26 +989,7 @@ final:
 		// silently fail. we are probably just out-of-scope
 		return NULL;
 	
-	subCtr = (CocoaGuiObject*) PyObject_CallObject((PyObject*) &CocoaGuiObject_Type, NULL);
-	if(!subCtr) {
-		printf("Qt ListControl buildControlForIndex: failed to create CocoaGuiObject\n");
-		if(PyErr_Occurred()) PyErr_Print();
-		return NULL;
-	}
-	if(!PyType_IsSubtype(Py_TYPE(subCtr), &CocoaGuiObject_Type)) {
-		printf("Qt ListControl buildControlForIndex: CocoaGuiObject created unexpected object\n");
-		Py_DECREF(subCtr);
-		return NULL;
-	}
-
-	subCtr->subjectObject = value;
-	Py_INCREF(value);
-		
-	subCtr->root = control->root;
-	Py_XINCREF(control->root);
-	
-	subCtr->parent = control;
-	Py_INCREF(control);
+	subCtr = guiQt_createControlObject(value, control);
 
 	PyObject* guiCocoaMod = getModule("guiCocoa"); // borrowed ref
 	if(!guiCocoaMod) {

@@ -155,7 +155,7 @@ bool QtApp::openWindow(const std::string& name) {
 			return false;
 		}
 
-		control = guiQt_createControlObject(subjectObject);
+		control = guiQt_createControlObject(subjectObject, /* we are root */ NULL);
 		if(!control) {
 			if(PyErr_Occurred()) PyErr_Print();
 			Py_DECREF(rootObj);
@@ -163,11 +163,6 @@ bool QtApp::openWindow(const std::string& name) {
 			return false;
 		}
 		Py_CLEAR(subjectObject);
-
-		// Root-control.
-		assert(control->root == NULL);
-		control->root = control;
-		Py_XINCREF(control->root);		
 	}
 	
 	if(PyObject_SetAttrString(rootObj, "guiObj", (PyObject*) control) < 0) {
@@ -217,9 +212,10 @@ bool QtApp::openWindow(const std::string& name) {
 	win->setMinimumSize(size.x, size.y);
 
 	// TODO?...
-	
+	// XXX: set control->widget = win?
+
 	win->show();
-	control->layout();
+	//control->layout(); // XXX ?
 	
 	win->activateWindow();
 	win->raise();

@@ -39,10 +39,11 @@ struct PyQtGuiObject : GuiObject {
 	
 	void addChild(QtBaseWidget::WeakRef child);
 	void updateContent();
+	PyQtGuiObject* getParent();
 };
 
 
-PyQtGuiObject* guiQt_createControlObject(PyObject* subjectObject);
+PyQtGuiObject* guiQt_createControlObject(PyObject* subjectObject, PyQtGuiObject* parent);
 
 
 #endif /* defined(__MusicPlayer__QtGuiObject__) */

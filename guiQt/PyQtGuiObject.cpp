@@ -220,11 +220,35 @@ int PyQtGuiObject::setattr(const char* key, PyObject* value) {
 }
 
 
-PyQtGuiObject* guiQt_createControlObject(PyObject* subjectObject) {
+PyQtGuiObject* PyQtGuiObject::getParent() {
+	if(!parent) return NULL;
+	if(!PyType_IsSubtype(Py_TYPE(parent), &QtGuiObject_Type)) {
+		PyErr_Format(PyExc_ValueError, "QtGuiObject.getParent: we expect a QtGuiObject");
+		return NULL;
+	}
+	return (PyQtGuiObject*) parent;
+}
+
+
+PyQtGuiObject* guiQt_createControlObject(PyObject* subjectObject, PyQtGuiObject* parent) {
 	assert(subjectObject);
 	PyQtGuiObject* control = (PyQtGuiObject*) PyObject_CallFunction((PyObject*) &QtGuiObject_Type, NULL);
 	if(!control) return NULL;
+
 	control->subjectObject = subjectObject;
 	Py_INCREF(subjectObject);
+
+	if(parent) {
+		control->parent = parent;
+		Py_INCREF(control->parent);
+
+		control->root = parent->root;
+		Py_INCREF(control->root);
+	}
+	else {
+		control->root = control; // we are the root
+		Py_INCREF(control->root);
+	}
+
 	return control;
 }
