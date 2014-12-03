@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <QApplication>
+#include <QPainter>
 
 // Possible implementations:
 // - QScrollArea (all by myself)
@@ -34,6 +35,13 @@ struct ListItem {
 	{}
 	~ListItem() {
 		Py_CLEAR(control);
+	}
+
+	void setupControl() {
+		assert(subjectObject);
+		if(control) return;
+		PyScopedGIL gil;
+		control = guiQt_createControlObject(subjectObject);
 	}
 };
 
@@ -132,7 +140,8 @@ public:
 
 	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
 		QtBaseWidget::ScopedRef widget(getFirstWidget());
-
+		if(widget) return widget->sizeHint();
+		// fallback
 		return QSize(100, 20);
 	}
 
@@ -145,23 +154,21 @@ public:
 	ItemDelegate(ListModel* m) : listModel(m) {}
 
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		if(option.state & QStyle::State_Selected)
+			painter->fillRect(option.rect, option.palette.highlight());
+
 		ListItem* item = (ListItem*) index.data().value<void*>();
 		if(!item) return;
 
-		int progress = 33 * index.row();
+		item->setupControl();
+		QtBaseWidget::ScopedRef widget(item->control->widget);
+		if(!widget) return;
 
-		QStyleOptionProgressBar progressBarOption;
-        progressBarOption.rect = option.rect;
-        progressBarOption.minimum = 0;
-        progressBarOption.maximum = 100;
-        progressBarOption.progress = progress;
-        progressBarOption.text = QString::number(progress) + "%";
-        progressBarOption.textVisible = true;
-
-        QApplication::style()->drawControl(QStyle::CE_ProgressBar,
-                                           &progressBarOption, painter);
-
-
+		widget->render(
+			painter,
+			QPoint(option.rect.x(), option.rect.y()),
+			QRegion(0, 0, option.rect.width(), option.rect.height()),
+			QWidget::DrawChildren);
 	}
 
 	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
@@ -192,7 +199,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 
 
 	{
-		PyGILState_STATE gstate = PyGILState_Ensure();
+		PyScopedGIL gil;
 
 		control->OuterSpace = Vec(0,0);
 
@@ -232,7 +239,6 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 
 	finalPyInit:
 		if(PyErr_Occurred()) PyErr_Print();
-		PyGILState_Release(gstate);
 	}
 
 	if(!subjectListRef) return;
@@ -251,7 +257,7 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 
 	// do initial fill in background
 	dispatch_async_background_queue([selfWeakRef]() {
-		PyGILState_STATE gstate = PyGILState_Ensure();
+		PyScopedGIL gil;
 
 		PyObject* lock = NULL;
 		PyObject* lockEnterRes = NULL;
@@ -399,8 +405,6 @@ finalInitialFill:
 		Py_XDECREF(lockExitRes);
 		Py_XDECREF(lock);
 		Py_XDECREF(list);
-
-		PyGILState_Release(gstate);
 	});
 
 }
