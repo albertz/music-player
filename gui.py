@@ -246,7 +246,7 @@ class _GuiObject:
 		in the end.
 		"""
 
-		self.updateSubjectObject()
+		#self.updateSubjectObject() # XXX: make it explicit? break simple list interface
 		self.firstChildGuiObject = None
 		self.childs = {}
 		x, y = self.OuterSpace

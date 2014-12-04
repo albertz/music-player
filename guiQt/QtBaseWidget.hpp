@@ -64,7 +64,7 @@ struct QtBaseWidget : QWidget {
 		typedef boost::weak_ptr<LockedRef> Ref;
 		Ref ref;
 		WeakRef() {}
-		WeakRef(QtBaseWidget& w) { ref = w.selfRef; }
+		WeakRef(const QtBaseWidget& w) { ref = w.selfRef; }
 		QtBaseWidget* getUnsafe() const;
 	};
 		

@@ -26,7 +26,6 @@
 RegisterControl(List);
 
 struct ListItem {
-	// XXX: need parent
 	PyObject* subjectObject; // XXX: must be weak
 	PyQtGuiObject* control;
 
@@ -38,35 +37,42 @@ struct ListItem {
 		Py_CLEAR(control);
 	}
 
-	void setupControl() {
+	void setupControl(int width, PyQtGuiObject* parent) {
 		assert(subjectObject);
-		if(control) return;
 
 		PyScopedGIL gil;
-		control = guiQt_createControlObject(subjectObject, NULL /* XXX */);
-		if(!control) return; // XXX err
 
-		// XXX
-		//control->PresetSize.x = [scrollview contentSize].width;
-		//if(!guiObjectList.empty())
-		//	subCtr->PresetSize.y = guiObjectList[0]->get_size(guiObjectList[0]).y;
+		if(!control) {
+			control = guiQt_createControlObject(subjectObject, parent);
+			if(!control) return; // XXX err
 
-		if(!_buildControlObject_pre(control)) return; // XXX err
-		// XXX: handle size?
-		if(!_buildControlObject_post(control)) return; // XXX err
+			// XXX
+			//control->PresetSize.x = [scrollview contentSize].width;
+			//if(!guiObjectList.empty())
+			//	subCtr->PresetSize.y = guiObjectList[0]->get_size(guiObjectList[0]).y;
 
-		control->updateContent(); // XXX ?
+			if(!_buildControlObject_pre(control)) return; // XXX err
+			// XXX: handle size?
+			if(!_buildControlObject_post(control)) return; // XXX err
 
+		}
+
+		int h = control->get_size(control).y;
+		control->set_size(control, Vec(width, h));
+
+		control->layout();
 	}
 };
 
 class QtListWidget::ListModel : public QAbstractItemModel {
 private:
+	QtBaseWidget::WeakRef listWidget;
 	std::vector<ListItem*> items;
 
 public:
-	ListModel() {
-	}
+	ListModel(QtListWidget& owner)
+		: listWidget(owner)
+	{}
 
 	~ListModel() {
 		for(ListItem* item : items)
@@ -113,36 +119,45 @@ public:
 	}
 
 	void push_back(PyObject* value) {
-		int idx = items.size();
-		beginInsertRows(QModelIndex(), idx, idx);
-		items.push_back(new ListItem(value));
-		endInsertRows();
+		dispatch_sync_main_queue([=]() {
+			int idx = items.size();
+			beginInsertRows(QModelIndex(), idx, idx);
+			items.push_back(new ListItem(value));
+			endInsertRows();
+		});
 	}
 
-	void insert(int idx, PyObject* value) {
-		if(idx < 0) idx = 0;
-		if((size_t)idx > items.size()) idx = items.size();
-		beginInsertRows(QModelIndex(), idx, idx);
-		items.insert(items.begin() + idx, new ListItem(value));
-		endInsertRows();
+	void insert(int _idx, PyObject* value) {
+		dispatch_sync_main_queue([=]() {
+			int idx = _idx;
+			if(idx < 0) idx = 0;
+			if((size_t)idx > items.size()) idx = items.size();
+			beginInsertRows(QModelIndex(), idx, idx);
+			items.insert(items.begin() + idx, new ListItem(value));
+			endInsertRows();
+		});
 	}
 
 	void remove(int idx) {
-		if(idx < 0) return;
-		if((size_t)idx >= items.size()) return;
-		beginRemoveRows(QModelIndex(), idx, idx);
-		ListItem* item = items[idx];
-		items.erase(items.begin() + idx);
-		delete item;
-		endRemoveRows();
+		dispatch_sync_main_queue([=]() {
+			if(idx < 0) return;
+			if((size_t)idx >= items.size()) return;
+			beginRemoveRows(QModelIndex(), idx, idx);
+			ListItem* item = items[idx];
+			items.erase(items.begin() + idx);
+			delete item;
+			endRemoveRows();
+		});
 	}
 
 	void clear() {
-		beginResetModel();
-		for(ListItem* item : items)
-			delete item;
-		items.clear();
-		endResetModel();
+		dispatch_sync_main_queue([=]() {
+			beginResetModel();
+			for(ListItem* item : items)
+				delete item;
+			items.clear();
+			endResetModel();
+		});
 	}
 
 	QtBaseWidget::WeakRef getFirstWidget() const {
@@ -153,11 +168,26 @@ public:
 		return QtBaseWidget::WeakRef();
 	}
 
+	const QtBaseWidget::WeakRef& getListWidget() const {
+		return listWidget;
+	}
+
+	int getOwnerWidth() const {
+		QtBaseWidget::ScopedRef owner(listWidget);
+		if(!owner) return 200; // fallback
+		QtListWidget* widget = dynamic_cast<QtListWidget*>(owner.get());
+		assert(widget);
+		return widget->size().width();
+	}
+
 	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
-		QtBaseWidget::ScopedRef widget(getFirstWidget());
-		if(widget) return widget->sizeHint();
+		{
+			QtBaseWidget::ScopedRef widget(getFirstWidget());
+			if(widget) return widget->sizeHint();
+		}
+
 		// fallback
-		return QSize(100, 20);
+		return QSize(getOwnerWidth(), 20);
 	}
 
 };
@@ -169,21 +199,36 @@ public:
 	ItemDelegate(ListModel* m) : listModel(m) {}
 
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		ListItem* item = (ListItem*) index.data().value<void*>();
+		if(!item) goto error;
+
 		if(option.state & QStyle::State_Selected)
 			painter->fillRect(option.rect, option.palette.highlight());
 
-		ListItem* item = (ListItem*) index.data().value<void*>();
-		if(!item) return;
+		{
+			QtBaseWidget::ScopedRef listWidget(listModel->getListWidget());
+			if(!listWidget) goto error;
+			PyQtGuiObject* parent = listWidget->getControl();
+			if(!parent) goto error;
+			item->setupControl(listWidget->frameSize().width(), parent);
+		}
 
-		item->setupControl();
-		QtBaseWidget::ScopedRef widget(item->control->widget);
-		if(!widget) return;
+		{
+			if(!item->control) goto error;
+			QtBaseWidget::ScopedRef widget(item->control->widget);
+			if(!widget) goto error;
 
-		widget->render(
-			painter,
-			QPoint(option.rect.x(), option.rect.y()),
-			QRegion(0, 0, option.rect.width(), option.rect.height()),
-			QWidget::DrawChildren);
+			widget->render(
+				painter,
+				QPoint(option.rect.x(), option.rect.y()),
+				QRegion(0, 0, option.rect.width(), option.rect.height()),
+				QWidget::DrawChildren);
+		}
+
+		return;
+
+	error:
+		painter->fillRect(option.rect, option.palette.dark());
 	}
 
 	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
@@ -193,7 +238,7 @@ public:
 
 class QtListWidget::ListView : public QListView {
 public:
-	ListView(QtListWidget* parent) : QListView(parent) {
+	ListView(QtListWidget& parent) : QListView(&parent) {
 		setUniformItemSizes(true);
 	}
 };
@@ -204,9 +249,9 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 	  subjectListRef(NULL),
 	  autoScrolldown(false)
 {
-	listModel = new ListModel();
+	listModel = new ListModel(*this);
 
-	listWidget = new ListView(this);
+	listWidget = new ListView(*this);
 	listWidget->setItemDelegate(new ItemDelegate(listModel));
 	listWidget->setModel(listModel);
 	listWidget->resize(size());
