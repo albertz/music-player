@@ -160,6 +160,11 @@ public:
 		});
 	}
 
+	void updateLayout() {
+		if(items.empty()) return;
+		emit dataChanged(createIndex(0,0), createIndex(items.size()-1, 0));
+	}
+
 	QtBaseWidget::WeakRef getFirstWidget() const {
 		for(ListItem* item : items) {
 			PyQtGuiObject* control = item->control;
@@ -180,14 +185,18 @@ public:
 		return widget->size().width();
 	}
 
-	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+	QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex& index) const {
+		if(index.column() != 0) return QSize();
+
+		/*
 		{
 			QtBaseWidget::ScopedRef widget(getFirstWidget());
-			if(widget) return widget->sizeHint();
+			if(widget) return widget->size();
 		}
+		*/
 
 		// fallback
-		return QSize(getOwnerWidth(), 20);
+		return QSize(getOwnerWidth() - 2, 22);
 	}
 
 };
@@ -202,15 +211,18 @@ public:
 		ListItem* item = (ListItem*) index.data().value<void*>();
 		if(!item) goto error;
 
+		painter->setOpacity(1);
 		if(option.state & QStyle::State_Selected)
 			painter->fillRect(option.rect, option.palette.highlight());
+		else if(option.features & QStyleOptionViewItem::Alternate)
+			painter->fillRect(option.rect, option.palette.alternateBase());
 
 		{
 			QtBaseWidget::ScopedRef listWidget(listModel->getListWidget());
 			if(!listWidget) goto error;
 			PyQtGuiObject* parent = listWidget->getControl();
 			if(!parent) goto error;
-			item->setupControl(listWidget->frameSize().width(), parent);
+			item->setupControl(listWidget->size().width(), parent);
 		}
 
 		{
@@ -218,6 +230,8 @@ public:
 			QtBaseWidget::ScopedRef widget(item->control->widget);
 			if(!widget) goto error;
 
+			painter->setOpacity(0.8); // XXX?
+			widget->setAutoFillBackground(false);
 			widget->render(
 				painter,
 				QPoint(option.rect.x(), option.rect.y()),
@@ -240,6 +254,7 @@ class QtListWidget::ListView : public QListView {
 public:
 	ListView(QtListWidget& parent) : QListView(&parent) {
 		setUniformItemSizes(true);
+		setAlternatingRowColors(true);
 	}
 };
 
@@ -484,6 +499,7 @@ void QtListWidget::updateContent() {
 
 void QtListWidget::resizeEvent(QResizeEvent* ev) {
 	QtBaseWidget::resizeEvent(ev);
+	listModel->updateLayout();
 	listWidget->resize(size());
 }
 
