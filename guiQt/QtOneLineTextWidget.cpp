@@ -29,6 +29,7 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	setBaseSize(w, h);
 	
 	lineEditWidget = new QLineEdit(this);
+	lineEditWidget->setAlignment(Qt::AlignLeft);
 	lineEditWidget->resize(w, h);
 	lineEditWidget->show();
 	
@@ -52,9 +53,16 @@ QtOneLineTextWidget::QtOneLineTextWidget(PyQtGuiObject* control) : QtBaseWidget(
 	lineEditWidget->setReadOnly(true);	
 }
 
+static const int MarginWidth = 5;
+
 void QtOneLineTextWidget::resizeEvent(QResizeEvent* ev) {
 	QtBaseWidget::resizeEvent(ev);
 	lineEditWidget->resize(size());
+
+	QFontMetrics metrics(lineEditWidget->fontMetrics());
+	QString elidedText = metrics.elidedText(
+				text, Qt::ElideRight, lineEditWidget->width() - MarginWidth);
+	lineEditWidget->setText(elidedText);
 }
 
 PyObject* QtOneLineTextWidget::getTextObj() {
@@ -67,7 +75,7 @@ PyObject* QtOneLineTextWidget::getTextObj() {
 
 void QtOneLineTextWidget::updateContent() {
 	PyQtGuiObject* control = NULL;
-	std::string s = "???";
+	std::string s = "?";
 
 	{
 		PyScopedGIL gil;
@@ -88,6 +96,8 @@ void QtOneLineTextWidget::updateContent() {
 		}		
 	}
 
+	text = QString::fromStdString(s);
+
 	WeakRef selfRefCopy(*this);
 	
 	// Note: We had this async before. But I think other code wants to know the actual size
@@ -100,9 +110,9 @@ void QtOneLineTextWidget::updateContent() {
 			auto self = dynamic_cast<QtOneLineTextWidget*>(selfRef.get());
 			assert(self);
 			assert(self->lineEditWidget);
-			
-			self->lineEditWidget->setText(QString::fromStdString(s));
-	
+
+			QFontMetrics metrics(self->lineEditWidget->fontMetrics());
+
 			PyScopedGIL gil;
 			
 			/*
@@ -117,14 +127,20 @@ void QtOneLineTextWidget::updateContent() {
 			
 			bool autosizeWidth = attrChain_bool_default(control->attr, "autosizeWidth", false);
 			if(autosizeWidth) {
-				QFontMetrics metrics(self->lineEditWidget->fontMetrics());
+				self->lineEditWidget->setText(self->text);
+
 				int w = metrics.boundingRect(self->lineEditWidget->text()).width();
-				w += 5; // TODO: margin size?
+				w += MarginWidth; // TODO: margin size?
 				self->resize(w, self->height());
 				
 				PyObject* res = PyObject_CallMethod((PyObject*) control, (char*)"layoutLine", NULL);
 				if(!res && PyErr_Occurred()) PyErr_Print();
 				Py_XDECREF(res);
+			}
+			else {
+				QString elidedText = metrics.elidedText(
+							self->text, Qt::ElideRight, self->lineEditWidget->width() - MarginWidth);
+				self->lineEditWidget->setText(elidedText);
 			}
 		}
 		

@@ -17,6 +17,7 @@ struct QtOneLineTextWidget : QtBaseWidget {
 
 	void resizeEvent(QResizeEvent *);
 	
+	QString text;
 	QLineEdit* lineEditWidget;	
 	virtual PyObject* getTextObj();
 	virtual void updateContent();
