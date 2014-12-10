@@ -14,6 +14,11 @@
 struct QtClickableLabelWidget : QtOneLineTextWidget {
 	QtClickableLabelWidget(PyQtGuiObject* control);
 	virtual PyObject* getTextObj();
+
+	virtual void mousePressEvent(QMouseEvent *);
+	virtual void enterEvent(QEvent *);
+	virtual void leaveEvent(QEvent *);
+
 };
 
 #endif

@@ -8,6 +8,7 @@
 
 #include "QtClickableLabelWidget.hpp"
 #include "Builders.hpp"
+#include "QtUtils.hpp"
 
 RegisterControl(ClickableLabel)
 
@@ -28,6 +29,49 @@ PyObject* QtClickableLabelWidget::getTextObj() {
 	Py_XDECREF(kws);
 	Py_XDECREF(control);
 	return textObj;
+}
+
+void QtClickableLabelWidget::mousePressEvent(QMouseEvent *) {
+	WeakRef selfWeakRef(*this);
+
+	dispatch_async_background_queue([selfWeakRef](){
+		PyScopedGIL gil;
+
+		ScopedRef selfWeakRefScope(selfWeakRef);
+		QtClickableLabelWidget* self = (QtClickableLabelWidget*) selfWeakRefScope.get();
+
+		if(!self) return;
+
+		PyQtGuiObject* control = self->getControl();
+		PyObject* subjObj = control ? control->subjectObject : NULL;
+		Py_XINCREF(subjObj);
+		PyObject* res = NULL;
+		PyObject* kws = PyDict_New();
+		if(subjObj && kws) {
+			PyDict_SetItemString(kws, "handleClick", Py_True);
+			res = PyEval_CallObjectWithKeywords(subjObj, NULL, kws);
+		}
+		if(PyErr_Occurred()) PyErr_Print();
+
+		GuiObject* parent = control ? control->parent : NULL;
+		Py_XINCREF(parent);
+		if(parent && parent->meth_updateContent)
+			parent->meth_updateContent(parent);
+
+		Py_XDECREF(control);
+		Py_XDECREF(subjObj);
+		Py_XDECREF(res);
+		Py_XDECREF(kws);
+		Py_XDECREF(parent);
+	});
+}
+
+void QtClickableLabelWidget::enterEvent(QEvent *) {
+	lineEditWidget->setForegroundRole(QPalette::HighlightedText);
+}
+
+void QtClickableLabelWidget::leaveEvent(QEvent *) {
+	lineEditWidget->setForegroundRole(QPalette::Text);
 }
 
 // TODO...
@@ -66,35 +110,6 @@ PyObject* QtClickableLabelWidget::getTextObj() {
 	[self setTextColor:stdForegroundColor];
 	[self setNeedsDisplay];
 	[self displayIfNeeded];
-}
-
-- (void)mouseDown:(NSEvent *)theEvent
-{
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-		PyGILState_STATE gstate = PyGILState_Ensure();
-		CocoaGuiObject* control = [self getControl];
-		PyObject* subjObj = control ? control->subjectObject : NULL;
-		Py_XINCREF(subjObj);
-		PyObject* res = NULL;
-		PyObject* kws = PyDict_New();
-		if(subjObj && kws) {
-			PyDict_SetItemString(kws, "handleClick", Py_True);
-			res = PyEval_CallObjectWithKeywords(subjObj, NULL, kws);
-		}
-		if(PyErr_Occurred()) PyErr_Print();
-		
-		GuiObject* parent = control ? control->parent : NULL;
-		Py_XINCREF(parent);
-		if(parent && parent->meth_updateContent)
-			parent->meth_updateContent(parent);
-		
-		Py_XDECREF(control);
-		Py_XDECREF(subjObj);
-		Py_XDECREF(res);
-		Py_XDECREF(kws);
-		Py_XDECREF(parent);
-		PyGILState_Release(gstate);
-	});
 }
 
 - (void)removeTrackingRect
