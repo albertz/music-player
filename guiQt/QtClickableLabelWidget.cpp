@@ -14,8 +14,20 @@ RegisterControl(ClickableLabel)
 QtClickableLabelWidget::QtClickableLabelWidget(PyQtGuiObject* control) : QtOneLineTextWidget(control) {}
 
 PyObject* QtClickableLabelWidget::getTextObj() {
-	// TODO...
-	return NULL;
+	PyQtGuiObject* control = getControl();
+	PyObject* subjObj = control ? control->subjectObject : NULL;
+	Py_XINCREF(subjObj);
+	PyObject* textObj = NULL;
+	PyObject* kws = PyDict_New();
+	if(subjObj && kws) {
+		PyDict_SetItemString(kws, "handleClick", Py_False);
+		textObj = PyEval_CallObjectWithKeywords(subjObj, NULL, kws);
+	}
+	if(PyErr_Occurred()) PyErr_Print();
+	Py_XDECREF(subjObj);
+	Py_XDECREF(kws);
+	Py_XDECREF(control);
+	return textObj;
 }
 
 // TODO...
@@ -37,24 +49,6 @@ PyObject* QtClickableLabelWidget::getTextObj() {
 	PyGILState_Release(gstate);
 
     return self;
-}
-
-- (PyObject*)getTextObj
-{
-	CocoaGuiObject* control = [self getControl];
-	PyObject* subjObj = control ? control->subjectObject : NULL;
-	Py_XINCREF(subjObj);
-	PyObject* textObj = NULL;
-	PyObject* kws = PyDict_New();
-	if(subjObj && kws) {
-		PyDict_SetItemString(kws, "handleClick", Py_False);
-		textObj = PyEval_CallObjectWithKeywords(subjObj, NULL, kws);
-	}
-	if(PyErr_Occurred()) PyErr_Print();
-	Py_XDECREF(subjObj);
-	Py_XDECREF(kws);
-	Py_XDECREF(control);
-	return textObj;
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent
