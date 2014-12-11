@@ -255,6 +255,9 @@ public:
 	ListView(QtListWidget& parent) : QListView(&parent) {
 		setUniformItemSizes(true);
 		setAlternatingRowColors(true);
+		//setBatchSize(1);
+		//setLayoutMode(QListView::Batched);
+		setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	}
 };
 
@@ -264,6 +267,8 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 	  subjectListRef(NULL),
 	  autoScrolldown(false)
 {
+	resize(width(), /* default height */ 80);
+
 	listModel = new ListModel(*this);
 
 	listWidget = new ListView(*this);
@@ -388,6 +393,9 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 			Py_DECREF(listIter);
 		}
 
+		if(self->autoScrolldown)
+			self->listWidget->scrollToBottom();
+
 		// We expect the list ( = control->subjectObject ) to support a certain interface,
 		// esp. to have onInsert, onRemove and onClear as utils.Event().
 		{
@@ -437,30 +445,50 @@ QtListWidget::QtListWidget(PyQtGuiObject* control)
 				Py_XDECREF(callbackWrapper);
 			};
 
-			registerEv("onInsert", [=](PyObject* args, PyObject* kws) {
-				int idx; PyObject* v;
-				static const char *kwlist[] = {"index", "value", NULL};
-				if(!PyArg_ParseTupleAndKeywords(args, kws, "iO:onInsert", (char**)kwlist, &idx, &v))
-					return (PyObject*) NULL;
-				Py_INCREF(v);
-				self->listModel->insert(idx, v /* overtake */);
+			registerEv("onInsert", [selfWeakRef](PyObject* args, PyObject* kws) {
+				ScopedRef selfWeakRefScope(selfWeakRef);
+				QtListWidget* self = (QtListWidget*) selfWeakRefScope.get();
+				if(self) {
+					int idx; PyObject* v;
+					static const char *kwlist[] = {"index", "value", NULL};
+					if(!PyArg_ParseTupleAndKeywords(args, kws, "iO:onInsert", (char**)kwlist, &idx, &v))
+						return (PyObject*) NULL;
+					Py_INCREF(v);
+					self->listModel->insert(idx, v /* overtake */);
+					if(self->autoScrolldown) {
+						dispatch_sync_main_queue([selfWeakRef]() {
+							ScopedRef selfWeakRefScope(selfWeakRef);
+							QtListWidget* self = (QtListWidget*) selfWeakRefScope.get();
+							if(self && self->autoScrolldown)
+								self->listWidget->scrollToBottom();
+						});
+					}
+				}
 				Py_INCREF(Py_None);
 				return Py_None;
 			});
-			registerEv("onRemove", [=](PyObject* args, PyObject* kws) {
-				int idx;
-				static const char *kwlist[] = {"index", NULL};
-				if(!PyArg_ParseTupleAndKeywords(args, kws, "i:onRemove", (char**)kwlist, &idx))
-					return (PyObject*) NULL;
-				self->listModel->remove(idx);
+			registerEv("onRemove", [selfWeakRef](PyObject* args, PyObject* kws) {
+				ScopedRef selfWeakRefScope(selfWeakRef);
+				QtListWidget* self = (QtListWidget*) selfWeakRefScope.get();
+				if(self) {
+					int idx;
+					static const char *kwlist[] = {"index", NULL};
+					if(!PyArg_ParseTupleAndKeywords(args, kws, "i:onRemove", (char**)kwlist, &idx))
+						return (PyObject*) NULL;
+					self->listModel->remove(idx);
+				}
 				Py_INCREF(Py_None);
 				return Py_None;
 			});
-			registerEv("onClear", [=](PyObject* args, PyObject* kws) {
-				static const char *kwlist[] = {NULL};
-				if(!PyArg_ParseTupleAndKeywords(args, kws, ":onClear", (char**)kwlist))
-					return (PyObject*) NULL;
-				self->listModel->clear();
+			registerEv("onClear", [selfWeakRef](PyObject* args, PyObject* kws) {
+				ScopedRef selfWeakRefScope(selfWeakRef);
+				QtListWidget* self = (QtListWidget*) selfWeakRefScope.get();
+				if(self) {
+					static const char *kwlist[] = {NULL};
+					if(!PyArg_ParseTupleAndKeywords(args, kws, ":onClear", (char**)kwlist))
+						return (PyObject*) NULL;
+					self->listModel->clear();
+				}
 				Py_INCREF(Py_None);
 				return Py_None;
 			});
