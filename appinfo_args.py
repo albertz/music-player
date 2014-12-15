@@ -47,12 +47,8 @@ argParser.add_argument(
 	metavar="<Python commands>"
 )
 argParser.add_argument(
-	"--nogui", action="store_true",
-	help="disables the GUI"
-)
-argParser.add_argument(
-	"--qtgui", action="store_true",
-	help="force Qt GUI"
+	"--gui", nargs=1,
+	help="use this GUI. possibilities: cocoa, qt, html, none"
 )
 argParser.add_argument(
 	"--forkExecProc", nargs=2, help=argparse.SUPPRESS

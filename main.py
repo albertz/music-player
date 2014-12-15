@@ -153,10 +153,11 @@ def main():
 	import Search
 	import SongEdit
 
-	if not appinfo.args.nogui:
-		# This will overtake the main loop and raise SystemExit at its end,
-		# or never return.
-		gui.main()
+	# This will overtake the main loop and raise SystemExit at its end,
+	# or never return.
+	# It also just might do nothing.
+	gui.main()
+	# If we continue here, we can setup our own main loop.
 
 	# We have no GUI. Continue with some simple console control handling.
 	import stdinconsole

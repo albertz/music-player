@@ -19,24 +19,31 @@ def about():
 	import webbrowser
 	webbrowser.open("http://albertz.github.io/music-player/")
 
+if sys.platform == "darwin":
+	defaultGui = "cocoa"
+else:
+	defaultGui = "qt"
 
-if not appinfo.args.nogui:
+selectedGui = appinfo.args.gui
+if not selectedGui:
+	selectedGui = defaultGui
+else:
+	selectedGui = selectedGui[0]
+
+if selectedGui == "none":
+	def main():
+		print("No GUI.")
+else:
 	from _gui import *
-
 	try:
-		# Right now, we can only enable qtgui via cmdline and the only
-		# two implementations are Cocoa and Qt. And we always try to enable
-		# one of these implementations. That is why the selection looks like
-		# this.
-		# Later, it might sense to disable the GUI at all and there might be
-		# other GUI implementations. Also, maybe the design might change and
-		# we could enable multiple GUIs as different separate modules.
-		# E.g., the webinterface will in any case be a separate module.
-		if sys.platform == "darwin" and not appinfo.args.qtgui:
+		if selectedGui == "cocoa":
 			from guiCocoa import *
-		else:
-			# Use Qt as the generic fallback.
+		elif selectedGui == "qt":
 			from guiQt import *
+		elif selectedGui == "html":
+			from guiHtml import *
+		else:
+			print("Error: Unknown GUI: %r" % selectedGui)
 	except Exception:
 		print "error in loading GUI implementation"
 		sys.excepthook(*sys.exc_info())
