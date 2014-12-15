@@ -1,16 +1,34 @@
 
 # HTML GUI
 
+#def GuiObject
 
 def main():
 	
 	import BaseHTTPServer
 	class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 		def log_message(self, format, *args): pass
-		def do_GET(webself):
-			print("GET: %s" % webself.path)
-			webself.send_response(404)
-			webself.end_headers()
+		
+		def do_GET(self):
+			print("GET: %s" % self.path)
+			
+			if self.path == "/":
+				return self.returnMainPage()
+			
+			self.send_response(404)
+			self.end_headers()
+
+		def returnMainPage(self):
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(
+				"""
+				<html>
+				<body>Hey there!</body>
+				</html>
+				"""
+				)
 
 	def startServer(port = 0):
 		import BaseHTTPServer
@@ -31,8 +49,14 @@ def main():
 	import webbrowser
 	webbrowser.open("http://localhost:%i" % port)
 
-	while True:
-		httpd.handle_request()
+	import main
+	main.handleApplicationInit()
+
+	try:
+		while True:
+			httpd.handle_request()
+	except KeyboardInterrupt:
+		raise SystemExit
 	
 def guiMain():
 	pass

@@ -325,6 +325,8 @@ def handleApplicationQuit():
 
 	Once this get called, the app is not expected to be in a
 	functional state anymore.
+	
+	This is normally registerd via `atexit.register()` in `main()`.
 	"""
 
 	import utils
