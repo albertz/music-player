@@ -34,11 +34,12 @@ if selectedGui == "none":
 	def main():
 		print("No GUI.")
 else:
-	from _gui import *
 	try:
 		if selectedGui == "cocoa":
+			from _gui import *
 			from guiCocoa import *
 		elif selectedGui == "qt":
+			from _gui import *
 			from guiQt import *
 		elif selectedGui == "html":
 			from guiHtml import *
