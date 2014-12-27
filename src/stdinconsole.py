@@ -46,7 +46,8 @@ def restoreTty(fd):
 		termios.tcsendbreak(fd, 0)
 
 
-from State import state, reloadModules
+from State import state
+from ModuleSystem import reloadModules
 
 def printState():
 	if state.curSong:
@@ -60,6 +61,7 @@ def printState():
 		print "no song"
 
 def printHelp():
+	print "## stdinconsole ##"
 	print "    h - print this help info"
 	print "Enter - next song"
 	print "space - play/pause"
@@ -67,6 +69,7 @@ def printHelp():
 	print "right - seek forward 10 seconds"
 	print "    r - reload modules"
 	print "    i - print song info"
+	print "    q - quit"
 
 def handleInput(ch):
 	if ch == "q" or ch == "\0" or ch == "":
@@ -121,6 +124,7 @@ def stdinconsoleMain():
 	# the main thread is pushing stdin updates to stdinQueue.
 	setTtyNoncanonical(sys.stdin.fileno())
 	print "stdin input ready"
+	printHelp()
 
 	for ch in stdinQueue.read():
 		handleInput(ch)

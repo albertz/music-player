@@ -45,14 +45,14 @@ if __name__ == '__main__' and appinfo.args.addsyspythonpaths:
 	debug.addSysPythonPath()
 
 def handleApplicationInit():
-	import State
+	import ModuleSystem
 
 	if not appinfo.args.nomodstartup:
-		for m in State.modules: m.start()
+		for m in ModuleSystem.modules: m.start()
 	else:
 		# In some cases, we at least need some modules. Start only those.
 		if appinfo.args.shell:
-			State.getModule("stdinconsole").start()
+			ModuleSystem.getModule("stdinconsole").start()
 
 	global successStartup
 	successStartup = True

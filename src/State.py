@@ -187,47 +187,6 @@ except NameError:
 gui.registerRootObj(obj=state, name="Main", title=appinfo.progname, priority=0, keyShortcut='1')
 
 
-try:
-	modules
-except NameError:
-	modules = []
-
-def getModule(modname):
-	for m in modules:
-		if m.name == modname: return m
-	return None
-
-for modname in [
-	"player",
-	"queue",
-	"tracker",
-	"tracker_lastfm",
-	"mediakeys",
-	"gui",
-	"stdinconsole",
-	"socketcontrol",
-	"mpdBackend",
-	"notifications",
-	"preloader",
-	"songdb",
-]:
-	if not getModule(modname):
-		modules.append(Module(modname))
-
-
-def reloadModules():
-	# reload some custom random Python modules
-	import utils
-	reload(utils)
-	import Song, State
-	reload(Song)
-	reload(State)
-	# reload all our modules
-	for m in modules:
-		m.reload()
-
-
-
 class About(object):
 	@UserAttrib(type=Traits.OneLineText)
 	@property

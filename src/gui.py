@@ -335,7 +335,7 @@ def handleApplicationQuit():
 	utils.quit = 1
 
 	# first set/send signals to all modules
-	from State import modules
+	from ModuleSystem import modules
 	for m in modules: m.stop(join=False)
 	try:
 		# in case there are any subprocesses, interrupt them
