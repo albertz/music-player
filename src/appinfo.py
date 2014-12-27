@@ -14,6 +14,8 @@ except ImportError:
 	buildTime = "<unknown>"
 	gitRef = "<unknown>"
 
+mydir = os.path.dirname(os.path.abspath(__file__))
+
 userdir = "~/." + appid
 platform = None
 

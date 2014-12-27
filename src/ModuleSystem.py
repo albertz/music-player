@@ -1,9 +1,11 @@
 
 from utils import *
+import appinfo
 
 class Module:
-	def __init__(self, name):
+	def __init__(self, name, filename):
 		self.name = name
+		self.filename = filename
 		self.thread = None
 		self.module = None
 	@property
@@ -79,6 +81,17 @@ def getModule(modname):
 	for m in modules:
 		if m.name == modname: return m
 	return None
+
+Paths = [appinfo.userdir + "/modules", appinfo.mydir + "/modules"]
+
+def scanModules():
+	from glob import glob
+	for path in Paths:
+		for fn in glob(path + "/mod_*.py"):
+			modname = os.path.basename(fn)[4:-3]
+			if not getModule(modname):
+				modules.append(Module(modname, fn))
+
 
 for modname in [
 	"player",
