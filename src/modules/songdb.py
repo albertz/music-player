@@ -50,6 +50,7 @@ import sqlite3
 from Song import Song
 import appinfo
 import utils
+import TaskSystem
 from utils import safe_property
 
 # see <https://github.com/albertz/binstruct/> for documentation
@@ -214,7 +215,7 @@ class Cache:
 
 class DB(object):
 	def __init__(self, filename, create_command = "create table %s(key blob primary key unique, value blob)"):
-		self.rwlock = utils.ReadWriteLock()
+		self.rwlock = TaskSystem.ReadWriteLock()
 		import threading
 
 		# We need a workaround wrapper for SQLite connection objects
@@ -332,7 +333,7 @@ class DB(object):
 		cur = conn.execute(cmd, args)
 		return cur
 
-	@utils.ExecInMainProcDecorator
+	@TaskSystem.ExecInMainProcDecorator
 	def _actionCmd(self, cmd, args):
 		conn = self._getConnection()
 		with self.writelock:
@@ -340,7 +341,7 @@ class DB(object):
 				conn.execute(cmd, args)
 
 	def __getitem__(self, key):
-		if utils.isMainProcess:
+		if TaskSystem.isMainProcess:
 			try: return self.cache[key]
 			except KeyError: pass
 		origKey = key
@@ -359,7 +360,7 @@ class DB(object):
 		self.cache[origKey] = value
 		return value
 	
-	@utils.ExecInMainProcDecorator
+	@TaskSystem.ExecInMainProcDecorator
 	def __setitem__(self, key, value):
 		self.cache[key] = value
 		key = dbRepr(key)
@@ -416,6 +417,7 @@ def _init():
 	for db in DBs.keys():
 		globals()["_%s_initlock" % db] = threading.Lock()
 		globals()[db] = None
+
 	import types
 	c = 0
 	for name in globals().keys():
@@ -429,7 +431,10 @@ def _init():
 			globals()[name] = lazyInitDb(*dbs)(v)
 			c += 1
 	assert c > 0, "check if __module__ is correct..."
-	
+
+	import atexit
+	atexit.register(flush)
+
 def initDb(db):
 	with globals()["_%s_initlock" % db]:
 		if not globals()[db]:

@@ -331,6 +331,11 @@ def handleApplicationQuit():
 	This is normally registerd via `atexit.register()` in `main()`.
 	"""
 
+	# Call sys.exitfunc() manually here now to ensure that we
+	# handled all that.
+	sysExitFunc, sys.exitfunc = sys.exitfunc, None
+	sysExitFunc()
+
 	import utils
 	if utils.quit > 1: return # Already called before.
 	utils.quit = 1
@@ -360,8 +365,6 @@ def handleApplicationQuit():
 	except Exception: pass # might already be out of scope
 	import State
 	State.state = None
-	import songdb
-	songdb.flush()
 	import gc
 	for _ in range(3): gc.collect()
 
