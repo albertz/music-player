@@ -1,5 +1,6 @@
 
-from utils import UserAttrib, Event, initBy, safe_property
+from UserAttrib import UserAttrib
+from utils import safe_property
 import Traits
 
 
@@ -123,7 +124,7 @@ class Preferences(object):
 		config.lastFm = not config.lastFm
 		config.save()
 
-		from State import getModule
+		from ModuleSystem import getModule
 		getModule("tracker_lastfm").reload()
 
 	@UserAttrib(type=Traits.Action, alignRight=True, name="reset Last.fm login", variableWidth=False)

@@ -4,11 +4,13 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
-import utils, math
-from utils import UserAttrib, initBy, Event, formatTime
+import utils
+from utils import formatTime
 import Traits
 import songdb
 import gui
+from UserAttrib import UserAttrib
+import TaskSystem
 
 class Search:
 	Keys = ("artist", "title", "duration", "rating")
@@ -29,7 +31,7 @@ class Search:
 					self.__class__.searchResults.updateEvent(self).push()
 		with self._lock:
 			self._searchText = txt
-			utils.daemonThreadCall(search, name="Song DB search")
+			TaskSystem.daemonThreadCall(search, name="Song DB search")
 
 	@UserAttrib(type=Traits.EditableText, searchLook=True)
 	def searchText(self, updateText=None):
