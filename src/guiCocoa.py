@@ -529,7 +529,7 @@ def locateFile(filename):
 
 
 def guiMain():
-	from player import PlayerEventCallbacks
+	from Player import PlayerEventCallbacks
 	pool = AppKit.NSAutoreleasePool.alloc().init()
 	from State import state
 	for ev,args,kwargs in state.updates.read():

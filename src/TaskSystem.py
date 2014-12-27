@@ -232,51 +232,6 @@ def test_AsyncTask():
 	AsyncTask.test()
 
 
-_pthread_setname_np = Uninitialized
-_pthread_self = None
-
-def setCurThreadName(name):
-	name = convertToUnicode(name)
-	# name = name[:15] # Not sure if needed. If so, we should use shorter names...
-	name = name.encode('utf8')
-
-	global _pthread_setname_np, _pthread_self
-	if _pthread_setname_np is Uninitialized:
-		_pthread_setname_np = None
-
-		try:
-			import ctypes
-			import ctypes.util
-			libpthread_path = ctypes.util.find_library("pthread")
-			if not libpthread_path: raise ImportError
-			libpthread = ctypes.CDLL(libpthread_path)
-			if not hasattr(libpthread, "pthread_setname_np"):
-				raise ImportError
-
-			_pthread_setname_np = libpthread.pthread_setname_np
-
-			if sys.platform == "darwin":
-				_pthread_setname_np.argtypes = [ctypes.c_char_p]
-				_pthread_setname_np.restype = ctypes.c_int
-
-			else:
-				_pthread_self = libpthread.pthread_self
-				_pthread_self.argtypes = []
-				_pthread_self.restype = ctypes.c_void_p
-
-				_pthread_setname_np.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-				_pthread_setname_np.restype = ctypes.c_int
-
-		except ImportError:
-			print "setCurThreadName: failed to import libpthread"
-
-	if _pthread_setname_np is None: return
-
-	if sys.platform == "darwin":
-		_pthread_setname_np(name)
-	else:
-		_pthread_setname_np(_pthread_self(), name)
-
 
 class ForwardedKeyboardInterrupt(Exception):
 	pass

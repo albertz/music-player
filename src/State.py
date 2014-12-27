@@ -9,8 +9,11 @@ import Traits
 from Song import Song
 from collections import deque
 from threading import RLock
+from Events import Event
+from UserAttrib import UserAttrib
 import appinfo
 import gui
+
 
 class RecentlyplayedList(object):
 	GuiLimit = 5
@@ -154,15 +157,17 @@ class State(object):
 	@UserAttrib(type=Traits.Object, spaceY=0, variableHeight=True)
 	@initBy
 	def queue(self):
-		import queue
-		return queue.queue
+		import Queue
+		return Queue.queue
 
 	@initBy
-	def updates(self): return OnRequestQueue()
+	def updates(self):
+		import Queue
+		return Queue.OnRequestQueue()
 
 	@initBy
 	def player(self):
-		from player import loadPlayer
+		from Player import loadPlayer
 		return loadPlayer(self)
 
 	def quit(self):

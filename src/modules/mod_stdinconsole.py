@@ -5,6 +5,7 @@
 
 from utils import *
 import sys, os
+from Events import OnRequestQueue
 
 stdinQueue = OnRequestQueue()
 
@@ -92,7 +93,7 @@ def handleInput(ch):
 			printState()
 		elif ch == "h":
 			printHelp()
-	except:
+	except Exception:
 		sys.excepthook(*sys.exc_info())
 
 def stdinconsoleMain():
@@ -103,7 +104,8 @@ def stdinconsoleMain():
 		# The problem is that the main thread might be used by the GUI.
 		# Thus, we can only cancel this here via the shell itself.
 		from better_exchook import debug_shell
-		from queue import queue
+		from Queue import queue
+		import TaskSystem
 		import utils
 		shellGlobals = {
 			"state": state,
@@ -112,7 +114,7 @@ def stdinconsoleMain():
 		shellGlobals.update(utils.__dict__)
 		debug_shell(
 			shellGlobals, shellGlobals,
-			execWrapper=utils.do_in_mainthread)
+			execWrapper=TaskSystem.do_in_mainthread)
 		print "Python shell quit."
 		# The shell exited. Quit.
 		state.quit()

@@ -5,7 +5,9 @@
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 import Traits
-from utils import UserAttrib, safe_property, initBy, Event
+from utils import safe_property, initBy
+from UserAttrib import UserAttrib
+from Events import Event
 import utils
 
 class Song(object):

@@ -1,6 +1,9 @@
 
 from utils import *
 import appinfo
+import os
+from threading import currentThread, Thread
+
 
 class Module:
 	def __init__(self, name, filename):
@@ -8,18 +11,21 @@ class Module:
 		self.filename = filename
 		self.thread = None
 		self.module = None
+
 	@property
 	def mainFuncName(self): return self.name + "Main"
+
 	@property
-	def moduleName(self): return self.name
-	def __repr__(self): return "<Module %s %r>" % (self.name, self.thread)
+	def moduleName(self): return "mod_" + self.name
+
 	def start(self):
-		self.thread = Thread(target = self.threadMain, name = self.name + " main")
+		self.thread = Thread(target=self.threadMain, name=self.name + " main")
 		self.thread.daemon = True # Our own exit-handler (see main()) will wait for them.
 		self.thread.waitQueue = None
 		self.thread.cancel = False
 		self.thread.reload = False
 		self.thread.start()
+
 	def threadMain(self):
 		better_exchook.install()
 		thread = currentThread()
@@ -47,6 +53,7 @@ class Module:
 			thread.cancel = False
 			thread.reload = False
 			thread.waitQueue = None
+
 	def stop(self, join=True):
 		if not self.thread: return
 		waitQueue = self.thread.waitQueue # save a ref in case the other thread already removes it
@@ -61,14 +68,19 @@ class Module:
 				dumpThread(self.thread.ident)
 				timeout *= 2
 				if timeout > 60: timeout = 60
+
 	def reload(self):
 		if self.thread and self.thread.isAlive():
 			self.thread.reload = True
 			self.stop(join=False)
 		else:
 			self.start()
+
 	def __str__(self):
 		return "Module %s" % self.name
+
+	def __repr__(self):
+		return "<Module %s %r>" % (self.name, self.thread)
 
 
 
@@ -87,28 +99,14 @@ Paths = [appinfo.userdir + "/modules", appinfo.mydir + "/modules"]
 def scanModules():
 	from glob import glob
 	for path in Paths:
+		if path not in sys.path:
+			sys.path.append(path)
 		for fn in glob(path + "/mod_*.py"):
 			modname = os.path.basename(fn)[4:-3]
 			if not getModule(modname):
 				modules.append(Module(modname, fn))
 
-
-for modname in [
-	"player",
-	"queue",
-	"tracker",
-	"tracker_lastfm",
-	"mediakeys",
-	"gui",
-	"stdinconsole",
-	"socketcontrol",
-	"mpdBackend",
-	"notifications",
-	"preloader",
-	"songdb",
-]:
-	if not getModule(modname):
-		modules.append(Module(modname))
+scanModules()
 
 
 def reloadModules():
