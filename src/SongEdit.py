@@ -115,7 +115,7 @@ class SongEdit:
 		# "8XaBELgH" is the one from the web example from AcoustID.
 		# "cSpUJKpD" is from the example from pyacoustid
 		# get an own one here: http://acoustid.org/api-key
-		client_api_key = "cSpUJKpD"
+		client_api_key = "Rexr3KDO"
 		
 		params = {
 			'format': 'json',
