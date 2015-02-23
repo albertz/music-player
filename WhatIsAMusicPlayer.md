@@ -32,7 +32,7 @@ Different songs from different sources often have different volume / loudness.
 
 A media player usually just plays the song as-is.
 
-In a music player, you usually want that all songs are played with about the same loudness so that you don't have to manually frequently change the volume to adopt to the current song.
+In a music player, you usually want that all songs are played with about the same loudness so that you don't have to  frequently change the volume manually to adapt to the current song.
 
 Many existing music players don't have their own loudness analyzing algorithm. They depend on external software which analyzes your music and saves the volume-change-information in the metatags of your songs. The music player checks for that metadata information and applies the volume change. However, if it stumbles upon a song which misses this metadata information, it will not be able to do the loudness normalization.
 
