@@ -7,7 +7,7 @@
 
 import sys, os
 
-importPath = os.path.join(os.path.dirname(__file__), "..")
+importPath = os.path.join(os.path.dirname(__file__), "../src")
 if importPath not in sys.path:
 	sys.path += [importPath]
 
@@ -32,4 +32,3 @@ if __name__ == "__main__":
 	assert all([os.path.exists(fn) for fn in files]), "some files do not exist"
 
 	addSongsBottom(files)
-
