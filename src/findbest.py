@@ -160,6 +160,10 @@ def playlist_import(path):
 				url = "%s/%s" % (os.path.dirname(path), url)
 			urls.append(url)
 		playlist_add_bottom(urls)
+	elif path.endswith(".txt"):
+		ls = open(path).read().splitlines()
+		songs = map(_intelli_resolve_song, ls)
+		playlist_add_bottom(songs)
 	else:
 		assert False, "not handled file format: %r" % path
 
