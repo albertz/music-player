@@ -16,12 +16,13 @@
 import sys, os
 import utils
 
+def isMusicPlayerPath(path):
+	if not os.path.isdir(path): return False
+	if not os.path.isdir(path + "/src"): return False
+	if not os.path.exists(path + "/src/Player.py"): return False
+	return True
+
 def getDevelPath():
-	def check(path):
-		path = os.path.expanduser(path)
-		if not os.path.isdir(path): return None
-		if not os.path.isdir(path + "/.git"): return None
-		return path
 	for path in [
 		# send me a request to include your custom dir.
 		# if it isn't too unusual, i might add it here.
@@ -29,15 +30,21 @@ def getDevelPath():
 		"~/Projects/music-player",
 		"~/Coding/music-player",
 	]:
-		path = check(path)
-		if path: return path
+		path = os.path.expanduser(path)
+		if isMusicPlayerPath(path): return path
 	return None
 
-def addDevelSysPath():
+def addDevelSysPath(path=None):
 	"adds your MusicPlayer development directory to sys.path"
-	path = getDevelPath()
-	assert path, "devel path not found"
-	sys.path = [path] + sys.path
+	if not path:
+		path = getDevelPath()
+		assert path, "music-player development path not found"
+	else:
+		assert isMusicPlayerPath(path), "Does not look like music-player path: %r" % path
+	import_path = path + "/src"
+	assert os.path.isdir(import_path)
+	if import_path not in sys.path:
+		sys.path = [import_path] + sys.path
 
 def addSysPythonPath():
 	import appinfo
@@ -119,7 +126,7 @@ class ProfileCtx:
 		yappi.stop()
 		yappi.print_stats()
 		yappi.clear_stats()
-		
+
 def profile(func):
 	with ProfileCtx():
 		func()
@@ -137,7 +144,7 @@ def createCocoaKeyEvent(keyCode, down=True):
 		False, # isARepeat
 		keyCode # keyCode
 	)
-	
+
 def testCocoaPlaylistUpDown():
 	# keyCode: 125 - down / 126 - up
 	obj = cocoaGetPlaylistObj()
@@ -147,7 +154,7 @@ def testCocoaPlaylistUpDown():
 def cocoaGetPlaylistObj():
 	import guiCocoa
 	w = guiCocoa.windows["mainWindow"]
-	q = w.childs["queue"]	
+	q = w.childs["queue"]
 	ql = q.childs["queue"]
 	return ql.nativeGuiObject
 
@@ -162,9 +169,9 @@ def dump10Secs():
 	def write_wavheader(stream, datalen):
 		# http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
 		from struct import pack
-	
+
 		numSamples = datalen / bytesPerSample
-		
+
 		assert bitsPerSample in [8,16,24,32]
 		if fmtTagStr == "int":
 			fmttag = 1 # PCM format. integers
@@ -185,11 +192,11 @@ def dump10Secs():
 			wavechunksize += factchunksize + 8
 
 		stream.write(pack("<4sI4s", "RIFF", wavechunksize, "WAVE"))
-	
+
 		stream.write("fmt ")
 		stream.write(pack("<L", fmtchunksize))
 		stream.write(pack("<H", fmttag))
-		
+
 		numChannels = player.outNumChannels
 		samplerate = player.outSamplerate
 		byteRate = samplerate * numChannels * bytesPerSample
@@ -201,19 +208,19 @@ def dump10Secs():
 		stream.write(pack("<H", bitsPerSample))
 		if needExtendedSection:
 			stream.write(pack("<H", 0)) # size of extended section
-		
+
 		if needFactChunk:
 			stream.write("fact")
 			stream.write(pack("<L", factchunksize))
-			stream.write(pack("<L", numChannels * numSamples))		
-		
+			stream.write(pack("<L", numChannels * numSamples))
+
 		stream.write("data")
 		stream.write(pack("<L", datalen))
-	
+
 	player.playing = False
 	player.soundcardOutputEnabled = False
 	player.playing = True
-	
+
 	wholebuf = ""
 	# read up to 10 secs
 	while len(wholebuf) < player.outNumChannels * player.outSamplerate * bytesPerSample * 10:
@@ -222,14 +229,14 @@ def dump10Secs():
 	player.playing = False
 	player.soundcardOutputEnabled = True
 	player.seekRel(-10) # seek back 10 secs
-	
+
 	import appinfo
 	wavfn = appinfo.userdir + "/debugdump.wav"
 	f = open(wavfn, "w")
 	write_wavheader(f, len(wholebuf))
 	f.write(wholebuf)
 	f.close()
-	
+
 	return wavfn
 
 
