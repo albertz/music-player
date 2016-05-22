@@ -289,7 +289,7 @@ class DB(object):
 		conn = getattr(self._threadLocal, "connection", None)
 		if conn: return conn.get()
 		return None
-	
+
 	@_connection.setter
 	def _connection(self, v):
 		if not getattr(self, "_threadLocal", None):
@@ -307,7 +307,7 @@ class DB(object):
 		supposedsqlcmd = self.create_command % "data"
 		assert sqlcmd.lower() == supposedsqlcmd.lower(), "DB main table was created with a different command (%s != %s)" % (sqlcmd, supposedsqlcmd)
 		conn.execute("select * from data limit 1")
-		
+
 	def _removeOldDb(self):
 		# Maybe we really should do some backuping...?
 		self.disconnectAll()
@@ -315,19 +315,19 @@ class DB(object):
 		shutil.rmtree(self.path, ignore_errors=True)
 		try: os.remove(self.path)
 		except OSError: pass
-	
+
 	def _initNew(self):
 		self.disconnectAll()
 		conn = sqlite3.connect(self.path)
 		with conn:
 			conn.execute(self.create_command % "data")
-	
+
 	def _getConnection(self):
 		if self._connection: return self._connection
 		conn = sqlite3.connect(self.path)
 		self._connection = conn
 		return conn
-	
+
 	def _selectCmd(self, cmd, args):
 		conn = self._getConnection()
 		cur = conn.execute(cmd, args)
@@ -359,7 +359,7 @@ class DB(object):
 		value = dbUnRepr(value)
 		self.cache[origKey] = value
 		return value
-	
+
 	@TaskSystem.ExecInMainProcDecorator
 	def __setitem__(self, key, value):
 		self.cache[key] = value
@@ -368,7 +368,7 @@ class DB(object):
 		value = dbRepr(value)
 		value = buffer(value)
 		self._actionCmd("replace into data values (?,?)", (key, value))
-		
+
 	def setdefault(self, key, value):
 		if key in self:
 			return self[key]
@@ -389,7 +389,7 @@ class DB(object):
 	def disconnectAll(self):
 		self.LocalConnection.Reset()
 		self._threadLocal = None
-		
+
 	def flush(self):
 		# Not sure if needed, I guess the commit already is the flush.
 		# Closing all connections should in any case force the flush.
@@ -459,7 +459,7 @@ def flush():
 		db = globals()[db]
 		if db:
 			db.flush()
-	
+
 def normalizedFilename(fn):
 	import os
 	fn = os.path.normpath(fn)
@@ -490,7 +490,7 @@ def hashFile(f):
 		if not s: break
 		h.update(s)
 	return h.digest()
-	
+
 # Entries (hash-prefix, attrib, func).
 # The function should either return some False value or some non-empty string.
 # If an attrib is specified and no func, we just use getattr(song, attrib, None).
@@ -528,6 +528,14 @@ def maybeUpdateHashAfterAttribUpdate(song, attrib, value):
 				songHashDb[hashDbKey] = song.id
 			return
 
+def getSongId_viaUrl(url):
+	hashDbKey = "p" + mapHash(normalizedFilename(url))
+	try:
+		song_id = songHashDb[hashDbKey]
+		return song_id
+	except KeyError:
+		return None	
+
 def getSongId(song):
 	for value in getSongHashSources(song):
 		try: songId = songHashDb[value]
@@ -539,7 +547,7 @@ def getSongId(song):
 def maybeInitSongDbEntry(song, songId):
 	import fileid
 	nativeFileId = fileid.getFileNativeId(song.url)
-	
+
 	with songDb.writelock:
 		change = False
 		try: d = songDb[songId]
@@ -550,20 +558,20 @@ def maybeInitSongDbEntry(song, songId):
 			# init empty file-dict
 			filesDict[fn] = {}
 			change = True
-		
+
 		if nativeFileId and nativeFileId != filesDict[fn].get("nativeFileId", None):
 			filesDict[fn]["nativeFileId"] = nativeFileId
 			change = True
-			
+
 		if change:
 			# save
 			songDb[songId] = d
-		
+
 def updateHashDb(song, songId):
 	for value in getSongHashSources(song):
 		songHashDb[value] = songId
 	maybeInitSongDbEntry(song, songId)
-	
+
 def calcNewSongId(song):
 	"""Returns a new unique (in hopefully almost all cases) id for a song.
 	Different files with the same song might return the same id."""
@@ -582,7 +590,7 @@ class SongFileEntry(object):
 		object.__setattr__(self, "songEntry", songEntry)
 		object.__setattr__(self, "url", url)
 		object.__setattr__(self, "normalizedUrl", normalizedFilename(url))
-	
+
 	@safe_property
 	@property
 	def _dbDict(self):
@@ -594,24 +602,24 @@ class SongFileEntry(object):
 	def __getattr__(self, attr):
 		try: return self._dbDict[attr]
 		except KeyError: raise AttributeError, "no attrib " + attr
-	
+
 	def update(self, attr, updateFunc, default=None):
 		global songDb
 		with songDb.writelock:
-			d = self.songEntry._dbDict			
+			d = self.songEntry._dbDict
 			fileDict = d.setdefault("files",{}).setdefault(self.normalizedUrl,{})
 			value = updateFunc(fileDict.get(attr, default))
 			fileDict[attr] = value
 			songDb[self.songEntry.id] = d
 		return value
-	
+
 	def __setattr__(self, attr, value):
 		self.update(attr, lambda _: value)
-			
+
 class SongFilesDict:
 	def __init__(self, songEntry):
 		self.songEntry = songEntry
-		
+
 	@safe_property
 	@property
 	def filesDict(self):
@@ -622,15 +630,15 @@ class SongFilesDict:
 		try: self.filesDict[url]
 		except KeyError: raise KeyError
 		else: return SongFileEntry(self.songEntry, url)
-	
+
 	def get(self, url):
 		url = normalizedFilename(url)
 		return SongFileEntry(self.songEntry, url)
-	
+
 class SongEntry(object):
 	def __init__(self, song):
 		object.__setattr__(self, "songObj", song)
-	
+
 	@safe_property
 	@property
 	def id(self):
@@ -647,7 +655,7 @@ class SongEntry(object):
 		global songDb
 		try: return songDb[self.id]
 		except KeyError: return {}
-		
+
 	def __getattr__(self, attr):
 		try: return self._dbDict[attr]
 		except KeyError: raise AttributeError, "no attrib " + attr
@@ -658,12 +666,12 @@ class SongEntry(object):
 			d = self._dbDict
 			value = updateFunc(d.get(attr, default))
 			d[attr] = value
-			songDb[self.id] = d		
+			songDb[self.id] = d
 		return value
-	
+
 	def __setattr__(self, attr, value):
 		self.update(attr, lambda _: value)
-	
+
 def getSong(song):
 	return SongEntry(song)
 
@@ -691,7 +699,7 @@ def getBestSongFileFromDict(filesDict):
 	if not f: f = files[0] # just take first, whatever that is
 	assert f
 	return f
-	
+
 def getSongFilenameById(songId):
 	global songDb
 	try: dbEntry = songDb[songId]
@@ -801,7 +809,7 @@ def insertSearchEntry_raw(songId, tokens):
 			new = set(map(makeHashable, old))
 			new.update(updates)
 			songSearchIndexDb[key] = list(new)
-	
+
 	# subwords of len 1,2,4,8,16,... so we need O(n * log n) subwords for n=wordLen
 	def iterSubwords(word):
 		wordLen = len(word)
@@ -815,25 +823,25 @@ def insertSearchEntry_raw(songId, tokens):
 				postfix = word[i+l:j]
 				yield (subWord, prefix, postfix)
 			l *= 2
-	
+
 	def iterSubtokenFullExtensions(subTokenIdxs, tokenCount):
 		if not isinstance(subTokenIdxs, tuple): subTokenIdxs = tuple(subTokenIdxs)
 		for idx in range(tokenCount):
 			if idx in subTokenIdxs: continue
 			# index variance is max 1
 			if min([abs(idx - i) for i in subTokenIdxs]) > 1: continue
-			
+
 			extended = tuple(sorted(subTokenIdxs + (idx,)))
 			yield extended
-			
+
 			# fill in set because we will get duplicates
 			moreExtendedSet = set()
 			for moreExtended in iterSubtokenFullExtensions(extended, tokenCount):
 				moreExtendedSet.add(moreExtended)
-				
+
 			for moreExtended in moreExtendedSet:
 				yield moreExtended
-	
+
 	# subsequences of len 1,2,..,SubtokenLimit and then the full extensions
 	import itertools
 	def iterSubtokens(tokenCount):
@@ -844,10 +852,10 @@ def insertSearchEntry_raw(songId, tokens):
 				if n == Search_SubtokenLimit: # now iter all full extensions
 					for ext in iterSubtokenFullExtensions(cmb, tokenCount):
 						yield ext
-		
+
 	import collections
 	localUpdates = collections.defaultdict(set)
-	
+
 	for token in tokens:
 		for subWord, prefix, postfix in iterSubwords(token):
 			localUpdates[(Search_PrefixPostfixStrAttrIndex, subWord)].add((prefix, postfix))
@@ -860,7 +868,7 @@ def insertSearchEntry_raw(songId, tokens):
 			if len(subTokenIdxs) >= Search_SubtokenLimit:
 				# only direct extensions. i.e. index variance is max 1
 				if min([abs(idx - i) for i in subTokenIdxs]) > 1: continue
-			
+
 			insertIndex = 0
 			while insertIndex < len(subTokenIdxs) and subTokenIdxs[insertIndex] < idx:
 				insertIndex += 1
@@ -875,17 +883,17 @@ def insertSearchEntry_raw(songId, tokens):
 def insertSearchEntry(song):
 	tokens = song.artist.lower().split() + song.title.lower().split()
 	insertSearchEntry_raw(song.id, tokens)
-	
+
 def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 	tokens = query.lower().split()
 	tokens = filter(lambda t: len(t) >= queryTokenMinLen, tokens)
 	if not tokens: return []
-	
+
 	def get(key, default=[]):
 		try: return songSearchIndexDb[key]
 		except KeyError: return default
-	
-	import math	
+
+	import math
 	class Token:
 		def __init__(self, s):
 			self.origString = s
@@ -896,7 +904,7 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 				self.strings += [s[:l2]]
 				self.newIndex = 1
 			else:
-				self.newIndex = 0			
+				self.newIndex = 0
 			self.initIndex = 1 if l2 < l else 0
 			self.strings += [s]
 			self.expandIndex = 0
@@ -922,11 +930,11 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 		def words(self): return self.strings[self.initIndex:]
 		def __repr__(self): return "<Token %r>" % self.strings
 	tokenWords = map(Token, tokens[0:Search_SubtokenLimit])
-	
+
 	tokenListSet = set() # to keep track and avoid duplicates
 	tokenLists = []
 	tokenListIndex = 0
-	
+
 	class TokenList:
 		def __init__(self, tokenList):
 			self.tokenList = tokenList
@@ -953,16 +961,16 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 				i += 1
 			return True
 		def __repr__(self): return "<TokenList %r>" % list(self.tokenList)
-	
+
 	def addTokenList(tokenList):
 		if tokenList in tokenListSet: return
 		tokenListSet.add(tokenList)
 		tokenLists.append(TokenList(tokenList))
-		
+
 	from itertools import product
 	for tokenList in product(*[token.words for token in tokenWords]):
 		addTokenList(tuple(tokenList))
-	
+
 	songs = set()
 	songDescList = [] # list to keep the same order
 
@@ -982,7 +990,7 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 				if len(songs) >= limitResults:
 					break
 		tokenListIndex = newTokenListIndex
-			
+
 		if len(songs) >= limitResults:
 			break
 
@@ -996,7 +1004,7 @@ def search(query, limitResults=Search_ResultLimit, queryTokenMinLen=2):
 						[token.newWords] +
 						[t.words for t in tokenWords[i+1:]])):
 						tokenLists.append(TokenList(tokenList))
-		
+
 		if all([token.expanded for token in tokenWords]) and tokenListIndex >= len(tokenLists):
 			# nothing new anymore to explore
 			break
