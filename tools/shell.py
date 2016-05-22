@@ -5,16 +5,8 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+import _common_init
 import sys, os
-
-importPath = os.path.join(os.path.dirname(__file__), "../src")
-if importPath not in sys.path:
-	sys.path += [importPath]
-
-import better_exchook
-if __name__ == "__main__":
-	better_exchook.install()
-
 import binstruct
 import socket
 import appinfo
