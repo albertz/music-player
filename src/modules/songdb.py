@@ -1058,16 +1058,19 @@ def indexSearchDir(dir):
 	import os
 	for fn in os.listdir(dir):
 		fullfn = dir + "/" + fn
-		if os.path.isfile(fullfn):
-			ext = os.path.splitext(fn)[1].lower()
-			if ext[:1] == ".": ext = ext[1:]
-			if ext in appinfo.formats:
-				song = Song(url=fullfn)
-				assert song
-				assert song.id
-				insertSearchEntry(song)
-		elif os.path.isdir(fullfn):
-			indexSearchDir(fullfn)
+		try:
+			if os.path.isfile(fullfn):
+				ext = os.path.splitext(fn)[1].lower()
+				if ext[:1] == ".": ext = ext[1:]
+				if ext in appinfo.formats:
+					song = Song(url=fullfn)
+					assert song
+					assert song.id
+					insertSearchEntry(song)
+			elif os.path.isdir(fullfn):
+				indexSearchDir(fullfn)
+		except Exception as e:  # e.g. permission denied or so
+			print("Index exception: %s" % e)
 
 def test_db_create():
 	for key,value in DBs.items():
