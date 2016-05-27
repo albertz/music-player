@@ -66,7 +66,7 @@ def resolve_txt_playlist(ls, single=True):
 		songs = resolve_txt_song(txt, single=single)
 		assert songs, "Did not find anything for %r" % txt
 		all_songs += songs
-	return songs
+	return all_songs
 
 
 def _intelli_resolve_song(obj):
@@ -87,7 +87,7 @@ def _intelli_resolve_song(obj):
 		if os.path.exists(obj["url"]):
 			if "id" in obj: return {"url": obj["url"], "id": obj["id"]}
 			return {"url": obj["url"]}
-		if "id" not in url:
+		if "id" not in obj:
 			song_id = songdb.getSongId_viaUrl(obj["url"])
 			obj["id"] = song_id
 	if "id" in obj:
