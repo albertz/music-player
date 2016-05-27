@@ -3,6 +3,7 @@
 
 import songdb
 import os
+import sys
 import appinfo
 from Song import Song
 
@@ -29,7 +30,7 @@ def all_in_subdir(path):
 	return ls
 
 
-def _resolve_txt_song(txt, single=True):
+def _resolve_txt_song(txt, single=True, only_good_rated=False):
 	songs = songdb.search(txt)
 	if songs:
 		if len(songs) == 1:
@@ -37,25 +38,25 @@ def _resolve_txt_song(txt, single=True):
 		songs.sort(lambda s1,s2: s1.get("rating", 0) > s2.get("rating", 0))
 		if single:
 			return songs[:1]
-		rated_songs = [s for s in songs if s.get("rating",0) > 0]
-		if rated_songs:
-			return rated_songs
+		if only_good_rated:
+			rated_songs = [s for s in songs if s.get("rating",0) > 0]
+			if rated_songs:
+				return rated_songs
 		return songs
 	return []
 
-def resolve_txt_song(txt, single=True):
-	songs = _resolve_txt_song(txt, single=single)
-	if songs: return songs
-	for c in "[]()<>+-*/^!\"'$%&=?#_.:,;´`°€@":
+def resolve_txt_song(txt, single=True, auto_reduce=False):
+	for c in "[]()<>+-*/^!\"'$%&=?#_.:,;´`°€@–’":
 		txt = txt.replace(c, " ")
 	songs = _resolve_txt_song(txt, single=single)
 	if songs: return songs
-	txtparts = txt.split()
-	for i in range(len(txtparts), 0, -1):
-		songs = _resolve_txt_song(" ".join(txtparts[:i]), single=single)
-		if songs: return songs
-		songs = _resolve_txt_song(" ".join(txtparts[:i]) + "*", single=single)
-		if songs: return songs
+	if auto_reduce:
+		txtparts = txt.split()
+		for i in range(len(txtparts), 0, -1):
+			songs = _resolve_txt_song(" ".join(txtparts[:i]), single=single)
+			if songs: return songs
+			songs = _resolve_txt_song(" ".join(txtparts[:i]) + "*", single=single)
+			if songs: return songs
 	return []
 
 
@@ -67,6 +68,40 @@ def resolve_txt_playlist(ls, single=True):
 		assert songs, "Did not find anything for %r" % txt
 		all_songs += songs
 	return all_songs
+
+
+def resolve_txt_playlist_bea(ls):
+	assert isinstance(ls, list), "list expected but got type %r" % type(ls)
+	all_songs = []
+	for txt in ls:
+		txt = txt.strip()
+		if not txt: continue
+		title, rem = txt.split("\t", 1)
+		rem = rem.split()
+		songs = resolve_txt_song(title, single=False)
+		assert songs, "no song found for title %r" % title
+		duration_s = rem[0].replace(".", ":").strip()  # sometimes written like "m.s"
+		if ":" in duration_s:
+			m, s = duration_s.split(":")
+			if len(s) < 2: s += "0"  # sometimes remaining 0 is missing
+			assert len(s) == 2
+			m, s = int(m), int(s)
+		else:
+			m, s = int(duration_s), 0
+		duration = 60 * m + s
+		# Select the song which most closely matches the duration.
+		best_song = songs[0]
+		for s in songs:
+			if s.get("duration", 0) <= 0:
+				ss = Song(s["url"])
+				ss.get("duration", timeout=None)  # load if not available yet
+				assert ss.duration > 0, "cannot get duration for song %r" % s
+				s["duration"] = ss.duration
+			if abs(s["duration"] - duration) < abs(best_song["duration"] - duration):
+				best_song = s
+		assert abs(best_song["duration"] - duration) < 2, "title %r, song %r does not really match duration %r" % (title, best_song, duration)
+		all_songs += [best_song]
+	sys.stdout.flush()
 
 
 def _intelli_resolve_song(obj):
