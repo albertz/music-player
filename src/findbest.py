@@ -246,8 +246,6 @@ def _export_m3u(path, songs):
 			song[attrib] = utils.convertToUnicode(song[attrib]).encode("utf8")
 		f.write("#%s:id=%s\n" % (appinfo.appid, repr(song["id"])))
 		f.write("#EXTINF:%i,%s - %s\n" % (song["duration"], song["artist"], song["title"]))
-		print repr(song["url"])
-		sys.stdout.flush()
 		f.write("%s\n\n" % song["url"])
 	f.write("#Playlist finished with %i songs.\n\n" % len(songs))
 	f.close()
