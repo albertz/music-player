@@ -5,6 +5,7 @@ import songdb
 import os
 import sys
 import appinfo
+import utils
 from Song import Song
 
 
@@ -101,7 +102,7 @@ def resolve_txt_playlist_bea(ls):
 				best_song = s
 		assert abs(best_song["duration"] - duration) < 2, "title %r, song %r does not really match duration %r" % (title, best_song, duration)
 		all_songs += [best_song]
-	sys.stdout.flush()
+	return all_songs
 
 
 def _intelli_resolve_song(obj):
@@ -228,12 +229,25 @@ def playlist_export(path):
 		for i in range(n):
 			ls.append(queue[i])
 	if path.endswith(".m3u"):
-		f = open(path, "wb")
-		f.write("#EXTM3U\n")
-		for song in ls:
-			f.write("#%s:id=%s\n" % (appinfo.appid, repr(song.id)))
-			f.write("#EXTINF:%i,%s - %s\n" % (song.duration, song.artist.encode("utf8"), song.title.encode("utf8")))
-			f.write("%s\n" % song.url.encode("utf8"))
-		f.close()
+		_export_m3u(path, ls)
 	else:
 		assert False, "not handled file format: %r" % path
+
+
+def _export_m3u(path, songs):
+	f = open(path, "wb")
+	f.write("#EXTM3U\n\n")
+	for song in songs:
+		if isinstance(song, Song):
+			song = {attrib: song.get(attrib, timeout=None)
+					for attrib in ("id", "url", "artist", "title", "duration")}
+		assert isinstance(song, dict)
+		for attrib in ("url", "artist", "title"):
+			song[attrib] = utils.convertToUnicode(song[attrib]).encode("utf8")
+		f.write("#%s:id=%s\n" % (appinfo.appid, repr(song["id"])))
+		f.write("#EXTINF:%i,%s - %s\n" % (song["duration"], song["artist"], song["title"]))
+		print repr(song["url"])
+		sys.stdout.flush()
+		f.write("%s\n\n" % song["url"])
+	f.write("#Playlist finished with %i songs.\n\n" % len(songs))
+	f.close()
