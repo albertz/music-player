@@ -135,7 +135,7 @@ def playlist_exported_lists(path=None):
 					ls.append(fullfn)
 				ls.append(os.path.relpath(fullfn, ))
 		elif os.path.isdir(fullfn):
-			ls += playlist_list()
+			ls += playlist_exported_lists(fullfn)
 	return ls
 
 def playlist_clear():
