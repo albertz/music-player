@@ -20,7 +20,7 @@ try:
 	if not getattr(sys, "MusicPlayerBin", None):
 		faulthandler.enable(all_threads=True)
 except ImportError:
-	print "note: faulthandler module not available"
+	print("note: faulthandler module not available")
 	faulthandler = None
 
 # Do this early to do some option parsing and maybe special handling.
@@ -66,8 +66,8 @@ def main():
 	if appinfo.args.forkExecProc:
 		# Only import utils now for this case.
 		# Otherwise, I want "--pyshell" to be without utils loaded.
-		import utils
-		utils.ExecingProcess.checkExec()
+		import TaskSystem
+		TaskSystem.ExecingProcess.checkExec()
 
 	# Early check for "--pyshell".
 	# This is a simple debug shell where we don't load anything.
@@ -85,8 +85,8 @@ def main():
 	import utils
 	import time
 
-	print "MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform
-	print "startup on", utils.formatDate(time.time())
+	print("MusicPlayer", appinfo.version, "from", appinfo.buildTime, "git-ref", appinfo.gitRef[:10], "on", appinfo.platform, "(%s)" % sys.platform)
+	print("startup on", utils.formatDate(time.time()))
 
 	utils.setCurThreadName("Python main")
 
@@ -109,7 +109,7 @@ def main():
 		import objc
 	except Exception:
 		if sys.platform == "darwin":
-			print "Error while importing objc"
+			print("Error while importing objc")
 			sys.excepthook(*sys.exc_info())
 		# Otherwise it doesn't matter.
 	try:
@@ -121,16 +121,16 @@ def main():
 			import AppKit
 	except Exception:
 		# Print error in any case, also ImportError, because we would expect that this works.
-		print "Error while importing AppKit"
+		print("Error while importing AppKit")
 		sys.excepthook(*sys.exc_info())
 
 	# Import core module here. This is mostly as an early error check.
 	try:
 		import musicplayer
 	except Exception:
-		print "Error while importing core module! This is fatal."
+		print("Error while importing core module! This is fatal.")
 		sys.excepthook(*sys.exc_info())
-		print "Environment:"
+		print("Environment:")
 		pprint(os.environ)
 		raise
 
@@ -187,7 +187,7 @@ def main():
 
 	while True:
 		try: stdinconsole.readNextInput() # wait for KeyboardInterrupt
-		except BaseException, e:
+		except BaseException as e:
 			State.state.updates.put((e, (), {}))
 			State.state.updates.cancelAll()
 			break

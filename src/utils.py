@@ -8,6 +8,32 @@ import sys
 from collections import deque
 import time
 import better_exchook
+import types
+
+
+if sys.version_info[0] >= 3:
+	NumberTypes = (int, float)
+	unicode = str
+	py2_str = bytes
+
+	def to_bytes(s):
+		if isinstance(s, str): return s.encode("utf8")
+		assert isinstance(s, bytes)
+		return s
+
+	from importlib import reload as reload_module
+
+else:  # Python <= 2
+	NumberTypes = (types.IntType, types.LongType, types.FloatType)
+	py2_unicode = unicode
+	unicode = py2_unicode
+	py2_str = str
+
+	def to_bytes(s):
+		return buffer(s)
+
+	reload_module = reload
+
 
 # some global variable which indicates that we are quitting just right now
 quit = False
@@ -78,21 +104,21 @@ class safe_property(object):
 		# forward prop.setter, prop.deleter, etc.
 		return getattr(self.prop, attr)
 
+
 def formatDate(t):
-	import types
-	if isinstance(t, (types.IntType,types.LongType,types.FloatType)):
+	if isinstance(t, NumberTypes):
 		t = time.gmtime(t)
 	return time.strftime("%Y-%m-%d %H:%M:%S +0000", t)
 
 def formatTime(t):
 	if t is None: return "?"
 	t = round(t)
-	mins = long(t // 60)
+	mins = int(t // 60)
 	t -= mins * 60
 	hours = mins // 60
 	mins -= hours * 60
-	if hours: return "%02i:%02i:%02.0f" % (hours,mins,t)
-	return "%02i:%02.0f" % (mins,t)
+	if hours: return "%02i:%02i:%02.0f" % (hours, mins, t)
+	return "%02i:%02.0f" % (mins, t)
 
 def formatFilesize(s):
 	L = 800
@@ -116,7 +142,7 @@ def betterRepr(o):
 	if isinstance(o, tuple):
 		return "(" + ", ".join(map(betterRepr, o)) + ")"
 	if isinstance(o, dict):
-		return "{\n" + "".join(map(lambda (k,v): betterRepr(k) + ": " + betterRepr(v) + ",\n", sorted(o.iteritems()))) + "}"
+		return "{\n" + "".join(map(lambda k, v: betterRepr(k) + ": " + betterRepr(v) + ",\n", sorted(o.items()))) + "}"
 	# fallback
 	return repr(o)
 
@@ -509,7 +535,7 @@ def killMeHard():
 def dumpAllThreads():
 	import sys
 	if not hasattr(sys, "_current_frames"):
-		print "Warning: dumpAllThreads: no sys._current_frames"
+		print("Warning: dumpAllThreads: no sys._current_frames")
 		return
 
 	import threading
@@ -521,7 +547,7 @@ def dumpAllThreads():
 def dumpThread(threadId):
 	import sys
 	if not hasattr(sys, "_current_frames"):
-		print "Warning: dumpThread: no sys._current_frames"
+		print("Warning: dumpThread: no sys._current_frames")
 		return
 	
 	if threadId not in sys._current_frames():
@@ -679,7 +705,7 @@ def setCurThreadName(name):
 				_pthread_setname_np.restype = ctypes.c_int
 
 		except ImportError:
-			print "setCurThreadName: failed to import libpthread"
+			print("setCurThreadName: failed to import libpthread")
 
 	if _pthread_setname_np is None: return
 

@@ -50,6 +50,7 @@ import sqlite3
 from Song import Song
 import appinfo
 import utils
+from utils import to_bytes, unicode
 import TaskSystem
 from utils import safe_property
 
@@ -261,7 +262,7 @@ class DB(object):
 		except Exception as exc:
 			# Maybe we had an old LevelDB or some other corruption.
 			# Not much we can do for recovering...
-			print "DB %s opening error %r, I will reset the DB, sorry..." % (self.filename, exc)
+			print("DB %s opening error %r, I will reset the DB, sorry..." % (self.filename, exc))
 			self._removeOldDb()
 			self._initNew()
 
@@ -346,7 +347,7 @@ class DB(object):
 			except KeyError: pass
 		origKey = key
 		key = dbRepr(key)
-		key = buffer(key)
+		key = to_bytes(key)
 		with self.readlock:
 			cur = self._selectCmd("select value from data where key=? limit 1", (key,))
 			values = cur.fetchall()
@@ -364,9 +365,9 @@ class DB(object):
 	def __setitem__(self, key, value):
 		self.cache[key] = value
 		key = dbRepr(key)
-		key = buffer(key)
+		key = to_bytes(key)
 		value = dbRepr(value)
-		value = buffer(value)
+		value = to_bytes(value)
 		self._actionCmd("replace into data values (?,?)", (key, value))
 
 	def setdefault(self, key, value):
@@ -482,7 +483,7 @@ def hash(s):
 HashFileBufferSize = 1024 * 10
 
 def hashFile(f):
-	if isinstance(f, (str,unicode)): f = open(f)
+	if isinstance(f, (str, unicode)): f = open(f)
 	import hashlib
 	h = hashlib.sha1()
 	while True:
@@ -601,7 +602,7 @@ class SongFileEntry(object):
 
 	def __getattr__(self, attr):
 		try: return self._dbDict[attr]
-		except KeyError: raise AttributeError, "no attrib " + attr
+		except KeyError: raise AttributeError("no attrib " + attr)
 
 	def update(self, attr, updateFunc, default=None):
 		global songDb
@@ -658,7 +659,7 @@ class SongEntry(object):
 
 	def __getattr__(self, attr):
 		try: return self._dbDict[attr]
-		except KeyError: raise AttributeError, "no attrib " + attr
+		except KeyError: raise AttributeError("no attrib " + attr)
 
 	def update(self, attr, updateFunc, default=None):
 		global songDb
@@ -1023,7 +1024,8 @@ DBs["songSearchIndexRefDb"] = {
 	"create_command": "CREATE TABLE %s(rowid INTEGER PRIMARY KEY, songid BLOB UNIQUE)" }
 
 def insertSearchEntry_raw(songId, tokens):
-	songId = buffer(songId)
+	songId = to_bytes(songId)
+	global songSearchIndexRefDb
 	with songSearchIndexRefDb.writelock:
 		rowId = songSearchIndexRefDb._selectCmd("select rowid from data where songid=?", (songId,)).fetchone()
 		if rowId is not None:
@@ -1084,11 +1086,11 @@ def dumpDatabases():
 	global songDb, songHashDb
 	import sys
 	from pprint import pprint
-	print "Main DB:"
+	print("Main DB:")
 	for key,value in songDb.rangeIter():
 		sys.stdout.write("%r: \n" % key)
 		pprint(value, indent=2)
-	print "\nHashes:"
+	print("\nHashes:")
 	for key,value in songHashDb.rangeIter():
 		sys.stdout.write("%r: " % key)
 		pprint(value, indent=2)

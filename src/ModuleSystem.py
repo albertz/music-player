@@ -33,9 +33,9 @@ class Module:
 		while True:
 			if self.module:
 				try:
-					reload(self.module)
+					reload_module(self.module)
 				except Exception:
-					print "couldn't reload module", self.module
+					print("couldn't reload module", self.module)
 					sys.excepthook(*sys.exc_info())
 					# continue anyway, maybe it still works and maybe the mainFunc does sth good/important
 			else:
@@ -46,7 +46,7 @@ class Module:
 			except KeyboardInterrupt:
 				break
 			except Exception:
-				print "Exception in module", self.name
+				print("Exception in module", self.name)
 				sys.excepthook(*sys.exc_info())
 			if not thread.reload: break
 			sys.stdout.write("reloading module %s\n" % self.name)
@@ -112,10 +112,10 @@ scanModules()
 def reloadModules():
 	# reload some custom random Python modules
 	import utils
-	reload(utils)
+	reload_module(utils)
 	import Song, State
-	reload(Song)
-	reload(State)
+	reload_module(Song)
+	reload_module(State)
 	# reload all our modules
 	for m in modules:
 		m.reload()
