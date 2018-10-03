@@ -10,11 +10,11 @@ import compile_utils as c
 from glob import glob
 
 # Compile core module.
-sysExec(["./core/compile.py"])
-sysExec(["cp", "core/musicplayer.so", "musicplayer.so"])
+sys_exec(["./core/compile.py"])
+sys_exec(["cp", "core/musicplayer.so", "musicplayer.so"])
 
 
-sysExec(["mkdir","-p","build"])
+sys_exec(["mkdir", "-p", "build"])
 os.chdir("build/")
 
 # Compile _gui.so.
