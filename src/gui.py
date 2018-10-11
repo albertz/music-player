@@ -3,7 +3,7 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
-
+from __future__ import print_function
 import appinfo
 from TaskSystem import do_in_mainthread
 import sys
@@ -14,7 +14,7 @@ from utils import safe_property
 def main(): raise NotImplementedError
 def guiMain(): pass
 def locateFile(filename):
-	print "locateFile", utils.convertToUnicode(filename).encode("utf-8")
+	print("locateFile", utils.convertToUnicode(filename).encode("utf-8"))
 
 def about():
 	import webbrowser
@@ -47,7 +47,7 @@ else:
 		else:
 			print("Error: Unknown GUI: %r" % selectedGui)
 	except Exception:
-		print "error in loading GUI implementation"
+		print("error in loading GUI implementation")
 		sys.excepthook(*sys.exc_info())
 
 
@@ -76,7 +76,7 @@ class _GuiObject:
 			obj = obj.parent
 
 	def childIter(self): return self.childs.itervalues()
-	
+
 	def updateSubjectObject(self):
 		if self.parent:
 			self.subjectObject = self.attr.__get__(self.parent.subjectObject)
@@ -125,9 +125,9 @@ class _GuiObject:
 
 			w,h = control.size
 			y = minY + (maxH - h) / 2.
-			
+
 			control.pos = (x,y)
-			
+
 			x += w + spaceX
 
 		# Search the variable-width-control.
@@ -147,7 +147,7 @@ class _GuiObject:
 		for control in reversed(line):
 			w,h = control.size
 			y = control.pos[1]
-	
+
 			if control is varWidthControl:
 				w = x - control.pos[0]
 				x = control.pos[0]
@@ -165,7 +165,7 @@ class _GuiObject:
 				spaceX = self.parent.DefaultSpace[0]
 				if control.attr.spaceX is not None: spaceX = control.attr.spaceX
 				x -= spaceX
-	
+
 	def childGuiObjectsInColumn(self):
 		obj = self.firstChildGuiObject
 		while obj:
@@ -173,7 +173,7 @@ class _GuiObject:
 			while getattr(obj, "rightGuiObject", None):
 				obj = obj.rightGuiObject
 			obj = getattr(obj, "bottomGuiObject", None)
-		
+
 	def layout(self):
 		"""
 		This layouts all the child controls according to our size,
@@ -262,12 +262,12 @@ class _GuiObject:
 		maxX, maxY = 0, 0
 		lastControl = None
 
-		from utils import iterUserAttribs
+		from UserAttrib import iterUserAttribs
 		for attr in iterUserAttribs(self.subjectObject):
 			try:
 				control = buildControl(attr, self)
 			except NotImplementedError as e:
-				print e
+				print(e)
 				# Skip this control and continue. The rest of the GUI might still be usable.
 				continue
 			if not self.firstChildGuiObject:
@@ -283,14 +283,14 @@ class _GuiObject:
 			spaceX, spaceY = self.DefaultSpace
 			if attr.spaceX is not None: spaceX = attr.spaceX
 			if attr.spaceY is not None: spaceY = attr.spaceY
-			
+
 			if attr.alignRight and lastControl: # align next right
 				x = lastControl.pos[0] + lastControl.size[0] + spaceX
 				# y from before
 				control.leftGuiObject = lastControl
 				if lastControl:
 					lastControl.rightGuiObject = control
-				
+
 			elif lastControl: # align next below
 				x = self.OuterSpace[0]
 				y = maxY + spaceY
@@ -307,7 +307,7 @@ class _GuiObject:
 			lastControl = control
 			maxX = max(maxX, control.pos[0] + control.size[0])
 			maxY = max(maxY, control.pos[1] + control.size[1])
-		
+
 			control.updateContent()
 
 		# Recalculate layout based on current size and variable width/height controls.
@@ -327,7 +327,7 @@ def handleApplicationQuit():
 
 	Once this get called, the app is not expected to be in a
 	functional state anymore.
-	
+
 	This is normally registerd via `atexit.register()` in `main()`.
 	"""
 
@@ -369,7 +369,7 @@ def handleApplicationQuit():
 	for _ in range(3): gc.collect()
 
 	utils.quit = 2
-	print "Bye!"
+	print("Bye!")
 
 
 # On Mac/Win/Linux, these are the windows.
@@ -385,12 +385,12 @@ class RootObj(object):
 
 	def __init__(self, **kwargs):
 		for key, value in kwargs.items():
-			if not hasattr(self, key): raise AttributeError, "%s invalid" % key
-			if key.startswith("_"): raise AttributeError, "%s is read-only" % key
+			if not hasattr(self, key): raise AttributeError("%s invalid" % key)
+			if key.startswith("_"): raise AttributeError("%s is read-only" % key)
 			setattr(self, key, value)
 		if self.title is None: self.title = self.name
 		if self.__class__ is RootObj and self.obj is None:
-			raise AttributeError, "obj must be set"
+			raise AttributeError("obj must be set")
 
 def registerRootObj(**kwargs):
 	desc = RootObj(**kwargs)
@@ -438,7 +438,8 @@ def iterRootObjs():
 def ctx():
 	global _ctx
 	if _ctx: return _ctx
-	from utils import Event, initBy
+	from utils import initBy
+	from Events import Event
 	class Ctx(object):
 		# context-based root objects. via registerCtxRootObj()
 		@initBy
@@ -456,12 +457,12 @@ def ctx():
 			# out some generic nice and clean update-handling...
 			import State
 			return State.state.curSong
-		
+
 		@curSelectedSong.setter
 		def curSelectedSong(self, obj):
 			self._curSelectedSong = obj
 			self.curSelectedSong_updateEvent.push()
-			
+
 		@initBy
 		def curSelectedSong_updateEvent(self): return Event()
 

@@ -53,9 +53,9 @@ class UserAttrib(object):
 			setattr(self, key, getattr(self.MetaAttribs, key))
 		for key, value in kwargs.iteritems():
 			if key.startswith("_"):
-				raise TypeError, "meta attrib %r invalid" % key
+				raise TypeError("meta attrib %r invalid" % key)
 			if not hasattr(self.MetaAttribs, key):
-				raise TypeError, "meta attrib %r unknown" % key
+				raise TypeError("meta attrib %r unknown" % key)
 			setattr(self, key, value)
 		self._addUpdateEvent = addUpdateEvent
 

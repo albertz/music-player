@@ -4,12 +4,17 @@ Here are all subprocess, threading etc related utilities,
 most of them quite low level.
 """
 
+from __future__ import print_function
 from utils import *
 from threading import Condition, Thread, RLock, Lock, currentThread
 import Logging
 import sys
 import os
-from StringIO import StringIO
+try:
+	from StringIO import StringIO
+except ImportError:
+	from io import StringIO
+PY3 = sys.version_info[0] >= 3
 
 
 def do_in_mainthread(f, wait=True):
@@ -27,7 +32,7 @@ def do_in_mainthread(f, wait=True):
 	global isFork
 	if isFork:
 		Logging.debugWarn("called do_in_mainthread in fork")
-		raise SystemError, "called do_in_mainthread in fork"
+		raise SystemError("called do_in_mainthread in fork")
 
 	import objc
 	try:
@@ -44,7 +49,7 @@ def do_in_mainthread(f, wait=True):
 				except (KeyboardInterrupt,SystemExit) as exc:
 					self.exc = exc
 				except:
-					print "Exception in PyAsyncCallHelper call"
+					print("Exception in PyAsyncCallHelper call")
 					sys.excepthook(*sys.exc_info())
 	except Exception:
 		PyAsyncCallHelper = objc.lookUpClass("PyAsyncCallHelper") # already defined earlier
@@ -144,7 +149,7 @@ def raiseExceptionInThread(threadId, exc=AsyncInterrupt):
 	# returns the count of threads where we set the exception
 	if ret > 1:
 		# strange - should not happen.
-		print "Error: PyThreadState_SetAsyncExc returned >1"
+		print("Error: PyThreadState_SetAsyncExc returned >1")
 		# try to reset - although this is similar unsafe...
 		ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(threadId), None)
 	return ret > 0
@@ -165,7 +170,7 @@ class QueuedDaemonThread:
 			except (ForwardedKeyboardInterrupt, KeyboardInterrupt, SystemExit):
 				return # just ignore
 			except BaseException:
-				print "Exception in QueuedDaemonThread", queueItem["name"]
+				print("Exception in QueuedDaemonThread", queueItem["name"])
 				sys.excepthook(*sys.exc_info())
 			finally:
 				with self.lock:
@@ -219,7 +224,7 @@ def daemonThreadCall(func, args=(), name=None, queue=None):
 		except (ForwardedKeyboardInterrupt, KeyboardInterrupt):
 			return # just ignore
 		except BaseException:
-			print "Exception in daemonThreadCall thread", name
+			print("Exception in daemonThreadCall thread", name)
 			sys.excepthook(*sys.exc_info())
 	thread = Thread(target = doCall, name = name)
 	thread.daemon = True
@@ -267,7 +272,7 @@ class _AsyncCallQueue:
 			name = repr(func)
 			res = func()
 		except Exception as exc:
-			print "Exception in asyncExecHost", name, exc
+			print("Exception in asyncExecHost", name, exc)
 			q.put((clazz.Types.exception, exc))
 		else:
 			try:
@@ -293,16 +298,16 @@ def asyncCall(func, name=None, mustExec=False):
 			try:
 				res = func()
 			except KeyboardInterrupt as exc:
-				print "Exception in asyncCall", name, ": KeyboardInterrupt"
+				print("Exception in asyncCall", name, ": KeyboardInterrupt")
 				q.put(q.Types.exception, ForwardedKeyboardInterrupt(exc))
 			except BaseException as exc:
-				print "Exception in asyncCall", name
+				print("Exception in asyncCall", name)
 				sys.excepthook(*sys.exc_info())
 				q.put(q.Types.exception, exc)
 			else:
 				q.put(q.Types.result, res)
 		except (KeyboardInterrupt, ForwardedKeyboardInterrupt):
-			print "asyncCall: SIGINT in put, probably the parent died"
+			print("asyncCall: SIGINT in put, probably the parent died")
 			# ignore
 
 	task = AsyncTask(func=doCall, name=name, mustExec=mustExec)
@@ -331,15 +336,26 @@ def funcCall(attrChainArgs, args=()):
 
 import pickle, types, marshal
 Unpickler = pickle.Unpickler
-CellType = type((lambda x: lambda: x)(0).func_closure[0])
-def makeCell(value): return (lambda: value).func_closure[0]
+if PY3:
+	CellType = type((lambda x: lambda: x)(0).__closure__[0])
+	def makeCell(value): return (lambda: value).__closure__[0]
+else:
+	CellType = type((lambda x: lambda: x)(0).func_closure[0])
+	def makeCell(value): return (lambda: value).func_closure[0]
 def getModuleDict(modname): return __import__(modname).__dict__
-class Pickler(pickle.Pickler):
+DictType = dict if PY3 else types.DictionaryType
+
+try:
+	_BasePickler = pickle._Pickler  # use the pure Python implementation
+except AttributeError:
+	_BasePickler = pickle.Pickler
+
+class Pickler(_BasePickler):
 	def __init__(self, *args, **kwargs):
-		if not "protocol" in kwargs:
+		if "protocol" not in kwargs:
 			kwargs["protocol"] = pickle.HIGHEST_PROTOCOL
-		pickle.Pickler.__init__(self, *args, **kwargs)
-	dispatch = pickle.Pickler.dispatch.copy()
+		super(Pickler, self).__init__(*args, **kwargs)
+	dispatch = _BasePickler.dispatch.copy()
 
 	def save_func(self, obj):
 		try:
@@ -391,13 +407,14 @@ class Pickler(pickle.Pickler):
 				self.memoize(obj)
 				return
 		self.save_dict(obj)
-	dispatch[types.DictionaryType] = intellisave_dict
+	dispatch[DictType] = intellisave_dict
 
-	def save_buffer(self, obj):
-		self.save(buffer)
-		self.save((str(obj),))
-		self.write(pickle.REDUCE)
-	dispatch[types.BufferType] = save_buffer
+	if not PY3:
+		def save_buffer(self, obj):
+			self.save(buffer)
+			self.save((str(obj),))
+			self.write(pickle.REDUCE)
+		dispatch[types.BufferType] = save_buffer
 
 	# Some types in the types modules are not correctly referenced,
 	# such as types.FunctionType. This is fixed here.
@@ -415,12 +432,15 @@ class Pickler(pickle.Pickler):
 					self.memoize(obj)
 					return
 		self.save_global(obj)
-	dispatch[types.TypeType] = fixedsave_type
+
+	if not PY3:
+		dispatch[types.TypeType] = fixedsave_type
 
 	# avoid pickling instances of ourself. this mostly doesn't make sense and leads to trouble.
 	# however, also doesn't break. it mostly makes sense to just ignore.
 	def __getstate__(self): return None
 	def __setstate__(self, state): pass
+
 
 class ExecingProcess:
 	def __init__(self, target, args, name):
@@ -470,16 +490,16 @@ class ExecingProcess:
 			writeend = os.fdopen(writeFileNo, "w")
 			unpickler = Unpickler(readend)
 			name = unpickler.load()
-			if ExecingProcess.Verbose: print "ExecingProcess child %s (pid %i)" % (name, os.getpid())
+			if ExecingProcess.Verbose: print("ExecingProcess child %s (pid %i)" % (name, os.getpid()))
 			try:
 				target = unpickler.load()
 				args = unpickler.load()
 			except EOFError:
-				print "Error: unpickle incomplete"
+				print("Error: unpickle incomplete")
 				raise SystemExit
 			ret = target(*args)
 			Pickler(writeend).dump(ret)
-			if ExecingProcess.Verbose: print "ExecingProcess child %s (pid %i) finished" % (name, os.getpid())
+			if ExecingProcess.Verbose: print("ExecingProcess child %s (pid %i) finished" % (name, os.getpid()))
 			raise SystemExit
 
 class ExecingProcess_ConnectionWrapper(object):
@@ -558,9 +578,9 @@ class AsyncTask:
 		try:
 			self.func(self)
 		except KeyboardInterrupt:
-			print "Exception in AsyncTask", self.name, ": KeyboardInterrupt"
+			print("Exception in AsyncTask", self.name, ": KeyboardInterrupt")
 		except BaseException:
-			print "Exception in AsyncTask", self.name
+			print("Exception in AsyncTask", self.name)
 			sys.excepthook(*sys.exc_info())
 		finally:
 			self.conn.close()
