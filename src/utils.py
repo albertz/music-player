@@ -69,7 +69,7 @@ class initBy(object):
 		if hasattr(getattr(inst, self.attrName), "__set__"):
 			return getattr(inst, self.attrName).__set__(inst, value)
 		setattr(inst, self.attrName, value)
-		
+
 class oneOf(object):
 	def __init__(self, *consts):
 		assert len(consts) > 0
@@ -142,7 +142,7 @@ def betterRepr(o):
 	if isinstance(o, tuple):
 		return "(" + ", ".join(map(betterRepr, o)) + ")"
 	if isinstance(o, dict):
-		return "{\n" + "".join(map(lambda k, v: betterRepr(k) + ": " + betterRepr(v) + ",\n", sorted(o.items()))) + "}"
+		return "{\n" + "".join([betterRepr(k) + ": " + betterRepr(v) + ",\n" for (k, v) in sorted(o.items())]) + "}"
 	# fallback
 	return repr(o)
 
@@ -176,7 +176,7 @@ def ObjectProxy(lazyLoader, customAttribs={}, baseType=object, typeName="ObjectP
 			obj.value = lazyLoader()
 	def obj_getattribute(self, key):
 		try:
-			return object.__getattribute__(self, key)				
+			return object.__getattribute__(self, key)
 		except AttributeError:
 			load()
 			return getattr(obj.value, key)
@@ -211,7 +211,7 @@ def ObjectProxy(lazyLoader, customAttribs={}, baseType=object, typeName="ObjectP
 				if inst is lazyObjInst:
 					load()
 					return object.__getattribute__(obj.value, attrib)
-				return getattr(baseType, attrib)					
+				return getattr(baseType, attrib)
 		attribs[a] = WrapProp()
 	LazyObject = type(typeName, (object,), attribs)
 	lazyObjInst = LazyObject()
@@ -249,7 +249,7 @@ def PersistentObject(
 			import sys
 			sys.excepthook(*sys.exc_info())
 			return baseType(*defaultArgs)
-			
+
 		# Try to convert.
 		if not isinstance(obj, baseType):
 			obj = baseType(obj)
@@ -311,12 +311,12 @@ def test_ObjectProxy():
 	expectedLoad = True
 	assert proxy.obj1 is 42
 	assert proxy.obj2 is Test.obj2
-	
+
 	from collections import deque
 	proxy = ObjectProxy(deque, customAttribs = {"append": 42})
 	assert proxy.append is 42
-	
-	
+
+
 class DictObj(dict):
 	def __getattr__(self, item): return self[item]
 	def __setattr__(self, key, value): self[key] = value
@@ -523,7 +523,7 @@ def ExceptionCatcherDecorator(func):
 		try:
 			return func(*args, **kwargs)
 		except Exception:
-			sys.excepthook(*sys.exc_info())			
+			sys.excepthook(*sys.exc_info())
 	return decoratedFunc
 
 
@@ -531,7 +531,7 @@ def ExceptionCatcherDecorator(func):
 def killMeHard():
 	import sys, os, signal
 	os.kill(0, signal.SIGKILL)
-	
+
 def dumpAllThreads():
 	import sys
 	if not hasattr(sys, "_current_frames"):
@@ -549,11 +549,11 @@ def dumpThread(threadId):
 	if not hasattr(sys, "_current_frames"):
 		print("Warning: dumpThread: no sys._current_frames")
 		return
-	
+
 	if threadId not in sys._current_frames():
 		print("Thread %d not found" % threadId)
 		return
-	
+
 	stack = sys._current_frames()[threadId]
 	better_exchook.print_traceback(stack)
 
@@ -584,7 +584,7 @@ def debugGetLocalVarFromThread(threadName, funcName, varName):
 				return f, f.f_locals[varName]
 		if isframe(_tb): _tb = _tb.f_back
 		else: _tb = _tb.tb_next
-		n += 1		
+		n += 1
 	return None, None
 
 
@@ -644,25 +644,25 @@ def interactive_py_compile(source, filename="<interactive>"):
 	c = compile(source, filename, "single")
 
 	# we expect this at the end:
-	#   PRINT_EXPR     
+	#   PRINT_EXPR
 	#   LOAD_CONST
-	#   RETURN_VALUE   	
+	#   RETURN_VALUE
 	import dis
 	if ord(c.co_code[-5]) != dis.opmap["PRINT_EXPR"]:
 		return c
 	assert ord(c.co_code[-4]) == dis.opmap["LOAD_CONST"]
 	assert ord(c.co_code[-1]) == dis.opmap["RETURN_VALUE"]
-	
+
 	code = c.co_code[:-5]
 	code += chr(dis.opmap["RETURN_VALUE"])
-	
+
 	CodeArgs = [
 		"argcount", "nlocals", "stacksize", "flags", "code",
 		"consts", "names", "varnames", "filename", "name",
 		"firstlineno", "lnotab", "freevars", "cellvars"]
 	c_dict = dict([(arg, getattr(c, "co_" + arg)) for arg in CodeArgs])
 	c_dict["code"] = code
-	
+
 	import types
 	c = types.CodeType(*[c_dict[arg] for arg in CodeArgs])
 	return c

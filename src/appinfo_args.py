@@ -4,6 +4,7 @@
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
 # Strip out MacOSX launchd -psn_... parameter.
+from __future__ import print_function
 import sys
 sys.argv = [arg for arg in sys.argv if not arg.startswith("-psn_")]
 
@@ -12,7 +13,7 @@ try:
 	argParser = argparse.ArgumentParser(add_help=False) # We add help manually.
 except ImportError:
 	if len(sys.argv) > 1:
-		print "Warning, argparse (for parsing sys.argv) not available. This needs Python >=2.7. Ignoring sys.argv."
+		print("Warning, argparse (for parsing sys.argv) not available. This needs Python >=2.7. Ignoring sys.argv.")
 	# Dummy fallback
 	class DummyArgParser:
 		def add_argument(self, key, **kwargs):
@@ -81,7 +82,7 @@ class ArgParserExitException(Exception): pass
 def argParser_exit(status=0, message=None):
 	if message:
 		message = message.strip()
-		print "arg parser:", message
+		print("arg parser:", message)
 	# Don't exit because we want to live!
 	# Exceptions will be handled in appinfo.
 	raise ArgParserExitException(message)

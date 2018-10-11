@@ -2,6 +2,7 @@
 # Copyright (c) 2012, Albert Zeyer, www.az2000.de
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
+from __future__ import print_function
 import sys, os
 
 progname = "MusicPlayer"
@@ -22,7 +23,7 @@ platform = None
 uname = os.uname()
 if "iPhone" in uname[4] or "iPod" in uname[4]:
 	userdir = "~/Library/" + progname
-	platform = "iOS"	
+	platform = "iOS"
 elif sys.platform == "darwin":
 	userdir = "~/Library/Application Support/" + appid
 	platform = "MacOSX"
@@ -33,7 +34,7 @@ elif sys.platform == "win32":
 elif sys.platform == "linux2":
 	platform = "Linux"
 else:
-	print "warning: unknown/untested platform", repr(sys.platform)
+	print("warning: unknown/untested platform", repr(sys.platform))
 
 userdir = os.path.expanduser(userdir)
 formats = ["mp3", "ogg", "flac", "wma", "m4a"]
@@ -77,10 +78,10 @@ if not appinfo_args.ignore:
 	try:
 		args, argv = appinfo_args.argParser.parse_known_args()
 		if argv:
-			print 'unrecognized arguments: %r' % argv
+			print('unrecognized arguments: %r' % argv)
 	except appinfo_args.ArgParserExitException:
 		pass
 	except Exception:
 		sys.excepthook(*sys.exc_info())
-if args is None: # fallback
+if args is None:  # fallback
 	args = appinfo_args.argParser.parse_args(args=[])

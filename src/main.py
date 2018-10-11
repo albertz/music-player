@@ -44,6 +44,7 @@ if __name__ == '__main__' and appinfo.args.addsyspythonpaths:
 	import debug
 	debug.addSysPythonPath()
 
+
 def handleApplicationInit():
 	import ModuleSystem
 
@@ -132,7 +133,7 @@ def main():
 		sys.excepthook(*sys.exc_info())
 		print("Environment:")
 		pprint(os.environ)
-		raise
+		sys.exit(1)
 
 	# Import gui module here. Again, mostly as an early error check.
 	# If there is no gui, the module should still load and provide
@@ -186,7 +187,8 @@ def main():
 	# queue.
 
 	while True:
-		try: stdinconsole.readNextInput() # wait for KeyboardInterrupt
+		try:
+			stdinconsole.readNextInput()  # wait for KeyboardInterrupt
 		except BaseException as e:
 			State.state.updates.put((e, (), {}))
 			State.state.updates.cancelAll()
