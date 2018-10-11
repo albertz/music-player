@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # MusicPlayer, https://github.com/albertz/music-player
 # Copyright (c) 2012, Albert Zeyer, www.az2000.de
 # All rights reserved.
