@@ -535,7 +535,7 @@ def getSongId_viaUrl(url):
 		song_id = songHashDb[hashDbKey]
 		return song_id
 	except KeyError:
-		return None	
+		return None
 
 def getSongId(song):
 	for value in getSongHashSources(song):
@@ -784,7 +784,7 @@ def getSongAttrib(song, attrib):
 
 def iterSongs():
 	global songDb
-	for key,value in songDb.iteritems():
+	for key,value in songDb.items():
 		yield Song(id=key)
 
 

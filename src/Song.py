@@ -4,11 +4,13 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+from __future__ import print_function
 import Traits
 from utils import safe_property, initBy
 from UserAttrib import UserAttrib
 from Events import Event
 import utils
+
 
 class Song(object):
 	"""
@@ -19,12 +21,12 @@ class Song(object):
 	are different internally:
 	- self.f: the open file handle (and its state)
 	- self.skipped: the song was skipped on last play
-	
+
 	In the database (songdb), songs are a bit more generic. Songs with the
 	same fingerprint (AcoustID right now) are considered the same. They each
 	have a dict about each file/url.
 	"""
-	
+
 	# This should be the list of all attribs in __repr__.
 	# This is *not* the list of all further attribs (like bmpThumbnail).
 	url = None
@@ -33,7 +35,7 @@ class Song(object):
 
 	# This is used by the GUI update system.
 	@initBy
-	def _updateEvent(self): return Event()	
+	def _updateEvent(self): return Event()
 
 	def __init__(self, *args, **kwargs): # we must support an empty init for PersistentObject
 		self.f = None
@@ -105,7 +107,7 @@ class Song(object):
 		r = self.f.seek(offset, whence)
 		return self.f.tell()
 	# musicplayer player interface end }
-	
+
 	def close(self):
 		self.f = None
 
@@ -173,14 +175,14 @@ class Song(object):
 				del metadata[key]
 		fixString("artist")
 		fixString("title")
-		
+
 	def makeMetadataUnicode(self, metadata=None):
 		import utils
 		if metadata is None: metadata = self.metadata
 		for key, value in metadata.items():
 			if not isinstance(value, str): continue
 			metadata[key] = utils.convertToUnicode(value)
-	
+
 	_guessRegexps = [
 		"^(.*/)*(?P<artist>.+?)/(?P<album>.+?)/(?P<track>\d+)(\s*-)?\s*(?P<title>.+)$",
 		"^(.*/)*(?P<artist>.+?)\s-\s(?P<title>.+)$",
@@ -223,7 +225,7 @@ class Song(object):
 		if artist and title: return artist + " - " + title
 		if self.url is None: return "No song"
 		import os
-		return os.path.basename(self.url)			
+		return os.path.basename(self.url)
 
 	@UserAttrib(type=Traits.OneLineText, variableWidth=True)
 	@safe_property
@@ -245,7 +247,7 @@ class Song(object):
 		if size:
 			s += ", " + utils.formatFilesize(size)
 		return s
-	
+
 	@safe_property
 	@property
 	def userLongDescription(self):
@@ -255,37 +257,37 @@ class Song(object):
 			data[key] = data.get(key, "").strip()
 		# TODO ...
 		data = sorted()
-	
+
 	@property
 	def id(self):
 		if getattr(self, "_id", None): return self._id
 		if not self._useDb: return None
 		if not self: return None
-		
+
 		# avoid recursive calls. those might happen because
 		# calcNewSongId or getSongId will again access Song attribs.
 		if getattr(self, "_recursive_id_call", False): return None
 		self._recursive_id_call = True
-		
+
 		import songdb
 		try:
 			self._id = songdb.getSongId(self)
 			if not self._id:
 				self._id = songdb.calcNewSongId(self)
 		except Exception:
-			print "errors while getting song id"
+			print("errors while getting song id")
 			import sys
 			sys.excepthook(*sys.exc_info())
 			self._id = None
-			
+
 		self._recursive_id_call = False
 		return self._id
-	
+
 	@safe_property
 	@id.setter
 	def id(self, value):
 		self._id = value
-	
+
 	# These _calc_<attrib> functions specify how to calculate
 	# song.<attrib>. In the DB, this is all file-specific, i.e.
 	# song.files[song.url].<attrib>.
@@ -294,7 +296,7 @@ class Song(object):
 	# in the DB, where everything is expected to have accuracy=1.
 	# The _estimate_<attrib> functions are expected to be fast.
 	# They return (value,accuracy). They are optional.
-	
+
 	def _calc_fingerprint_AcoustId(self):
 		song = Song(url = self.url, _useDb = False)
 		try:
@@ -311,7 +313,7 @@ class Song(object):
 		import base64
 		fingerprint = base64.urlsafe_b64decode(fingerprint)
 		return {"duration": duration, "fingerprint_AcoustId": fingerprint}
-	
+
 	def _calc_bmpThumbnail(self):
 		song = Song(url = self.url, _useDb = False)
 		try:
@@ -329,7 +331,7 @@ class Song(object):
 		except Exception as exc:
 			return {"error": exc}
 		return {"duration": duration, "bmpThumbnail": bmpData}
-	
+
 	def _calc_gain(self):
 		song = Song(url = self.url, _useDb = False)
 		try:
@@ -340,11 +342,11 @@ class Song(object):
 		try:
 			duration, gain = musicplayer.calcReplayGain(song)
 		except Exception as exc:
-			return {"error": exc}			
+			return {"error": exc}
 		return {"duration": duration, "gain": gain}
 
 	_calc_duration = _calc_gain # if that is needed
-	
+
 	def _estimate_duration(self):
 		# this metatag info might be inaccurate
 		d = self.metadata.get("duration", None)
@@ -358,7 +360,7 @@ class Song(object):
 		try:
 			return {"sha1": songdb.hashFile(self.url)}
 		except IOError as exc:
-			return {"error": exc}			
+			return {"error": exc}
 
 	def _estimate_artist(self):
 		s = self.metadata.get("artist", "").strip()
@@ -366,7 +368,7 @@ class Song(object):
 		# We don't know wether correct or not. But we want to have it
 		# saved in the DB, so use accuracy=1.
 		return s, 1
-	
+
 	def _estimate_album(self):
 		s = self.metadata.get("album", "").strip()
 		# Take empty string as valid. There might be songs without an album.
@@ -391,7 +393,7 @@ class Song(object):
 	# returns None or realnum in [0,1]
 	def _estimate_rating(self):
 		# Check if we have iTunes ratings.
-		# If we have, 
+		# If we have,
 		import itunes
 		itunes_rating = itunes.ratings.get(self.url, None)
 		if itunes_rating is not None:
@@ -418,12 +420,12 @@ class Song(object):
 		# Thus, in getFast(), those will not be returned for accuracy=1.
 		object.__setattr__(self, attr, value)
 		self._updateEvent.push()
-		
+
 	def __setattr__(self, attr, value):
 		self.update(attr, lambda _: value)
-		
+
 	def calcAndSet(self, attrib):
-		from utils import asyncCall, ForwardedKeyboardInterrupt
+		from TaskSystem import asyncCall, ForwardedKeyboardInterrupt
 		assert self.testUrl()
 		try:
 			res = asyncCall(
@@ -436,7 +438,7 @@ class Song(object):
 		return res.get(attrib, None)
 
 	LocalAttribAccuracy = 0.9
-	
+
 	def getFast(self, attrib, accuracy=1.0):
 		# self.__getattr__ is wrapped and calls getFast().
 		# Thus, access self.__dict__ directly.
@@ -467,15 +469,15 @@ class Song(object):
 			if estAccuracy >= accuracy:
 				return value, estAccuracy
 		return None, 0
-	
+
 	def get(self, attrib, timeout=0, accuracy=1.0, callback=None, fastOnly=False):
 		assert self
 		if fastOnly:
 			assert callback is None, "we aren't going to use callback as we are not doing the calculation"
-		
+
 		fastValue, fastAccuracy = self.getFast(attrib, accuracy)
 		if fastAccuracy == 1 or fastOnly: return fastValue, fastAccuracy
-		
+
 		import threading
 		lock = threading.Lock()
 		afterJoinEvent = threading.Event()
@@ -496,7 +498,7 @@ class Song(object):
 		t = threading.Thread(target=doCalc, name = "Song(%s) attrib %s calc" % (self.userString.encode("utf-8"), attrib))
 		t.start()
 		t.join(timeout=timeout)
-		
+
 		with lock:
 			afterJoinEvent.set()
 			fastValue, fastAccuracy = self.getFast(attrib, accuracy)
@@ -505,15 +507,15 @@ class Song(object):
 		return fastValue, fastAccuracy
 
 	GetAttrAccuracy = 0.7
-	
+
 	def __getattr__(self, attrib):
 		# This is only called when it is not found in self.__dict__ or the class.
 		# First, filter some stuff which we will never have. We also need
 		# that to avoid infinite loops in some simplified code.
 		if attrib == "" or attrib.startswith("_"):
-			raise AttributeError, "no attrib " + attrib
+			raise AttributeError("no attrib " + attrib)
 		if not self:
-			raise AttributeError, "not initialized yet"
+			raise AttributeError("not initialized yet")
 		try:
 			value,accuracy = self.get(
 				attrib,
@@ -522,12 +524,12 @@ class Song(object):
 		except AttributeError:
 			# Catch that here, otherwise we might get strange behaviour
 			import sys
-			sys.excepthook(*sys.exc_info())					
+			sys.excepthook(*sys.exc_info())
 			value,accuracy = None, 0
 		if accuracy < self.GetAttrAccuracy:
-			raise AttributeError, "attrib " + attrib + " is not yet available"		
+			raise AttributeError("attrib " + attrib + " is not yet available")
 		return value
-	
+
 	def getAnyFast(self, attrib, default=None):
 		value,accuracy = self.getFast(attrib, accuracy=0)
 		if accuracy == 0: return default
@@ -553,7 +555,7 @@ class Song(object):
 			import gui
 			gui.locateFile(self.url)
 		return "⬆"
-		
+
 	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
 	def star1(self, handleClick=False): return self._starHandler(1, handleClick)
 	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
@@ -564,7 +566,8 @@ class Song(object):
 	def star4(self, handleClick=False): return self._starHandler(4, handleClick)
 	@UserAttrib(type=Traits.ClickableLabel, autosizeWidth=True, alignRight=True, spaceX=0)
 	def star5(self, handleClick=False): return self._starHandler(5, handleClick)
-		
+
+
 def test():
 	# These are testing guessMetadata.
 	s = Song("/yyy/xxx/Tool/Lateralus/12 Triad.flac")
@@ -580,6 +583,7 @@ def test():
 	assert s.metadata["artist"] == "abc"
 	assert s.metadata["title"] == "foo - bar"
 
+
 if __name__ == "__main__":
-	print "*** testing"
+	print("*** testing")
 	test()

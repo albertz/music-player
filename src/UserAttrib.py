@@ -51,7 +51,7 @@ class UserAttrib(object):
 		for key in dir(self.MetaAttribs):
 			if key.startswith("_"): continue
 			setattr(self, key, getattr(self.MetaAttribs, key))
-		for key, value in kwargs.iteritems():
+		for key, value in kwargs.items():
 			if key.startswith("_"):
 				raise TypeError("meta attrib %r invalid" % key)
 			if not hasattr(self.MetaAttribs, key):

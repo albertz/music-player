@@ -10,8 +10,9 @@ import time
 import better_exchook
 import types
 
+PY3 = sys.version_info[0] >= 3
 
-if sys.version_info[0] >= 3:
+if PY3:
 	NumberTypes = (int, float)
 	unicode = str
 	py2_str = bytes
@@ -52,7 +53,7 @@ class Uninitialized: pass
 class initBy(object):
 	def __init__(self, initFunc, name=None):
 		self.initFunc = initFunc
-		self.name = name or initFunc.func_name
+		self.name = name or (initFunc.__name__ if PY3 else initFunc.func_name)
 		self.attrName = "_" + self.name
 	def load(self, inst):
 		if not hasattr(inst, self.attrName):

@@ -4,6 +4,7 @@
 # All rights reserved.
 # This code is under the 2-clause BSD license, see License.txt in the root directory of this project.
 
+from __future__ import print_function
 from utils import *
 import Traits
 from Song import Song
@@ -31,11 +32,11 @@ class RecentlyplayedList(object):
 		if previous is not None:
 			if not getattr(previous, "_isPersistentObject", False):
 				# This was some bug from earlier... Fix it now.
-				print "Warning: RecentlyplayedList.previous is not a PersistentObject"
+				print("Warning: RecentlyplayedList.previous is not a PersistentObject")
 				previous = PersistentObject(RecentlyplayedList, "recentlyplayed-%i.dat" % previous.index, persistentRepr=True)
 			elif not previous._persistentRepr:
 				# This was some bug from earlier... Fix it now.
-				print "Warning: RecentlyplayedList.previous not persistentRepr"
+				print("Warning: RecentlyplayedList.previous not persistentRepr")
 				previous = PersistentObject(RecentlyplayedList, previous._filename, persistentRepr=True)
 			assert previous._isPersistentObject
 			assert previous._persistentRepr
@@ -45,12 +46,12 @@ class RecentlyplayedList(object):
 		with self.lock:
 			guiOldLen = len(self)
 			self.list.append(song)
-			if len(self.list) >= self.Limit:			
+			if len(self.list) >= self.Limit:
 				newList = PersistentObject(RecentlyplayedList, "recentlyplayed-%i.dat" % self.index, persistentRepr=True)
 				newList.index = self.index
 				newList.list = self.list
 				newList.previous = self.previous
-				newList.save()			
+				newList.save()
 				self.index += 1
 				self.previous = newList
 				self.list = deque()
@@ -72,7 +73,7 @@ class RecentlyplayedList(object):
 			betterRepr(list(self.list)),
 			betterRepr(self.previous),
 			self.index)
-	
+
 	@initBy
 	def onInsert(self): return Event() # (index, value)
 	@initBy
@@ -139,7 +140,7 @@ class State(object):
 	@property
 	def volume(self):
 		return self._volume
-	
+
 	@volume.callDeco.setter
 	def volume(self, updateValue):
 		self._volume = updateValue

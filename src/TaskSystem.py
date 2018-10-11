@@ -397,7 +397,7 @@ class Pickler(_BasePickler):
 		if len(obj) <= 5: # fastpath
 			self.save_dict(obj)
 			return
-		for modname, mod in sys.modules.iteritems():
+		for modname, mod in sys.modules.items():
 			if not mod: continue
 			moddict = mod.__dict__
 			if obj is moddict:
