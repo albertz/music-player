@@ -333,8 +333,9 @@ def handleApplicationQuit():
 
 	# Call sys.exitfunc() manually here now to ensure that we
 	# handled all that.
-	sysExitFunc, sys.exitfunc = sys.exitfunc, None
-	sysExitFunc()
+	if hasattr(sys, "exitfunc"):
+		sysExitFunc, sys.exitfunc = sys.exitfunc, None
+		sysExitFunc()
 
 	import utils
 	if utils.quit > 1: return # Already called before.
@@ -346,7 +347,7 @@ def handleApplicationQuit():
 	try:
 		# in case there are any subprocesses, interrupt them
 		# maybe some modules are hanging and waiting for such
-		import sys, os, signal
+		import signal
 		os.kill(0, signal.SIGINT)
 	except KeyboardInterrupt: pass # well, we expect that...
 	except Exception: pass
