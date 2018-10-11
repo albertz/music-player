@@ -517,9 +517,9 @@ def is_at_exit():
     :return: whether the Python interpreter is currently in the process of shutting down
     :rtype: bool
     """
-    if not hasattr(threading, "main_thread"):
-        return True
     if _threading_main_thread is not None:
+        if not hasattr(threading, "main_thread"):
+            return True
         if threading.main_thread() != _threading_main_thread:
             return True
         if not _threading_main_thread.is_alive():
@@ -539,21 +539,6 @@ def format_tb(tb=None, limit=None, allLocals=None, allGlobals=None, withTitle=Fa
     :return: list of strings (line-based)
     :rtype: list[str]
     """
-    if with_vars is None and is_at_exit():
-        # Better to not show __repr__ of some vars, as this might lead to crashes
-        # when native extensions are involved.
-        with_vars = False
-    if with_vars is None:
-        if any([f.f_code.co_name == "__del__" for f in iter_traceback()]):
-            # __del__ is usually called via the Python garbage collector (GC).
-            # This can happen and very random / non-deterministic places.
-            # There are cases where it is not safe to access some of the vars on the stack
-            # because they might be in a non-well-defined state, thus calling their __repr__ is not safe.
-            # See e.g. this bug:
-            # https://github.com/tensorflow/tensorflow/issues/22770
-            with_vars = False
-    if with_vars is None:
-        with_vars = True
     color = Color(enable=with_color)
     out = []
     def output(s1, s2=None, **kwargs):
@@ -585,6 +570,25 @@ def format_tb(tb=None, limit=None, allLocals=None, allGlobals=None, withTitle=Fa
             output(color('Traceback (most recent call first):', "blue"))
         else:  # expect traceback-object (or compatible)
             output(color('Traceback (most recent call last):', "blue"))
+    if with_vars is None and is_at_exit():
+        # Better to not show __repr__ of some vars, as this might lead to crashes
+        # when native extensions are involved.
+        with_vars = False
+        if withTitle:
+            output("(Exclude vars because we are exiting.)")
+    if with_vars is None:
+        if any([f.f_code.co_name == "__del__" for f in iter_traceback()]):
+            # __del__ is usually called via the Python garbage collector (GC).
+            # This can happen and very random / non-deterministic places.
+            # There are cases where it is not safe to access some of the vars on the stack
+            # because they might be in a non-well-defined state, thus calling their __repr__ is not safe.
+            # See e.g. this bug:
+            # https://github.com/tensorflow/tensorflow/issues/22770
+            with_vars = False
+            if withTitle:
+                output("(Exclude vars because we are on a GC stack.)")
+    if with_vars is None:
+        with_vars = True
     try:
         if limit is None:
             if hasattr(sys, 'tracebacklimit'):
