@@ -126,11 +126,18 @@ def main():
 		sys.excepthook(*sys.exc_info())
 
 	# Import core module here. This is mostly as an early error check.
+	# Extra logic: If we are inside of the source repo, add "../core" to the path,
+	# to use a recently compiled (but not installed) musicplayer.so from there.
+	my_dir = os.path.dirname(os.path.abspath(__file__))
+	if os.path.basename(my_dir) == "src":
+		sys.path.insert(0, os.path.dirname(my_dir) + "/core")
 	try:
 		import musicplayer
 	except Exception:
 		print("Error while importing core module! This is fatal.")
 		sys.excepthook(*sys.exc_info())
+		print("sys.path:")
+		pprint(sys.path)
 		print("Environment:")
 		pprint(os.environ)
 		sys.exit(1)
