@@ -96,6 +96,12 @@ In this project, this is central element - the main queue.
 
 A music player could also try to choose similar songs to the current song. Analyzing the similarity of songs is again a wide area. There is for example the [MusicBox project / master thesis](http://thesis.flyingpudding.com/) which introduces in that area.
 
+Related is also how to shuffle songs. E.g. total random shuffling is sometimes not wanted, but instead you also want that the similar songs (from the same artist) are not played right after each other (which makes the shuffling not totally random anymore).
+Read e.g. [how Spotify shuffles songs (2014)](https://labs.spotify.com/2014/02/28/how-to-shuffle-songs/),
+which uses some sort of dithering instead of totally random shuffling.
+Recently, [VLC redesigned the implementation and API of their playlist (2019)](https://blog.rom1v.com/2019/05/a-new-core-playlist-for-vlc-4/),
+which also touches some of this aspects.
+
 
 ## Caching and realtime
 
