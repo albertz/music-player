@@ -483,7 +483,7 @@ class Song(object):
 		afterJoinEvent = threading.Event()
 		gotNewValueEvent = threading.Event()
 		def doCalc():
-			utils.setCurThreadName("Py %s" % threading.currentThread().name)
+			utils.setCurThreadName("Py %s" % threading.current_thread().name)
 			try:
 				value = self.calcAndSet(attrib)
 			except KeyboardInterrupt:
